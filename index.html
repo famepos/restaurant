@@ -3502,9 +3502,26 @@ function confirmPayment() {
         let elDiscount = document.getElementById('slipDiscount'); if(elDiscount) elDiscount.innerText = "- " + parseFloat(res.discount).toFixed(2) + " ฿";
         let elGrandTotal = document.getElementById('slipGrandTotal'); if(elGrandTotal) elGrandTotal.innerText = res.grandTotal.toFixed(2) + " ฿";
         let elPayType = document.getElementById('slipPayType'); if(elPayType) elPayType.innerText = res.paymentType;
-        let elCash = document.getElementById('slipCash'); if(elCash) elCash.innerText = parseFloat(res.cashAmount).toFixed(2);
-        let elTrans = document.getElementById('slipTransfer'); if(elTrans) elTrans.innerText = parseFloat(res.transferAmount).toFixed(2);
         let elChange = document.getElementById('slipChange'); if(elChange) elChange.innerText = res.changeAmount;
+        
+        // ----------------------------------------------------
+        // 👉 จุดที่แก้ไข: ซ่อนบรรทัดเงินสด/โอนเงิน หากไม่ได้เลือกใช้วิธีนั้น
+        // ----------------------------------------------------
+        let elCash = document.getElementById('slipCash');
+        if(elCash) {
+            elCash.innerText = parseFloat(res.cashAmount).toFixed(2);
+            let showCash = (res.paymentType === 'เงินสด' || res.paymentType === 'แบ่งจ่าย' || res.paymentType === 'คนละครึ่ง' || parseFloat(res.cashAmount) > 0);
+            elCash.parentElement.style.display = showCash ? 'flex' : 'none';
+        }
+        
+        let elTrans = document.getElementById('slipTransfer'); 
+        if(elTrans) {
+            elTrans.innerText = parseFloat(res.transferAmount).toFixed(2);
+            let showTrans = (res.paymentType === 'โอนเงิน' || res.paymentType === 'แบ่งจ่าย' || parseFloat(res.transferAmount) > 0);
+            elTrans.parentElement.style.display = showTrans ? 'flex' : 'none';
+        }
+        // ----------------------------------------------------
+
         let elTax = document.getElementById('slipTax'); if(elTax) elTax.innerText = parseFloat(res.vat).toFixed(2) + " ฿";
         let elService = document.getElementById('slipService'); if(elService) elService.innerText = parseFloat(res.serviceCharge).toFixed(2) + " ฿";
 
@@ -3533,6 +3550,24 @@ function confirmPayment() {
         if(btnQR) { btnQR.innerText = "ชำระเงินแล้ว"; btnQR.disabled = false; }
         
         showToast("บันทึกรายการขายสำเร็จ!", "success");
+
+        // -----------------------------------------------------------------
+        // 👉 เพิ่มโค้ดส่วนนี้: คืนสถานะโต๊ะให้เป็น "ว่าง" ทันทีหลังจากชำระเงินเสร็จ
+        // -----------------------------------------------------------------
+        if (currentOrderType === 'ทานที่ร้าน' && tableNo !== "") {
+            google.script.run.withSuccessHandler(function(updatedTables) {
+                if (updatedTables) {
+                    globalSalesTableList = updatedTables;
+                    globalTablesList = updatedTables;
+                    // ถ้าระบบเปิดหน้า "จัดการโต๊ะ" ค้างไว้อยู่ ให้รีเฟรชตารางโชว์สถานะล่าสุดทันที
+                    let tableView = document.getElementById('tableManagementView');
+                    if (tableView && !tableView.classList.contains('hidden')) {
+                        loadTablesData();
+                    }
+                }
+            }).updateTableStatusGS(tableNo, "ว่าง");
+        }
+        
     }).processSale(cartData, selectedPayment, currentCash, changeStr, totalDiscountForDB, phone, exactCash, exactTransfer, tax, service, usedPoints, currentUserLog, currentBranchLog, currentOrderType, tableNo, deliveryApp, deliveryOrderId);
 }
 
