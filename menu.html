@@ -180,34 +180,42 @@
             });
             document.getElementById('categoryContainer').innerHTML = html;
         }
-                // 3. ระบบแปลงข้อมูลจากหลังบ้านให้เป็นเมนูสวยๆ
+ // 3. ระบบแปลงข้อมูลจากหลังบ้านให้เป็นเมนูสวยๆ (เวอร์ชันปลอดภัยสูง)
         function processRawProducts(rawArray, isSilent = false) {
+            if (!rawArray || !Array.isArray(rawArray)) return;
+            
             let tempProducts = [];
             
-            // ข้อมูลจาก Google Sheets (p[1]=ชื่อ, p[2]=หมวดหมู่, p[4]=ราคา, p[6]=สต็อก, p[8]=รูป)
             for (let i = 0; i < rawArray.length; i++) {
                 let p = rawArray[i];
-                let stock = p[6];
                 
+                // 🛡️ ป้องกันแถวว่าง: ถ้าไม่มีข้อมูลแถว หรือไม่มีชื่อสินค้า (p[1]) ให้ข้ามไปเลย ห้ามรัน!
+                if (!p || !p[1] || p[1].toString().trim() === "" || p[1] === "ชื่อสินค้า") continue;
+                
+                let stock = p[6];
                 // แสดงเฉพาะเมนูที่สต็อกไม่หมด (เป็นค่าว่าง หรือ มากกว่า 0)
-                if (stock === "" || stock > 0) {
+                if (stock === "" || stock === undefined || parseFloat(stock) > 0) {
+                    
+                    // 🧠 ดึงราคาจากช่องที่ 3 (p[3]) ให้ตรงกับระบบแคชเชียร์หลักของคุณเฟรม
+                    let finalPrice = parseFloat(p[3]) || 0; 
+                    
                     tempProducts.push({
-                        name: p[1],
-                        category: p[2],
-                        price: p[4],
-                        image: p[8] || ""
+                        name: p[1].toString(),
+                        category: (p[2] || "ทั่วไป").toString(),
+                        price: finalPrice,
+                        image: (p[8] || "").toString()
                     });
                 }
             }
             
-            // ถ้าดึงเงียบๆ จะวาดหน้าจอใหม่เฉพาะตอนที่คุณเฟรมแก้เมนูเท่านั้น (ลูกค้าจะได้ไม่กระตุก)
+            // ถ้าระบบดึงข้อมูลเงียบๆ (Silent Update) จะวาดใหม่เฉพาะตอนที่ข้อมูลมีการเปลี่ยนแปลงจริงๆ
             if (isSilent) {
                 if (JSON.stringify(allProducts) !== JSON.stringify(tempProducts)) {
                     allProducts = tempProducts;
                     let activeBtn = document.querySelector('.cat-btn.bg-emerald-50');
                     let currentCat = activeBtn ? activeBtn.innerText : "ทั้งหมด";
                     renderCategories();
-                    filterCategory(currentCat); // จัดหมวดหมู่กลับไปที่หน้าเดิม
+                    filterCategory(currentCat);
                 }
             } else {
                 allProducts = tempProducts;
