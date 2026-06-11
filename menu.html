@@ -77,14 +77,20 @@
     </div>
 
     <script>
-        // 🚨 ลิงก์ API หลังบ้านตัวล่าสุดของคุณเฟรม
+        // 🚨 ระบบดักจับ Error อัจฉริยะ (ถ้าโค้ดช็อตตรงไหน จะแจ้งบอกบนจดทันที ไม่ปล่อยให้ขาวค้าง)
+        window.onerror = function(msg, url, line) {
+            alert("❌ ระบบตรวจพบ Error: " + msg + " (บรรทัดที่ " + line + ")");
+            return false;
+        };
+
+        // ลิงก์ API หลังบ้านของคุณเฟรม
         const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec"; 
         
         let allProducts = [];
         let cart = [];
         let currentTable = "ไม่ระบุ";
 
-        // ระบบเปิดกล่องแจ้งเตือนภัย
+        // ฟังก์ชันเปิดแจ้งเตือนแบบสวย
         function showAlert(title, message, icon = '🔔', type = 'info') {
             document.getElementById('customAlertIcon').innerText = icon;
             document.getElementById('customAlertTitle').innerText = title;
@@ -114,7 +120,7 @@
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
-        // ดึงเมนูจากระบบ POS หลักโดยตรงผ่านช่องทาง POST
+        // ดึงเมนูจากระบบ POS หลัก
         function fetchMenuData() {
             fetch(API_URL, {
                 method: "POST",
@@ -124,9 +130,7 @@
             })
             .then(res => res.json())
             .then(data => {
-                // บังคับปิดหน้าจอโหลดทันทีเมื่อได้คำตอบจากเซิร์ฟเวอร์
                 document.getElementById('loadingOverlay').classList.add('hidden');
-                
                 if(data.status === "Success") {
                     processRawProducts(data.result);
                 } else {
@@ -139,7 +143,6 @@
             });
         }
 
-        // ระบบ Real-time: แอบเช็คการอัปเดตเมนูเงียบๆ หลังบ้านทุก 5 วินาที
         function fetchMenuDataSilent() {
             fetch(API_URL, {
                 method: "POST",
@@ -156,21 +159,17 @@
             .catch(e => console.log("Silent Sync Waiting..."));
         }
 
-        // แปลงโครงสร้างข้อมูลตารางสินค้าให้ปลอดภัยและแม่นยำ
         function processRawProducts(rawArray, isSilent = false) {
             if (!rawArray || !Array.isArray(rawArray)) return;
             
             let tempProducts = [];
             for (let i = 0; i < rawArray.length; i++) {
                 let p = rawArray[i];
-                
-                // คัดกรองแถวเสียและแถวหัวข้อตารางออกไปให้หมด
                 if (!p || !p[1] || p[1].toString().trim() === "" || p[1] === "ชื่อสินค้า") continue;
                 
                 let stock = p[6];
-                // คัดสินค้าที่พร้อมขาย (สต็อกว่าง หรือ สต็อกมากกว่า 0)
                 if (stock === "" || stock === undefined || parseFloat(stock) > 0) {
-                    let finalPrice = parseFloat(p[3]) || 0; // ดึงราคาปกติช่องที่ 3 ตรงกับ POS หลัก
+                    let finalPrice = parseFloat(p[3]) || 0;
                     tempProducts.push({
                         name: p[1].toString(),
                         category: (p[2] || "ทั่วไป").toString().trim(),
@@ -195,7 +194,6 @@
             }
         }
 
-        // วาดปุ่มหมวดหมู่อาหาร
         function renderCategories() {
             let cats = ["ทั้งหมด"];
             allProducts.forEach(p => { if(p.category && !cats.includes(p.category)) cats.push(p.category); });
@@ -222,7 +220,6 @@
             renderProducts(cat);
         }
 
-        // วาดรายการเมนูอาหารลงหน้าจอ
         function renderProducts(category) {
             let container = document.getElementById('productGrid');
             let filtered = category === "ทั้งหมด" ? allProducts : allProducts.filter(p => p.category === category);
@@ -237,7 +234,6 @@
                 let safeName = p.name.replace(/'/g, "\\'");
                 let imgHtml = '';
                 
-                // ระบบโหลดรูปภาพและดักจับรูปเสียให้แสดงโลโก้ร้านแทนทันที
                 if (p.image && p.image !== "") {
                     imgHtml = '<img src="' + p.image + '" class="w-full h-32 object-cover rounded-xl mb-2" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">';
                 } else {
@@ -257,7 +253,6 @@
             container.innerHTML = html;
         }
 
-        // จัดการตะกร้าสินค้า
         function addToCart(name, price) {
             let existing = cart.find(item => item.name === name);
             if(existing) existing.qty++;
@@ -314,7 +309,6 @@
         function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
         function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
 
-        // ส่งออเดอร์ไปตารางหลังบ้าน
         function submitOrder() {
             if(cart.length === 0) return showAlert("ตะกร้าว่างเปล่า", "กรุณาเลือกเมนูอาหารที่ต้องการก่อนกดสั่งซื้อนะครับ", "🛒", "error");
             if(currentTable === "ไม่ระบุ") return showAlert("เกิดข้อผิดพลาด", "ไม่สามารถส่งออเดอร์ได้ เนื่องจากระบบไม่ทราบหมายเลขโต๊ะ", "❌", "error");
@@ -352,23 +346,24 @@
             });
         }
 
-        // 🚀 ฟังก์ชันทำงานทันทีความเร็วแสงเมื่อเปิดหน้าเว็บ (ไม่ต้องรอลูกค้าโหลดรูปภาพครบ)
+        // 🧠 ฟังก์ชันเริ่มต้นทำงานแบบยิงตรง (เปิดปุ๊บรันปั๊บ ไม่พึ่งจังหวะเวลาเบราว์เซอร์)
         function initPage() {
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.has('table')) {
                 currentTable = urlParams.get('table').trim();
                 document.getElementById('tableDisplay').innerText = "โต๊ะ: " + currentTable;
-                fetchMenuData(); // เรียกดึงเมนู
+                fetchMenuData(); // ดึงเมนูสินค้า
             } else {
+                // 🛑 กรณีเปิดตรงๆ ไม่ผ่านการสแกน QR
                 document.getElementById('tableDisplay').innerText = "โปรดสแกน QR ใหม่";
-                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('loadingOverlay').classList.add('hidden'); // ปิดหน้าต่างโหลด
                 showAlert("ไม่พบหมายเลขโต๊ะ", "กรุณาสแกน QR Code ที่ตั้งอยู่บนโต๊ะ เพื่อดูเมนูและสั่งอาหารนะครับ", "⚠️", "error");
             }
         }
 
-        // รันคำสั่งเริ่มต้นทันที
+        // สั่งทำงานทันทีตรงนี้เลย
         initPage();
-        setInterval(fetchMenuDataSilent, 5000); // ตั้งค่า Real-time ทุก 5 วินาที
+        setInterval(fetchMenuDataSilent, 5000); 
     </script>
 </body>
 </html>
