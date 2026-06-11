@@ -3504,13 +3504,17 @@ function confirmPayment() {
         let elPayType = document.getElementById('slipPayType'); if(elPayType) elPayType.innerText = res.paymentType;
         let elChange = document.getElementById('slipChange'); if(elChange) elChange.innerText = res.changeAmount;
         
-        // ----------------------------------------------------
-        // 👉 จุดที่แก้ไข: ซ่อนบรรทัดเงินสด/โอนเงิน หากไม่ได้เลือกใช้วิธีนั้น
+// ----------------------------------------------------
+        // 👉 จุดที่แก้ไข: แสดงยอดเงินรับจริงสำหรับบิลเงินสด และซ่อนบรรทัดที่ไม่ได้ใช้
         // ----------------------------------------------------
         let elCash = document.getElementById('slipCash');
         if(elCash) {
-            elCash.innerText = parseFloat(res.cashAmount).toFixed(2);
-            let showCash = (res.paymentType === 'เงินสด' || res.paymentType === 'แบ่งจ่าย' || res.paymentType === 'คนละครึ่ง' || parseFloat(res.cashAmount) > 0);
+            // ถ้ารับเป็นเงินสด ให้โชว์ยอดที่พนักงานกดรับมาจริง (cashReceived)
+            // ถ้าเป็นแบ่งจ่าย ให้โชว์เฉพาะยอดส่วนที่เป็นเงินสด (cashAmount)
+            let displayCashVal = (res.paymentType === 'เงินสด') ? parseFloat(res.cashReceived) : parseFloat(res.cashAmount);
+            elCash.innerText = displayCashVal.toFixed(2);
+            
+            let showCash = (res.paymentType === 'เงินสด' || res.paymentType === 'แบ่งจ่าย' || res.paymentType === 'คนละครึ่ง' || displayCashVal > 0);
             elCash.parentElement.style.display = showCash ? 'flex' : 'none';
         }
         
