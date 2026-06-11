@@ -1167,6 +1167,17 @@
             </label>
           </div>
 
+          <div class="flex justify-between items-center bg-blue-50 p-5 rounded-xl border border-blue-100 mt-2">
+            <div class="flex flex-col">
+              <span class="font-bold text-lg text-blue-800">🛵 ชำระเงินปลายทาง / เดลิเวอรี่</span>
+              <span class="text-sm text-blue-600 mt-1">ใช้ได้เฉพาะตอนเลือกบริการ "ส่งของ (Delivery)" เท่านั้น</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleDeliveryPayment" class="sr-only peer">
+              <div class="w-11 h-6 bg-blue-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
           <!-- Toggle แบ่งจ่าย -->
           <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
             <div class="flex flex-col">
@@ -2695,6 +2706,7 @@ function updateStoreUI(settings) {
   safeSetValue('settingPromptPay', settings.promptPay || "");
   safeSetCheck('toggleHalf', !!settings.enableHalf);
   safeSetCheck('toggleSplit', !!settings.enableSplit);
+  safeSetCheck('toggleDeliveryPayment', !!settings.enableDeliveryPayment);
   togglePromptPayInput();
 
   // 3. อัปเดตภาษีและค่าบริการ
@@ -2940,7 +2952,7 @@ function closeReceiptSettings() {
       }).saveStoreSettings(data);
     }
 
-    function savePaymentSettings() {
+function savePaymentSettings() {
       let btn = document.getElementById('btnSavePaymentSettings');
       btn.innerText = "กำลังบันทึก..."; btn.disabled = true;
       let data = {
@@ -2948,7 +2960,8 @@ function closeReceiptSettings() {
         enableTransfer: document.getElementById('toggleTransfer').checked,
         promptPay: document.getElementById('settingPromptPay').value,
         enableHalf: document.getElementById('toggleHalf').checked,
-        enableSplit: document.getElementById('toggleSplit').checked
+        enableSplit: document.getElementById('toggleSplit').checked,
+        enableDeliveryPayment: document.getElementById('toggleDeliveryPayment').checked // 👉 ส่งค่าเดลิเวอรี่ไปเซฟ
       };
       google.script.run.withSuccessHandler(function(res) {
         showToast("ตั้งค่าการชำระเงินเรียบร้อย!", "success");
@@ -3070,18 +3083,26 @@ function renderPaymentButtons() {
    let container = document.getElementById('paymentMethodContainer');
    container.innerHTML = '';
    let s = globalStoreSettings;
-   let isCashEnabled = s.enableCash !== false; // แก้ให้บังคับเป็น true ถ้ายังไม่ได้ตั้งค่า
+   let isCashEnabled = s.enableCash !== false;
    
    if(isCashEnabled) container.innerHTML += '<button onclick="setPaymentType(\'เงินสด\')" id="btnเงินสด" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">เงินสด</button>';
    if(s.enableTransfer) container.innerHTML += '<button onclick="setPaymentType(\'โอนเงิน\')" id="btnโอนเงิน" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">โอนเงิน</button>';
    if(s.enableHalf) container.innerHTML += '<button onclick="setPaymentType(\'คนละครึ่ง\')" id="btnคนละครึ่ง" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">คนละครึ่ง</button>';
    if(s.enableSplit) container.innerHTML += '<button onclick="setPaymentType(\'แบ่งจ่าย\')" id="btnแบ่งจ่าย" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">แบ่งจ่าย</button>';
    
-   if(isCashEnabled) setPaymentType('เงินสด');
+   // 👉 เพิ่มปุ่มเดลิเวอรี่ (โชว์เมื่อเปิดสวิตช์ตั้งค่าไว้ + ต้องเลือกระบบบริการเป็นเดลิเวอรี่เท่านั้น)
+   if(s.enableDeliveryPayment && currentOrderType === 'เดลิเวอรี่') {
+       container.innerHTML += '<button onclick="setPaymentType(\'เดลิเวอรี่\')" id="btnเดลิเวอรี่" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">เดลิเวอรี่</button>';
+   }
+
+   // เลือกระบบตั้งต้นให้อัตโนมัติ
+   if(s.enableDeliveryPayment && currentOrderType === 'เดลิเวอรี่') setPaymentType('เดลิเวอรี่');
+   else if(isCashEnabled) setPaymentType('เงินสด');
    else if(s.enableTransfer) setPaymentType('โอนเงิน');
    else if(s.enableHalf) setPaymentType('คนละครึ่ง');
    else if(s.enableSplit) setPaymentType('แบ่งจ่าย');
 }
+
 
 function checkout() { 
     // 👇 ดักจับ: ถ้ายังไม่เปิดกะ ห้ามกดชำระเงิน
@@ -3136,53 +3157,44 @@ function setPaymentType(type) {
     if (type === 'โอนเงิน' && !globalStoreSettings.enableTransfer) return;
     if (type === 'คนละครึ่ง' && !globalStoreSettings.enableHalf) return;
     if (type === 'แบ่งจ่าย' && !globalStoreSettings.enableSplit) return;
+    if (type === 'เดลิเวอรี่' && (!globalStoreSettings.enableDeliveryPayment || currentOrderType !== 'เดลิเวอรี่')) return;
 
     selectedPayment = type;
-    ['เงินสด', 'โอนเงิน', 'คนละครึ่ง', 'แบ่งจ่าย'].forEach(function(id) {
+    ['เงินสด', 'โอนเงิน', 'คนละครึ่ง', 'แบ่งจ่าย', 'เดลิเวอรี่'].forEach(function(id) {
          let btn = document.getElementById('btn' + id);
          if(btn) {
-           if(id === type) btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-rose-500 text-rose-600 font-bold bg-white transition";
-           else btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition";
+           if(id === type) {
+               btn.className = (id === 'เดลิเวอรี่') ? "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-blue-500 text-blue-700 font-bold bg-blue-50 transition" : "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-rose-500 text-rose-600 font-bold bg-rose-50 transition";
+           } else {
+               btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition hover:bg-gray-50";
+           }
          }
     });
-    
+
     let cashSec = document.getElementById('cashSection');
     let numpad = document.getElementById('numpadSection');
-    // 🟢 ดึงเฉพาะปุ่มตัวเลขทั้งหมด (ยกเว้นปุ่มยืนยัน btnConfirm)
     let numBtns = numpad.querySelectorAll('button:not(#btnConfirm)');
     
-    // รีเซ็ต Numpad ให้กลับมาสว่างและกดได้ทั้งหมดก่อน
-    numpad.style.opacity = "1";
-    numpad.style.pointerEvents = "auto";
-    numBtns.forEach(b => {
-         b.style.opacity = "1";
-         b.style.pointerEvents = "auto";
-    });
-    
+    numpad.style.opacity = "1"; numpad.style.pointerEvents = "auto";
+    numBtns.forEach(b => { b.style.opacity = "1"; b.style.pointerEvents = "auto"; });
+
     if (type === 'เงินสด') {
-        currentCash = "0";
-        cashSec.classList.remove('hidden'); 
-        clearInterval(qrTimerInterval);
+        currentCash = "0"; cashSec.classList.remove('hidden'); clearInterval(qrTimerInterval);
     } 
     else if (type === 'คนละครึ่ง') {
-        cashSec.classList.remove('hidden'); 
-        // 🟢 สั่งล็อคและทำสีจาง "เฉพาะปุ่มตัวเลข" (ปุ่มยืนยันจะยังกดได้ตามปกติ)
-        numBtns.forEach(b => {
-             b.style.opacity = "0.4";
-             b.style.pointerEvents = "none";
-        });
-        clearInterval(qrTimerInterval);
+        cashSec.classList.remove('hidden'); clearInterval(qrTimerInterval);
+        numBtns.forEach(b => { b.style.opacity = "0.4"; b.style.pointerEvents = "none"; });
     }
     else if (type === 'โอนเงิน') {
-        cashSec.classList.add('hidden');
-        // หน้าโอนเงิน ปิดทั้งกล่อง Numpad ได้เลย เพราะไปกดยืนยันที่หน้า QR แทน
-        numpad.style.opacity = "0.4"; 
-        numpad.style.pointerEvents = "none";
-        openQRModal();
+        cashSec.classList.add('hidden'); openQRModal();
+        numpad.style.opacity = "0.4"; numpad.style.pointerEvents = "none";
     } 
     else if (type === 'แบ่งจ่าย') {
-        cashSec.classList.remove('hidden');
-        openQRModal(); 
+        cashSec.classList.remove('hidden'); openQRModal(); 
+    }
+    else if (type === 'เดลิเวอรี่') {
+        cashSec.classList.add('hidden'); clearInterval(qrTimerInterval); // ล็อก Numpad ซ่อนช่องเงินสด
+        numpad.style.opacity = "0.4"; numpad.style.pointerEvents = "none";
     }
     calculateChange();
 }
@@ -3193,107 +3205,73 @@ function calculateChange() {
 
     let summaryBox = document.getElementById('taxServiceSummary');
     if (summaryBox) {
-        if (globalStoreSettings.enableTax || globalStoreSettings.enableService) {
-            summaryBox.classList.remove('hidden');
-        } else {
-            summaryBox.classList.add('hidden');
-        }
+        if (globalStoreSettings.enableTax || globalStoreSettings.enableService) summaryBox.classList.remove('hidden');
+        else summaryBox.classList.add('hidden');
     }
 
-    // 1. คำนวณภาษี
-    let tax = 0;
-    let taxEl = document.getElementById('taxRow');
+    let tax = 0; let taxEl = document.getElementById('taxRow');
     if (globalStoreSettings.enableTax) {
-        if (globalStoreSettings.taxType === 'percent') {
-            tax = (subTot * parseFloat(globalStoreSettings.taxAmount || 0)) / 100;
-        } else {
-            tax = parseFloat(globalStoreSettings.taxAmount || 0);
-        }
+        if (globalStoreSettings.taxType === 'percent') tax = (subTot * parseFloat(globalStoreSettings.taxAmount || 0)) / 100;
+        else tax = parseFloat(globalStoreSettings.taxAmount || 0);
         if(taxEl) taxEl.classList.remove('hidden');
         document.getElementById('displayTax').innerText = "฿" + tax.toFixed(2);
-    } else {
-        if(taxEl) taxEl.classList.add('hidden');
-    }
+    } else { if(taxEl) taxEl.classList.add('hidden'); }
 
-    // 2. คำนวณค่าบริการ
-    let service = 0;
-    let serviceRowEl = document.getElementById('serviceRow'); 
+    let service = 0; let serviceRowEl = document.getElementById('serviceRow');
     if (globalStoreSettings.enableService) {
-        if (globalStoreSettings.serviceType === 'fixed') {
-            service = parseFloat(globalStoreSettings.serviceValue || 0);
-        } else {
-            service = parseFloat(document.getElementById('manualServiceInput')?.value || 0);
-        }
+        if (globalStoreSettings.serviceType === 'fixed') service = parseFloat(globalStoreSettings.serviceValue || 0);
+        else service = parseFloat(document.getElementById('manualServiceInput')?.value || 0);
         if(serviceRowEl) serviceRowEl.classList.remove('hidden');
         document.getElementById('displayService').innerText = "฿" + service.toFixed(2);
-    } else {
-        if(serviceRowEl) serviceRowEl.classList.add('hidden');
-    }
-
-    // 3. แสดงผลใน UI
-    const displayTax = document.getElementById('displayTax');
-    if (displayTax) displayTax.innerText = "฿" + tax.toFixed(2);
-    
-    const displayService = document.getElementById('displayService');
-    if (displayService) displayService.innerText = "฿" + service.toFixed(2);
+    } else { if(serviceRowEl) serviceRowEl.classList.add('hidden'); }
 
     let manualDiscount = parseFloat(document.getElementById('discountInput').value) || 0;
     let usedPoints = parseInt(document.getElementById('usePointsInput')?.value) || 0;
-    let pointDiscount = 0;
-    let cnf = window.pointConfig;
-    if(cnf && cnf.redeemPoint > 0) {
-        pointDiscount = (usedPoints / cnf.redeemPoint) * cnf.redeemBaht;
-    }
+    let pointDiscount = 0; let cnf = window.pointConfig;
+    if(cnf && cnf.redeemPoint > 0) pointDiscount = (usedPoints / cnf.redeemPoint) * cnf.redeemBaht;
 
     let pDisp = document.getElementById('pointDiscountDisplay');
     if(pDisp) {
         if(pointDiscount > 0) {
             document.getElementById('pointDiscountValue').innerText = pointDiscount.toFixed(2);
             pDisp.classList.remove('hidden');
-        } else { pDisp.classList.add('hidden'); }
+        } else pDisp.classList.add('hidden');
     }
     
     let totalDiscount = manualDiscount + pointDiscount;
     let grandTot = subTot - totalDiscount + tax + service;
     if (grandTot < 0) grandTot = 0;
-
     document.getElementById('modalSubTotal').innerText = "฿" + subTot.toFixed(2);
     document.getElementById('modalGrandTotal').innerText = "฿" + grandTot.toFixed(2);
 
     const manualContainer = document.getElementById('manualServiceContainer');
     if (manualContainer) {
-        if (globalStoreSettings.enableService && globalStoreSettings.serviceType === 'manual') {
-            manualContainer.classList.remove('hidden');
-        } else {
-            manualContainer.classList.add('hidden');
-        }
+        if (globalStoreSettings.enableService && globalStoreSettings.serviceType === 'manual') manualContainer.classList.remove('hidden');
+        else manualContainer.classList.add('hidden');
     }
     
-    // 6. คำนวณส่วนชำระเงิน
     let cash = parseFloat(currentCash) || 0;
     let remainingForQR = grandTot - cash;
     if (remainingForQR < 0) remainingForQR = 0;
 
     let ppNum = globalStoreSettings.promptPay || "";
+
     if (selectedPayment === 'โอนเงิน') {
         currentCash = grandTot.toString(); 
         document.getElementById('cashInput').innerText = currentCash;
         if (ppNum) {
             let qrImg = document.getElementById('qrModalImage');
             if (qrImg) qrImg.src = 'https://promptpay.io/' + ppNum + '/' + grandTot.toFixed(2) + '.png';
-            
             let qrAmt = document.getElementById('qrModalAmount');
             if (qrAmt) qrAmt.innerText = "฿" + grandTot.toFixed(2);
-            
             if (qrTimerInterval === null) startQRTimer();
         } else {
             let qrAmt = document.getElementById('qrModalAmount');
             if (qrAmt) qrAmt.innerText = "ยังไม่ได้ตั้งค่าพร้อมเพย์";
         }
     } 
-    else if (selectedPayment === 'คนละครึ่ง') {
-        // 🟢 ดึงยอดสุทธิ(grandTot) ไปยัดใส่ยอดรับเงินอัตโนมัติ 
-        currentCash = grandTot.toString(); 
+    else if (selectedPayment === 'คนละครึ่ง' || selectedPayment === 'เดลิเวอรี่') { // 👉 อัปเดตให้เดลิเวอรี่ยอดตรงกัน
+        currentCash = grandTot.toString();
         document.getElementById('cashInput').innerText = currentCash;
     }
     else if (selectedPayment === 'แบ่งจ่าย') {
@@ -3301,10 +3279,8 @@ function calculateChange() {
         if (ppNum) {
             let qrImg = document.getElementById('qrModalImage');
             if (qrImg) qrImg.src = 'https://promptpay.io/' + ppNum + '/' + remainingForQR.toFixed(2) + '.png';
-            
             let qrAmt = document.getElementById('qrModalAmount');
             if (qrAmt) qrAmt.innerText = "฿" + remainingForQR.toFixed(2);
-            
             if (remainingForQR > 0 && qrTimerInterval === null) startQRTimer();
             else if (remainingForQR === 0) { clearInterval(qrTimerInterval); qrTimerInterval = null; }
         }
@@ -3312,16 +3288,13 @@ function calculateChange() {
         document.getElementById('cashInput').innerText = currentCash;
     }
 
-    // 7. คำนวณเงินทอน
-    cash = parseFloat(currentCash) || 0; // 🟢 ดึงเลขใหม่เผื่อถูกอัปเดตอัตโนมัติจากคนละครึ่ง
+    cash = parseFloat(currentCash) || 0;
     let change = cash - grandTot;
     document.getElementById('changeAmount').innerText = (change > 0 && selectedPayment !== 'แบ่งจ่าย' ? change.toFixed(2) : "0.00");
 }
 
 function handleNum(num) {
-    // 🟢 ดักจับ: ถ้าเลือกโอนเงินหรือคนละครึ่งอยู่ ห้ามพิมพ์เลขเข้ามาเด็ดขาด
-    if (selectedPayment === 'โอนเงิน' || selectedPayment === 'คนละครึ่ง') return;
-    
+    if (selectedPayment === 'โอนเงิน' || selectedPayment === 'คนละครึ่ง' || selectedPayment === 'เดลิเวอรี่') return;
     if (num === 'C') currentCash = "0";
     else if (num === '⌫') currentCash = currentCash.length > 1 ? currentCash.slice(0, -1) : "0";
     else currentCash = currentCash === "0" ? String(num) : currentCash + num;
@@ -3408,7 +3381,6 @@ function updateTimerDisplay() {
 
     function refreshQR() { calculateChange(); startQRTimer(); }
 
-// ฟังก์ชันยืนยันชำระเงิน (เวอร์ชันป้องกัน Error และรองรับใบครัว)
 function confirmPayment() {
     let grandTotal = parseFloat(document.getElementById('modalGrandTotal').innerText.replace('฿', ''));
     let discount = parseFloat(document.getElementById('discountInput').value) || 0;
@@ -3423,12 +3395,11 @@ function confirmPayment() {
     
     let exactCash = 0; let exactTransfer = 0;
     
-    // 👉 จุดที่ 1: ปรับให้ดึงยอดที่พนักงานกดรับเงินมาจริง (เช่น 120) ส่งไปบันทึกลงชีต
     if (selectedPayment === 'เงินสด') {
         exactCash = cash; 
     } else if (selectedPayment === 'คนละครึ่ง') {
         exactCash = grandTotal;
-    } else if (selectedPayment === 'โอนเงิน') {
+    } else if (selectedPayment === 'โอนเงิน' || selectedPayment === 'เดลิเวอรี่') { // 👉 โยนยอดเดลิเวอรี่ไปกองกับโอนเงิน
         exactTransfer = grandTotal;
     } else if (selectedPayment === 'แบ่งจ่าย') {
         exactCash = cash > grandTotal ? grandTotal : cash; 
@@ -3456,7 +3427,6 @@ function confirmPayment() {
 
     google.script.run.withSuccessHandler(function(res) {
         
-        // --- 🧾 สแตมป์ข้อมูลบิลหลัก (ลูกค้า) ---
         let elDate = document.getElementById('receiptDate'); if(elDate) elDate.innerText = res.timestamp;
         let elOrderId = document.getElementById('slipOrderId'); if(elOrderId) elOrderId.innerText = res.orderId;
         
@@ -3473,13 +3443,9 @@ function confirmPayment() {
         let elAddress = document.getElementById('receiptAddress'); if(elAddress) elAddress.innerText = branchAddress;
 
         let finalTypeString = "";
-        if (currentOrderType === 'ทานที่ร้าน') {
-            finalTypeString = tableNo !== "" ? "โต๊ะ: " + tableNo : "ทานที่ร้าน";
-        } else if (currentOrderType === 'กลับบ้าน') {
-            finalTypeString = "กลับบ้าน";
-        } else if (currentOrderType === 'เดลิเวอรี่') {
-            finalTypeString = deliveryApp + (deliveryOrderId !== "" ? " " + deliveryOrderId : "");
-        }
+        if (currentOrderType === 'ทานที่ร้าน') finalTypeString = tableNo !== "" ? "โต๊ะ: " + tableNo : "ทานที่ร้าน";
+        else if (currentOrderType === 'กลับบ้าน') finalTypeString = "กลับบ้าน";
+        else if (currentOrderType === 'เดลิเวอรี่') finalTypeString = deliveryApp + (deliveryOrderId !== "" ? " " + deliveryOrderId : "");
         
         let elSlipType = document.getElementById('slipOrderTypeDisplay'); if(elSlipType) elSlipType.innerText = finalTypeString;
         let elKitType = document.getElementById('kitchenOrderTypeDisplay'); if(elKitType) elKitType.innerText = finalTypeString;
@@ -3507,12 +3473,10 @@ function confirmPayment() {
         let elPayType = document.getElementById('slipPayType'); if(elPayType) elPayType.innerText = res.paymentType;
         let elChange = document.getElementById('slipChange'); if(elChange) elChange.innerText = res.changeAmount;
         
-        // 👉 จุดที่ 2: ดึงตัวเลขที่จ่ายจริงมาแสดงผลบนใบเสร็จ และซ่อนบรรทัดที่ไม่ได้เลือกจ่าย
         let elCash = document.getElementById('slipCash');
         if(elCash) {
             let displayCashVal = (res.paymentType === 'เงินสด') ? parseFloat(res.cashReceived) : parseFloat(res.cashAmount);
             elCash.innerText = displayCashVal.toFixed(2);
-            
             let showCash = (res.paymentType === 'เงินสด' || res.paymentType === 'แบ่งจ่าย' || res.paymentType === 'คนละครึ่ง' || displayCashVal > 0);
             elCash.parentElement.style.display = showCash ? 'flex' : 'none';
         }
@@ -3520,8 +3484,12 @@ function confirmPayment() {
         let elTrans = document.getElementById('slipTransfer'); 
         if(elTrans) {
             elTrans.innerText = parseFloat(res.transferAmount).toFixed(2);
-            let showTrans = (res.paymentType === 'โอนเงิน' || res.paymentType === 'แบ่งจ่าย' || parseFloat(res.transferAmount) > 0);
+            // 👉 แก้ไข: โชว์บรรทัดการโอนเฉพาะเมื่อเป็นการโอนจริง และถ้าเป็นเดลิเวอรี่ก็ให้โชว์เช่นกัน
+            let showTrans = (res.paymentType === 'โอนเงิน' || res.paymentType === 'เดลิเวอรี่' || res.paymentType === 'แบ่งจ่าย' || parseFloat(res.transferAmount) > 0);
             elTrans.parentElement.style.display = showTrans ? 'flex' : 'none';
+            // เปลี่ยนคำนำหน้าให้สมจริงขึ้น
+            if (res.paymentType === 'เดลิเวอรี่') elTrans.previousElementSibling.innerText = "ยอดเดลิเวอรี่:";
+            else elTrans.previousElementSibling.innerText = "โอนเงิน:";
         }
 
         let elTax = document.getElementById('slipTax'); if(elTax) elTax.innerText = parseFloat(res.vat).toFixed(2) + " ฿";
