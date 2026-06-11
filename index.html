@@ -6,6 +6,7 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <link rel="icon" type="image/png" href="https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png" sizes="192x192">
 
@@ -1800,25 +1801,6 @@
       </div>
     </div> 
 
-    <div id="kitchenSeparator" class="no-print my-6 border-t-4 border-dashed border-gray-400 w-full max-w-xs mx-auto"></div>
-
-    <div id="kitchenContent" class="receipt-slip slip-80mm relative flex flex-col mt-6"> 
-      <div class="text-center mb-4 border-b-2 border-black pb-2">
-        <div id="kitchenQueueDisplay" class="font-bold text-5xl mb-2 text-gray-900 hidden">คิว: <span id="kitchenQueueNoLinked">000</span></div>
-        
-        <div class="text-xl font-black text-red-600 bg-gray-100 py-1 rounded-lg my-1 tracking-wide">👉 <span id="kitchenOrderTypeDisplay">-</span></div>
-        
-        <h1 class="text-2xl font-bold">👨‍🍳 ใบสั่งทำอาหาร</h1> 
-        <div class="font-bold text-sm text-gray-700 mt-1">เลขที่บิล: <span id="kitchenOrderIdLinked"></span></div>
-        <div class="text-xs text-gray-500 mt-0.5">เวลา: <span id="kitchenTimeLinked"></span></div>
-      </div>
-      
-      <div id="kitchenItemsLinked" class="space-y-2 text-sm font-bold"></div>
-      
-      <div class="dashed-line"></div>
-      <div class="text-center text-xs text-gray-400 mt-2">*** ใบส่งเข้าห้องครัว ***</div>
-    </div>
-</div>
 
   <div id="recallModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl relative">
@@ -2079,7 +2061,6 @@
   </div>
 
    <!-- ================= หน้าจอ: เพิ่มพนักงานใหม่ ================= -->
-
 <div id="addEmployeeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">
     <div class="bg-white p-6 rounded-2xl w-96 shadow-2xl">
         <h3 id="empFormTitle" class="text-xl font-bold mb-4 text-rose-700">เพิ่มพนักงานใหม่</h3>
@@ -2106,9 +2087,6 @@
             <div>
                 <label class="block text-sm font-semibold mb-1 text-gray-700">ประจำสาขา <span class="text-red-500">*</span></label>
                 <select id="empBranch" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
-                    <option value="สาขาหลัก">สาขาหลัก </option>
-                    <option value="สาขาหน้ามอ">สาขาหน้ามอ</option>
-                    <option value="ทุกสาขา">ทุกสาขา (ผู้ดูแลระบบ)</option>
                 </select>
             </div>
             
@@ -2409,8 +2387,8 @@
 </div>
 
     <!-- ================= หน้าจอ:เทมเพลตกระดาษใบครัว ================= -->
-<div id="kitchenPrintContainer" class="hidden receipt-slip slip-80mm flex-col relative bg-white pb-6 pt-4 px-4">
-    <div class="text-center mb-4 border-b-2 border-black pb-3">
+<div id="kitchenPrintContainer" class="hidden no-print" style="display: none !important;">
+      <div class="text-center mb-4 border-b-2 border-black pb-3">
         <h2 class="text-2xl font-bold">👨‍🍳 ใบสั่งทำอาหาร</h2>
         <div class="text-sm mt-1 font-bold">บิลเลขที่: <span id="kitchenOrderId"></span></div>
         <div class="text-sm">เวลา: <span id="kitchenTime"></span></div>
@@ -3127,7 +3105,7 @@ function setPaymentType(type) {
          if(btn) {
            if(id === type) {
                if (id === 'เดลิเวอรี่') {
-                   btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-rose-500 text-rose-700 font-bold bg-rose-50 transition";
+                   btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-blue-500 text-blue-700 font-bold bg-blue-50 transition";
                } else {
                    btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-rose-500 text-rose-600 font-bold bg-rose-50 transition";
                }
@@ -3184,6 +3162,7 @@ function setPaymentType(type) {
     }
     calculateChange();
 }
+
 
 function checkout() { 
     // 👇 ดักจับ: ถ้ายังไม่เปิดกะ ห้ามกดชำระเงิน
@@ -3424,32 +3403,20 @@ function confirmPayment() {
     let phone = document.getElementById('customerPhone').value || "-";
     let cash = parseFloat(currentCash) || 0;
     let changeStr = document.getElementById('changeAmount').innerText;
-    
     let tax = document.getElementById('displayTax') ? document.getElementById('displayTax').innerText.replace('฿', '') : "0";
     let service = document.getElementById('displayService') ? document.getElementById('displayService').innerText.replace('฿', '') : "0";
-      
     let isSplitIntended = globalStoreSettings.enableSplit && cash > 0 && cash < grandTotal;
-
     if(selectedPayment === 'เงินสด' && !isSplitIntended && cash < grandTotal) return showToast("จำนวนเงินสดไม่เพียงพอ!", "error");
     
     let exactCash = 0; let exactTransfer = 0;
     let finalPaymentType = selectedPayment;
     
-    if (selectedPayment === 'เงินสด') {
-        exactCash = cash; 
-    } else if (selectedPayment === 'คนละครึ่ง') {
-        exactCash = grandTotal;
-    } else if (selectedPayment === 'โอนเงิน') {
-        if (isSplitIntended) {
-            exactCash = cash;
-            exactTransfer = grandTotal - cash;
-            finalPaymentType = 'แบ่งจ่าย'; // 👉 เสกสถานะเปลี่ยนเป็น แบ่งจ่าย ทันทีเพื่อบันทึกลงชีต
-        } else {
-            exactTransfer = grandTotal;
-        }
-    } else if (selectedPayment === 'เดลิเวอรี่') { 
-        exactTransfer = grandTotal;
-    }
+    if (selectedPayment === 'เงินสด') { exactCash = cash; } 
+    else if (selectedPayment === 'คนละครึ่ง') { exactCash = grandTotal; } 
+    else if (selectedPayment === 'โอนเงิน') {
+        if (isSplitIntended) { exactCash = cash; exactTransfer = grandTotal - cash; finalPaymentType = 'แบ่งจ่าย'; } 
+        else { exactTransfer = grandTotal; }
+    } else if (selectedPayment === 'เดลิเวอรี่') { exactTransfer = grandTotal; }
       
     let btn = document.getElementById('btnConfirm'); if(btn) { btn.innerText = "กำลังบันทึก..."; btn.disabled = true; }
     let btnQR = document.getElementById('btnConfirmQR'); if(btnQR) { btnQR.innerText = "กำลังบันทึก..."; btnQR.disabled = true; }
@@ -3461,19 +3428,19 @@ function confirmPayment() {
     if (window.pointConfig && window.pointConfig.redeemPoint > 0) {
         pointDiscount = (usedPoints / window.pointConfig.redeemPoint) * window.pointConfig.redeemBaht;
     }
+    
     let totalDiscountForDB = discount + pointDiscount;
     let currentUserLog = window.currentUser || "ไม่ระบุพนักงาน";
     let currentBranchLog = window.currentBranch || "ไม่ระบุสาขา";
+    if (currentBranchLog === "ทุกสาขา") { currentBranchLog = "สาขาหลัก"; }
     
     let tableNo = document.getElementById('inputTableNo') ? document.getElementById('inputTableNo').value.trim() : '';
     let deliveryApp = document.getElementById('selectDeliveryApp') ? document.getElementById('selectDeliveryApp').value : '';
     let deliveryOrderId = document.getElementById('inputDeliveryOrderId') ? document.getElementById('inputDeliveryOrderId').value.trim() : '';
 
     google.script.run.withSuccessHandler(function(res) {
-        
         let elDate = document.getElementById('receiptDate'); if(elDate) elDate.innerText = res.timestamp;
         let elOrderId = document.getElementById('slipOrderId'); if(elOrderId) elOrderId.innerText = res.orderId;
-        
         let queueNumber = "Q" + res.orderId.slice(-3);
         let elSlipQueue = document.getElementById('slipQueueNo'); if(elSlipQueue) elSlipQueue.innerText = queueNumber;
         let elKitchenQueue = document.getElementById('kitchenQueueNoLinked'); if(elKitchenQueue) elKitchenQueue.innerText = queueNumber;
@@ -3487,14 +3454,9 @@ function confirmPayment() {
         let elAddress = document.getElementById('receiptAddress'); if(elAddress) elAddress.innerText = branchAddress;
 
         let finalTypeString = "";
-        if (currentOrderType === 'ทานที่ร้าน') {
-            finalTypeString = tableNo !== "" ? "โต๊ะ: " + tableNo : "ทานที่ร้าน";
-        } else if (currentOrderType === 'กลับบ้าน') {
-            finalTypeString = "กลับบ้าน";
-        } else if (currentOrderType === 'เดลิเวอรี่') {
-            finalTypeString = deliveryApp + (deliveryOrderId !== "" ? " " + deliveryOrderId : "");
-        }
-        
+        if (currentOrderType === 'ทานที่ร้าน') finalTypeString = tableNo !== "" ? "โต๊ะ: " + tableNo : "ทานที่ร้าน";
+        else if (currentOrderType === 'กลับบ้าน') finalTypeString = "กลับบ้าน";
+        else if (currentOrderType === 'เดลิเวอรี่') finalTypeString = deliveryApp + (deliveryOrderId !== "" ? " " + deliveryOrderId : "");
         let elSlipType = document.getElementById('slipOrderTypeDisplay'); if(elSlipType) elSlipType.innerText = finalTypeString;
         let elKitType = document.getElementById('kitchenOrderTypeDisplay'); if(elKitType) elKitType.innerText = finalTypeString;
 
@@ -3506,7 +3468,6 @@ function confirmPayment() {
             itemsHtml += `<div class="flex justify-between items-start leading-tight text-sm"><span class="pr-2">${baseName} x${item.qty}</span><span>${item.total.toFixed(2)}</span></div>`;
             if (optionsText) itemsHtml += `<div class="text-[11px] text-gray-600 mb-1.5">${optionsText}</div>`;
             else itemsHtml += `<div class="mb-1.5"></div>`;
-
             kitchenItemsHtml += `<div class="flex justify-between items-start border-b border-gray-100 pb-2 mb-2 leading-tight"><div class="flex-1 pr-2"><div class="text-base font-bold text-gray-900">${baseName}</div>${optionsText ? `<div class="text-xs text-gray-600 mt-0.5">${optionsText}</div>` : ''}</div><div class="text-2xl font-bold text-gray-800 shrink-0">x${item.qty}</div></div>`;
         });
 
@@ -3514,12 +3475,10 @@ function confirmPayment() {
         let kitchenItemsEl = document.getElementById('kitchenItemsLinked'); if (kitchenItemsEl) kitchenItemsEl.innerHTML = kitchenItemsHtml;
         let kitchenOrderIdEl = document.getElementById('kitchenOrderIdLinked'); if (kitchenOrderIdEl) kitchenOrderIdEl.innerText = res.orderId;
         let kitchenTimeEl = document.getElementById('kitchenTimeLinked'); if (kitchenTimeEl) kitchenTimeEl.innerText = res.timestamp;
-
         let elSubTotal = document.getElementById('slipSubTotal'); if(elSubTotal) elSubTotal.innerText = res.subTotal.toFixed(2) + " ฿";
         let elDiscount = document.getElementById('slipDiscount'); if(elDiscount) elDiscount.innerText = "- " + parseFloat(res.discount).toFixed(2) + " ฿";
         let elGrandTotal = document.getElementById('slipGrandTotal'); if(elGrandTotal) elGrandTotal.innerText = res.grandTotal.toFixed(2) + " ฿";
         
-        // 👉 สแตมป์ชื่อวิธีชำระลงบิลด้วยตัวแปรที่วิเคราะห์ใหม่
         res.paymentType = finalPaymentType; 
         let elPayType = document.getElementById('slipPayType'); if(elPayType) elPayType.innerText = res.paymentType;
         let elChange = document.getElementById('slipChange'); if(elChange) elChange.innerText = res.changeAmount;
@@ -3532,7 +3491,7 @@ function confirmPayment() {
             elCash.parentElement.style.display = showCash ? 'flex' : 'none';
         }
         
-        let elTrans = document.getElementById('slipTransfer'); 
+        let elTrans = document.getElementById('slipTransfer');
         if(elTrans) {
             elTrans.innerText = exactTransfer.toFixed(2);
             let showTrans = (finalPaymentType === 'โอนเงิน' || finalPaymentType === 'เดลิเวอรี่' || finalPaymentType === 'แบ่งจ่าย' || exactTransfer > 0);
@@ -3543,7 +3502,6 @@ function confirmPayment() {
 
         let elTax = document.getElementById('slipTax'); if(elTax) elTax.innerText = parseFloat(res.vat).toFixed(2) + " ฿";
         let elService = document.getElementById('slipService'); if(elService) elService.innerText = parseFloat(res.serviceCharge).toFixed(2) + " ฿";
-
         let elEarned = document.getElementById('slipEarnedPoints'); if(elEarned) elEarned.innerText = res.earnedPoints;
         let elUsed = document.getElementById('slipUsedPoints'); if(elUsed) elUsed.innerText = usedPoints;
         let elRemaining = document.getElementById('slipRemainingPoints'); if(elRemaining) elRemaining.innerText = res.newTotalPoints;
@@ -3563,26 +3521,20 @@ function confirmPayment() {
         let pModal = document.getElementById('paymentModal'); if(pModal) pModal.classList.add('hidden');
         let qModal = document.getElementById('qrModal'); if(qModal) qModal.classList.add('hidden'); 
         let changeModalAmount = document.getElementById('changeModalAmount'); if (changeModalAmount) changeModalAmount.innerText = res.changeAmount + " ฿";
-        
         let rModal = document.getElementById('receiptModal'); if(rModal) rModal.classList.remove('hidden');
         if(btn) { btn.innerText = "ยืนยันชำระเงิน (Enter)"; btn.disabled = false; }
         if(btnQR) { btnQR.innerText = "ชำระเงินแล้ว"; btnQR.disabled = false; }
         
         showToast("บันทึกรายการขายสำเร็จ!", "success");
-
         if (currentOrderType === 'ทานที่ร้าน' && tableNo !== "") {
             google.script.run.withSuccessHandler(function(updatedTables) {
                 if (updatedTables) {
-                    globalSalesTableList = updatedTables;
-                    globalTablesList = updatedTables;
+                    globalSalesTableList = updatedTables; globalTablesList = updatedTables;
                     let tableView = document.getElementById('tableManagementView');
-                    if (tableView && !tableView.classList.contains('hidden')) {
-                        loadTablesData();
-                    }
+                    if (tableView && !tableView.classList.contains('hidden')) { loadTablesData(); }
                 }
             }).updateTableStatusGS(tableNo, "ว่าง");
         }
-        
     }).processSale(cartData, finalPaymentType, currentCash, changeStr, totalDiscountForDB, phone, exactCash, exactTransfer, tax, service, usedPoints, currentUserLog, currentBranchLog, currentOrderType, tableNo, deliveryApp, deliveryOrderId);
 }
 
@@ -5844,31 +5796,62 @@ function renderEmployeeTable() {
     globalEmployees.forEach(function(emp, index) {
         let roleBadgeClass = emp.role.includes("Admin") ? "bg-rose-100 text-rose-800" : "bg-rose-100 text-rose-800";
         let maskedPassword = emp.password ? '<span class="text-gray-500 tracking-widest text-lg">••••</span>' : '<span class="text-gray-300">-</span>';
-        
-        // ✅ เพิ่ม <td class="p-3 font-bold text-gray-700">${emp.branch}</td>
-        html += `<tr class="border-b hover:bg-rose-50 transition">
-            <td class="p-3 font-medium">${emp.name}</td>
-            <td class="p-3">${emp.phone || "-"}</td>
-            <td class="p-3"><span class="px-3 py-1 text-xs rounded-full ${roleBadgeClass}">${emp.role}</span></td>
-            <td class="p-3 font-bold text-rose-700">${emp.branch || 'ไม่ได้ระบุ'}</td> 
-            <td class="p-3 text-center font-bold">${maskedPassword}</td>
-            <td class="p-3 text-center">
-                <button onclick="editEmployee(${index})" class="text-rose-500 hover:text-rose-700 mr-3 text-lg" title="แก้ไข">✏️</button>
-                <button onclick="deleteEmployee(${emp.rowIdx})" class="text-red-500 hover:text-red-700 text-lg" title="ลบ">🗑️</button>
-            </td>
-        </tr>`;
+// ตรวจเช็กท่อนล่างของฟังก์ชัน renderEmployeeTable ตรงปุ่มกดจัดการ
+html += `<tr class="border-b hover:bg-rose-50 transition">
+    <td class="p-3 font-medium">${emp.name}</td>
+    <td class="p-3">${emp.phone || "-"}</td>
+    <td class="p-3"><span class="px-3 py-1 text-xs rounded-full ${roleBadgeClass}">${emp.role}</span></td>
+    <td class="p-3 font-bold text-rose-700">${emp.branch || 'ไม่ได้ระบุ'}</td> 
+    <td class="p-3 text-center font-bold">${maskedPassword}</td>
+    <td class="p-3 text-center">
+        <button onclick="openAddEmployeeForm(${index})" class="text-emerald-500 hover:text-emerald-700 mr-3 text-lg" title="แก้ไข">✏️</button>
+        <button onclick="deleteEmployee(${emp.rowIdx})" class="text-red-500 hover:text-red-700 text-lg" title="ลบ">🗑️</button>
+    </td>
+</tr>`;
     });
     tbody.innerHTML = html;
 }
 
-function openAddEmployeeForm() {
-    document.getElementById('empFormTitle').innerText = "เพิ่มพนักงานใหม่";
-    document.getElementById('empRowIdx').value = "";
-    document.getElementById('empName').value = "";
-    document.getElementById('empPhone').value = "";
-    document.getElementById('empRole').value = "พนักงานขาย (Cashier)";
-    document.getElementById('empPassword').value = ""; 
-    document.getElementById('empBranch').value = "สาขาหลัก"; // ✅ คืนค่าเริ่มต้นสาขา
+function openAddEmployeeForm(index = -1) {
+    let title = document.getElementById('empFormTitle');
+    let selectBranch = document.getElementById('empBranch');
+    
+    // 🧠 1. ดึงรายชื่อสาขาล่าสุดจากหน้าจัดการร้านค้ามาวาดตัวเลือกใส่ Dropdown ก่อนเสมอ
+    // 👉 แก้ไข: เอาคำว่า window. ออก เพื่อให้ระบบมองเห็นตัวแปร globalBranchesList ที่โหลดรอไว้แล้ว
+    if (globalBranchesList && globalBranchesList.length > 0) {
+        let optionsHtml = '';
+        globalBranchesList.forEach(function(b) {
+            optionsHtml += `<option value="${b.name}">${b.name}</option>`;
+        });
+        optionsHtml += `<option value="ทุกสาขา">ทุกสาขา (ผู้ดูแลระบบ)</option>`;
+        selectBranch.innerHTML = optionsHtml;
+    } else {
+        selectBranch.innerHTML = `
+            <option value="สาขาหลัก">สาขาหลัก</option>
+            <option value="ทุกสาขา">ทุกสาขา (ผู้ดูแลระบบ)</option>
+        `;
+    }
+
+    // 🧠 2. เมื่อ Dropdown มีตัวเลือกพร้อมแล้ว ค่อยประมวลผลสแตมป์ข้อมูลพนักงานลงไป
+    if (index === -1) {
+        title.innerText = "➕ เพิ่มพนักงานใหม่";
+        document.getElementById('empRowIdx').value = "";
+        document.getElementById('empName').value = "";
+        document.getElementById('empPhone').value = "";
+        document.getElementById('empRole').value = "พนักงานขาย (Cashier)";
+        document.getElementById('empBranch').value = selectBranch.options[0] ? selectBranch.options[0].value : "สาขาหลัก";
+        document.getElementById('empPassword').value = "";
+    } else {
+        let emp = globalEmployees[index];
+        title.innerText = "✏️ แก้ไขข้อมูลพนักงาน";
+        document.getElementById('empRowIdx').value = emp.rowIdx;
+        document.getElementById('empName').value = emp.name;
+        document.getElementById('empPhone').value = emp.phone;
+        document.getElementById('empRole').value = emp.role;
+        document.getElementById('empBranch').value = emp.branch; 
+        document.getElementById('empPassword').value = emp.password;
+    }
+    
     document.getElementById('addEmployeeModal').classList.remove('hidden');
 }
 
@@ -5876,16 +5859,49 @@ function closeAddEmployeeForm() {
     document.getElementById('addEmployeeModal').classList.add('hidden');
 }
 
-function editEmployee(index) {
-    let emp = globalEmployees[index];
-    document.getElementById('empFormTitle').innerText = "แก้ไขข้อมูลพนักงาน";
-    document.getElementById('empRowIdx').value = emp.rowIdx;
-    document.getElementById('empName').value = emp.name;
-    document.getElementById('empPhone').value = emp.phone;
-    document.getElementById('empRole').value = emp.role;
-    document.getElementById('empPassword').value = emp.password || ""; 
-    document.getElementById('empBranch').value = emp.branch || "สาขาหลัก"; // ✅ ดึงข้อมูลสาขามาใส่ฟอร์ม
-    document.getElementById('addEmployeeModal').classList.remove('hidden');
+function saveEmployee() {
+    let rowIdx = document.getElementById('empRowIdx').value;
+    let name = document.getElementById('empName').value.trim();
+    let phone = document.getElementById('empPhone').value.trim();
+    let role = document.getElementById('empRole').value;
+    let password = document.getElementById('empPassword').value.trim();
+    let branch = document.getElementById('empBranch').value;
+
+    if (!name) return showToast("กรุณาระบุชื่อพนักงาน", "error");
+    if (!password) return showToast("กรุณาตั้งรหัสผ่านสำหรับเข้าสู่ระบบ", "error");
+
+    let btn = document.getElementById('btnSaveEmp');
+    if (btn) { btn.innerText = "กำลังบันทึก..."; btn.disabled = true; }
+
+    let data = { rowIdx: rowIdx, name: name, phone: phone, role: role, password: password, branch: branch };
+    google.script.run.withSuccessHandler(function(res) {
+        if (btn) { btn.innerText = "💾 บันทึก"; btn.disabled = false; }
+        if (res === "Success") {
+            showToast("บันทึกข้อมูลพนักงานสำเร็จ!", "success");
+            closeAddEmployeeForm();
+            loadEmployees(); 
+        } else {
+            showToast("เกิดข้อผิดพลาด: " + res, "error");
+        }
+    }).saveEmployeeGS(data);
+}
+
+function deleteEmployee(rowIdx) {
+    if (!confirm("⚠️ คุณต้องการลบพนักงานรายนี้ใช่หรือไม่?\n(ข้อมูลจะไม่สามารถกู้คืนได้)")) return;
+    
+    showToast("กำลังลบ...", "info");
+    google.script.run.withSuccessHandler(function(res) {
+        if (res === "Success") {
+            showToast("ลบพนักงานสำเร็จ!", "success");
+            loadEmployees();
+        } else {
+            showToast("เกิดข้อผิดพลาด: " + res, "error");
+        }
+    }).deleteEmployeeGS(rowIdx);
+}
+
+function closeAddEmployeeForm() {
+    document.getElementById('addEmployeeModal').classList.add('hidden');
 }
 
 function saveEmployee() {
@@ -6714,22 +6730,38 @@ function startDigitalClock() {
 }
 
 function processLogout() {
-  showConfirmModal("🚪 คุณต้องการออกจากระบบใช่หรือไม่?", function() {
-    window.currentUser = null;
-    window.currentRole = null;
-    window.currentBranch = null;
-    
-    // ✅ 2. ล้างความจำการ Login ในเครื่องออกไป
-    localStorage.removeItem('famepos_user');
-    
-    let statusBox = document.getElementById('userStatusContainer');
-    if (statusBox) statusBox.innerHTML = '';
-    
-    document.getElementById('loginUsername').value = "";
-    document.getElementById('loginPassword').value = "";
-    document.getElementById('loginOverlay').classList.remove('hidden'); // ดึงหน้า Login กลับมาบังหน้าจอ
-    
-    showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
+  // 👉 ใช้ SweetAlert2 ดีไซน์หรูหรา แทนระบบแจ้งเตือนของเบราว์เซอร์
+  Swal.fire({
+    title: '🚪 ยืนยันออกจากระบบ',
+    text: "คุณต้องการออกจากระบบใช่หรือไม่?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f43f5e', // สีชมพูอมแดง Rose ให้เข้ากับธีมร้าน
+    cancelButtonColor: '#9ca3af',  // สีเทาปุ่มยกเลิก
+    confirmButtonText: 'ตกลง, ออกจากระบบ',
+    cancelButtonText: 'ยกเลิก',
+    background: '#ffffff',
+    customClass: {
+      popup: 'rounded-[2rem]' // ทำมุมโค้งมนสวยงามตามสไตล์ FamePOS
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.currentUser = null;
+      window.currentRole = null;
+      window.currentBranch = null;
+      
+      // ล้างความจำการ Login ในเครื่องออกไป
+      localStorage.removeItem('famepos_user');
+      
+      let statusBox = document.getElementById('userStatusContainer');
+      if (statusBox) statusBox.innerHTML = '';
+      
+      document.getElementById('loginUsername').value = "";
+      document.getElementById('loginPassword').value = "";
+      document.getElementById('loginOverlay').classList.remove('hidden'); // ดึงหน้า Login กลับมาบังหน้าจอ
+      
+      showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
+    }
   });
 }
 
@@ -6742,48 +6774,46 @@ function applyRolePermissions() {
     let navInventory = document.getElementById('nav-inventory');
     let navShift = document.getElementById('nav-shift');
     let navSettings = document.getElementById('nav-settings');
-
     let allNavs = [navSales, navHistory, navProducts, navDashboard, navInventory, navShift, navSettings];
-    
-    // 🛑 1. บังคับซ่อนทุกเมนูด้วย Inline Style
+
+    // 🛑 1. บังคับซ่อนทุกเมนูด้านข้างก่อนเพื่อความปลอดภัย
     allNavs.forEach(nav => { 
         if(nav) { 
             nav.style.display = 'none'; 
         } 
     });
 
-    // 🟢 2. ฟังก์ชันย่อยสำหรับเปิดโชว์เมนูที่ได้รับอนุญาต
+    // 🟢 2. ฟังก์ชันย่อยสำหรับเปิดโชว์เมนูตามสิทธิ์
     function showNav(navElement) {
         if(navElement) {
-            navElement.style.display = ''; 
+            navElement.style.display = '';
         }
     }
 
-    // 🔓 3. ตรวจสอบสิทธิ์และเปิดเฉพาะเมนูที่เกี่ยวข้องตามตำแหน่ง
+    // 🔓 3. ตรวจสอบระดับสิทธิ์ และบังคับเปิดหน้าแรกให้ถูกต้องประจำการทำหน้าที่
     if (role === "ผู้ดูแลระบบ (Admin)") {
         allNavs.forEach(nav => showNav(nav));
-        
+        if(typeof showView === 'function') showView('sales'); // แอดมินเข้าหน้าขายของเป็นหลัก
     } else if (role === "พนักงานขาย (Cashier)") {
         showNav(navSales);
         showNav(navHistory);
         showNav(navProducts);
         showNav(navShift);
-        if(typeof showView === 'function') showView('sales');
-        
+        if(typeof showView === 'function') showView('sales'); // แคชเชียร์เข้าหน้าขายของ
     } else if (role === "พนักงานสต็อก (Stock)") {
         showNav(navProducts);
         showNav(navInventory);
-        if(typeof showView === 'function') showView('products'); 
+        if(typeof showView === 'function') showView('products'); // สต็อกเข้าหน้าคลังสินค้า
     }
 }
 
-// ระบบดึงข้อมูลพนักงานและนาฬิกาทันทีที่เปิดแอปพลิเคชัน
+// ระบบดึงข้อมูลร้านและเช็กแต้มทันทีที่เปิดแอปพลิเคชันขึ้นมา
 window.addEventListener('load', function() {
-    startDigitalClock(); // รันนาฬิกาเรียลไทม์ตามปกติ
+    startDigitalClock(); // รันนาฬิกาเรียลไทม์ [cite: 2704]
 
-    if (typeof loadBranchesData === 'function') loadBranchesData();
+    if (typeof loadBranchesData === 'function') loadBranchesData(); // ซิงค์สาขาจากชีตมารอในหน่วยความจำ [cite: 2704]
     
-    // ✅ 4. ตรวจสอบว่าในเครื่องมีสถานะพนักงานล็อกอินค้างไว้หรือไม่
+    // ตรวจสอบว่าในเครื่องมีสถานะพนักงานล็อกอินค้างไว้หรือไม่
     let savedUser = localStorage.getItem('famepos_user');
     
     if (savedUser) {
@@ -6792,21 +6822,22 @@ window.addEventListener('load', function() {
         window.currentRole = res.role;
         window.currentBranch = res.branch;
         
-        document.getElementById('loginOverlay').classList.add('hidden');
-        updateUserStatusUI();
-        applyRolePermissions();
+        document.getElementById('loginOverlay').classList.add('hidden'); // ซ่อนแผงล็อกอิน [cite: 2705]
+        updateUserStatusUI(); // สแตมป์โปรไฟล์ซ้ายล่าง [cite: 2705]
+        applyRolePermissions(); // จัดสิทธิ์เมนู [cite: 2705]
         
-        if(typeof loadProducts === 'function') loadProducts();
-        if(typeof loadShiftHistory === 'function') loadShiftHistory();
+        if(typeof loadProducts === 'function') loadProducts(); // โหลดหน้าสินค้า [cite: 2705]
+        if(typeof loadShiftHistory === 'function') loadShiftHistory(); // เช็กกะทำงาน [cite: 2705]
     }
     
-    if(typeof loadMembers === 'function') loadMembers();
+    if(typeof loadMembers === 'function') loadMembers(); // ดึงประวัติเมมเบอร์ [cite: 2705]
 
-    // 👉 เพิ่มส่วนนี้เข้าไปที่ท้ายสุดของอีเวนต์ load เพื่ออัปเดตจำนวนยอดบิลพักทันทีเมื่อเปิดหน้าจอสำเร็จครับ
+    // อัปเดตจำนวนยอดบิลพักทันทีเมื่อเปิดหน้าจอสำเร็จ
     if (typeof updateHeldCount === 'function') {
         updateHeldCount();
     }
 });
+
 // ============================================
 // ระบบตัวเลือกสินค้า (ร้านกาแฟ)
 // ============================================
@@ -6819,8 +6850,7 @@ let selectedTemp = 'เย็น'; // ค่าเริ่มต้น
 
 function addToCart(name, price, optionsStr) { 
     if(!window.isShiftActive) return showToast("กรุณาเปิดกะก่อนทำการขาย!", "error");
-    
-    // ถ้าสินค้านี้ไม่ได้ติ๊กตั้งค่าตัวเลือกไว้เลย ให้เด้งเข้าตะกร้าทันทีไม่ต้องเปิดหน้าต่าง
+
     if (!optionsStr || optionsStr.trim() === "" || optionsStr === "undefined") {
         let existingItem = cart.find(i => i.name === name);
         if(existingItem) existingItem.qty++;
@@ -6829,7 +6859,6 @@ function addToCart(name, price, optionsStr) {
         return;
     }
 
-    // 🛡️ ป้องกันบั๊ก: ถ้าข้อมูลตัวเลือกยังโหลดมาไม่เสร็จ ให้ดึงข้อมูลใหม่และเตือนให้รอก่อน
     if (!window.cachedModifiersRaw || window.cachedModifiersRaw.length <= 1) {
         showToast("⏳ กำลังดึงข้อมูลตัวเลือกเสริม โปรดรอสักครู่แล้วกดอีกครั้ง...", "info");
         loadModifiersData();
@@ -6852,11 +6881,8 @@ function addToCart(name, price, optionsStr) {
         if(items.length === 0) return;
 
         hasOptions = true;
-        
-        // 🌟 ตั้งค่าเริ่มต้นให้ความจำจำว่าเป็น "ไม่รับ" เพื่อไม่บังคับหักเงินหรือตัดสต็อกคลัง
         currentSelectedModifiers[groupName] = { name: "ไม่รับ", price: 0 };
 
-        // 🌟 เสกปุ่ม "❌ ไม่รับ" เป็นปุ่มแรกสุดของแถว และทำสีเขียวไฮไลต์เลือกไว้ตั้งแต่แกะกล่อง
         let buttonsHtml = `<button onclick="selectSalesModifierButton('${groupName}', 'ไม่รับ', 0, this)" class="mod-sales-btn px-3 py-2 border-2 text-xs font-bold rounded-xl transition bg-rose-50 border-rose-500 text-rose-700">❌ ไม่รับ</button>`;
 
         buttonsHtml += items.map((item) => {
