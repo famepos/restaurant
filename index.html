@@ -3420,8 +3420,13 @@ function confirmPayment() {
     let service = document.getElementById('displayService') ? document.getElementById('displayService').innerText.replace('฿', '') : "0";
       
     if((selectedPayment === 'เงินสด' || selectedPayment === 'คนละครึ่ง') && cash < grandTotal) return showToast("จำนวนเงินสดไม่เพียงพอ!", "error");
+    
     let exactCash = 0; let exactTransfer = 0;
-    if (selectedPayment === 'เงินสด' || selectedPayment === 'คนละครึ่ง') {
+    
+    // 👉 จุดที่ 1: ปรับให้ดึงยอดที่พนักงานกดรับเงินมาจริง (เช่น 120) ส่งไปบันทึกลงชีต
+    if (selectedPayment === 'เงินสด') {
+        exactCash = cash; 
+    } else if (selectedPayment === 'คนละครึ่ง') {
         exactCash = grandTotal;
     } else if (selectedPayment === 'โอนเงิน') {
         exactTransfer = grandTotal;
@@ -3467,7 +3472,6 @@ function confirmPayment() {
         let branchAddress = (branchInfo && branchInfo.desc && branchInfo.desc.trim() !== "") ? branchInfo.desc : (globalStoreSettings.address || "");
         let elAddress = document.getElementById('receiptAddress'); if(elAddress) elAddress.innerText = branchAddress;
 
-        // 📋 ✨ [สูตรจัดฟอร์แมตตามบรีฟคุณเฟรม] สลับรูปแบบข้อความสแตมป์ลงหน้าบิล
         let finalTypeString = "";
         if (currentOrderType === 'ทานที่ร้าน') {
             finalTypeString = tableNo !== "" ? "โต๊ะ: " + tableNo : "ทานที่ร้าน";
@@ -3477,7 +3481,6 @@ function confirmPayment() {
             finalTypeString = deliveryApp + (deliveryOrderId !== "" ? " " + deliveryOrderId : "");
         }
         
-        // ส่งสตริงสำเร็จรูปไปสแตมป์ตราบนหน้าจอสลิปทั้งคู่
         let elSlipType = document.getElementById('slipOrderTypeDisplay'); if(elSlipType) elSlipType.innerText = finalTypeString;
         let elKitType = document.getElementById('kitchenOrderTypeDisplay'); if(elKitType) elKitType.innerText = finalTypeString;
 
@@ -3504,13 +3507,9 @@ function confirmPayment() {
         let elPayType = document.getElementById('slipPayType'); if(elPayType) elPayType.innerText = res.paymentType;
         let elChange = document.getElementById('slipChange'); if(elChange) elChange.innerText = res.changeAmount;
         
-// ----------------------------------------------------
-        // 👉 จุดที่แก้ไข: แสดงยอดเงินรับจริงสำหรับบิลเงินสด และซ่อนบรรทัดที่ไม่ได้ใช้
-        // ----------------------------------------------------
+        // 👉 จุดที่ 2: ดึงตัวเลขที่จ่ายจริงมาแสดงผลบนใบเสร็จ และซ่อนบรรทัดที่ไม่ได้เลือกจ่าย
         let elCash = document.getElementById('slipCash');
         if(elCash) {
-            // ถ้ารับเป็นเงินสด ให้โชว์ยอดที่พนักงานกดรับมาจริง (cashReceived)
-            // ถ้าเป็นแบ่งจ่าย ให้โชว์เฉพาะยอดส่วนที่เป็นเงินสด (cashAmount)
             let displayCashVal = (res.paymentType === 'เงินสด') ? parseFloat(res.cashReceived) : parseFloat(res.cashAmount);
             elCash.innerText = displayCashVal.toFixed(2);
             
@@ -3524,7 +3523,6 @@ function confirmPayment() {
             let showTrans = (res.paymentType === 'โอนเงิน' || res.paymentType === 'แบ่งจ่าย' || parseFloat(res.transferAmount) > 0);
             elTrans.parentElement.style.display = showTrans ? 'flex' : 'none';
         }
-        // ----------------------------------------------------
 
         let elTax = document.getElementById('slipTax'); if(elTax) elTax.innerText = parseFloat(res.vat).toFixed(2) + " ฿";
         let elService = document.getElementById('slipService'); if(elService) elService.innerText = parseFloat(res.serviceCharge).toFixed(2) + " ฿";
@@ -3555,15 +3553,11 @@ function confirmPayment() {
         
         showToast("บันทึกรายการขายสำเร็จ!", "success");
 
-        // -----------------------------------------------------------------
-        // 👉 เพิ่มโค้ดส่วนนี้: คืนสถานะโต๊ะให้เป็น "ว่าง" ทันทีหลังจากชำระเงินเสร็จ
-        // -----------------------------------------------------------------
         if (currentOrderType === 'ทานที่ร้าน' && tableNo !== "") {
             google.script.run.withSuccessHandler(function(updatedTables) {
                 if (updatedTables) {
                     globalSalesTableList = updatedTables;
                     globalTablesList = updatedTables;
-                    // ถ้าระบบเปิดหน้า "จัดการโต๊ะ" ค้างไว้อยู่ ให้รีเฟรชตารางโชว์สถานะล่าสุดทันที
                     let tableView = document.getElementById('tableManagementView');
                     if (tableView && !tableView.classList.contains('hidden')) {
                         loadTablesData();
