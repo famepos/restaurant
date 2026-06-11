@@ -7794,8 +7794,10 @@ function loadTablesData() {
             if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-400 font-bold">ยังไม่มีข้อมูลโต๊ะในระบบ</td></tr>';
         } else {
             data.forEach(function(table, index) {
-                let qrTargetUrl = API_URL + "?action=qrOrder&table=" + encodeURIComponent(table.name);
-                let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrTargetUrl);
+                // 📱 เปลี่ยนปลายทาง QR Code ให้วิ่งเข้าแอปสั่งอาหารบน GitHub
+let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html";
+let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(table.name);
+let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrTargetUrl);
                 
                 // 🎨 สลับสีสถานะ ว่าง(เขียว) ไม่ว่าง(แดง)
                 let statusClass = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700";
