@@ -2487,7 +2487,8 @@ window.currentUser = "Admin";
 let currentAdminProducts = [];
 let currentReceiveHistory = [];
 let currentOutHistory = [];
-let heldOrders = [];
+let heldOrders = JSON.parse(localStorage.getItem('famepos_held_orders') || '[]');
+
 
 // 1. ฟังก์ชันช่วยแจ้งเตือน (Toast) [เวอร์ชันแก้บั๊กสีแดงไม่แสดง]
 function showToast(message, type) {
@@ -3820,7 +3821,6 @@ function undoClearCart() {
 // ==========================================
 // 💡 ระบบพักบิลและเรียกบิลอัจฉริยะ (Smart Hold/Recall)
 // ==========================================
-let heldOrders = JSON.parse(localStorage.getItem('famepos_held_orders') || '[]');
 
 function holdOrder() {
     if (cart.length === 0) return showToast("ไม่มีสินค้าในตะกร้าให้พักบิล!", "error");
