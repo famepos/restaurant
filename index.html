@@ -441,11 +441,15 @@
                    <span class="text-gray-500 font-bold text-xs leading-none">v</span>
                  </button>
                  
-                 <div id="reportDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
-                   <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-rose-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
-                   <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">📦 รายงานสินค้าขายดี</div>
-                   <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
-                   <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
+             <div id="reportDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                   <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-green-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
+                   <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">📦 รายงานสินค้าขายดี</div>
+                   <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
+                   <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
+                   
+                   <div onclick="selectReport('user', '👨‍💼 รายงานยอดขายพนักงาน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">👨‍💼 รายงานยอดขายพนักงาน</div>
+                   <div onclick="selectReport('branch', '🏢 รายงานยอดขายสาขา', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">🏢 รายงานยอดขายสาขา</div>
+                   
                    <div class="border-t border-gray-100 my-1"></div>
                    <div onclick="selectReport('void', '❌ รายงานบิลที่ยกเลิก', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-red-50 transition-colors">❌ รายงานบิลที่ยกเลิก</div>
                  </div>
@@ -1935,11 +1939,16 @@
       <div id="reportPrintItems" class="text-xs space-y-2"></div>
       <div class="dashed-line"></div>
       
-<div class="mt-4 pt-4 border-t border-gray-200 flex flex-col items-center">
+      <div id="reportPrintTimestamp" class="text-center text-xs text-gray-500 mt-2 font-medium"></div>
+      <div id="reportPrintUser" class="text-center text-xs text-gray-500 font-medium"></div>
+      
+      <div class="mt-2 pt-2 border-t border-gray-200 flex flex-col items-center">
         <img id="receiptQRPromptPay" src="" class="w-32 h-32 object-contain mb-2 hidden">
-        <div id="receiptFooterText" class="text-center text-sm whitespace-pre-line mt-2 font-medium"></div>
+        <div id="receiptFooterText" class="text-center text-sm whitespace-pre-line font-medium"></div>
         <span class="text-gray-400 text-xs mt-2">Powered by FamePOS</span>
       </div>
+</div>
+
     </div> <div id="kitchenSeparator" class="no-print my-6 border-t-4 border-dashed border-gray-400 w-full max-w-xs mx-auto"></div>
 
     <div id="kitchenContent" class="receipt-slip slip-80mm relative flex flex-col mt-6"> 
@@ -4565,6 +4574,23 @@ function downloadCSV() {
             });
         }
     } 
+
+    // 👉 วาง 2 บล็อกใหม่แทรกไว้ตรงนี้ครับ
+    else if (currentReportType === 'user') {
+        fileName = `รายงานยอดขายแยกตามพนักงาน_${startDate}_ถึง_${endDate}.csv`;
+        csvContent += "ชื่อพนักงาน,ยอดขายรวม(บาท)\n";
+        let usersArr = Object.keys(data.users).map(k => ({name: k, total: data.users[k]}));
+        usersArr.sort((a,b) => b.total - a.total);
+        usersArr.forEach(u => { csvContent += `"${u.name}",${u.total}\n`; });
+} 
+    else if (currentReportType === 'branch') {
+        fileName = `รายงานยอดขายแยกตามสาขา_${startDate}_ถึง_${endDate}.csv`;
+        csvContent += "ชื่อสาขา,ยอดขายรวม(บาท)\n";
+        let branchArr = Object.keys(data.branches).filter(k => k !== 'ทุกสาขา').map(k => ({name: k, total: data.branches[k]}));
+        branchArr.sort((a,b) => b.total - a.total);
+        branchArr.forEach(b => { csvContent += `"${b.name}",${b.total}\n`; });
+    }
+
     else if (currentReportType === 'void') {
         fileName = `รายงานประวัติบิลยกเลิก_${startDate}_ถึง_${endDate}.csv`;
         csvContent += "หัวข้อ,สรุปมูลค่า\n";
@@ -4601,7 +4627,6 @@ function openReportPrintModal() {
   let s = globalStoreSettings;
   let startDate = document.getElementById('dashStartDate').value;
   let endDate = document.getElementById('dashEndDate').value;
-  
   if (s.logoUrl && s.showReceiptLogo) {
     document.getElementById('reportPrintLogo').src = s.logoUrl;
     document.getElementById('reportPrintLogo').classList.remove('hidden');
@@ -4610,14 +4635,11 @@ function openReportPrintModal() {
   }
   document.getElementById('reportPrintStoreName').innerText = s.storeName || "FamePOS";
   document.getElementById('reportPrintAddress').innerText = s.address || "";
-  
-  // 👉 1. สั่งให้เขียน "ช่วงวันที่รายงาน" ลงไปทั้งบนหน้าจอ และ บนกระดาษ
   document.getElementById('reportPrintDateRange').innerText = `ช่วงรายงาน: ${startDate} ถึง ${endDate}`;
   document.getElementById('reportPrintSlipDateRange').innerText = `ช่วงรายงาน: ${startDate} ถึง ${endDate}`;
   
   let titleText = "";
   let htmlContent = "";
-  
   if (currentReportType === 'sales') {
     titleText = "📄 รายงานสรุปยอดขายรวม";
     htmlContent = `
@@ -4656,6 +4678,27 @@ function openReportPrintModal() {
         htmlContent += `<div class="flex justify-between text-xs border-b border-gray-100 py-1"><span>${idx+1}. ${p.name}</span><span>${rem} ${p.unit||'หน่วย'}</span></div>`;
     });
   } 
+
+  // 👉 วาง 2 บล็อกใหม่แทรกไว้ตรงนี้ครับ
+  else if (currentReportType === 'user') {
+    titleText = "👨‍💼 รายงานยอดขายแยกตามพนักงาน";
+    htmlContent = `<div class="font-bold mb-2">สรุปยอดรับเงินตามพนักงาน:</div>`;
+    let usersArr = Object.keys(data.users).map(k => ({name: k, total: data.users[k]}));
+    usersArr.sort((a,b) => b.total - a.total);
+    usersArr.forEach(u => {
+      htmlContent += `<div class="flex justify-between text-xs border-b border-gray-100 py-1"><span>${u.name}</span><span class="font-bold text-rose-600">฿${u.total.toLocaleString('th-TH',{minimumFractionDigits:2})}</span></div>`;
+    });
+  }
+else if (currentReportType === 'branch') {
+    titleText = "🏢 รายงานยอดขายแยกตามสาขา";
+    htmlContent = `<div class="font-bold mb-2">สรุปยอดรับเงินตามสาขา:</div>`;
+    let branchArr = Object.keys(data.branches).filter(k => k !== 'ทุกสาขา').map(k => ({name: k, total: data.branches[k]}));
+    branchArr.sort((a,b) => b.total - a.total);
+    branchArr.forEach(b => {
+      htmlContent += `<div class="flex justify-between text-xs border-b border-gray-100 py-1"><span>${b.name}</span><span class="font-bold text-rose-600">฿${b.total.toLocaleString('th-TH',{minimumFractionDigits:2})}</span></div>`;
+    }); // 👈 ปรับแต่งปิดเครื่องหมายและวงเล็บตรงนี้ให้สมบูรณ์แล้วครับ
+  }
+
   else if (currentReportType === 'void') {
     titleText = "❌ รายงานบิลที่ยกเลิกความเสียหาย";
     htmlContent = `
@@ -4666,10 +4709,13 @@ function openReportPrintModal() {
   
   document.getElementById('reportPrintTitle').innerText = titleText;
   document.getElementById('reportPrintItems').innerHTML = htmlContent;
+
+  // 👉 2. ประทับเวลาพิมพ์ปัจจุบัน และ ประทับชื่อพนักงานที่เข้าระบบอยู่ (เพิ่ม Safety Check กัน Error)
+  let tsEl = document.getElementById('reportPrintTimestamp');
+  if(tsEl) tsEl.innerText = "พิมพ์ ณ วันเวลา: " + new Date().toLocaleString('th-TH');
   
-  // 👉 2. ประทับเวลาพิมพ์ปัจจุบัน และ ประทับชื่อพนักงานที่เข้าระบบอยู่
-  document.getElementById('reportPrintTimestamp').innerText = "พิมพ์ ณ วันเวลา: " + new Date().toLocaleString('th-TH');
-  document.getElementById('reportPrintUser').innerText = "พนักงานผู้พิมพ์: " + window.currentUser;
+  let userEl = document.getElementById('reportPrintUser');
+  if(userEl) userEl.innerText = "พนักงานผู้พิมพ์: " + window.currentUser;
   
   document.getElementById('reportPrintModal').classList.remove('hidden');
   document.getElementById('reportPrintModal').classList.add('print-active-view');
