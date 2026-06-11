@@ -246,7 +246,7 @@
         <button onclick="document.getElementById('salesTableModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
         <div class="flex items-center gap-3 mb-4 border-b pb-3">
             <span class="text-3xl">🪑</span>
-            <h3 class="text-xl font-bold text-emerald-800">เลือกหมายเลขโต๊ะ</h3>
+            <h3 class="text-xl font-bold text-rose-800">เลือกหมายเลขโต๊ะ</h3>
         </div>
         
 <div id="modalTableGridContainer" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[50vh] overflow-y-auto pr-2 pb-2">
@@ -307,7 +307,7 @@
                     <th class="p-4 font-bold">หมวดหมู่</th>
                     <th class="p-4 font-bold text-gray-500">ต้นทุน</th>
                     <th class="p-4 font-bold text-rose-600">ราคาขาย</th>
-                    <th class="p-4 font-bold text-green-600">คงเหลือ</th>
+                    <th class="p-4 font-bold text-rose-600">คงเหลือ</th>
                     <th class="p-4 font-bold text-center">จัดการ</th>
                  </tr>
               </thead>
@@ -442,10 +442,10 @@
                  </button>
                  
                  <div id="reportDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
-                   <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-green-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
-                   <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">📦 รายงานสินค้าขายดี</div>
-                   <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
-                   <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
+                   <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-rose-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
+                   <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">📦 รายงานสินค้าขายดี</div>
+                   <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
+                   <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
                    <div class="border-t border-gray-100 my-1"></div>
                    <div onclick="selectReport('void', '❌ รายงานบิลที่ยกเลิก', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-red-50 transition-colors">❌ รายงานบิลที่ยกเลิก</div>
                  </div>
@@ -455,7 +455,7 @@
                   📥 โหลดไฟล์ CSV
                </button>
                
-               <button onclick="openReportPrintModal()" class="px-4 py-2.5 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
+               <button onclick="openReportPrintModal()" class="px-4 py-2.5 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
                   🖨️ พิมพ์รายงาน
                </button>
             </div>
@@ -1167,14 +1167,14 @@
             </label>
           </div>
 
-          <div class="flex justify-between items-center bg-blue-50 p-5 rounded-xl border border-blue-100 mt-2">
+           <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
             <div class="flex flex-col">
-              <span class="font-bold text-lg text-blue-800">🛵 ชำระเงินปลายทาง / เดลิเวอรี่</span>
-              <span class="text-sm text-blue-600 mt-1">ใช้ได้เฉพาะตอนเลือกบริการ "ส่งของ (Delivery)" เท่านั้น</span>
+              <span class="font-bold text-lg text-rose-800">🛵 ชำระเงินปลายทาง / เดลิเวอรี่</span>
+              <span class="text-sm text-rose-600 mt-1">ใช้ได้เฉพาะตอนเลือกบริการ "ส่งของ (Delivery)" เท่านั้น</span>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="toggleDeliveryPayment" class="sr-only peer">
-              <div class="w-11 h-6 bg-blue-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div class="w-11 h-6 bg-rose-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
             </label>
           </div>
 
@@ -1898,27 +1898,27 @@
     
     <div class="w-full max-w-2xl flex justify-between items-center mb-6 no-print bg-white p-4 rounded-2xl shadow">
       <div>
-        <h2 class="font-bold text-xl text-green-700">พิมพ์เอกสารรายงาน</h2>
+        <h2 class="font-bold text-xl text-rose-700">พิมพ์เอกสารรายงาน</h2>
         <div class="text-sm text-gray-500" id="reportPrintDateRange"></div>
       </div>
       
       <div class="flex items-center gap-3">
         
         <div class="relative" id="printSizeDropdownContainer">
-          <button type="button" onclick="togglePrintSizeDropdown()" class="w-48 px-4 py-2 bg-green-50 border-2 border-green-200 text-green-700 rounded-xl hover:bg-green-100 transition flex items-center justify-between font-bold text-sm outline-none">
+          <button type="button" onclick="togglePrintSizeDropdown()" class="w-48 px-4 py-2 bg-rose-50 border-2 border-rose-200 text-rose-700 rounded-xl hover:bg-rose-100 transition flex items-center justify-between font-bold text-sm outline-none">
             <span id="printSizeSelectedText">80mm (Thermal)</span>
-            <span class="text-green-500 font-bold text-xs">v</span>
+            <span class="text-rose-500 font-bold text-xs">v</span>
           </button>
           
           <div id="printSizeDropdownMenu" class="hidden absolute top-full right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden text-sm">
-            <div onclick="selectPrintSize('80mm', '80mm (Thermal)')" class="px-4 py-3 cursor-pointer font-bold text-gray-700 hover:bg-green-50 border-b border-gray-50">80mm (Thermal)</div>
-            <div onclick="selectPrintSize('58mm', '58mm (Thermal)')" class="px-4 py-3 cursor-pointer font-bold text-gray-700 hover:bg-green-50 border-b border-gray-50">58mm (Thermal)</div>
-            <div onclick="selectPrintSize('a4', 'A4 / บันทึก PDF')" class="px-4 py-3 cursor-pointer font-bold text-gray-700 hover:bg-green-50">A4 / บันทึก PDF</div>
+            <div onclick="selectPrintSize('80mm', '80mm (Thermal)')" class="px-4 py-3 cursor-pointer font-bold text-gray-700 hover:bg-rose-50 border-b border-gray-50">80mm (Thermal)</div>
+            <div onclick="selectPrintSize('58mm', '58mm (Thermal)')" class="px-4 py-3 cursor-pointer font-bold text-gray-700 hover:bg-rose-50 border-b border-gray-50">58mm (Thermal)</div>
+            <div onclick="selectPrintSize('a4', 'A4 / บันทึก PDF')" class="px-4 py-3 cursor-pointer font-bold text-gray-700 hover:bg-rose-50">A4 / บันทึก PDF</div>
           </div>
         </div>
         
         <button onclick="closeReportPrintModal()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 font-bold transition">← กลับ</button>
-        <button onclick="window.print()" class="px-5 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 flex items-center gap-2 font-bold transition shadow-md">🖨️ ดำเนินการต่อ</button>
+        <button onclick="window.print()" class="px-5 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 flex items-center gap-2 font-bold transition shadow-md">🖨️ ดำเนินการต่อ</button>
       </div>
     </div>
 
@@ -3085,24 +3085,96 @@ function renderPaymentButtons() {
    let s = globalStoreSettings;
    let isCashEnabled = s.enableCash !== false;
    
-   if(isCashEnabled) container.innerHTML += '<button onclick="setPaymentType(\'เงินสด\')" id="btnเงินสด" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">เงินสด</button>';
-   if(s.enableTransfer) container.innerHTML += '<button onclick="setPaymentType(\'โอนเงิน\')" id="btnโอนเงิน" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">โอนเงิน</button>';
-   if(s.enableHalf) container.innerHTML += '<button onclick="setPaymentType(\'คนละครึ่ง\')" id="btnคนละครึ่ง" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">คนละครึ่ง</button>';
-   if(s.enableSplit) container.innerHTML += '<button onclick="setPaymentType(\'แบ่งจ่าย\')" id="btnแบ่งจ่าย" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">แบ่งจ่าย</button>';
-   
-   // 👉 เพิ่มปุ่มเดลิเวอรี่ (โชว์เมื่อเปิดสวิตช์ตั้งค่าไว้ + ต้องเลือกระบบบริการเป็นเดลิเวอรี่เท่านั้น)
-   if(s.enableDeliveryPayment && currentOrderType === 'เดลิเวอรี่') {
-       container.innerHTML += '<button onclick="setPaymentType(\'เดลิเวอรี่\')" id="btnเดลิเวอรี่" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">เดลิเวอรี่</button>';
+   if (currentOrderType === 'เดลิเวอรี่') {
+       if (s.enableDeliveryPayment) {
+           container.innerHTML += `<button onclick="setPaymentType('เดลิเวอรี่')" id="btnเดลิเวอรี่" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">เดลิเวอรี่</button>`;
+           setPaymentType('เดลิเวอรี่'); 
+       } else {
+           container.innerHTML = `<div class="w-full text-center text-red-500 font-bold text-sm py-2">กรุณาเปิดสวิตช์ "ชำระเงินเดลิเวอรี่" ในหน้าตั้งค่าก่อนครับ</div>`;
+       }
+   } else {
+       if(isCashEnabled) container.innerHTML += `<button onclick="setPaymentType('เงินสด')" id="btnเงินสด" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">เงินสด</button>`;
+       if(s.enableTransfer) container.innerHTML += `<button onclick="setPaymentType('โอนเงิน')" id="btnโอนเงิน" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">โอนเงิน</button>`;
+       if(s.enableHalf) container.innerHTML += `<button onclick="setPaymentType('คนละครึ่ง')" id="btnคนละครึ่ง" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition">คนละครึ่ง</button>`;
+       
+       if(isCashEnabled) setPaymentType('เงินสด');
+       else if(s.enableTransfer) setPaymentType('โอนเงิน');
+       else if(s.enableHalf) setPaymentType('คนละครึ่ง');
    }
-
-   // เลือกระบบตั้งต้นให้อัตโนมัติ
-   if(s.enableDeliveryPayment && currentOrderType === 'เดลิเวอรี่') setPaymentType('เดลิเวอรี่');
-   else if(isCashEnabled) setPaymentType('เงินสด');
-   else if(s.enableTransfer) setPaymentType('โอนเงิน');
-   else if(s.enableHalf) setPaymentType('คนละครึ่ง');
-   else if(s.enableSplit) setPaymentType('แบ่งจ่าย');
 }
 
+function setPaymentType(type) {
+    let s = globalStoreSettings;
+    let isCashEnabled = s.enableCash !== false;
+    if (type === 'เงินสด' && !isCashEnabled) return;
+    if (type === 'โอนเงิน' && !s.enableTransfer) return;
+    if (type === 'คนละครึ่ง' && !s.enableHalf) return;
+    if (type === 'เดลิเวอรี่' && (!s.enableDeliveryPayment || currentOrderType !== 'เดลิเวอรี่')) return;
+
+    selectedPayment = type;
+    
+    ['เงินสด', 'โอนเงิน', 'คนละครึ่ง', 'เดลิเวอรี่'].forEach(function(id) {
+         let btn = document.getElementById('btn' + id);
+         if(btn) {
+           if(id === type) {
+               if (id === 'เดลิเวอรี่') {
+                   btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-rose-500 text-rose-700 font-bold bg-rose-50 transition";
+               } else {
+                   btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-rose-500 text-rose-600 font-bold bg-rose-50 transition";
+               }
+           } else {
+               btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition hover:bg-gray-50";
+           }
+         }
+    });
+
+    let cashSec = document.getElementById('cashSection');
+    let numpad = document.getElementById('numpadSection');
+    let numBtns = numpad.querySelectorAll('button:not(#btnConfirm)');
+    
+    numpad.style.opacity = "1"; numpad.style.pointerEvents = "auto";
+    numBtns.forEach(b => { b.style.opacity = "1"; b.style.pointerEvents = "auto"; });
+
+    let subTot = parseFloat(document.getElementById('totalPrice').innerText.replace('฿', '')) || 0;
+    let disc = parseFloat(document.getElementById('discountInput').value) || 0;
+    let usedPoints = parseInt(document.getElementById('usePointsInput')?.value) || 0;
+    let pointDiscount = 0; let cnf = window.pointConfig;
+    if(cnf && cnf.redeemPoint > 0) pointDiscount = (usedPoints / cnf.redeemPoint) * cnf.redeemBaht;
+    let tax = 0; if (s.enableTax) tax = s.taxType === 'percent' ? (subTot * parseFloat(s.taxAmount||0))/100 : parseFloat(s.taxAmount||0);
+    let service = 0; if (s.enableService) service = s.serviceType === 'fixed' ? parseFloat(s.serviceValue||0) : parseFloat(document.getElementById('manualServiceInput')?.value||0);
+    let grandTot = subTot - (disc + pointDiscount) + tax + service;
+    if (grandTot < 0) grandTot = 0;
+
+    let cashVal = parseFloat(currentCash) || 0;
+    let isSplitIntended = s.enableSplit && cashVal > 0 && cashVal < grandTot;
+
+    if (type === 'เงินสด') {
+        if (!isSplitIntended) currentCash = "0"; 
+        cashSec.classList.remove('hidden'); 
+        clearInterval(qrTimerInterval);
+        let qModal = document.getElementById('qrModal');
+        if(qModal) qModal.classList.add('hidden');
+    } 
+    else if (type === 'คนละครึ่ง') {
+        cashSec.classList.remove('hidden'); clearInterval(qrTimerInterval);
+        numBtns.forEach(b => { b.style.opacity = "0.4"; b.style.pointerEvents = "none"; });
+    }
+    else if (type === 'โอนเงิน') {
+        if (!isSplitIntended) {
+            currentCash = "0";
+            cashSec.classList.add('hidden'); 
+        } else {
+            cashSec.classList.remove('hidden'); 
+        }
+        openQRModal();
+        numpad.style.opacity = "0.4"; numpad.style.pointerEvents = "none";
+    } 
+    else if (type === 'เดลิเวอรี่') {
+        cashSec.classList.add('hidden'); clearInterval(qrTimerInterval);
+        numBtns.forEach(b => { b.style.opacity = "0.4"; b.style.pointerEvents = "none"; });
+    }
+    calculateChange();
+}
 
 function checkout() { 
     // 👇 ดักจับ: ถ้ายังไม่เปิดกะ ห้ามกดชำระเงิน
@@ -3151,53 +3223,6 @@ function checkout() {
     document.getElementById('paymentModal').classList.remove('hidden');
 }
 
-function setPaymentType(type) {
-    let isCashEnabled = globalStoreSettings.enableCash !== false;
-    if (type === 'เงินสด' && !isCashEnabled) return;
-    if (type === 'โอนเงิน' && !globalStoreSettings.enableTransfer) return;
-    if (type === 'คนละครึ่ง' && !globalStoreSettings.enableHalf) return;
-    if (type === 'แบ่งจ่าย' && !globalStoreSettings.enableSplit) return;
-    if (type === 'เดลิเวอรี่' && (!globalStoreSettings.enableDeliveryPayment || currentOrderType !== 'เดลิเวอรี่')) return;
-
-    selectedPayment = type;
-    ['เงินสด', 'โอนเงิน', 'คนละครึ่ง', 'แบ่งจ่าย', 'เดลิเวอรี่'].forEach(function(id) {
-         let btn = document.getElementById('btn' + id);
-         if(btn) {
-           if(id === type) {
-               btn.className = (id === 'เดลิเวอรี่') ? "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-blue-500 text-blue-700 font-bold bg-blue-50 transition" : "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-rose-500 text-rose-600 font-bold bg-rose-50 transition";
-           } else {
-               btn.className = "flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition hover:bg-gray-50";
-           }
-         }
-    });
-
-    let cashSec = document.getElementById('cashSection');
-    let numpad = document.getElementById('numpadSection');
-    let numBtns = numpad.querySelectorAll('button:not(#btnConfirm)');
-    
-    numpad.style.opacity = "1"; numpad.style.pointerEvents = "auto";
-    numBtns.forEach(b => { b.style.opacity = "1"; b.style.pointerEvents = "auto"; });
-
-    if (type === 'เงินสด') {
-        currentCash = "0"; cashSec.classList.remove('hidden'); clearInterval(qrTimerInterval);
-    } 
-    else if (type === 'คนละครึ่ง') {
-        cashSec.classList.remove('hidden'); clearInterval(qrTimerInterval);
-        numBtns.forEach(b => { b.style.opacity = "0.4"; b.style.pointerEvents = "none"; });
-    }
-    else if (type === 'โอนเงิน') {
-        cashSec.classList.add('hidden'); openQRModal();
-        numpad.style.opacity = "0.4"; numpad.style.pointerEvents = "none";
-    } 
-    else if (type === 'แบ่งจ่าย') {
-        cashSec.classList.remove('hidden'); openQRModal(); 
-    }
-    else if (type === 'เดลิเวอรี่') {
-        cashSec.classList.add('hidden'); clearInterval(qrTimerInterval); // ล็อก Numpad ซ่อนช่องเงินสด
-        numpad.style.opacity = "0.4"; numpad.style.pointerEvents = "none";
-    }
-    calculateChange();
-}
 
 function calculateChange() {
     let subTot = parseFloat(document.getElementById('totalPrice').innerText.replace('฿', '')) || 0;
@@ -3217,7 +3242,7 @@ function calculateChange() {
         document.getElementById('displayTax').innerText = "฿" + tax.toFixed(2);
     } else { if(taxEl) taxEl.classList.add('hidden'); }
 
-    let service = 0; let serviceRowEl = document.getElementById('serviceRow');
+    let service = 0; let serviceRowEl = document.getElementById('serviceRow'); 
     if (globalStoreSettings.enableService) {
         if (globalStoreSettings.serviceType === 'fixed') service = parseFloat(globalStoreSettings.serviceValue || 0);
         else service = parseFloat(document.getElementById('manualServiceInput')?.value || 0);
@@ -3251,50 +3276,53 @@ function calculateChange() {
     }
     
     let cash = parseFloat(currentCash) || 0;
+    let isSplitIntended = globalStoreSettings.enableSplit && cash > 0 && cash < grandTot;
     let remainingForQR = grandTot - cash;
     if (remainingForQR < 0) remainingForQR = 0;
 
     let ppNum = globalStoreSettings.promptPay || "";
 
     if (selectedPayment === 'โอนเงิน') {
-        currentCash = grandTot.toString(); 
-        document.getElementById('cashInput').innerText = currentCash;
-        if (ppNum) {
-            let qrImg = document.getElementById('qrModalImage');
-            if (qrImg) qrImg.src = 'https://promptpay.io/' + ppNum + '/' + grandTot.toFixed(2) + '.png';
-            let qrAmt = document.getElementById('qrModalAmount');
-            if (qrAmt) qrAmt.innerText = "฿" + grandTot.toFixed(2);
-            if (qrTimerInterval === null) startQRTimer();
+        if (isSplitIntended) {
+            document.getElementById('cashInput').innerText = currentCash;
+            if (ppNum) {
+                let qrImg = document.getElementById('qrModalImage');
+                if (qrImg) qrImg.src = 'https://promptpay.io/' + ppNum + '/' + remainingForQR.toFixed(2) + '.png';
+                let qrAmt = document.getElementById('qrModalAmount');
+                if (qrAmt) qrAmt.innerText = "฿" + remainingForQR.toFixed(2);
+                if (remainingForQR > 0 && qrTimerInterval === null) startQRTimer();
+            }
         } else {
-            let qrAmt = document.getElementById('qrModalAmount');
-            if (qrAmt) qrAmt.innerText = "ยังไม่ได้ตั้งค่าพร้อมเพย์";
+            currentCash = grandTot.toString(); 
+            document.getElementById('cashInput').innerText = currentCash;
+            if (ppNum) {
+                let qrImg = document.getElementById('qrModalImage');
+                if (qrImg) qrImg.src = 'https://promptpay.io/' + ppNum + '/' + grandTot.toFixed(2) + '.png';
+                let qrAmt = document.getElementById('qrModalAmount');
+                if (qrAmt) qrAmt.innerText = "฿" + grandTot.toFixed(2);
+                if (qrTimerInterval === null) startQRTimer();
+            } else {
+                let qrAmt = document.getElementById('qrModalAmount');
+                if (qrAmt) qrAmt.innerText = "ยังไม่ได้ตั้งค่าพร้อมเพย์";
+            }
         }
     } 
-    else if (selectedPayment === 'คนละครึ่ง' || selectedPayment === 'เดลิเวอรี่') { // 👉 อัปเดตให้เดลิเวอรี่ยอดตรงกัน
+    else if (selectedPayment === 'คนละครึ่ง' || selectedPayment === 'เดลิเวอรี่') { 
         currentCash = grandTot.toString();
         document.getElementById('cashInput').innerText = currentCash;
     }
-    else if (selectedPayment === 'แบ่งจ่าย') {
-        document.getElementById('cashInput').innerText = currentCash;
-        if (ppNum) {
-            let qrImg = document.getElementById('qrModalImage');
-            if (qrImg) qrImg.src = 'https://promptpay.io/' + ppNum + '/' + remainingForQR.toFixed(2) + '.png';
-            let qrAmt = document.getElementById('qrModalAmount');
-            if (qrAmt) qrAmt.innerText = "฿" + remainingForQR.toFixed(2);
-            if (remainingForQR > 0 && qrTimerInterval === null) startQRTimer();
-            else if (remainingForQR === 0) { clearInterval(qrTimerInterval); qrTimerInterval = null; }
-        }
-    } else {
+    else {
         document.getElementById('cashInput').innerText = currentCash;
     }
 
     cash = parseFloat(currentCash) || 0;
     let change = cash - grandTot;
-    document.getElementById('changeAmount').innerText = (change > 0 && selectedPayment !== 'แบ่งจ่าย' ? change.toFixed(2) : "0.00");
+    document.getElementById('changeAmount').innerText = (change > 0 && selectedPayment === 'เงินสด' && !isSplitIntended ? change.toFixed(2) : "0.00");
 }
 
 function handleNum(num) {
     if (selectedPayment === 'โอนเงิน' || selectedPayment === 'คนละครึ่ง' || selectedPayment === 'เดลิเวอรี่') return;
+    
     if (num === 'C') currentCash = "0";
     else if (num === '⌫') currentCash = currentCash.length > 1 ? currentCash.slice(0, -1) : "0";
     else currentCash = currentCash === "0" ? String(num) : currentCash + num;
@@ -3391,19 +3419,27 @@ function confirmPayment() {
     let tax = document.getElementById('displayTax') ? document.getElementById('displayTax').innerText.replace('฿', '') : "0";
     let service = document.getElementById('displayService') ? document.getElementById('displayService').innerText.replace('฿', '') : "0";
       
-    if((selectedPayment === 'เงินสด' || selectedPayment === 'คนละครึ่ง') && cash < grandTotal) return showToast("จำนวนเงินสดไม่เพียงพอ!", "error");
+    let isSplitIntended = globalStoreSettings.enableSplit && cash > 0 && cash < grandTotal;
+
+    if(selectedPayment === 'เงินสด' && !isSplitIntended && cash < grandTotal) return showToast("จำนวนเงินสดไม่เพียงพอ!", "error");
     
     let exactCash = 0; let exactTransfer = 0;
+    let finalPaymentType = selectedPayment;
     
     if (selectedPayment === 'เงินสด') {
         exactCash = cash; 
     } else if (selectedPayment === 'คนละครึ่ง') {
         exactCash = grandTotal;
-    } else if (selectedPayment === 'โอนเงิน' || selectedPayment === 'เดลิเวอรี่') { // 👉 โยนยอดเดลิเวอรี่ไปกองกับโอนเงิน
+    } else if (selectedPayment === 'โอนเงิน') {
+        if (isSplitIntended) {
+            exactCash = cash;
+            exactTransfer = grandTotal - cash;
+            finalPaymentType = 'แบ่งจ่าย'; // 👉 เสกสถานะเปลี่ยนเป็น แบ่งจ่าย ทันทีเพื่อบันทึกลงชีต
+        } else {
+            exactTransfer = grandTotal;
+        }
+    } else if (selectedPayment === 'เดลิเวอรี่') { 
         exactTransfer = grandTotal;
-    } else if (selectedPayment === 'แบ่งจ่าย') {
-        exactCash = cash > grandTotal ? grandTotal : cash; 
-        exactTransfer = grandTotal - exactCash;
     }
       
     let btn = document.getElementById('btnConfirm'); if(btn) { btn.innerText = "กำลังบันทึก..."; btn.disabled = true; }
@@ -3420,7 +3456,6 @@ function confirmPayment() {
     let currentUserLog = window.currentUser || "ไม่ระบุพนักงาน";
     let currentBranchLog = window.currentBranch || "ไม่ระบุสาขา";
     
-    // ดึงค่าตัวแปรข้อมูลรูปแบบบริการหน้าร้าน
     let tableNo = document.getElementById('inputTableNo') ? document.getElementById('inputTableNo').value.trim() : '';
     let deliveryApp = document.getElementById('selectDeliveryApp') ? document.getElementById('selectDeliveryApp').value : '';
     let deliveryOrderId = document.getElementById('inputDeliveryOrderId') ? document.getElementById('inputDeliveryOrderId').value.trim() : '';
@@ -3443,9 +3478,13 @@ function confirmPayment() {
         let elAddress = document.getElementById('receiptAddress'); if(elAddress) elAddress.innerText = branchAddress;
 
         let finalTypeString = "";
-        if (currentOrderType === 'ทานที่ร้าน') finalTypeString = tableNo !== "" ? "โต๊ะ: " + tableNo : "ทานที่ร้าน";
-        else if (currentOrderType === 'กลับบ้าน') finalTypeString = "กลับบ้าน";
-        else if (currentOrderType === 'เดลิเวอรี่') finalTypeString = deliveryApp + (deliveryOrderId !== "" ? " " + deliveryOrderId : "");
+        if (currentOrderType === 'ทานที่ร้าน') {
+            finalTypeString = tableNo !== "" ? "โต๊ะ: " + tableNo : "ทานที่ร้าน";
+        } else if (currentOrderType === 'กลับบ้าน') {
+            finalTypeString = "กลับบ้าน";
+        } else if (currentOrderType === 'เดลิเวอรี่') {
+            finalTypeString = deliveryApp + (deliveryOrderId !== "" ? " " + deliveryOrderId : "");
+        }
         
         let elSlipType = document.getElementById('slipOrderTypeDisplay'); if(elSlipType) elSlipType.innerText = finalTypeString;
         let elKitType = document.getElementById('kitchenOrderTypeDisplay'); if(elKitType) elKitType.innerText = finalTypeString;
@@ -3470,25 +3509,26 @@ function confirmPayment() {
         let elSubTotal = document.getElementById('slipSubTotal'); if(elSubTotal) elSubTotal.innerText = res.subTotal.toFixed(2) + " ฿";
         let elDiscount = document.getElementById('slipDiscount'); if(elDiscount) elDiscount.innerText = "- " + parseFloat(res.discount).toFixed(2) + " ฿";
         let elGrandTotal = document.getElementById('slipGrandTotal'); if(elGrandTotal) elGrandTotal.innerText = res.grandTotal.toFixed(2) + " ฿";
+        
+        // 👉 สแตมป์ชื่อวิธีชำระลงบิลด้วยตัวแปรที่วิเคราะห์ใหม่
+        res.paymentType = finalPaymentType; 
         let elPayType = document.getElementById('slipPayType'); if(elPayType) elPayType.innerText = res.paymentType;
         let elChange = document.getElementById('slipChange'); if(elChange) elChange.innerText = res.changeAmount;
         
         let elCash = document.getElementById('slipCash');
         if(elCash) {
-            let displayCashVal = (res.paymentType === 'เงินสด') ? parseFloat(res.cashReceived) : parseFloat(res.cashAmount);
+            let displayCashVal = (finalPaymentType === 'เงินสด') ? parseFloat(res.cashReceived) : exactCash;
             elCash.innerText = displayCashVal.toFixed(2);
-            let showCash = (res.paymentType === 'เงินสด' || res.paymentType === 'แบ่งจ่าย' || res.paymentType === 'คนละครึ่ง' || displayCashVal > 0);
+            let showCash = (finalPaymentType === 'เงินสด' || finalPaymentType === 'แบ่งจ่าย' || finalPaymentType === 'คนละครึ่ง' || displayCashVal > 0);
             elCash.parentElement.style.display = showCash ? 'flex' : 'none';
         }
         
         let elTrans = document.getElementById('slipTransfer'); 
         if(elTrans) {
-            elTrans.innerText = parseFloat(res.transferAmount).toFixed(2);
-            // 👉 แก้ไข: โชว์บรรทัดการโอนเฉพาะเมื่อเป็นการโอนจริง และถ้าเป็นเดลิเวอรี่ก็ให้โชว์เช่นกัน
-            let showTrans = (res.paymentType === 'โอนเงิน' || res.paymentType === 'เดลิเวอรี่' || res.paymentType === 'แบ่งจ่าย' || parseFloat(res.transferAmount) > 0);
+            elTrans.innerText = exactTransfer.toFixed(2);
+            let showTrans = (finalPaymentType === 'โอนเงิน' || finalPaymentType === 'เดลิเวอรี่' || finalPaymentType === 'แบ่งจ่าย' || exactTransfer > 0);
             elTrans.parentElement.style.display = showTrans ? 'flex' : 'none';
-            // เปลี่ยนคำนำหน้าให้สมจริงขึ้น
-            if (res.paymentType === 'เดลิเวอรี่') elTrans.previousElementSibling.innerText = "ยอดเดลิเวอรี่:";
+            if (finalPaymentType === 'เดลิเวอรี่') elTrans.previousElementSibling.innerText = "ยอดเดลิเวอรี่:";
             else elTrans.previousElementSibling.innerText = "โอนเงิน:";
         }
 
@@ -3534,8 +3574,9 @@ function confirmPayment() {
             }).updateTableStatusGS(tableNo, "ว่าง");
         }
         
-    }).processSale(cartData, selectedPayment, currentCash, changeStr, totalDiscountForDB, phone, exactCash, exactTransfer, tax, service, usedPoints, currentUserLog, currentBranchLog, currentOrderType, tableNo, deliveryApp, deliveryOrderId);
+    }).processSale(cartData, finalPaymentType, currentCash, changeStr, totalDiscountForDB, phone, exactCash, exactTransfer, tax, service, usedPoints, currentUserLog, currentBranchLog, currentOrderType, tableNo, deliveryApp, deliveryOrderId);
 }
+
 
 // ล้างค่าอินพุตรูปแบบบริการเมื่อจบหนึ่งบิล (ให้กลับไปเป็นสีเทาทั้งหมด)
 function finishRealTime() {
@@ -3905,11 +3946,11 @@ function openRecallModal() {
             container.innerHTML += `
             <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
                 <div>
-                    <div class="font-bold text-emerald-800 text-lg">${order.name}</div>
+                    <div class="font-bold text-rose-800 text-lg">${order.name}</div>
                     <div class="text-sm text-gray-500">${order.cart.length} รายการ | ยอด ฿${order.total.toFixed(2)} | เวลา ${order.time}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="recallOrder(${index})" class="px-5 py-2 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition shadow-sm">ดึงบิลคืน</button>
+                    <button onclick="recallOrder(${index})" class="px-5 py-2 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 transition shadow-sm">ดึงบิลคืน</button>
                     <button onclick="deleteHeldOrder(${index})" class="px-4 py-2 bg-red-50 text-red-500 border border-red-100 rounded-xl hover:bg-red-100 transition font-bold">ลบ</button>
                 </div>
             </div>`;
@@ -4128,10 +4169,10 @@ function loadAdminProducts() {
                     <td class="p-3">${p.category || '-'}</td>
                     <td class="p-3">฿${parseFloat(p.cost).toFixed(2)}</td>
                     <td class="p-3 font-bold text-rose-600">฿${parseFloat(p.price).toFixed(2)}</td>
-                    <td class="p-3 font-bold text-green-600">${displayRemaining}</td>
+                    <td class="p-3 font-bold text-rose-600">${displayRemaining}</td>
                     <td class="p-3 text-center whitespace-nowrap">
                         <button onclick="openRecipeManager('${safeName}', ${p.price})" class="px-3 py-2 bg-amber-50 text-amber-600 rounded-xl font-bold mr-1 hover:bg-amber-100 transition">🍳 ผูกสูตร</button>
-                        <button onclick="openProductModal(${index})" class="px-3 py-2 bg-green-50 text-green-500 rounded-xl font-bold mr-1">แก้ไข</button>
+                        <button onclick="openProductModal(${index})" class="px-3 py-2 bg-rose-50 text-rose-500 rounded-xl font-bold mr-1">แก้ไข</button>
                         <button onclick="deleteProduct(${p.rowIdx}, '${safeName}')" class="px-3 py-2 bg-red-50 text-red-500 rounded-xl font-bold">ลบ</button>
                     </td>
                 </tr>`;
@@ -4459,13 +4500,13 @@ function selectReport(type, text, element) {
   // ล้างสีสถานะเดิมทั้งหมดให้เป็นสีเทา
   let items = document.querySelectorAll('.report-item');
   items.forEach(item => {
-    item.classList.remove('bg-green-600', 'text-white');
-    item.classList.add('text-gray-700', 'hover:bg-green-50');
+    item.classList.remove('bg-rose-600', 'text-white');
+    item.classList.add('text-gray-700', 'hover:bg-rose-50');
   });
   
   // ใส่สีสถานะที่ถูกเลือก (สีน้ำเงินตัวหนังสือขาวตามตัวอย่าง)
-  element.classList.remove('text-gray-700', 'hover:bg-green-50');
-  element.classList.add('bg-green-600', 'text-white');
+  element.classList.remove('text-gray-700', 'hover:bg-rose-50');
+  element.classList.add('bg-rose-600', 'text-white');
 }
 
 // ปิด Dropdown เมื่อคลิกที่พื้นที่อื่นของหน้าจอ
@@ -5595,7 +5636,7 @@ function renderMembersList(data) {
         <tr class="hover:bg-gray-50 transition border-b border-gray-100">
             <td class="p-4 font-bold text-gray-800">📱 ${phoneDisplay}</td>
             <td class="p-4"><span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-lg text-xs font-bold">${m.type || 'ลูกค้าทั่วไป'}</span></td>
-            <td class="p-4 font-bold text-emerald-600 text-center text-xl">${points.toLocaleString()}</td>
+            <td class="p-4 font-bold text-rose-600 text-center text-xl">${points.toLocaleString()}</td>
             <td class="p-4 font-bold text-rose-600 text-right">฿${spent.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
             <td class="p-4 text-center text-gray-500 text-sm">${lastVisit}</td>
         </tr>`;
@@ -5766,7 +5807,7 @@ function renderEmployeeTable() {
             <td class="p-3 font-bold text-rose-700">${emp.branch || 'ไม่ได้ระบุ'}</td> 
             <td class="p-3 text-center font-bold">${maskedPassword}</td>
             <td class="p-3 text-center">
-                <button onclick="editEmployee(${index})" class="text-emerald-500 hover:text-emerald-700 mr-3 text-lg" title="แก้ไข">✏️</button>
+                <button onclick="editEmployee(${index})" class="text-rose-500 hover:text-rose-700 mr-3 text-lg" title="แก้ไข">✏️</button>
                 <button onclick="deleteEmployee(${emp.rowIdx})" class="text-red-500 hover:text-red-700 text-lg" title="ลบ">🗑️</button>
             </td>
         </tr>`;
@@ -6415,11 +6456,11 @@ function loadBranchesData() {
             let onClickDel = isMain ? `showToast('สาขาหลักไม่สามารถลบได้', 'info')` : `deleteBranch(${branch.rowIdx}, '${branch.name}')`;
             
             html += `
-            <tr class="border-b hover:bg-emerald-50 transition">
+            <tr class="border-b hover:bg-rose-50 transition">
                 <td class="p-4 font-bold text-gray-800">🏪 ${branch.name}</td>
                 <td class="p-4 text-gray-600">${branch.desc || '-'}</td>
                 <td class="p-4 text-center">
-                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 text-xs rounded-full font-bold">${branch.status}</span>
+                    <span class="bg-rose-100 text-rose-700 px-3 py-1 text-xs rounded-full font-bold">${branch.status}</span>
                 </td>
                 <td class="p-4 text-center">
                     <button onclick="${onClickEdit}" class="${btnClassEdit} text-sm mr-3">แก้ไข</button>
@@ -7847,14 +7888,14 @@ let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(table.name);
 let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrTargetUrl);
                 
                 // 🎨 สลับสีสถานะ ว่าง(เขียว) ไม่ว่าง(แดง)
-                let statusClass = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700";
+                let statusClass = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "bg-rose-100 text-rose-700" : "bg-red-100 text-red-700";
                 let statusText = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "🟢 ว่าง" : "🔴 ไม่ว่าง";
 
                 html += '<tr class="border-b hover:bg-purple-50/40 transition">';
                 html += '<td class="p-4 font-bold text-gray-800">🪑 ' + table.name + '</td>';
                 html += '<td class="p-4 text-center"><span class="' + statusClass + ' px-3 py-1 text-xs rounded-full font-bold">' + statusText + '</span></td>';
                 html += '<td class="p-4 text-center"><a href="' + qrGeneratorApi + '" target="_blank" class="px-3 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-xl font-bold text-xs inline-flex items-center gap-1 transition shadow-sm">🖨️ ดูคิวอาร์ (Print QR)</a></td>';
-                html += '<td class="p-4 text-center whitespace-nowrap"><button onclick="editTable(' + index + ')" class="text-blue-500 hover:text-blue-700 font-bold text-xs mr-3">แก้ไข</button><button onclick="deleteTable(' + table.rowIdx + ', \'' + table.name + '\')" class="text-red-500 hover:text-red-700 font-bold text-xs">ลบ</button></td>';
+                html += '<td class="p-4 text-center whitespace-nowrap"><button onclick="editTable(' + index + ')" class="text-rose-500 hover:text-rose-700 font-bold text-xs mr-3">แก้ไข</button><button onclick="deleteTable(' + table.rowIdx + ', \'' + table.name + '\')" class="text-red-500 hover:text-red-700 font-bold text-xs">ลบ</button></td>';
                 html += '</tr>';
             });
             if (tbody) tbody.innerHTML = html;
@@ -7938,7 +7979,7 @@ function buildSalesTableGrid() {
 
   let html = '';
   globalSalesTableList.forEach(function(t) {
-    html += '<button type="button" data-tablename="' + t.name + '" onclick="selectSalesTable(\'' + t.name + '\')" class="table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 transition shadow-sm">' + t.name + '</button>';
+    html += '<button type="button" data-tablename="' + t.name + '" onclick="selectSalesTable(\'' + t.name + '\')" class="table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 transition shadow-sm">' + t.name + '</button>';
   });
   
   container.innerHTML = html;
@@ -7951,9 +7992,9 @@ function openSalesTableModal() {
   buttons.forEach(function(btn) {
     let tName = btn.getAttribute('data-tablename');
     if (tName === currentSelected && currentSelected !== "") {
-      btn.className = "table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-emerald-500 border-emerald-500 text-white shadow-md transition transform scale-95 ring-2 ring-emerald-300 ring-offset-1";
+      btn.className = "table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-rose-500 border-rose-500 text-white shadow-md transition transform scale-95 ring-2 ring-rose-300 ring-offset-1";
     } else {
-      btn.className = "table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 transition shadow-sm";
+      btn.className = "table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 transition shadow-sm";
     }
   });
   document.getElementById('salesTableModal').classList.remove('hidden');
