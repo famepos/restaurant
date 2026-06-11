@@ -1945,7 +1945,7 @@
       <div class="dashed-line"></div>
       <div class="text-center text-xs text-gray-400 mt-2">*** ใบส่งเข้าห้องครัว ***</div>
     </div>
-</div> ```
+</div>
 
 
 
@@ -7988,8 +7988,14 @@ function checkForNewQROrders() {
                 });
             }
             
-            // ส่งคำสั่งไปบอกหลังบ้านว่า "รับออเดอร์นี้แล้วนะ เลิกเตือนได้"
+   // ส่งคำสั่งไปบอกหลังบ้านว่า "รับออเดอร์นี้แล้วนะ เลิกเตือนได้"
             google.script.run.markQROrderAsReceivedGS(order.id);
+            
+            // ⚡ ของใหม่: สั่งเปลี่ยนสถานะโต๊ะนั้นๆ ให้กลายเป็น "ไม่ว่าง" ทันทีที่มีออเดอร์คิวอาร์เข้าระบบ
+            if (order.table && order.table !== "") {
+                google.script.run.updateTableStatusGS(order.table, "ไม่ว่าง");
+            }
+            
             orderCount++;
         });
 
