@@ -2402,11 +2402,11 @@
 
 
   <script>
-// 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุดเลยครับ (จะได้หาเจอง่ายๆ)
+// 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
 const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
 // ================================================================
-// 🧙‍♂️ MAGIC PROXY: ตัวแปลงภาษาให้ google.script.run ทำงานบน GitHub ได้
+// 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
 // ================================================================
 const google = {
     script: {
@@ -2423,9 +2423,12 @@ const google = {
                         return function(cb) { failureCb = cb; return proxy; };
                     }
                     return function(...args) {
+                        // ⚡ เพิ่ม Header และ redirect เพื่อป้องกันการโดนบล็อก
                         fetch(API_URL, {
                             method: "POST",
-                            body: JSON.stringify({ action: prop, args: args })
+                            headers: { "Content-Type": "text/plain;charset=utf-8" },
+                            body: JSON.stringify({ action: prop, args: args }),
+                            redirect: "follow"
                         })
                         .then(res => res.json())
                         .then(data => {
@@ -2446,6 +2449,7 @@ const google = {
         }
     }
 };
+// ================================================================
 
 let cart = [];
     let currentCash = "0";
