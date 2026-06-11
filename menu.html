@@ -128,31 +128,46 @@
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
-        // ดึงเมนูจาก Google Sheets ผ่าน POST
+// 1. ดึงเมนูจากระบบ POS หลักโดยตรง (รับประกันข้อมูลตรงกัน 100%)
         function fetchMenuData() {
             fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: "getProductsForMenu" }),
+                body: JSON.stringify({ action: "getProducts" }), // ใช้คำสั่งเดียวกับ POS ชัวร์แน่นอน!
                 redirect: "follow"
             })
             .then(res => res.json())
             .then(data => {
                 if(data.status === "Success") {
-                    allProducts = data.result;
+                    processRawProducts(data.result);
                     document.getElementById('loadingOverlay').classList.add('hidden');
-                    renderCategories();
-                    renderProducts("ทั้งหมด");
                 } else {
                     document.getElementById('loadingOverlay').classList.add('hidden');
-                    showAlert("ข้อผิดพลาด", "ไม่สามารถดึงข้อมูลเมนูได้: " + data.message, "❌", "error");
+                    showAlert("ข้อผิดพลาดจากระบบ", "ดึงเมนูไม่ได้: " + (data.message || JSON.stringify(data)), "❌", "error");
                 }
             })
             .catch(err => {
                 document.getElementById('loadingOverlay').classList.add('hidden');
-                showAlert("ข้อผิดพลาด", "การเชื่อมต่อล้มเหลว", "❌", "error");
-            });
+                showAlert("การเชื่อมต่อล้มเหลว", "โปรดตรวจสอบลิงก์ API หรืออินเทอร์เน็ต", "❌", "error");
+
+                // 2. ⚡ ระบบ Real-time: แอบดึงข้อมูลเงียบๆ ทุกๆ 5 วินาที
+        function fetchMenuDataSilent() {
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ action: "getProducts" }),
+                redirect: "follow"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "Success") {
+                    processRawProducts(data.result, true); // true = อัปเดตเงียบๆ
+                }
+            }).catch(e => console.log("Silent Update Failed"));
         }
+
+        // สั่งให้อัปเดตเงียบๆ ทุก 5 วินาที
+        setInterval(fetchMenuDataSilent, 5000);
 
         function renderCategories() {
             let cats = ["ทั้งหมด"];
@@ -164,6 +179,41 @@
                 html += `<button onclick="filterCategory('${safeCat}')" class="cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition ${c === 'ทั้งหมด' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-500'}">${c}</button>`;
             });
             document.getElementById('categoryContainer').innerHTML = html;
+        }
+                // 3. ระบบแปลงข้อมูลจากหลังบ้านให้เป็นเมนูสวยๆ
+        function processRawProducts(rawArray, isSilent = false) {
+            let tempProducts = [];
+            
+            // ข้อมูลจาก Google Sheets (p[1]=ชื่อ, p[2]=หมวดหมู่, p[4]=ราคา, p[6]=สต็อก, p[8]=รูป)
+            for (let i = 0; i < rawArray.length; i++) {
+                let p = rawArray[i];
+                let stock = p[6];
+                
+                // แสดงเฉพาะเมนูที่สต็อกไม่หมด (เป็นค่าว่าง หรือ มากกว่า 0)
+                if (stock === "" || stock > 0) {
+                    tempProducts.push({
+                        name: p[1],
+                        category: p[2],
+                        price: p[4],
+                        image: p[8] || ""
+                    });
+                }
+            }
+            
+            // ถ้าดึงเงียบๆ จะวาดหน้าจอใหม่เฉพาะตอนที่คุณเฟรมแก้เมนูเท่านั้น (ลูกค้าจะได้ไม่กระตุก)
+            if (isSilent) {
+                if (JSON.stringify(allProducts) !== JSON.stringify(tempProducts)) {
+                    allProducts = tempProducts;
+                    let activeBtn = document.querySelector('.cat-btn.bg-emerald-50');
+                    let currentCat = activeBtn ? activeBtn.innerText : "ทั้งหมด";
+                    renderCategories();
+                    filterCategory(currentCat); // จัดหมวดหมู่กลับไปที่หน้าเดิม
+                }
+            } else {
+                allProducts = tempProducts;
+                renderCategories();
+                renderProducts("ทั้งหมด");
+            }
         }
 
         function filterCategory(cat) {
