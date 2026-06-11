@@ -15,15 +15,15 @@
 <body class="pb-24">
 
     <!-- แถบด้านบน (Header) -->
-    <div class="bg-rose-600 text-white p-4 sticky top-0 z-50 shadow-md">
+    <div class="bg-emerald-600 text-white p-4 sticky top-0 z-50 shadow-md">
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <h1 class="text-xl font-bold">เมนูอาหาร 🍽️</h1>
-                <button onclick="openHistoryModal()" class="bg-rose-700 hover:bg-rose-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 shadow-md transition">
+                <button onclick="openHistoryModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 shadow-md transition">
                     📜 ประวัติสั่งซื้อ
                 </button>
             </div>
-            <div id="tableDisplay" class="bg-rose-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
+            <div id="tableDisplay" class="bg-emerald-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
                 โต๊ะ: กำลังโหลด...
             </div>
         </div>
@@ -31,8 +31,8 @@
 
     <!-- โซนแจ้งเตือนกำลังโหลด -->
     <div id="loadingOverlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-40 flex flex-col items-center justify-center">
-        <div class="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-rose-500 mb-4"></div>
-        <p class="text-rose-700 font-bold text-base">กำลังจัดเตรียมเมนูอาหาร...</p>
+        <div class="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-emerald-500 mb-4"></div>
+        <p class="text-emerald-700 font-bold text-base">กำลังจัดเตรียมเมนูอาหาร...</p>
     </div>
 
     <!-- แถบเลือกหมวดหมู่ (Categories) -->
@@ -50,9 +50,9 @@
         <div class="flex justify-between items-center max-w-lg mx-auto">
             <div class="flex flex-col">
                 <span class="text-sm text-gray-500 font-bold">ตะกร้าของคุณ</span>
-                <span class="text-xl font-bold text-rose-600"><span id="cartCount">0</span> รายการ</span>
+                <span class="text-xl font-bold text-emerald-600"><span id="cartCount">0</span> รายการ</span>
             </div>
-            <button onclick="openCartModal()" class="bg-rose-500 text-white px-6 py-3 rounded-2xl font-bold hover:bg-rose-600 transition shadow-lg flex items-center gap-2">
+            <button onclick="openCartModal()" class="bg-emerald-500 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-600 transition shadow-lg flex items-center gap-2">
                 ดูตะกร้า / สั่งอาหาร ➔
             </button>
         </div>
@@ -69,9 +69,9 @@
             <div class="p-5 bg-white border-t border-gray-100 rounded-b-3xl">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-lg font-bold text-gray-600">ยอดรวมทั้งสิ้น</span>
-                    <span id="cartTotal" class="text-3xl font-black text-rose-600">฿0.00</span>
+                    <span id="cartTotal" class="text-3xl font-black text-emerald-600">฿0.00</span>
                 </div>
-                <button id="btnSubmitOrder" onclick="submitOrder()" class="w-full bg-rose-500 text-white py-4 rounded-2xl font-bold text-xl hover:bg-rose-600 transition shadow-xl">
+                <button id="btnSubmitOrder" onclick="submitOrder()" class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold text-xl hover:bg-emerald-600 transition shadow-xl">
                     ส่งออเดอร์เข้าครัว 🔥
                 </button>
             </div>
@@ -87,7 +87,7 @@
             
             <div id="dynamicSalesOptionsContainer" class="flex-1 overflow-y-auto space-y-4 pr-1 hide-scroll"></div>
 
-            <button onclick="confirmProductOptions()" class="w-full mt-4 bg-rose-500 text-white font-bold py-4 rounded-xl text-lg hover:bg-rose-600 shadow-md transition">
+            <button onclick="confirmProductOptions()" class="w-full mt-4 bg-emerald-500 text-white font-bold py-4 rounded-xl text-lg hover:bg-emerald-600 shadow-md transition">
                 ✔️ ยืนยันหยิบลงตะกร้า
             </button>
         </div>
@@ -97,7 +97,7 @@
     <div id="orderHistoryModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
         <div class="bg-white rounded-[2rem] w-full max-w-md p-6 shadow-2xl relative flex flex-col h-[75vh]">
             <button onclick="closeHistoryModal()" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
-            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center gap-2">📜 ประวัติการสั่งซื้อวันนี้</h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center gap-2">📜 ประวัติการส่งออเดอร์</h2>
             
             <div id="historyItemsContainer" class="flex-1 overflow-y-auto space-y-3 pr-1 hide-scroll">
                 <!-- รายการประวัติจะถูกเสกที่นี่ -->
@@ -115,18 +115,18 @@
             <div id="customAlertIcon" class="text-6xl mb-4 drop-shadow-md">🔔</div>
             <h3 id="customAlertTitle" class="text-xl font-black text-gray-800 mb-2">แจ้งเตือน</h3>
             <p id="customAlertMessage" class="text-gray-500 mb-6 font-medium leading-relaxed">ข้อความ...</p>
-            <button onclick="closeCustomAlert()" id="customAlertBtn" class="w-full bg-rose-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-rose-600 transition shadow-lg active:scale-95">ตกลง</button>
+            <button onclick="closeCustomAlert()" id="customAlertBtn" class="w-full bg-emerald-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-emerald-600 transition shadow-lg active:scale-95">ตกลง</button>
         </div>
     </div>
 
     <script>
-        // 🚨 ดักจับ Syntax Error ป้องกันหน้าขาวค้าง
+        // 🚨 ระบบดักจับ Error ป้องกันหน้าขาวค้าง
         window.onerror = function(msg, url, line) {
             alert("❌ ตรวจพบข้อผิดพลาด: " + msg + " (บรรทัดที่ " + line + ")");
             return false;
         };
 
-        // ลิงก์ Web App API หลังบ้าน[cite: 2]
+        // ลิงก์ Web App API หลังบ้านของคุณเฟรม[cite: 2]
         const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec"; 
         
         let allProducts = [];
@@ -136,13 +136,12 @@
         let tempOptionProduct = null;
         let currentSelectedModifiers = {};
 
-        // ระบบแจ้งเตือนแจ้งข่าวด่วน
         function showAlert(title, message, icon = '🔔', type = 'info') {
             document.getElementById('customAlertIcon').innerText = icon;
             document.getElementById('customAlertTitle').innerText = title;
             document.getElementById('customAlertMessage').innerText = message;
             let btn = document.getElementById('customAlertBtn');
-            btn.className = type === 'error' ? "w-full bg-rose-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-rose-600 transition shadow-lg" : "w-full bg-rose-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-rose-600 transition shadow-lg";
+            btn.className = type === 'error' ? "w-full bg-rose-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-rose-600 transition shadow-lg" : "w-full bg-emerald-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-emerald-600 transition shadow-lg";
             let modal = document.getElementById('customAlertModal');
             let box = document.getElementById('customAlertBox');
             modal.classList.remove('hidden');
@@ -158,7 +157,6 @@
 
         // ดึงข้อมูลเมนูและคลังตัวเลือกเสริมพร้อมกัน
         function fetchMenuData() {
-            // ดึงข้อมูลสินค้า[cite: 2]
             fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -179,7 +177,6 @@
                 showAlert("การเชื่อมต่อล้มเหลว", "ไม่สามารถติดต่อหลังบ้านได้", "❌", "error");
             });
 
-            // ดึงข้อมูลตัวเลือกเสริมมารอฝังไว้ในเครื่อง[cite: 2]
             fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -187,14 +184,13 @@
                 redirect: "follow"
             })
             .then(res => res.json())
-            .then(data => {
-                if(data.status === "Success") {
-                    window.cachedModifiersRaw = data.result; // บันทึกแคชกลุ่มตัวเลือก[cite: 2]
-                }
-            }).catch(e => console.log("โหลดตัวเลือกเสริมล้มเหลว"));
+            .then(data => { if(data.status === "Success") window.cachedModifiersRaw = data.result; })
+            .catch(e => console.log("โหลดตัวเลือกเสริมล้มเหลว"));
         }
 
+        // 🔄 ระบบ Real-time: เช็คข้อมูลสินค้า และเช็คสถานะเช็คบิลหน้าร้าน[cite: 2]
         function fetchMenuDataSilent() {
+            // 1. Sync ข้อมูลสินค้าอัปเดตเมนู
             fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -204,6 +200,26 @@
             .then(res => res.json())
             .then(data => { if(data.status === "Success") processRawProducts(data.result, true); })
             .catch(e => console.log("Silent Sync..."));
+
+            // 2. 🧼 ตรวจสอบสถานะโต๊ะเพื่อล้างข้อมูลประวัติออเดอร์เก่าเมื่อหน้าร้านเช็คบิลแล้ว[cite: 2]
+            if (currentTable !== "ไม่ระบุ") {
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ action: "getTablesData" }),
+                    redirect: "follow"
+                })
+                .then(res => res.json())
+                .then(tableData => {
+                    if(tableData.status === "Success" && Array.isArray(tableData.result)) {
+                        let myTable = tableData.result.find(t => t && t.name === currentTable);
+                        // ถ้าแคชเชียร์ชำระเงินบิลแล้วเปลี่ยนสถานะโต๊ะกลับเป็น "ว่าง"[cite: 2]
+                        if(myTable && (myTable.status === "ว่าง" || myTable.status === "🟢 ว่าง")) {
+                            localStorage.removeItem('famepos_menu_history_' + currentTable); // ล้างประวัติโต๊ะนี้เกลี้ยงทันทีเพื่อรอรับลูกค้าใหม่![cite: 2]
+                        }
+                    }
+                }).catch(e => console.log("Table status check skipped"));
+            }
         }
 
         function processRawProducts(rawArray, isSilent = false) {
@@ -219,14 +235,14 @@
                         category: (p[2] || "ทั่วไป").toString().trim(),
                         price: parseFloat(p[3]) || 0,
                         image: (p[8] || "").toString().trim(),
-                        options: (p[10] || "").toString().trim() // 🧩 ดึงรายชื่อกลุ่มตัวเลือกมาเซฟไว้[cite: 2]
+                        options: (p[10] || "").toString().trim()
                     });
                 }
             }
             if (isSilent) {
                 if (JSON.stringify(allProducts) !== JSON.stringify(tempProducts)) {
                     allProducts = tempProducts;
-                    let activeBtn = document.querySelector('.cat-btn.bg-rose-50');
+                    let activeBtn = document.querySelector('.cat-btn.bg-emerald-50');
                     filterCategory(activeBtn ? activeBtn.getAttribute('data-cat') : "ทั้งหมด");
                 }
             } else {
@@ -240,7 +256,7 @@
             let html = '';
             cats.forEach(c => {
                 let safeCat = c.replace(/'/g, "\\'");
-                let btnStyle = (c === 'ทั้งหมด') ? "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-rose-50 border-rose-500 text-rose-700" : "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-white border-gray-200 text-gray-500";
+                let btnStyle = (c === 'ทั้งหมด') ? "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-emerald-50 border-emerald-500 text-emerald-700" : "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-white border-gray-200 text-gray-500";
                 html += '<button onclick="filterCategory(\'' + safeCat + '\')" data-cat="' + safeCat + '" class="' + btnStyle + '">' + c + '</button>';
             });
             document.getElementById('categoryContainer').innerHTML = html;
@@ -248,7 +264,7 @@
 
         function filterCategory(cat) {
             document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.className = (btn.getAttribute('data-cat') === cat) ? "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-rose-50 border-rose-500 text-rose-700" : "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-white border-gray-200 text-gray-500";
+                btn.className = (btn.getAttribute('data-cat') === cat) ? "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-emerald-50 border-emerald-500 text-emerald-700" : "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-white border-gray-200 text-gray-500";
             });
             renderProducts(cat);
         }
@@ -260,31 +276,29 @@
             let html = '';
             filtered.forEach(p => {
                 let safeName = p.name.replace(/'/g, "\\'");
-                let imgHtml = p.image ? '<img src="' + p.image + '" class="w-full h-32 object-cover rounded-xl mb-2" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-full h-32 bg-rose-50 rounded-xl flex items-center justify-center text-3xl mb-2 border border-rose-100">🍽️</div>';
+                let imgHtml = p.image ? '<img src="' + p.image + '" class="w-full h-32 object-cover rounded-xl mb-2" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-full h-32 bg-emerald-50 rounded-xl flex items-center justify-center text-3xl mb-2 border border-emerald-100">🍽️</div>';
                 html += `
                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full relative">
                     ${imgHtml}
                     <h3 class="font-bold text-sm text-gray-800 line-clamp-2 leading-tight">${p.name}</h3>
                     <div class="mt-auto pt-3 flex justify-between items-end">
-                        <span class="text-rose-600 font-bold">฿${p.price.toFixed(2)}</span>
-                        <button onclick="handleProductClick('${safeName}')" class="w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold shadow-md hover:bg-rose-600 transition active:scale-95">+</button>
+                        <span class="text-emerald-600 font-bold">฿${p.price.toFixed(2)}</span>
+                        <button onclick="handleProductClick('${safeName}')" class="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold shadow-md hover:bg-emerald-600 transition active:scale-95">+</button>
                     </div>
                 </div>`;
             });
             container.innerHTML = html;
         }
 
-        // 🧠 คอนโทรลเลอร์ตรวจจับว่ามีตัวเลือกเสริมหรือไม่[cite: 2]
         function handleProductClick(name) {
             let p = allProducts.find(item => item.name === name);
             if(p && p.options && p.options !== "") {
-                openOptionsModal(p.name, p.price, p.options); // เปิดม่านป๊อปอัปให้เลือก[cite: 2]
+                openOptionsModal(p.name, p.price, p.options); 
             } else if (p) {
-                addToCartDirect(p.name, p.price); // แอดลงตะกร้าทันทีถ้าไม่มีออปชัน
+                addToCartDirect(p.name, p.price); 
             }
         }
 
-        // 🧩 สรรค์สร้างหน้าต่างเลือกตัวเลือกเสริม (เหมือน POS หลังร้าน 100%)[cite: 2]
         function openOptionsModal(name, price, optionsStr) {
             tempOptionProduct = { name: name, basePrice: parseFloat(price) };
             currentSelectedModifiers = {};
@@ -297,10 +311,10 @@
             let hasOptions = false;
 
             activeGroups.forEach((groupName) => {
-                let items = window.cachedModifiersRaw.filter(r => r && String(r[0]).trim() === groupName); // ค้นหากลุ่ม[cite: 2]
+                let items = window.cachedModifiersRaw.filter(r => r && String(r[0]).trim() === groupName); 
                 if(items.length === 0) return;
                 hasOptions = true;
-                currentSelectedModifiers[groupName] = { name: "ไม่รับ", price: 0 }; // ตัวเลือกแรกสุด[cite: 2]
+                currentSelectedModifiers[groupName] = { name: "ไม่รับ", price: 0 }; 
 
                 let buttonsHtml = `<button onclick="selectSalesModifierButton('${groupName}', 'ไม่รับ', 0, this)" class="mod-sales-btn px-3 py-2 border-2 text-xs font-bold rounded-xl transition bg-rose-50 border-rose-500 text-rose-700">❌ ไม่รับ</button>`;
                 buttonsHtml += items.map((item) => {
@@ -333,7 +347,7 @@
                 if (mod.name !== "ไม่รับ") { detailsArr.push(mod.name); finalPrice += mod.price; }
             });
 
-            if(detailsArr.length > 0) finalName += ` [${detailsArr.join(', ')}]`; // รวมชื่อเสริม[cite: 2]
+            if(detailsArr.length > 0) finalName += ` [${detailsArr.join(', ')}]`; 
             addToCartDirect(finalName, finalPrice); closeOptionsModal();
         }
 
@@ -352,13 +366,35 @@
             renderCartModal();
         }
 
+        // 📸 หน้าต่างยืนยันคำสั่งซื้อ: ดึงรูปภาพขนาดกระทัดรัดมาจัดวางแสดงคู่กัน[cite: 2]
         function renderCartModal() {
             let container = document.getElementById('cartItemsContainer');
             let total = 0; let html = '';
             if(cart.length === 0) { html = '<div class="text-center py-10 text-gray-400 font-bold">ยังไม่มีสินค้าในตะกร้า</div>'; } else {
                 cart.forEach((item, index) => {
                     total += (item.price * item.qty);
-                    html += `<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center"><div class="flex-1 pr-2"><h4 class="font-bold text-gray-800 text-sm leading-tight">${item.name}</h4><div class="text-rose-600 font-bold text-xs mt-1">฿${item.price.toFixed(2)}</div></div><div class="flex items-center gap-3"><button onclick="adjustQty(${index}, -1)" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold">-</button><span class="font-bold w-4 text-center">${item.qty}</span><button onclick="adjustQty(${index}, 1)" class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 font-bold">+</button></div></div>`;
+                    
+                    // แกะเอาชื่อเมนูหลักไปจับคู่ดึงลิงก์รูปภาพมาแสดง[cite: 2]
+                    let baseName = item.name.split(' [')[0];
+                    let prod = allProducts.find(p => p.name === baseName);
+                    let imgUrl = prod ? prod.image : "";
+                    let cartImgHtml = imgUrl ? '<img src="' + imgUrl + '" class="w-12 h-12 object-cover rounded-xl border shrink-0" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-xl shrink-0">📦</div>';
+                    
+                    html += `
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div class="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                            ${cartImgHtml}
+                            <div class="flex flex-col min-w-0">
+                                <h4 class="font-bold text-gray-800 text-sm leading-tight truncate">${item.name}</h4>
+                                <div class="text-emerald-600 font-bold text-xs mt-1">฿${item.price.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <button onclick="adjustQty(${index}, -1)" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition">-</button>
+                            <span class="font-bold w-4 text-center">${item.qty}</span>
+                            <button onclick="adjustQty(${index}, 1)" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-bold hover:bg-emerald-200 transition">+</button>
+                        </div>
+                    </div>`;
                 });
             }
             container.innerHTML = html; document.getElementById('cartTotal').innerText = `฿${total.toFixed(2)}`;
@@ -371,31 +407,53 @@
         function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
         function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
 
-        // 📜 ระบบประวัติคำสั่งซื้อประจำโต๊ะ (เซฟลงหน่วยความจำโทรศัพท์ลูกค้าอย่างเสถียร)[cite: 2]
+        // 📜 ระบบบันทึกประวัติการส่งออเดอร์ของโต๊ะใบปัจจุบัน (แฝงฝังรูปภาพลงในประวัติด้วย)[cite: 2]
         function saveOrderToLocalHistory(items, total) {
-            let history = JSON.parse(localStorage.getItem('famepos_menu_history') || '[]');
+            let key = 'famepos_menu_history_' + currentTable; // แยกกุญแจเก็บตามหมายเลขโต๊ะ ไม่ปนกัน[cite: 2]
+            let history = JSON.parse(localStorage.getItem(key) || '[]');
             let timeStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-            history.unshift({ time: timeStr, items: items, total: total }); // ดันรายการใหม่ขึ้นบนสุด[cite: 2]
-            localStorage.setItem('famepos_menu_history', JSON.stringify(history));
+            
+            // แอบจับรูปภาพของเมนูนั้นๆ พ่วงติดแนบเข้าไปเก็บลง Memory ประวัติด้วย[cite: 2]
+            let itemsWithImages = items.map(i => {
+                let baseName = i.name.split(' [')[0];
+                let prod = allProducts.find(p => p.name === baseName);
+                return { name: i.name, price: i.price, qty: i.qty, image: prod ? prod.image : "" };
+            });
+            
+            history.unshift({ time: timeStr, items: itemsWithImages, total: total });
+            localStorage.setItem(key, JSON.stringify(history));
         }
 
+        // 📜 วาดเปิดหน้าประวัติการสั่งซื้อประจำโต๊ะ พร้อมดึงภาพเมนูขนาดจิ๋วมาสแตมป์โชว์อย่างสวยงาม[cite: 2]
         function openHistoryModal() {
-            let history = JSON.parse(localStorage.getItem('famepos_menu_history') || '[]');
+            let key = 'famepos_menu_history_' + currentTable;
+            let history = JSON.parse(localStorage.getItem(key) || '[]');
             let container = document.getElementById('historyItemsContainer');
             if (history.length === 0) {
                 container.innerHTML = '<div class="text-center py-12 text-gray-400 font-bold text-sm">ยังไม่มีประวัติการส่งออเดอร์ในวันนี้ 📭</div>';
             } else {
                 let html = '';
                 history.forEach(order => {
-                    let itemsHtml = order.items.map(i => `<div class="text-xs text-gray-700 font-medium flex justify-between"><span>📌 ${i.name}</span><span class="text-rose-600 font-black">x${i.qty}</span></div>`).join('');
+                    let itemsHtml = order.items.map(i => {
+                        let historyImgHtml = i.image ? '<img src="' + i.image + '" class="w-10 h-10 object-cover rounded-lg border shrink-0" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-md shrink-0">📦</div>';
+                        return `
+                        <div class="flex justify-between items-center py-1.5">
+                            <div class="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
+                                ${historyImgHtml}
+                                <span class="text-xs text-gray-700 font-bold truncate">📌 ${i.name}</span>
+                            </div>
+                            <span class="text-emerald-600 font-black text-sm shrink-0">x${i.qty}</span>
+                        </div>`;
+                    }).join('');
+                    
                     html += `
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-2">
                         <div class="flex justify-between items-center border-b pb-1.5 border-gray-100 text-[11px] font-bold">
                             <span class="text-gray-400">⏱️ เวลาส่งครัว: ${order.time} น.</span>
-                            <span class="text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">ส่งครัวแล้ว</span>
+                            <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">ส่งครัวแล้ว</span>
                         </div>
-                        <div class="space-y-1.5 py-1">${itemsHtml}</div>
-                        <div class="text-right text-xs font-black text-rose-600 pt-1.5 border-t border-dashed border-gray-100">รวมบิลนี้: ฿${order.total.toFixed(2)}</div>
+                        <div class="space-y-1 py-1 divide-y divide-gray-50">${itemsHtml}</div>
+                        <div class="text-right text-xs font-black text-emerald-600 pt-1.5 border-t border-dashed border-gray-100">รวมบิลนี้: ฿${order.total.toFixed(2)}</div>
                     </div>`;
                 });
                 container.innerHTML = html;
@@ -405,7 +463,6 @@
 
         function closeHistoryModal() { document.getElementById('orderHistoryModal').classList.add('hidden'); }
 
-        // ส่งออเดอร์เข้าตารางหลังบ้าน
         function submitOrder() {
             if(cart.length === 0) return showAlert("ตะกร้าว่างเปล่า", "กรุณาเลือกเมนูอาหารที่ต้องการก่อนกดสั่งซื้อนะครับ", "🛒", "error");
             if(currentTable === "ไม่ระบุ") return showAlert("เกิดข้อผิดพลาด", "ไม่สามารถส่งออเดอร์ได้ เนื่องจากระบบไม่ทราบหมายเลขโต๊ะ", "❌", "error");
@@ -426,10 +483,7 @@
             .then(data => {
                 if(data.status === "Success" && data.result === "Success") {
                     showAlert("ส่งออเดอร์สำเร็จ!", "รายการอาหารของคุณถูกส่งเข้าครัวเรียบร้อยแล้ว นั่งรอรับความอร่อยได้เลยครับ", "✅", "success");
-                    
-                    // บันทึกลงหน้าประวัติสั่งซื้อประจำเครื่อง[cite: 2]
-                    saveOrderToLocalHistory(cart, total);
-                    
+                    saveOrderToLocalHistory(cart, total); // เซฟจำลงประวัติทันที[cite: 2]
                     cart = []; updateCartUI(); closeCartModal();
                 } else {
                     showAlert("เกิดข้อผิดพลาด", "ระบบส่งออเดอร์ไม่ได้: " + (data.message || data.result), "❌", "error");
@@ -442,7 +496,6 @@
             });
         }
 
-        // เริ่มต้นตรวจสอบพารามิเตอร์โต๊ะเพื่อใช้งานระบบ
         function initPage() {
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.has('table')) {
@@ -457,7 +510,7 @@
         }
 
         initPage();
-        setInterval(fetchMenuDataSilent, 5000); // วนลูป Sync อัตโนมัติทุก 5 วินาที
+        setInterval(fetchMenuDataSilent, 5000); // คอย Sync ข้อมูลและคอยแอบตรวจเช็คบิลหน้าร้านทุกๆ 5 วินาที[cite: 2]
     </script>
 </body>
 </html>
