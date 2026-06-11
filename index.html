@@ -249,13 +249,13 @@
             <h3 class="text-xl font-bold text-emerald-800">เลือกหมายเลขโต๊ะ</h3>
         </div>
         
-        <div id="modalTableGridContainer" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[50vh] overflow-y-auto pr-2 pb-2">
+<div id="modalTableGridContainer" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[50vh] overflow-y-auto pr-2 pb-2">
             </div>
     </div>
 </div>
 
     <!-- ================= หน้าจอ: บิล ================= -->
-<div id="historyView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
+</div> <div id="historyView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
 <div class="w-full mt-6 mb-6 min-h-[calc(100vh-3rem)] bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col">        
         <div class="flex flex-col xl:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
           <h1 class="text-3xl font-bold text-rose-800 whitespace-nowrap">📜 บิลทั้งหมด</h1>
@@ -2400,7 +2400,31 @@
     <div class="text-center text-xs mt-2 text-gray-500">*** พิมพ์สำหรับส่งเข้าห้องครัว ***</div>
 </div>
 
+    <!-- ================= หน้าจอ:📱 สแกน QR Code เพื่อชำระเงิน ================= -->
 
+
+<div id="qrModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative flex flex-col items-center text-center">
+        <button onclick="closeQRModal()" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
+        <h3 class="text-xl font-bold text-rose-700 mb-2">📱 สแกน QR Code เพื่อชำระเงิน</h3>
+        <p class="text-xs text-gray-400 mb-4">กรุณาแสกนจ่ายเงินภายในเวลาที่กำหนด</p>
+        
+        <div class="bg-rose-50 text-rose-600 font-bold px-4 py-2 rounded-full text-sm mb-4 border border-rose-100">
+            ⏳ เวลาคงเหลือ: <span id="qrModalTimer">10:00</span>
+        </div>
+        
+        <div class="bg-white p-3 rounded-2xl border-2 border-rose-100 mb-4 shadow-inner">
+            <img id="qrModalImage" src="" class="w-48 h-48 object-contain mx-auto transition-opacity duration-300" alt="PromptPay QR">
+        </div>
+        
+        <div class="text-sm text-gray-500 mb-1">ยอดเงินที่ต้องสแกน</div>
+        <div id="qrModalAmount" class="text-3xl font-black text-rose-600 mb-6">฿0.00</div>
+        
+        <button id="btnConfirmQR" onclick="confirmPayment()" class="w-full py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-lg shadow-md transition active:scale-95">
+            ชำระเงินเรียบร้อยแล้ว
+        </button>
+    </div>
+</div>
 
   <script>
 // 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
@@ -2463,6 +2487,7 @@ window.currentUser = "Admin";
 let currentAdminProducts = [];
 let currentReceiveHistory = [];
 let currentOutHistory = [];
+let heldOrders = [];
 
 // 1. ฟังก์ชันช่วยแจ้งเตือน (Toast) [เวอร์ชันแก้บั๊กสีแดงไม่แสดง]
 function showToast(message, type) {
@@ -2576,7 +2601,6 @@ function filterProducts() {
 // --- 📋 ฟังก์ชันควบคุมปุ่มสลับสถานะรูปแบบบริการที่หน้าจอขายสินค้า ---
 let currentOrderType = 'ยังไม่ระบุ';
 
-// 🧠 ของใหม่: เพิ่มตัวแปรสวิตช์ , isRecall = false เข้าไปในวงเล็บ
 function setOrderType(type, btnElement, isRecall = false) {
     let buttons = document.querySelectorAll('.order-type-btn');
     buttons.forEach(btn => {
@@ -2584,31 +2608,31 @@ function setOrderType(type, btnElement, isRecall = false) {
     });
     if(btnElement) btnElement.className = "order-type-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700";
 
-  let tableBox = document.getElementById('tableSelectedDisplayContainer');
-  let deliveryBox = document.getElementById('deliveryInfoContainer');
-  
-  if (type === 'DineIn') {
-    currentOrderType = 'ทานที่ร้าน';
-    if(tableBox) { tableBox.classList.remove('hidden'); tableBox.classList.add('flex'); }
-    if(deliveryBox) deliveryBox.classList.add('hidden');
-    
-    // เด้งป๊อปอัปเลือกโต๊ะขึ้นมาทันทีที่กดปุ่มทานที่ร้าน
-    if (!isRecall) {
-    openSalesTableModal();
-}
-    
-  } else if (type === 'TakeAway') {
-    currentOrderType = 'กลับบ้าน';
-    if(tableBox) { tableBox.classList.add('hidden'); tableBox.classList.remove('flex'); }
-    if(deliveryBox) deliveryBox.classList.add('hidden');
-    document.getElementById('inputTableNo').value = ''; // เคลียร์โต๊ะทิ้ง
-    
-  } else if (type === 'Delivery') {
-    currentOrderType = 'เดลิเวอรี่';
-    if(tableBox) { tableBox.classList.add('hidden'); tableBox.classList.remove('flex'); }
-    if(deliveryBox) deliveryBox.classList.remove('hidden');
-    document.getElementById('inputTableNo').value = ''; // เคลียร์โต๊ะทิ้ง
-  }
+    let tableBox = document.getElementById('tableSelectedDisplayContainer');
+    let deliveryBox = document.getElementById('deliveryInfoContainer');
+
+    if (type === 'DineIn') {
+        currentOrderType = 'ทานที่ร้าน';
+        if(tableBox) { tableBox.classList.remove('hidden'); tableBox.classList.add('flex'); }
+        if(deliveryBox) deliveryBox.classList.add('hidden');
+
+        // 🧠 ดักจับ: ถ้าไม่ใช่บิลเก่าเรียกคืน (Recall) ให้เด้งป๊อปอัปเลือกโต๊ะตามปกติ
+        if (!isRecall) {
+            openSalesTableModal();
+        }
+
+    } else if (type === 'TakeAway') {
+        currentOrderType = 'กลับบ้าน';
+        if(tableBox) { tableBox.classList.add('hidden'); tableBox.classList.remove('flex'); }
+        if(deliveryBox) deliveryBox.classList.add('hidden');
+        document.getElementById('inputTableNo').value = ''; 
+
+    } else if (type === 'Delivery') {
+        currentOrderType = 'เดลิเวอรี่';
+        if(tableBox) { tableBox.classList.add('hidden'); tableBox.classList.remove('flex'); }
+        if(deliveryBox) deliveryBox.classList.remove('hidden');
+        document.getElementById('inputTableNo').value = ''; 
+    }
 }
 
 function renderProductGrid(data) {
@@ -2643,6 +2667,7 @@ function renderProductGrid(data) {
 }
 
 loadProducts();
+
 
 
 // 3. ระบบโหลดข้อมูลและ Data Binding (ปลอดภัย)
@@ -3795,7 +3820,7 @@ function undoClearCart() {
 // ==========================================
 // 💡 ระบบพักบิลและเรียกบิลอัจฉริยะ (Smart Hold/Recall)
 // ==========================================
-let heldOrders = [];
+let heldOrders = JSON.parse(localStorage.getItem('famepos_held_orders') || '[]');
 
 function holdOrder() {
     if (cart.length === 0) return showToast("ไม่มีสินค้าในตะกร้าให้พักบิล!", "error");
@@ -3851,16 +3876,22 @@ function confirmHoldOrder() {
     finishRealTime(); 
     
     // อัปเดตตัวเลขแจ้งเตือนปุ่มพักบิล
-    updateHeldCount(); 
-    showToast("พักบิล '" + orderName + "' เรียบร้อย", "success");
+  // แทนที่คำสั่ง updateHeldCount(); เดิมด้วยโค้ดด้านล่างนี้
+if(typeof updateHeldCount === 'function') {
+    updateHeldCount();
+}
+showToast("พักบิล '" + orderName + "' เรียบร้อย", "success");
 }
 
 function updateHeldCount() {
     let countEl = document.getElementById('heldCount');
     if(countEl) {
-        if(heldOrders.length > 0) { countEl.innerText = heldOrders.length; countEl.classList.remove('hidden'); } 
+        if(heldOrders.length > 0) { countEl.innerText = heldOrders.length; countEl.classList.remove('hidden'); }
         else { countEl.classList.add('hidden'); }
     }
+    
+    // ⚡ เติมบรรทัดนี้เพิ่มเข้าไปท้ายฟังก์ชันครับ เพื่อให้เซฟบิลพักปัจจุบันลงเครื่องอัตโนมัติ
+    localStorage.setItem('famepos_held_orders', JSON.stringify(heldOrders));
 }
 
 function openRecallModal() {
@@ -3902,13 +3933,13 @@ function processRecall(index) {
     let btnTakeAway = document.getElementById('btnOrderTakeAway');
     let btnDelivery = document.getElementById('btnOrderDelivery');
     
-if (oType === 'ทานที่ร้าน' && btnDineIn) {
-    //  ของใหม่: เติม , true เพื่อกระซิบส่งสัญญาณบอกระบบให้ปิดป๊อปอัปเลือกโต๊ะ
-    setOrderType('DineIn', btnDineIn, true); 
-    if (order.tableNo && order.tableNo !== "") {
-             document.getElementById('inputTableNo').value = order.tableNo;
-             let display = document.getElementById('displaySelectedTable');
-             if(display) display.innerText = order.tableNo;
+    if (oType === 'ทานที่ร้าน' && btnDineIn) {
+        // ของใหม่: เติม , true เพื่อกระซิบส่งสัญญาณบอกระบบให้ปิดป๊อปอัปเลือกโต๊ะ
+        setOrderType('DineIn', btnDineIn, true); 
+        if (order.tableNo && order.tableNo !== "") {
+            document.getElementById('inputTableNo').value = order.tableNo;
+            let display = document.getElementById('displaySelectedTable');
+            if(display) display.innerText = order.tableNo;
         }
     } else if (oType === 'กลับบ้าน' && btnTakeAway) {
         setOrderType('TakeAway', btnTakeAway);
@@ -3919,7 +3950,13 @@ if (oType === 'ทานที่ร้าน' && btnDineIn) {
     }
     
     heldOrders.splice(index, 1); 
-    updateCartUI(); updateHeldCount();
+    updateCartUI(); 
+    
+    // 👉 ปรับเพิ่ม Safety Check ตรงนี้เพื่อความปลอดภัย ป้องกันแอปค้างครับ ✨
+    if (typeof updateHeldCount === 'function') {
+        updateHeldCount();
+    }
+    
     document.getElementById('recallModal').classList.add('hidden');
     showToast("ดึงข้อมูลบิลสำเร็จ", "success");
 }
@@ -6676,8 +6713,12 @@ window.addEventListener('load', function() {
     }
     
     if(typeof loadMembers === 'function') loadMembers();
-});
 
+    // 👉 เพิ่มส่วนนี้เข้าไปที่ท้ายสุดของอีเวนต์ load เพื่ออัปเดตจำนวนยอดบิลพักทันทีเมื่อเปิดหน้าจอสำเร็จครับ
+    if (typeof updateHeldCount === 'function') {
+        updateHeldCount();
+    }
+});
 // ============================================
 // ระบบตัวเลือกสินค้า (ร้านกาแฟ)
 // ============================================
@@ -7988,10 +8029,10 @@ function checkForNewQROrders() {
                 });
             }
             
-   // ส่งคำสั่งไปบอกหลังบ้านว่า "รับออเดอร์นี้แล้วนะ เลิกเตือนได้"
+            // ส่งคำสั่งไปบอกหลังบ้านว่า "รับออเดอร์นี้แล้วนะ เลิกเตือนได้"
             google.script.run.markQROrderAsReceivedGS(order.id);
             
-            // ⚡ ของใหม่: สั่งเปลี่ยนสถานะโต๊ะนั้นๆ ให้กลายเป็น "ไม่ว่าง" ทันทีที่มีออเดอร์คิวอาร์เข้าระบบ
+            // สั่งเปลี่ยนสถานะโต๊ะนั้นๆ ให้กลายเป็น "ไม่ว่าง" ทันทีที่มีออเดอร์คิวอาร์เข้าระบบ
             if (order.table && order.table !== "") {
                 google.script.run.updateTableStatusGS(order.table, "ไม่ว่าง");
             }
@@ -8001,10 +8042,11 @@ function checkForNewQROrders() {
 
         // อัปเดตตัวเลขแจ้งเตือนบนปุ่ม "เรียกบิล" และส่งเสียงเตือน
         if (orderCount > 0) {
-            updateHeldCount();
+            if (typeof updateHeldCount === 'function') {
+                updateHeldCount();
+            }
             if(!document.getElementById('recallModal').classList.contains('hidden')) openRecallModal(); // ถ้าระบบเปิดหน้าเรียกบิลอยู่ ให้รีเฟรชโชว์ของใหม่ด้วย
             showToast(`🔔 มีออเดอร์ใหม่จากลูกค้า (สแกน QR) เข้ามา ${orderCount} โต๊ะ!`, "success");
-            // 🔊 ถ้าอยากให้มีเสียงเตือน ติ๊ง! สามารถเพิ่มคำสั่งเล่นเสียงตรงนี้ได้ครับ
         }
 
     }).getNewQROrdersGS(); // ไปเรียกฟังก์ชันหลังบ้าน
