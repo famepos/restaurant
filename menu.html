@@ -144,13 +144,25 @@
         };
 
         // 2. ฟังก์ชันดึงเมนูอาหาร
-        function fetchMenuData() {
-            // ใช้ JSONP เพื่อแก้ปัญหา CORS (เรียกข้ามโดเมน)
-            let script = document.createElement('script');
-            script.src = `${API_URL}?action=getMenu&callback=processMenuData`;
-            document.body.appendChild(script);
+ function fetchMenuData() {
+    fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "getProductsForMenu" })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "Success") {
+            processMenuData(data.result);
+        } else {
+            showAlert("ข้อผิดพลาด", "ไม่สามารถดึงข้อมูลเมนูได้: " + data.message, "❌", "error");
+            document.getElementById('loadingOverlay').classList.add('hidden');
         }
-
+    })
+    .catch(err => {
+        showAlert("ข้อผิดพลาด", "การเชื่อมต่อล้มเหลว", "❌", "error");
+        document.getElementById('loadingOverlay').classList.add('hidden');
+    });
+}
         // 3. จัดการข้อมูลเมนูที่ได้มา
         function processMenuData(data) {
             allProducts = data;
@@ -268,55 +280,47 @@
         function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
 
         // 7. ส่งคำสั่งซื้อเข้าสู่ระบบหลังบ้าน
-        function submitOrder() {
-            if(cart.length === 0) return showAlert("ตะกร้าว่างเปล่า", "กรุณาเลือกเมนูอาหารที่ต้องการก่อนกดสั่งซื้อนะครับ", "🛒", "error");
-            if(currentTable === "ไม่ระบุ") return showAlert("เกิดข้อผิดพลาด", "ไม่สามารถส่งออเดอร์ได้ เนื่องจากระบบไม่ทราบว่าคุณลูกค้าอยู่โต๊ะไหนครับ", "❌", "error");
-            
-            let btn = document.getElementById('btnSubmitOrder');
-            btn.disabled = true;
-            btn.innerHTML = "กำลังส่งออเดอร์... ⏳";
-            
-            let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            let orderPayload = {
-                table: currentTable,
-                items: cart,
-                total: total
-            };
+function submitOrder() {
+    if(cart.length === 0) return showAlert("ตะกร้าว่างเปล่า", "กรุณาเลือกเมนูอาหารที่ต้องการก่อนกดสั่งซื้อนะครับ", "🛒", "error");
+    if(currentTable === "ไม่ระบุ") return showAlert("เกิดข้อผิดพลาด", "ไม่สามารถส่งออเดอร์ได้ เนื่องจากระบบไม่ทราบว่าคุณลูกค้าอยู่โต๊ะไหนครับ", "❌", "error");
+    
+    let btn = document.getElementById('btnSubmitOrder');
+    btn.disabled = true;
+    btn.innerHTML = "กำลังส่งออเดอร์... ⏳";
+    
+    let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    let orderPayload = {
+        table: currentTable,
+        items: cart,
+        total: total
+    };
 
-            // สร้างฟอร์มซ่อนเพื่อยิง Post ไปยัง Apps Script
-            let form = document.createElement('form');
-            form.method = 'POST';
-            form.action = API_URL;
-            form.target = 'hiddenIframe';
-
-            let actionInput = document.createElement('input');
-            actionInput.type = 'hidden'; actionInput.name = 'action'; actionInput.value = 'submitQROrder';
-            form.appendChild(actionInput);
-
-            let payloadInput = document.createElement('input');
-            payloadInput.type = 'hidden'; payloadInput.name = 'payload'; payloadInput.value = JSON.stringify(orderPayload);
-            form.appendChild(payloadInput);
-
-            document.body.appendChild(form);
-            
-            let iframe = document.createElement('iframe');
-            iframe.name = 'hiddenIframe';
-            iframe.style.display = 'none';
-            document.body.appendChild(iframe);
-
-            iframe.onload = function() {
-                showAlert("ส่งออเดอร์สำเร็จ!", "รายการอาหารของคุณถูกส่งเข้าครัวเรียบร้อยแล้ว นั่งรอรับความอร่อยได้เลยครับ", "✅", "success");
-                cart = [];
-                updateCartUI();
-                closeCartModal();
-                btn.disabled = false;
-                btn.innerHTML = "ส่งออเดอร์เข้าครัว 🔥";
-                // ล้างซาก iframe
-                setTimeout(() => { document.body.removeChild(form); document.body.removeChild(iframe); }, 1000);
-            };
-
-            form.submit();
+    fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "submitCustomerOrder",
+            args: [orderPayload]
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "Success" && data.result === "Success") {
+            showAlert("ส่งออเดอร์สำเร็จ!", "รายการอาหารของคุณถูกส่งเข้าครัวเรียบร้อยแล้ว นั่งรอรับความอร่อยได้เลยครับ", "✅", "success");
+            cart = [];
+            updateCartUI();
+            closeCartModal();
+        } else {
+            showAlert("เกิดข้อผิดพลาด", "ระบบไม่สามารถส่งออเดอร์ได้: " + (data.message || data.result), "❌", "error");
         }
+        btn.disabled = false;
+        btn.innerHTML = "ส่งออเดอร์เข้าครัว 🔥";
+    })
+    .catch(err => {
+        showAlert("เกิดข้อผิดพลาด", "การเชื่อมต่อล้มเหลว: " + err, "❌", "error");
+        btn.disabled = false;
+        btn.innerHTML = "ส่งออเดอร์เข้าครัว 🔥";
+    });
+}
     </script>
 </body>
 </html>
