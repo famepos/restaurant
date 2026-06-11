@@ -203,7 +203,6 @@
         }
 
 // 🔄 ระบบ Real-time: เช็คข้อมูลสินค้า และเช็คสถานะเช็คบิลหน้าร้าน
-// 🔄 ระบบ Real-time: เช็คข้อมูลสินค้า และเช็คสถานะเช็คบิลหน้าร้าน
         function fetchMenuDataSilent() {
             // 1. Sync ข้อมูลสินค้าอัปเดตเมนู
             fetch(API_URL, {
@@ -235,21 +234,26 @@
                                 hasBeenOccupied = true;
                             }
                             
-                            // 👉 ก้าวที่ 2: ถ้าระบบหลังบ้านโต๊ะกลับเป็น "ว่าง" (แคชเชียร์เช็คบิลเสร็จแล้ว)
+                            // 👉 ก้าวที่ 2: ถ้าระบบหลังบ้านโต๊ะกลับเป็น "ว่าง"
                             if(myTable.status === "ว่าง" || myTable.status === "🟢 ว่าง") {
                                 
-                                // ล้างประวัติการสั่งเก่าๆ ในเครื่องทิ้งไปเลย เพื่อเคลียร์พื้นที่ให้ลูกค้าใหม่
-                                localStorage.removeItem('famepos_menu_history_' + currentTable);
+                                // ✅ กรณีที่ 1: ลูกค้าใหม่เพิ่งสแกนเข้ามา และยังไม่ได้กดส่งออเดอร์ (ล้างประวัติขยะทิ้ง)
+                                if (!hasOrderedThisSession) {
+                                    localStorage.removeItem('famepos_menu_history_' + currentTable);
+                                }
                                 
-                                // 👉 เช็คเงื่อนไข: บล็อกหน้าจอเฉพาะคนที่ "สั่งไปแล้ว" และ "แคชเชียร์รับบิลไปแล้ว" 
-                                // และตอนนี้ "แคชเชียร์กดยืนยันชำระเงินจนโต๊ะกลับมาว่างแล้ว" เท่านั้น!
+                                // ✅ กรณีที่ 2: ลูกค้ากินเสร็จแล้ว (สั่งแล้ว + โต๊ะเคยแดงแล้ว + ตอนนี้โต๊ะกลับมาเขียว)
                                 if (hasOrderedThisSession && hasBeenOccupied) {
+                                    
+                                    // ล้างประวัติการสั่งทิ้ง และบล็อกหน้าจอ
+                                    localStorage.removeItem('famepos_menu_history_' + currentTable);
                                     cart = []; 
+                                    
                                     document.body.innerHTML = `
-                                        <div class="fixed inset-0 z-[9999] bg-rose-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+                                        <div class="fixed inset-0 z-[9999] bg-emerald-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
                                             <div class="text-7xl mb-4">🙏</div>
-                                            <h1 class="text-3xl font-black text-rose-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
-                                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 mt-4 max-w-sm w-full">
+                                            <h1 class="text-3xl font-black text-emerald-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
+                                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 mt-4 max-w-sm w-full">
                                                 <p class="text-gray-600 font-medium leading-relaxed">บิลของโต๊ะนี้ถูกชำระเงินเรียบร้อยแล้ว<br>เซสชันการสั่งอาหารของคุณได้สิ้นสุดลง</p>
                                             </div>
                                             <p class="text-sm text-gray-400 mt-8 font-bold">หากต้องการสั่งใหม่ กรุณาสแกน QR Code ที่โต๊ะอีกครั้ง</p>
