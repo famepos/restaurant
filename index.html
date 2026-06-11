@@ -18,8 +18,8 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
-    body { font-family: 'Kanit', sans-serif; background-color: #ecfdf5; color: #4e0606; margin: 0; }
-    .modern-card { background: white; border: 1px solid #d1fae5; border-radius: 1.5rem; transition: 0.2s; }
+    body { font-family: 'Kanit', sans-serif; background-color: #fdecec; color: #4e0606; margin: 0; }
+    .modern-card { background: white; border: 1px solid #fad1d1; border-radius: 1.5rem; transition: 0.2s; }
     .modern-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1); }
     
     .receipt-slip { font-family: 'Courier New', Courier, monospace; background: white; color: black; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; }
@@ -28,6 +28,7 @@
     .slip-80mm { max-width: 320px; font-size: 14px; padding: 20px; }
     .slip-58mm { max-width: 220px; font-size: 11px; padding: 10px; }
     .slip-a4   { max-width: 794px; font-size: 16px; padding: 40px; min-height: 1123px; }
+    
     
 @media print {
       /* บังคับให้บอดี้และหน้าต่างพิมพ์ ยืดขยายอัตโนมัติ และปิดแถบเลื่อน */
@@ -2575,12 +2576,13 @@ function filterProducts() {
 // --- 📋 ฟังก์ชันควบคุมปุ่มสลับสถานะรูปแบบบริการที่หน้าจอขายสินค้า ---
 let currentOrderType = 'ยังไม่ระบุ';
 
-function setOrderType(type, btnElement) {
-  let buttons = document.querySelectorAll('.order-type-btn');
-  buttons.forEach(btn => {
-    btn.className = "order-type-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500";
-  });
-  if(btnElement) btnElement.className = "order-type-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700";
+// 🧠 ของใหม่: เพิ่มตัวแปรสวิตช์ , isRecall = false เข้าไปในวงเล็บ
+function setOrderType(type, btnElement, isRecall = false) {
+    let buttons = document.querySelectorAll('.order-type-btn');
+    buttons.forEach(btn => {
+        btn.className = "order-type-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500";
+    });
+    if(btnElement) btnElement.className = "order-type-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700";
 
   let tableBox = document.getElementById('tableSelectedDisplayContainer');
   let deliveryBox = document.getElementById('deliveryInfoContainer');
@@ -2591,7 +2593,9 @@ function setOrderType(type, btnElement) {
     if(deliveryBox) deliveryBox.classList.add('hidden');
     
     // เด้งป๊อปอัปเลือกโต๊ะขึ้นมาทันทีที่กดปุ่มทานที่ร้าน
+    if (!isRecall) {
     openSalesTableModal();
+}
     
   } else if (type === 'TakeAway') {
     currentOrderType = 'กลับบ้าน';
@@ -3898,9 +3902,10 @@ function processRecall(index) {
     let btnTakeAway = document.getElementById('btnOrderTakeAway');
     let btnDelivery = document.getElementById('btnOrderDelivery');
     
-    if (oType === 'ทานที่ร้าน' && btnDineIn) {
-        setOrderType('DineIn', btnDineIn);
-        if (order.tableNo && order.tableNo !== "") {
+if (oType === 'ทานที่ร้าน' && btnDineIn) {
+    //  ของใหม่: เติม , true เพื่อกระซิบส่งสัญญาณบอกระบบให้ปิดป๊อปอัปเลือกโต๊ะ
+    setOrderType('DineIn', btnDineIn, true); 
+    if (order.tableNo && order.tableNo !== "") {
              document.getElementById('inputTableNo').value = order.tableNo;
              let display = document.getElementById('displaySelectedTable');
              if(display) display.innerText = order.tableNo;
