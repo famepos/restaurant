@@ -135,6 +135,7 @@
         window.cachedModifiersRaw = []; // คลังตัวเลือกเสริมหลังบ้าน[cite: 2]
         let tempOptionProduct = null;
         let currentSelectedModifiers = {};
+        let hasOrderedThisSession = false;
 
         function showAlert(title, message, icon = '🔔', type = 'info') {
             document.getElementById('customAlertIcon').innerText = icon;
@@ -188,7 +189,7 @@
             .catch(e => console.log("โหลดตัวเลือกเสริมล้มเหลว"));
         }
 
-        // 🔄 ระบบ Real-time: เช็คข้อมูลสินค้า และเช็คสถานะเช็คบิลหน้าร้าน[cite: 2]
+// 🔄 ระบบ Real-time: เช็คข้อมูลสินค้า และเช็คสถานะเช็คบิลหน้าร้าน
         function fetchMenuDataSilent() {
             // 1. Sync ข้อมูลสินค้าอัปเดตเมนู
             fetch(API_URL, {
@@ -201,7 +202,7 @@
             .then(data => { if(data.status === "Success") processRawProducts(data.result, true); })
             .catch(e => console.log("Silent Sync..."));
 
-            // 2. 🧼 ตรวจสอบสถานะโต๊ะเพื่อล้างข้อมูลประวัติออเดอร์เก่าเมื่อหน้าร้านเช็คบิลแล้ว[cite: 2]
+            // 2. 🧼 ตรวจสอบสถานะโต๊ะเพื่อป้องกัน "ออเดอร์ผี"
             if (currentTable !== "ไม่ระบุ") {
                 fetch(API_URL, {
                     method: "POST",
@@ -213,9 +214,27 @@
                 .then(tableData => {
                     if(tableData.status === "Success" && Array.isArray(tableData.result)) {
                         let myTable = tableData.result.find(t => t && t.name === currentTable);
-                        // ถ้าแคชเชียร์ชำระเงินบิลแล้วเปลี่ยนสถานะโต๊ะกลับเป็น "ว่าง"[cite: 2]
+                        
+                        // ถ้าระบบหลังบ้านโต๊ะกลับเป็น "ว่าง" (แคชเชียร์เช็คบิลแล้ว หรือเป็นลูกค้าใหม่เพิ่งสแกนเข้ามา)
                         if(myTable && (myTable.status === "ว่าง" || myTable.status === "🟢 ว่าง")) {
-                            localStorage.removeItem('famepos_menu_history_' + currentTable); // ล้างประวัติโต๊ะนี้เกลี้ยงทันทีเพื่อรอรับลูกค้าใหม่![cite: 2]
+                            
+                            // ล้างประวัติการสั่งเก่าๆ ในเครื่องทิ้งไปเลย เพื่อเคลียร์พื้นที่ให้ลูกค้าใหม่
+                            localStorage.removeItem('famepos_menu_history_' + currentTable);
+                            
+                            // 👉 3. เช็คเงื่อนไข: บล็อกหน้าจอ "เฉพาะ" คนที่เพิ่งกดสั่งอาหารไปในรอบนี้จริงๆ เท่านั้น!
+                            if (hasOrderedThisSession) {
+                                cart = []; 
+                                document.body.innerHTML = `
+                                    <div class="fixed inset-0 z-[9999] bg-rose-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+                                        <div class="text-7xl mb-4">🙏</div>
+                                        <h1 class="text-3xl font-black text-rose-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
+                                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 mt-4 max-w-sm w-full">
+                                            <p class="text-gray-600 font-medium leading-relaxed">บิลของโต๊ะนี้ถูกชำระเงินเรียบร้อยแล้ว<br>เซสชันการสั่งอาหารของคุณได้สิ้นสุดลง</p>
+                                        </div>
+                                        <p class="text-sm text-gray-400 mt-8 font-bold">หากต้องการสั่งใหม่ กรุณาสแกน QR Code ที่โต๊ะอีกครั้ง</p>
+                                    </div>
+                                `;
+                            }
                         }
                     }
                 }).catch(e => console.log("Table status check skipped"));
@@ -463,7 +482,7 @@
 
         function closeHistoryModal() { document.getElementById('orderHistoryModal').classList.add('hidden'); }
 
-        function submitOrder() {
+ function submitOrder() {
             if(cart.length === 0) return showAlert("ตะกร้าว่างเปล่า", "กรุณาเลือกเมนูอาหารที่ต้องการก่อนกดสั่งซื้อนะครับ", "🛒", "error");
             if(currentTable === "ไม่ระบุ") return showAlert("เกิดข้อผิดพลาด", "ไม่สามารถส่งออเดอร์ได้ เนื่องจากระบบไม่ทราบหมายเลขโต๊ะ", "❌", "error");
             
@@ -482,8 +501,11 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === "Success" && data.result === "Success") {
+                    // 👉 2. เพิ่มบรรทัดนี้: แจ้งระบบว่าลูกค้าคนนี้ได้ส่งออเดอร์ในรอบนี้แล้วนะ!
+                    hasOrderedThisSession = true; 
+                    
                     showAlert("ส่งออเดอร์สำเร็จ!", "รายการอาหารของคุณถูกส่งเข้าครัวเรียบร้อยแล้ว นั่งรอรับความอร่อยได้เลยครับ", "✅", "success");
-                    saveOrderToLocalHistory(cart, total); // เซฟจำลงประวัติทันที[cite: 2]
+                    saveOrderToLocalHistory(cart, total); 
                     cart = []; updateCartUI(); closeCartModal();
                 } else {
                     showAlert("เกิดข้อผิดพลาด", "ระบบส่งออเดอร์ไม่ได้: " + (data.message || data.result), "❌", "error");
