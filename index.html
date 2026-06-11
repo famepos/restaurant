@@ -2405,9 +2405,6 @@
 // ================================================================
 // 🧙‍♂️ MAGIC PROXY: ตัวแปลงภาษาให้ google.script.run ทำงานบน GitHub ได้
 // ================================================================
-
-// 🚨 ใส่ Web App URL ของ Google Apps Script ตัวล่าสุดที่นี่ครับ
-
 const google = {
     script: {
         get run() {
@@ -2422,7 +2419,6 @@ const google = {
                     if (prop === 'withFailureHandler') {
                         return function(cb) { failureCb = cb; return proxy; };
                     }
-                    // เมื่อเจอคำสั่งอื่นๆ จะแปลงเป็น Fetch ส่งไปให้ doPost ทันที
                     return function(...args) {
                         fetch(API_URL, {
                             method: "POST",
@@ -2430,11 +2426,10 @@ const google = {
                         })
                         .then(res => res.json())
                         .then(data => {
-                            if(data.status === "Success") {
-                                if(successCb) successCb(data.result);
-                            } else {
-                                if(failureCb) failureCb(data.message);
-                                else console.error("Backend Error:", data.message);
+                            if(data.status === "Success" && successCb) {
+                                successCb(data.result);
+                            } else if (data.status !== "Success" && failureCb) {
+                                failureCb(data.message);
                             }
                         })
                         .catch(err => {
