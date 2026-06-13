@@ -1794,15 +1794,29 @@
         <div class="flex justify-between font-bold"><span>แต้มคงเหลือ:</span><span id="slipRemainingPoints">0</span></div>
       </div>
           
-      <div class="mt-4 pt-4 border-t border-gray-200 flex flex-col items-center">
+<div class="mt-4 pt-4 border-t border-gray-200 flex flex-col items-center">
         <img id="receiptQRPromptPay" src="" class="w-32 h-32 object-contain mb-2 hidden">
         <div id="receiptFooterText" class="text-center text-sm whitespace-pre-line mt-2 font-medium"></div>
         <span class="text-gray-400 text-xs mt-2">Powered by FamePOS</span>
       </div>
     </div> 
 
+    <div id="kitchenSeparator" class="no-print my-6 border-t-4 border-dashed border-gray-400 w-full max-w-xs mx-auto"></div>
 
-  <div id="recallModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div id="kitchenContent" class="receipt-slip slip-80mm relative flex flex-col mt-6">
+      <div class="text-center mb-4">
+        <div id="kitchenQueueDisplay" class="font-bold text-5xl mb-2 text-gray-900 hidden">คิว: <span id="kitchenQueueNoLinked">000</span></div>
+        <h1 class="text-2xl font-bold border-t-2 border-b-2 border-black pt-2 pb-2">👨‍🍳 ใบสั่งทำอาหาร</h1>
+        <div class="font-bold text-sm text-gray-700 mt-2">เลขที่บิล: <span id="kitchenOrderIdLinked"></span></div>
+        <div class="text-xs text-gray-500 mt-0.5">เวลา: <span id="kitchenTimeLinked"></span></div>
+      </div>
+      <div id="kitchenItemsLinked" class="space-y-2 text-sm font-bold"></div>
+      <div class="dashed-line"></div>
+      <div class="text-center text-xs text-gray-400 mt-2">*** ใบส่งเข้าห้องครัว ***</div>
+    </div>
+
+</div> <div id="recallModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+
     <div class="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl relative">
       <button onclick="document.getElementById('recallModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
       <h2 class="text-2xl font-bold mb-6 text-rose-700">📋 รายการที่พักไว้</h2>
@@ -1931,47 +1945,27 @@
       </div>
 </div>
 
-    </div> <div id="kitchenSeparator" class="no-print my-6 border-t-4 border-dashed border-gray-400 w-full max-w-xs mx-auto"></div>
-
-    <div id="kitchenContent" class="receipt-slip slip-80mm relative flex flex-col mt-6"> 
-      <div class="text-center mb-4">
-        <div id="kitchenQueueDisplay" class="font-bold text-5xl mb-2 text-gray-900 hidden">คิว: <span id="kitchenQueueNoLinked">000</span></div>
-        
-        <h1 class="text-2xl font-bold border-t-2 border-b-2 border-black pt-2 pb-2">👨‍🍳 ใบสั่งทำอาหาร</h1> 
-        <div class="font-bold text-sm text-gray-700 mt-2">เลขที่บิล: <span id="kitchenOrderIdLinked"></span></div>
-        <div class="text-xs text-gray-500 mt-0.5">เวลา: <span id="kitchenTimeLinked"></span></div>
-      </div>
-      
-      <div id="kitchenItemsLinked" class="space-y-2 text-sm font-bold"></div>
-      
-      <div class="dashed-line"></div>
-      <div class="text-center text-xs text-gray-400 mt-2">*** ใบส่งเข้าห้องครัว ***</div>
-    </div>
-</div>
-
-
-
     <!-- ================= หน้าจอ: ประวัติ ================= -->
 
 <div id="inventoryHistoryModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
   <div class="bg-white rounded-3xl w-full max-w-3xl p-8 shadow-2xl relative max-h-[90vh] flex flex-col">
-    <button onclick="closeInventoryHistoryModal()" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+    <button onclick="closeInventoryHistoryModal()" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
     
     <h2 id="invModalTitle" class="text-2xl font-bold mb-6 text-rose-700 border-b pb-4">ประวัติสินค้า</h2>
     
-<div class="w-full overflow-x-auto rounded-xl border border-gray-200">
-        <table class="w-full text-left border-collapse">
+    <div class="w-full overflow-x-auto rounded-xl border border-gray-200">
         <table class="w-full min-w-max text-left border-collapse">
-          <tr>
-            <th class="p-3 font-bold text-rose-800">วันที่</th>
-            <th class="p-3 font-bold text-rose-800">เลขที่บิล</th>
-            <th class="p-3 font-bold text-rose-800">ประเภท</th>
-            <th class="p-3 font-bold text-center text-rose-800">จำนวน</th>
-          </tr>
-        </thead>
-        <tbody id="invMovementDetailBody" class="divide-y divide-gray-100 text-sm">
-           </tbody>
-      </table>
+          <thead class="bg-rose-50">
+            <tr>
+              <th class="p-3 font-bold text-rose-800">วันที่</th>
+              <th class="p-3 font-bold text-rose-800">เลขที่บิล</th>
+              <th class="p-3 font-bold text-rose-800">ประเภท</th>
+              <th class="p-3 font-bold text-center text-rose-800">จำนวน</th>
+            </tr>
+          </thead>
+          <tbody id="invMovementDetailBody" class="divide-y divide-gray-100 text-sm">
+          </tbody>
+        </table>
     </div>
   </div>
 </div>
@@ -1999,12 +1993,11 @@
             <div class="p-8 text-center text-gray-500 font-bold">⏳ กำลังโหลดรายการ...</div>
         </div>
         
-        <div class="mt-4 flex gap-2">
+<div class="mt-4 flex gap-2">
             <button onclick="document.getElementById('productSelectorModal').classList.add('hidden')" class="flex-1 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition text-sm">ยกเลิก</button>
             <button onclick="addSelectedToTable()" class="flex-1 py-3 bg-rose-500 text-white font-bold rounded-xl shadow-md hover:bg-rose-600 transition text-sm">✔️ เลือก (Done)</button>
         </div>
     </div>
-</div>
 </div>
 
     <!-- ================= หน้าจอ: ดู รับเข้าจ่ายออก ================= -->
@@ -5804,7 +5797,7 @@ html += `<tr class="border-b hover:bg-rose-50 transition">
     <td class="p-3 font-bold text-rose-700">${emp.branch || 'ไม่ได้ระบุ'}</td> 
     <td class="p-3 text-center font-bold">${maskedPassword}</td>
     <td class="p-3 text-center">
-        <button onclick="openAddEmployeeForm(${index})" class="text-emerald-500 hover:text-emerald-700 mr-3 text-lg" title="แก้ไข">✏️</button>
+        <button onclick="openAddEmployeeForm(${index})" class="text-rose-500 hover:text-rose-700 mr-3 text-lg" title="แก้ไข">✏️</button>
         <button onclick="deleteEmployee(${emp.rowIdx})" class="text-red-500 hover:text-red-700 text-lg" title="ลบ">🗑️</button>
     </td>
 </tr>`;
