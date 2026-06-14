@@ -6,44 +6,55 @@
   <title>ระบบจอห้องครัว | FamePOS Kitchen</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/258bYngX/448351cf-d806-4d25-99ce-c92dd34de621.png" sizes="192x192">
+
+<link rel="apple-touch-icon" href="https://i.postimg.cc/258bYngX/448351cf-d806-4d25-99ce-c92dd34de621.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="KDS FamePOS">
+
+<meta name="mobile-web-app-capable" content="yes">
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap');
-    body { font-family: 'Kanit', sans-serif; background-color: #0f172a; color: #f8fafc; }
+    /* 🎨 ปรับโทนสีหลักให้แมตช์ตรงตามไฟล์ระบบหลัก index18.txt */
+    body { font-family: 'Kanit', sans-serif; background-color: #fdecec; color: #4e0606; margin: 0; }
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #1e293b; }
-    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+    ::-webkit-scrollbar-track { background: #fdecec; }
+    ::-webkit-scrollbar-thumb { background: #fad1d1; border-radius: 10px; }
   </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
-  <header class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center shrink-0 shadow-lg">
+  <header class="bg-white border-b border-rose-100 p-4 flex justify-between items-center shrink-0 shadow-sm">
     <div class="flex items-center gap-3">
       <span class="text-3xl">👨‍🍳</span>
       <div>
-        <h1 class="text-xl font-bold text-white tracking-wide">FamePOS จอห้องครัว</h1>
-        <p class="text-xs text-slate-400">อัปเดตออเดอร์อัตโนมัติ Real-time</p>
+        <h1 class="text-xl font-bold text-rose-800 tracking-wide">FamePOS จอห้องครัว</h1>
+        <p class="text-xs text-rose-500/80">ระบบอัปเดตคิวและรายการอาหารอัตโนมัติ Real-time</p>
       </div>
     </div>
     <div class="flex items-center gap-4">
       <div class="text-right">
-        <div id="clockTime" class="text-xl font-bold text-rose-500 tracking-wider">00:00:00</div>
-        <div id="orderCount" class="text-xs text-slate-400 font-medium">กำลังโหลดคิว...</div>
+        <div id="clockTime" class="text-xl font-black text-rose-600 tracking-wider">00:00:00</div>
+        <div id="orderCount" class="text-xs text-rose-700/60 font-semibold">กำลังเชื่อมโยงคิว...</div>
       </div>
-      <button onclick="fetchKitchenOrders()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
-        🔄 รีเฟรช
+      <button onclick="fetchKitchenOrders()" class="bg-rose-50 hover:bg-rose-100 border border-rose-200 px-4 py-2 rounded-xl text-sm font-bold text-rose-700 transition flex items-center gap-1.5 shadow-sm active:scale-95 transform">
+        🔄 รีเฟรชคิวอาหาร
       </button>
     </div>
   </header>
 
   <main id="kitchenGrid" class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 overflow-y-auto content-start">
-    <div class="col-span-full h-96 flex flex-col items-center justify-center text-slate-500 font-bold gap-3">
+    <div class="col-span-full h-96 flex flex-col items-center justify-center text-rose-400 font-bold gap-3">
       <span class="text-5xl animate-spin">⏳</span>
-      <span class="text-lg">กำลังเชื่อมต่อคลังออเดอร์หลังบ้าน...</span>
+      <span class="text-lg">กำลังดึงคิวใบสั่งอาหารจากระบบหลังบ้าน...</span>
     </div>
   </main>
 
   <script>
-    // 🔗 วางลิงก์ Web App API ของคุณเฟรมตรงนี้ (ดึงมาจากระบบเดิม)
+    // 🔗 ลิงก์ยิง API ตรงเข้า Google Apps Script หลังบ้านของคุณเฟรม
     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
     // ================= MAGIC PROXY (V2) CONNECT =================
@@ -79,7 +90,7 @@
     let activeOrdersList = [];
     let previousOrdersCount = 0;
 
-    // ระบบแจ้งเตือนเสียง (Beep อัจฉริยะเมื่อมีออเดอร์ใหม่เข้าครัว)
+    // ระบบแจ้งเตือนเสียง (Beep อัจฉริยะเมื่อมีออเดอร์ใหม่สแกนหรือพักบิลเข้าครัว)
     function playAlertSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -88,22 +99,20 @@
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // โน้ต D5 หรูหราสบายหู
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // คีย์เสียงใส สบายหู
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 0.15);
-      } catch(e) { console.log("Audio play blocked by browser styling guidelines."); }
+      } catch(e) { console.log("Audio feedback blocked by screen styling rules."); }
     }
 
-    // ฟังก์ชันดึงข้อมูลจากชีต
-// ฟังก์ชันดึงข้อมูลจากชีต (เวอร์ชันเปิดระบบดักจับเออเร่อเพื่อหาจุดติดขัด)
+    // ฟังก์ชันยิงอ่านค่าข้อมูลคิวอาหาร
     function fetchKitchenOrders() {
       google.script.run
         .withSuccessHandler(function(orders) {
           activeOrdersList = orders;
           document.getElementById('orderCount').innerText = `คิวค้างในครัว: ${orders.length} ออเดอร์`;
           
-          // ถ้าจำนวนคิวเพิ่มขึ้นจากเดิม ให้ส่งเสียงเตือนพ่อครัว
           if (orders.length > previousOrdersCount && previousOrdersCount !== 0) {
             playAlertSound();
           }
@@ -112,33 +121,31 @@
         })
         .withFailureHandler(function(err) {
           console.error("Kitchen Fetch Error:", err);
-          // ถ้าหลังบ้านเออเร่อ ให้พ่นข้อความฟ้องบนจอทันที
           document.getElementById('kitchenGrid').innerHTML = `
-            <div class="col-span-full h-96 flex flex-col items-center justify-center text-red-400 font-bold gap-2">
+            <div class="col-span-full h-96 flex flex-col items-center justify-center text-red-500 font-bold gap-2 text-center">
               <span class="text-5xl">❌</span>
-              <span class="text-lg text-center">ระบบหลังบ้านส่งสัญญาณเตือน:<br>
-                <span class="text-sm text-slate-400 font-mono bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700 mt-2 inline-block">${err}</span>
+              <span class="text-lg">ระบบการเชื่อมต่อคลาวด์ขัดข้อง:<br>
+                <span class="text-xs text-rose-800 font-mono bg-white px-3 py-2 rounded-xl border border-rose-200 mt-2 inline-block shadow-sm">${err}</span>
               </span>
             </div>`;
         })
         .getKitchenOrdersGS();
     }
 
-    // ฟังก์ชันจัดฟอร์แมตและพ่นรายการอาหารออกมาเป็นดวงการ์ด
+    // ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหารออกมาคุมโทนพาสเทลหวาน
     function renderKitchenCards() {
       const grid = document.getElementById('kitchenGrid');
       if (activeOrdersList.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full h-96 flex flex-col items-center justify-center text-slate-600 font-bold gap-2">
+          <div class="col-span-full h-96 flex flex-col items-center justify-center text-rose-300 font-bold gap-2">
             <span class="text-6xl">🎉</span>
-            <span class="text-xl text-slate-400">ห้องครัวว่าง! ไม่มีออเดอร์ค้างแล้วค่ะ</span>
+            <span class="text-xl text-rose-700">ห้องครัวว่าง! ไม่มีออเดอร์ค้างแล้วค่ะคุณเฟรม</span>
           </div>`;
         return;
       }
 
       let html = '';
       activeOrdersList.forEach(order => {
-        // แยกวิเคราะห์สายอักขระรายการสินค้า: "ชาไทย (x1), อเมริกาโน่ [หวานน้อย] (x2)"
         const itemsArray = order.items.split(', ');
         let itemsHtml = '';
         
@@ -147,14 +154,12 @@
           let optionsText = "";
           let qty = "1";
           
-          // สกัดหาจำนวนชิ้น (xN)
           let qtyMatch = itemStr.match(/\(x(\d+)\)/);
           if (qtyMatch) {
             qty = qtyMatch[1];
             baseName = baseName.replace(/\s*\(x\d+\)/, '');
           }
           
-          // สกัดหารายการตัวเลือกเสริม [...]
           let optMatch = baseName.match(/\[(.*?)\]/);
           if (optMatch) {
             optionsText = optMatch[1];
@@ -162,56 +167,57 @@
           }
 
           itemsHtml += `
-            <div class="py-2 border-b border-slate-800/60 flex justify-between items-start gap-2">
+            <div class="py-2.5 border-b border-rose-50 flex justify-between items-start gap-2">
               <div class="min-w-0 flex-1">
-                <div class="font-bold text-lg text-slate-100 leading-tight">${baseName}</div>
-                ${optionsText ? `<div class="text-xs font-bold text-rose-400 mt-1">🌿 ตัวเลือก: ${optionsText}</div>` : ''}
+                <div class="font-bold text-base text-gray-800 leading-tight">${baseName}</div>
+                ${optionsText ? `<div class="text-xs font-bold text-rose-600 mt-1 bg-rose-50/60 px-2 py-0.5 rounded-md inline-block border border-rose-100">🌿 ตัวเลือก: ${optionsText}</div>` : ''}
               </div>
-              <div class="text-2xl font-black text-amber-400 bg-slate-800/80 px-2.5 py-0.5 rounded-lg border border-slate-700 shrink-0">x${qty}</div>
+              <div class="text-xl font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-xl border border-rose-100 shrink-0">x${qty}</div>
             </div>`;
         });
 
-        // คำนวณระยะเวลาตั้งแต่สั่งอาหารจนถึงปัจจุบัน
         let minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
         if(minutesElapsed < 0) minutesElapsed = 0;
 
-        // สลับสีหัวการ์ดตามความวิกฤตของเวลารออาหาร (เกิน 10 นาทีหัวจะแดงเตือนครัวเดือด)
-        let borderAndHeaderColor = "border-slate-800 bg-slate-900";
-        let badgeColor = "bg-slate-800 text-slate-300";
-        let timerColor = "text-slate-400";
+        // 🎨 ระบบสลับการ์ดอัจฉริยะตามความเร่งด่วนของคิวบิล (คู่อลูมิเนียมพาสเทล ไม่ใช้สีดำมืด)
+        let cardColorStyles = "border-rose-200/80 bg-white";
+        let timerColor = "text-gray-400";
 
         if (minutesElapsed >= 10) {
-          borderAndHeaderColor = "border-red-900/60 bg-gradient-to-b from-red-950/80 to-slate-900";
-          timerColor = "text-red-400 font-bold animate-pulse";
+          // ครัวเดือดเกิน 10 นาที (การ์ดจะฉีดสีแดงพาสเทลกระพริบเตือนเร่งมือ)
+          cardColorStyles = "border-red-300 bg-red-50/40 animate-pulse ring-2 ring-red-200";
+          timerColor = "text-red-500 font-bold";
         } else if (minutesElapsed >= 5) {
-          borderAndHeaderColor = "border-amber-900/60 bg-gradient-to-b from-amber-950/40 to-slate-900";
-          timerColor = "text-amber-400";
+          // ครัวเร่งด่วนเกิน 5 นาที (การ์ดฉีดโทนสีส้มพาสเทล)
+          cardColorStyles = "border-amber-300 bg-amber-50/30";
+          timerColor = "text-amber-500 font-bold";
         }
 
-        // จัดไอคอนหัวการ์ดตามประเภทช่องทางบริการ
         let typeBadge = `🛎️ ${order.orderType}`;
+        let badgeColor = "bg-gray-100 text-gray-600 border border-gray-200";
+
         if (order.orderType.includes("ร้าน")) {
-          typeBadge = `🍽️ โต๊ะ: ${order.tableNo || '-'}`;
-          badgeColor = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+          typeBadge = `🪑 โต๊ะ: ${order.tableNo || '-'}`;
+          badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200";
         } else if (order.orderType.includes("บ้าน")) {
           typeBadge = `🛍️ กลับบ้าน`;
-          badgeColor = "bg-purple-500/10 text-purple-400 border border-purple-500/20";
+          badgeColor = "bg-purple-50 text-purple-700 border border-purple-200";
         } else if (order.orderType.includes("เดลิ")) {
           typeBadge = `🛵 ${order.deliveryApp} ${order.deliveryId ? `#${order.deliveryId}` : ''}`;
-          badgeColor = "bg-blue-500/10 text-blue-400 border border-blue-500/20";
+          badgeColor = "bg-blue-50 text-blue-700 border border-blue-200";
         }
 
         html += `
-        <div class="rounded-2xl border-2 flex flex-col justify-between shadow-2xl transition-all h-[420px] ${borderAndHeaderColor}">
-          <div class="p-4 flex flex-col overflow-hidden">
-            <div class="flex justify-between items-start gap-2 mb-2 shrink-0">
+        <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-transform hover:scale-[1.02] duration-200 ${cardColorStyles}">
+          <div class="p-5 flex flex-col overflow-hidden">
+            <div class="flex justify-between items-start gap-2 mb-3 shrink-0 border-b border-rose-50 pb-2">
               <div>
-                <span class="text-3xl font-black text-white leading-none">${order.queueNo}</span>
-                <div class="text-[10px] text-slate-500 mt-0.5 tracking-wider">ID: ${order.orderId}</div>
+                <span class="text-2xl font-black text-rose-800 leading-none">${order.queueNo}</span>
+                <div class="text-[9px] text-gray-400 font-medium mt-0.5 font-mono">ID: ${order.orderId}</div>
               </div>
               <div class="text-right shrink-0">
-                <span class="text-xs px-2.5 py-1 rounded-full font-bold ${badgeColor}">${typeBadge}</span>
-                <div class="text-xs font-semibold mt-1.5 ${timerColor}">⏳ รอแล้ว ${minutesElapsed} นาที</div>
+                <span class="text-xs px-2.5 py-1 rounded-xl font-bold ${badgeColor}">${typeBadge}</span>
+                <div class="text-xs font-semibold mt-2 ${timerColor}">⏳ รอแล้ว ${minutesElapsed} นาที</div>
               </div>
             </div>
             
@@ -220,8 +226,8 @@
             </div>
           </div>
 
-          <div class="p-3 bg-slate-950/40 border-t border-slate-800/50 shrink-0">
-            <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl text-base shadow-lg transition active:scale-95 transform">
+          <div class="p-4 bg-rose-50/20 border-t border-rose-100/60 shrink-0 rounded-b-[2rem]">
+            <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}')" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-4 rounded-xl text-base shadow-md transition active:scale-95 transform shadow-rose-500/10">
               ✔️ เสิร์ฟอาหารสำเร็จ
             </button>
           </div>
@@ -231,26 +237,31 @@
       grid.innerHTML = html;
     }
 
-    // ฟังก์ชันกดปุ่มเสิร์ฟอาหารสำเร็จ
+    // ฟังก์ชันคุมปุ่มเสิร์ฟอาหาร (ปรับดีไซน์คุมโทนภาพที่ 3 ป๊อปอัปขาวโค้งมนหรู)
     function serveOrder(rowIdx, queueNo) {
       Swal.fire({
         title: `เสิร์ฟคิว ${queueNo}?`,
-        text: "ยืนยันทำรายการอาหารชิ้นนี้เสร็จสิ้นแล้วใช่หรือไม่",
+        text: "ยืนยันทำรายการอาหารคิวนี้เสร็จสิ้นพร้อมเสิร์ฟแล้วใช่หรือไม่",
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#e11d48',
-        cancelButtonColor: '#475569',
         confirmButtonText: 'ใช่, ทำเสร็จแล้ว',
         cancelButtonText: 'ยกเลิก',
-        background: '#1e293b',
-        color: '#f8fafc'
+        buttonsStyling: false,
+        customClass: {
+          popup: 'rounded-[2.5rem] p-8 max-w-sm bg-white shadow-2xl border border-gray-100 text-center font-bold animate-fade-in',
+          icon: 'mx-auto mb-2 text-rose-500 scale-110',
+          title: 'text-xl font-bold text-slate-800 mt-3 block',
+          htmlContainer: 'text-sm text-slate-400 font-medium my-2 leading-relaxed',
+          actions: 'flex gap-3 w-full mt-4 justify-center items-center',
+          cancelButton: 'flex-1 py-3.5 px-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 active:scale-95 transition-all text-sm order-1',
+          confirmButton: 'flex-1 py-3.5 px-4 bg-rose-500 text-white font-bold rounded-2xl shadow-md hover:bg-rose-600 active:scale-95 transition-all text-sm order-2'
+        }
       }).then((result) => {
         if (result.isConfirmed) {
-          // สั่งอัปเดตสเตตัสไปชีตหลังบ้านผ่าน Adapter Proxy
           google.script.run.withSuccessHandler(function(res) {
             if(res === "Success") {
-              Swal.fire({ title: 'สำเร็จ!', text: 'คิวอาหารเคลียร์เรียบร้อย', icon: 'success', timer: 1000, showConfirmButton: false, background: '#1e293b', color: '#f8fafc' });
-              fetchKitchenOrders(); // ดึงรอบใหม่มาพ่นล้างตารางทันที
+              showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
+              fetchKitchenOrders();
             } else {
               Swal.fire('ผิดพลาด', res, 'error');
             }
@@ -259,12 +270,12 @@
       });
     }
 
-    // รันนาฬิกาหัวจอ
+    // ตัวคำนวณรันนาฬิกาเรียลไทม์หัวหน้าจอ
     setInterval(function() {
       document.getElementById('clockTime').innerText = new Date().toLocaleTimeString('th-TH', { hour12: false });
     }, 1000);
 
-    // วนลูป Auto-Fetch ดึงข้อมูลใหม่ทุกๆ 15 วินาที พร้อมรันดึงรอบแรกทันทีเมื่อเปิดเว็บบราวเซอร์
+    // เริ่มระบบรันลูปออโต้คอยดึงคิวใหม่ทุกๆ 15 วินาที
     fetchKitchenOrders();
     setInterval(fetchKitchenOrders, 15000);
   </script>
