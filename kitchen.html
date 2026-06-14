@@ -96,18 +96,32 @@
     }
 
     // ฟังก์ชันดึงข้อมูลจากชีต
+// ฟังก์ชันดึงข้อมูลจากชีต (เวอร์ชันเปิดระบบดักจับเออเร่อเพื่อหาจุดติดขัด)
     function fetchKitchenOrders() {
-      google.script.run.withSuccessHandler(function(orders) {
-        activeOrdersList = orders;
-        document.getElementById('orderCount').innerText = `คิวค้างในครัว: ${orders.length} ออเดอร์`;
-        
-        // ถ้าจำนวนคิวเพิ่มขึ้นจากเดิม ให้ส่งเสียงเตือนพ่อครัว
-        if (orders.length > previousOrdersCount && previousOrdersCount !== 0) {
-          playAlertSound();
-        }
-        previousOrdersCount = orders.length;
-        renderKitchenCards();
-      }).getKitchenOrdersGS();
+      google.script.run
+        .withSuccessHandler(function(orders) {
+          activeOrdersList = orders;
+          document.getElementById('orderCount').innerText = `คิวค้างในครัว: ${orders.length} ออเดอร์`;
+          
+          // ถ้าจำนวนคิวเพิ่มขึ้นจากเดิม ให้ส่งเสียงเตือนพ่อครัว
+          if (orders.length > previousOrdersCount && previousOrdersCount !== 0) {
+            playAlertSound();
+          }
+          previousOrdersCount = orders.length;
+          renderKitchenCards();
+        })
+        .withFailureHandler(function(err) {
+          console.error("Kitchen Fetch Error:", err);
+          // ถ้าหลังบ้านเออเร่อ ให้พ่นข้อความฟ้องบนจอทันที
+          document.getElementById('kitchenGrid').innerHTML = `
+            <div class="col-span-full h-96 flex flex-col items-center justify-center text-red-400 font-bold gap-2">
+              <span class="text-5xl">❌</span>
+              <span class="text-lg text-center">ระบบหลังบ้านส่งสัญญาณเตือน:<br>
+                <span class="text-sm text-slate-400 font-mono bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700 mt-2 inline-block">${err}</span>
+              </span>
+            </div>`;
+        })
+        .getKitchenOrdersGS();
     }
 
     // ฟังก์ชันจัดฟอร์แมตและพ่นรายการอาหารออกมาเป็นดวงการ์ด
