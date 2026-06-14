@@ -226,7 +226,7 @@
 <div id="deliveryInfoContainer" class="hidden mt-3 space-y-3">
   
   <div class="relative w-full" id="deliveryAppDropdownContainer">
-    <input type="hidden" id="deliveryAppValue" value="lineman">
+    <input type="hidden" id="selectDeliveryApp" value="lineman">
     
     <button type="button" onclick="toggleDeliveryAppDropdown()" class="w-full flex items-center justify-between bg-white p-3 rounded-xl border-2 border-rose-200 shadow-sm hover:bg-rose-50 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition cursor-pointer text-left">
       <div class="flex items-center gap-2">
@@ -1498,30 +1498,29 @@
             </button>
             <h2 class="text-2xl font-bold text-rose-800">🏷️ พิมพ์บาร์โค้ดสินค้า</h2>
         </div>
-    <div class="flex items-center gap-3 w-full md:w-auto z-50">
+        <div class="flex items-center gap-3 w-full md:w-auto z-50">
             <div class="relative w-full md:w-64" id="barcodeDropdownContainer">
-    <input type="hidden" id="barcodeSizeValue" value="50x30">
-    
-    <button type="button" onclick="toggleBarcodeDropdown()" class="w-full p-3 bg-white border-2 border-rose-200 text-rose-700 rounded-xl hover:bg-rose-50 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition shadow-sm flex items-center justify-between font-bold text-sm">
-        <span id="barcodeSelectedText" class="flex items-center gap-2">🏷️ 50mm x 30mm</span>
-        <span class="text-rose-500 font-bold text-xs leading-none">▼</span>
-    </button>
-    
-    <div id="barcodeDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg overflow-y-auto max-h-60 flex flex-col z-50">
-        
-        <div onclick="selectBarcodeSize('30x10', '30mm x 10mm', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">30mm x 10mm</div>
-        <div onclick="selectBarcodeSize('32x19', '32mm x 19mm', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">32mm x 19mm</div>
-        <div onclick="selectBarcodeSize('35x25', '35mm x 25mm', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">35mm x 25mm</div>
-        <div onclick="selectBarcodeSize('40x30', '40mm x 30mm', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">40mm x 30mm</div>
-        <div onclick="selectBarcodeSize('50x25', '50mm x 25mm', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">50mm x 25mm</div>
-        
-        <div onclick="selectBarcodeSize('50x30', '50mm x 30mm', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold bg-rose-500 text-white transition-colors border-b border-rose-50">50mm x 30mm</div>
-        
-        <div onclick="selectBarcodeSize('50x40', '50mm x 40mm', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">50mm x 40mm</div>
-        <div onclick="selectBarcodeSize('60x40', '60mm x 40mm', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-100">60mm x 40mm</div>
-        <div onclick="selectBarcodeSize('a4', '📄 PDF (กระดาษ A4)', this)" class="barcode-size-item px-4 py-3 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors">📄 PDF (กระดาษ A4)</div>
-    </div>
-</div>
+                <input type="hidden" id="barcodeSizeValue" value="50x30">
+                
+                <button type="button" onclick="toggleBarcodeDropdown()" class="w-full p-3 bg-white border-2 border-rose-200 text-rose-700 rounded-xl hover:bg-rose-50 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition shadow-sm flex items-center justify-between font-bold text-sm">
+                    <span id="barcodeSelectedText" class="flex items-center gap-2">🏷️ 50mm x 30mm</span>
+                    <span class="text-rose-500 font-bold text-xs leading-none">▼</span>
+                </button>
+                
+                <div id="barcodeDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg overflow-y-auto max-h-60 flex flex-col z-50">
+                    <div onclick="selectBarcodeSize('30x10', '30mm x 10mm', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">30mm x 10mm</div>
+                    <div onclick="selectBarcodeSize('32x19', '32mm x 19mm', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">32mm x 19mm</div>
+                    <div onclick="selectBarcodeSize('35x25', '35mm x 25mm', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">35mm x 25mm</div>
+                    <div onclick="selectBarcodeSize('40x30', '40mm x 30mm', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">40mm x 30mm</div>
+                    <div onclick="selectBarcodeSize('50x25', '50mm x 25mm', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">50mm x 25mm</div>
+                    
+                    <div onclick="selectBarcodeSize('50x30', '50mm x 30mm', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold bg-rose-50 text-rose-700 transition-colors border-b border-rose-50">50mm x 30mm</div>
+                    
+                    <div onclick="selectBarcodeSize('50x40', '50mm x 40mm', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-50">50mm x 40mm</div>
+                    <div onclick="selectBarcodeSize('60x40', '60mm x 40mm', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors border-b border-rose-100">60mm x 40mm</div>
+                    <div onclick="selectBarcodeSize('a4', '📄 PDF (กระดาษ A4)', this)" class="barcode-size-item p-4 cursor-pointer text-sm font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors">📄 PDF (กระดาษ A4)</div>
+                </div>
+            </div>
             <button onclick="printSelectedBarcodes()" class="bg-rose-600 text-white px-5 py-2.5 rounded-xl hover:bg-rose-700 transition shadow flex items-center gap-2 font-bold whitespace-nowrap">
                 🖨️ สั่งพิมพ์
             </button>
@@ -1656,7 +1655,7 @@
 <div id="addTableModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl relative flex flex-col">
         <button onclick="closeAddTableModal()" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
-        <h3 id="tableFormTitle" class="text-xl font-bold mb-4 text-purple-700 border-b pb-3">➕ เพิ่มโต๊ะใหม่</h3>
+        <h3 id="tableFormTitle" class="text-xl font-bold mb-4 text-rose-700 border-b pb-3">➕ เพิ่มโต๊ะใหม่</h3>
         <input type="hidden" id="tableRowIdx" value="">
         
         <div class="space-y-4 mb-6">
@@ -1664,21 +1663,24 @@
                 <label class="block text-sm font-bold text-gray-600 mb-1.5">ชื่อโต๊ะ / หมายเลขโต๊ะ <span class="text-red-500">*</span></label>
                 <input type="text" id="newTableName" class="w-full p-3.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-rose-500 font-semibold text-gray-700 transition" placeholder="เช่น โต๊ะ 01, บาร์ 02">
             </div>
-          <div>
-  <label class="block text-sm font-semibold mb-2 text-gray-700">สถานะโต๊ะ</label>
-  
-  <select id="tableStatus" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl appearance-none bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 pr-10 cursor-pointer transition" 
-  style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23f43f5e%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.5em;">
-    
-    <option value="ว่าง" class="text-gray-700 font-normal">🟢 ว่าง</option>
-    <option value="ไม่ว่าง" class="text-gray-700 font-normal">🔴 ไม่ว่าง (มีลูกค้า)</option>
-    
-  </select>
-</div>
+<div class="relative" id="tableStatusContainer">
+              <label class="block text-sm font-semibold mb-2 text-gray-700">สถานะโต๊ะ</label>
+              <input type="hidden" id="tableStatus" value="ว่าง">
+              
+              <button type="button" onclick="document.getElementById('tableStatusMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 flex justify-between items-center shadow-sm transition text-left">
+                  <span id="tableStatusText">🟢 ว่าง</span>
+                  <span class="text-rose-500 text-xs leading-none">▼</span>
+              </button>
+              
+              <div id="tableStatusMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                  <div onclick="selectTableStatus('ว่าง', '🟢 ว่าง', this)" class="table-status-item p-3 hover:bg-rose-50 hover:text-rose-600 text-rose-700 bg-rose-50 font-bold cursor-pointer border-b border-rose-50 transition-colors">🟢 ว่าง</div>
+                  <div onclick="selectTableStatus('ไม่ว่าง', '🔴 ไม่ว่าง (มีลูกค้า)', this)" class="table-status-item p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold cursor-pointer transition-colors">🔴 ไม่ว่าง (มีลูกค้า)</div>
+              </div>
+          </div>
         </div>
         <div class="flex gap-3">
             <button onclick="closeAddTableModal()" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition">ยกเลิก</button>
-            <button onclick="saveTableData()" class="flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition shadow-md">💾 บันทึก</button>
+            <button onclick="saveTableData()" class="flex-1 py-3 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition shadow-md">💾 บันทึก</button>
         </div>
     </div>
 </div>
@@ -2094,16 +2096,22 @@
            <label class="block text-sm font-bold text-gray-500 mb-1">เบอร์โทรศัพท์ (ID) <span class="text-red-500">*</span></label>
            <input type="text" id="newMemberPhone" placeholder="เช่น 0812345678" class="w-full p-4 rounded-xl border-2 border-rose-100 focus:border-rose-500 outline-none transition font-bold text-gray-800 text-lg text-center" autocomplete="off" maxlength="10">
          </div>
-         <div>
+         
+         <div class="relative" id="memberTypeContainer">
            <label class="block text-sm font-bold text-gray-500 mb-1">ประเภทลูกค้า</label>
-           <select id="newMemberType" class="w-full p-4 rounded-xl border-2 border-rose-100 focus:border-rose-500 outline-none transition font-bold text-gray-700 cursor-pointer">
-              <option value="ลูกค้าทั่วไป">ลูกค้าทั่วไป</option>
-              <option value="VIP">VIP</option>
-           </select>
+           <input type="hidden" id="newMemberType" value="ลูกค้าทั่วไป">
+           
+           <button type="button" onclick="document.getElementById('memberTypeMenu').classList.toggle('hidden')" class="w-full p-4 rounded-xl border-2 border-rose-100 text-rose-700 font-bold bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 flex justify-between items-center shadow-sm transition text-left">
+             <span id="memberTypeText">ลูกค้าทั่วไป</span>
+             <span class="text-rose-500 text-xs leading-none">▼</span>
+           </button>
+           
+           <div id="memberTypeMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden">
+             <div onclick="selectMemberType('ลูกค้าทั่วไป', this)" class="member-type-item p-4 hover:bg-rose-50 hover:text-rose-600 text-rose-700 bg-rose-50 font-bold cursor-pointer border-b border-rose-50 transition-colors">ลูกค้าทั่วไป</div>
+             <div onclick="selectMemberType('VIP', this)" class="member-type-item p-4 hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold cursor-pointer transition-colors">VIP</div>
+           </div>
          </div>
-      </div>
-
-      <div class="mt-8 flex gap-3">
+      </div> <div class="mt-8 flex gap-3">
         <button onclick="closeAddMemberModal()" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition shadow-sm">ยกเลิก</button>
         <button onclick="saveNewMember()" id="btnSaveNewMember" class="flex-1 py-3 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 transition shadow-md">💾 บันทึก</button>
       </div>
@@ -2125,26 +2133,31 @@
                 <label class="block text-sm font-semibold mb-1 text-gray-700">เบอร์โทรศัพท์</label>
                 <input type="text" id="empPhone" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500" placeholder="08X-XXX-XXXX">
             </div>
-     <div>
-  <label class="block text-sm font-semibold mb-2 text-gray-700">ตำแหน่งหน้าที่ <span class="text-red-500">*</span></label>
-  
-  <select id="empRole" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl appearance-none bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 pr-10 cursor-pointer" 
-  style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23f43f5e%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.5em;">
-    
-    <option value="ผู้ดูแลระบบ (Admin)" class="text-gray-700 font-normal">ผู้ดูแลระบบ (Admin)</option>
-    <option value="พนักงานขาย (Cashier)" class="text-gray-700 font-normal">พนักงานขาย (Cashier)</option>
-    <option value="พนักงานสต็อก (Stock)" class="text-gray-700 font-normal">พนักงานสต็อก (Stock)</option>
-    
-  </select>
-</div>
-            
-       <div>
-  <label class="block text-sm font-semibold mb-2 text-gray-700">ประจำสาขา <span class="text-red-500">*</span></label>
-  
-  <select id="empBranch" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl appearance-none bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 pr-10 cursor-pointer" 
-  style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23f43f5e%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.5em;">
-    </select>
-</div>
+
+<div class="relative" id="empRoleContainer">
+        <label class="block text-sm font-semibold mb-2 text-gray-700">ตำแหน่งหน้าที่ <span class="text-red-500">*</span></label>
+        <input type="hidden" id="empRole" value="พนักงานขาย (Cashier)">
+        <button type="button" onclick="document.getElementById('empRoleMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 flex justify-between items-center shadow-sm transition">
+          <span id="empRoleText">พนักงานขาย (Cashier)</span>
+          <span class="text-rose-500 text-xs">▼</span>
+        </button>
+        <div id="empRoleMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden">
+          <div onclick="selectEmpRole('ผู้ดูแลระบบ (Admin)')" class="p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 cursor-pointer border-b border-rose-50 transition font-medium">ผู้ดูแลระบบ (Admin)</div>
+          <div onclick="selectEmpRole('พนักงานขาย (Cashier)')" class="p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 cursor-pointer border-b border-rose-50 transition font-medium">พนักงานขาย (Cashier)</div>
+          <div onclick="selectEmpRole('พนักงานสต็อก (Stock)')" class="p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 cursor-pointer transition font-medium">พนักงานสต็อก (Stock)</div>
+        </div>
+      </div>
+
+      <div class="relative" id="empBranchContainer">
+        <label class="block text-sm font-semibold mb-2 text-gray-700">ประจำสาขา <span class="text-red-500">*</span></label>
+        <input type="hidden" id="empBranch" value="สาขาหลัก">
+        <button type="button" onclick="document.getElementById('empBranchMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 flex justify-between items-center shadow-sm transition">
+          <span id="empBranchText">สาขาหลัก</span>
+          <span class="text-rose-500 text-xs">▼</span>
+        </button>
+        <div id="empBranchMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden max-h-48 overflow-y-auto">
+          </div>
+      </div>
             
             <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                 <label class="block text-sm font-semibold mb-1 text-gray-700">รหัสผ่าน / PIN <span class="text-red-500">*</span></label>
@@ -5775,9 +5788,55 @@ function useMaxPoints() {
 // ============================================
 // ฟังก์ชันเพิ่มสมาชิกใหม่ (Manual)
 // ============================================
+
+// ฟังก์ชันควบคุม Custom Dropdown สำหรับระบบสมาชิก
+function selectMemberType(val, element) {
+    document.getElementById('newMemberType').value = val;
+    document.getElementById('memberTypeText').innerText = val;
+    document.getElementById('memberTypeMenu').classList.add('hidden');
+    
+    // เคลียร์สีทุกลำดับให้กลับเป็นสีข้อความปกติ
+    let items = document.querySelectorAll('.member-type-item');
+    items.forEach(item => {
+        item.classList.remove('bg-rose-50', 'text-rose-700');
+        item.classList.add('text-gray-700');
+    });
+    
+    // ทำไฮไลต์สีชมพูอ่อนที่ตัวเลือกที่เพิ่งจิ้ม
+    if (element) {
+        element.classList.remove('text-gray-700');
+        element.classList.add('bg-rose-50', 'text-rose-700');
+    }
+}
+
+// อัปเดตตัวดักจับ Event คลิกที่อื่นเพื่อปิดหน้าต่างอัตโนมัติ
+document.addEventListener('click', function(event) {
+    const memberContainer = document.getElementById('memberTypeContainer');
+    const memberMenu = document.getElementById('memberTypeMenu');
+    if (memberContainer && !memberContainer.contains(event.target) && memberMenu && !memberMenu.classList.contains('hidden')) {
+        memberMenu.classList.add('hidden');
+    }
+});
+
 function openAddMemberModal() {
     document.getElementById('newMemberPhone').value = '';
+    
+    // รีเซ็ตค่าซ่อนและข้อความปุ่ม Custom Dropdown
     document.getElementById('newMemberType').value = 'ลูกค้าทั่วไป';
+    document.getElementById('memberTypeText').innerText = 'ลูกค้าทั่วไป';
+    
+    // รีเซ็ตสีไฮไลต์ในเมนูให้กลับมาเลือกตัวแรก
+    let items = document.querySelectorAll('.member-type-item');
+    items.forEach((item, idx) => {
+        if(idx === 0) {
+            item.classList.remove('text-gray-700');
+            item.classList.add('bg-rose-50', 'text-rose-700');
+        } else {
+            item.classList.remove('bg-rose-50', 'text-rose-700');
+            item.classList.add('text-gray-700');
+        }
+    });
+
     document.getElementById('addMemberModal').classList.remove('hidden');
     setTimeout(() => document.getElementById('newMemberPhone').focus(), 100);
 }
@@ -5868,44 +5927,84 @@ html += `<tr class="border-b hover:bg-rose-50 transition">
     tbody.innerHTML = html;
 }
 
+// ================= ฟังก์ชันควบคุม Custom Dropdown พนักงาน =================
+function selectEmpRole(val) {
+    let el = document.getElementById('empRole');
+    let textEl = document.getElementById('empRoleText');
+    let menuEl = document.getElementById('empRoleMenu');
+    if(el) el.value = val;
+    if(textEl) textEl.innerText = val;
+    if(menuEl) menuEl.classList.add('hidden');
+}
+
+function selectEmpBranch(val) {
+    let el = document.getElementById('empBranch');
+    let textEl = document.getElementById('empBranchText');
+    let menuEl = document.getElementById('empBranchMenu');
+    if(el) el.value = val;
+    if(textEl) textEl.innerText = val;
+    if(menuEl) menuEl.classList.add('hidden');
+}
+
+// ปิด Dropdown อัตโนมัติเมื่อกดที่อื่นบนหน้าจอ
+document.addEventListener('click', function(event) {
+    const roleContainer = document.getElementById('empRoleContainer');
+    const roleMenu = document.getElementById('empRoleMenu');
+    if (roleContainer && !roleContainer.contains(event.target) && roleMenu && !roleMenu.classList.contains('hidden')) {
+        roleMenu.classList.add('hidden');
+    }
+
+    const branchContainer = document.getElementById('empBranchContainer');
+    const branchMenu = document.getElementById('empBranchMenu');
+    if (branchContainer && !branchContainer.contains(event.target) && branchMenu && !branchMenu.classList.contains('hidden')) {
+        branchMenu.classList.add('hidden');
+    }
+});
+
 function openAddEmployeeForm(index = -1) {
     let title = document.getElementById('empFormTitle');
-    let selectBranch = document.getElementById('empBranch');
+    let branchMenu = document.getElementById('empBranchMenu');
     
-    // 🧠 1. ดึงรายชื่อสาขาล่าสุดจากหน้าจัดการร้านค้ามาวาดตัวเลือกใส่ Dropdown ก่อนเสมอ
-    // 👉 แก้ไข: เอาคำว่า window. ออก เพื่อให้ระบบมองเห็นตัวแปร globalBranchesList ที่โหลดรอไว้แล้ว
+    // 1. วาดเมนูสาขาให้เป็น <div> แทน <option>
     if (globalBranchesList && globalBranchesList.length > 0) {
         let optionsHtml = '';
         globalBranchesList.forEach(function(b) {
-            optionsHtml += `<option value="${b.name}">${b.name}</option>`;
+            optionsHtml += `<div onclick="selectEmpBranch('${b.name}')" class="p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 cursor-pointer border-b border-rose-50 transition font-medium">${b.name}</div>`;
         });
-        optionsHtml += `<option value="ทุกสาขา">ทุกสาขา (ผู้ดูแลระบบ)</option>`;
-        selectBranch.innerHTML = optionsHtml;
+        optionsHtml += `<div onclick="selectEmpBranch('ทุกสาขา')" class="p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 cursor-pointer transition font-medium">ทุกสาขา (ผู้ดูแลระบบ)</div>`;
+        if(branchMenu) branchMenu.innerHTML = optionsHtml;
     } else {
-        selectBranch.innerHTML = `
-            <option value="สาขาหลัก">สาขาหลัก</option>
-            <option value="ทุกสาขา">ทุกสาขา (ผู้ดูแลระบบ)</option>
-        `;
+        if(branchMenu) {
+            branchMenu.innerHTML = `
+                <div onclick="selectEmpBranch('สาขาหลัก')" class="p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 cursor-pointer border-b border-rose-50 transition font-medium">สาขาหลัก</div>
+                <div onclick="selectEmpBranch('ทุกสาขา')" class="p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 cursor-pointer transition font-medium">ทุกสาขา (ผู้ดูแลระบบ)</div>
+            `;
+        }
     }
 
-    // 🧠 2. เมื่อ Dropdown มีตัวเลือกพร้อมแล้ว ค่อยประมวลผลสแตมป์ข้อมูลพนักงานลงไป
+    // 2. เซ็ตค่าเริ่มต้นในหน้าต่าง
     if (index === -1) {
         title.innerText = "➕ เพิ่มพนักงานใหม่";
         document.getElementById('empRowIdx').value = "";
         document.getElementById('empName').value = "";
         document.getElementById('empPhone').value = "";
-        document.getElementById('empRole').value = "พนักงานขาย (Cashier)";
-        document.getElementById('empBranch').value = selectBranch.options[0] ? selectBranch.options[0].value : "สาขาหลัก";
         document.getElementById('empPassword').value = "";
+        
+        // สั่งเปลี่ยนข้อความ Dropdown กลับไปค่าเริ่มต้น
+        selectEmpRole("พนักงานขาย (Cashier)");
+        let firstBranch = (globalBranchesList && globalBranchesList.length > 0) ? globalBranchesList[0].name : "สาขาหลัก";
+        selectEmpBranch(firstBranch);
     } else {
         let emp = globalEmployees[index];
         title.innerText = "✏️ แก้ไขข้อมูลพนักงาน";
         document.getElementById('empRowIdx').value = emp.rowIdx;
         document.getElementById('empName').value = emp.name;
         document.getElementById('empPhone').value = emp.phone;
-        document.getElementById('empRole').value = emp.role;
-        document.getElementById('empBranch').value = emp.branch; 
         document.getElementById('empPassword').value = emp.password;
+        
+        // สั่งเปลี่ยนข้อความ Dropdown ตามข้อมูลพนักงานคนเดิม
+        selectEmpRole(emp.role);
+        selectEmpBranch(emp.branch);
     }
     
     document.getElementById('addEmployeeModal').classList.remove('hidden');
@@ -5943,17 +6042,18 @@ function saveEmployee() {
 }
 
 function deleteEmployee(rowIdx) {
-    if (!confirm("⚠️ คุณต้องการลบพนักงานรายนี้ใช่หรือไม่?\n(ข้อมูลจะไม่สามารถกู้คืนได้)")) return;
-    
-    showToast("กำลังลบ...", "info");
-    google.script.run.withSuccessHandler(function(res) {
-        if (res === "Success") {
-            showToast("ลบพนักงานสำเร็จ!", "success");
-            loadEmployees();
-        } else {
-            showToast("เกิดข้อผิดพลาด: " + res, "error");
-        }
-    }).deleteEmployeeGS(rowIdx);
+    // เปลี่ยนจาก confirm() มาใช้กล่องแจ้งเตือนพรีเมียมของระบบแทนครับ
+    showConfirmModal("⚠️ คุณต้องการลบพนักงานรายนี้ใช่หรือไม่?\n(ข้อมูลจะไม่สามารถกู้คืนได้)", function() {
+        showToast("กำลังลบ...", "info"); 
+        google.script.run.withSuccessHandler(function(res) { 
+            if (res === "Success") { 
+                showToast("ลบพนักงานสำเร็จ!", "success"); 
+                loadEmployees(); 
+            } else { 
+                showToast("เกิดข้อผิดพลาด: " + res, "error"); 
+            }
+        }).deleteEmployeeGS(rowIdx);
+    });
 }
 
 function closeAddEmployeeForm() {
@@ -5989,19 +6089,7 @@ function saveEmployee() {
     }).saveEmployeeGS(data);
 }
 
-function deleteEmployee(rowIdx) {
-    if (!confirm("⚠️ คุณต้องการลบพนักงานรายนี้ใช่หรือไม่?\n(ข้อมูลจะไม่สามารถกู้คืนได้)")) return;
-    
-    showToast("กำลังลบ...", "info");
-    google.script.run.withSuccessHandler(function(res) {
-        if (res === "Success") {
-            showToast("ลบพนักงานสำเร็จ!", "success");
-            loadEmployees();
-        } else {
-            showToast("เกิดข้อผิดพลาด: " + res, "error");
-        }
-    }).deleteEmployeeGS(rowIdx);
-}
+
 
 // ==========================================
 // ระบบพิมพ์บาร์โค้ด (Barcode Generator)
@@ -6169,26 +6257,31 @@ function toggleBarcodeDropdown() {
 }
 
 // ฟังก์ชันเมื่อกดเลือกขนาด
+// ฟังก์ชันเมื่อกดเลือกขนาด (เวอร์ชันปรับปรุงให้เคลียร์สีสะอาด 100%)
 function selectBarcodeSize(value, text, element) {
     document.getElementById('barcodeSizeValue').value = value;
     document.getElementById('barcodeSelectedText').innerHTML = '🏷️ ' + text;
     document.getElementById('barcodeDropdownMenu').classList.add('hidden');
     
-    // เคลียร์สีปุ่มทั้งหมด แล้วไฮไลต์สีเขียวปุ่มที่เลือก (เหมือนภาพตัวอย่าง)
+    // 1. เคลียร์ทุกสไตล์ไฮไลต์เก่าออกให้หมดจด (ป้องกันปัญหาสีแดงทึบของเก่าค้างคา)
     let items = document.querySelectorAll('.barcode-size-item');
     items.forEach(item => {
-        item.classList.remove('bg-rose-600', 'text-white');
-        item.classList.add('text-gray-700', 'hover:bg-rose-50');
+        item.classList.remove('bg-rose-50', 'text-rose-700', 'font-bold', 'bg-rose-500', 'bg-rose-600', 'text-white');
+        item.classList.add('text-gray-700');
     });
-    element.classList.remove('text-gray-700', 'hover:bg-rose-50');
-    element.classList.add('bg-rose-600', 'text-white');
+    
+    // 2. สแตมป์สีชมพูอ่อนละมุนและทำตัวหนาเฉพาะไอเทมที่กดเลือกปัจจุบัน
+    if (element) {
+        element.classList.remove('text-gray-700');
+        element.classList.add('bg-rose-50', 'text-rose-700', 'font-bold');
+    }
 }
 
-// กดที่อื่นบนหน้าจอให้ Dropdown ปิด
+// กดที่อื่นบนหน้าจอให้ Dropdown ปิด (ส่วนนี้ของคุณถูกต้องและใช้งานได้ดีอยู่แล้วครับ)
 document.addEventListener('click', function(event) {
     const container = document.getElementById('barcodeDropdownContainer');
     const menu = document.getElementById('barcodeDropdownMenu');
-    if (container && !container.contains(event.target) && !menu.classList.contains('hidden')) {
+    if (container && !container.contains(event.target) && menu && !menu.classList.contains('hidden')) {
         menu.classList.add('hidden');
     }
 });
@@ -7942,14 +8035,17 @@ function addDeliveryPlatformRow(name = '', gp = 0) {
   
   // ⚠️ จุดนี้แหละครับ! ต้องมีเครื่องหมาย Backtick (`) ครอบหัวและท้ายกล่อง HTML ให้สมบูรณ์แบบนี้ระบบถึงจะไม่ร้องเออเร่อครับ
   let html = `
-  <div class="flex gap-3 items-center bg-gray-50 p-3 rounded-2xl border border-gray-200 delivery-platform-row">
-      <input type="text" value="${name}" class="platform-name flex-1 p-2.5 border rounded-xl font-bold text-sm" placeholder="ชื่อค่าย เช่น Lineman">
-      <div class="flex items-center gap-1 bg-white border rounded-xl px-3 w-32 shadow-sm">
-          <input type="number" value="${gp}" class="platform-gp w-full p-2.5 font-bold text-center outline-none text-sm" placeholder="0">
-          <span class="text-xs text-gray-400 font-bold">%GP</span>
+<div class="flex gap-3 items-center bg-white p-3 rounded-2xl border border-rose-100 shadow-sm delivery-platform-row">
+      
+      <input type="text" value="${name}" class="platform-name flex-1 p-2.5 border-2 border-rose-200 text-rose-700 rounded-xl font-bold text-sm focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition placeholder-rose-300" placeholder="ชื่อค่าย เช่น Lineman">
+      
+      <div class="flex items-center gap-1 bg-white border-2 border-rose-200 rounded-xl px-3 w-32 shadow-sm focus-within:border-rose-400 focus-within:ring-1 focus-within:ring-rose-400 transition">
+          <input type="number" value="${gp}" class="platform-gp w-full p-2.5 font-bold text-center outline-none text-sm text-rose-700 bg-transparent" placeholder="0">
+          <span class="text-xs text-rose-400 font-bold">%GP</span>
       </div>
-      <button onclick="this.closest('.delivery-platform-row').remove()" class="text-gray-400 hover:text-red-500 font-bold text-2xl px-2">×</button>
-  </div>`; 
+      
+      <button onclick="this.closest('.delivery-platform-row').remove()" class="text-gray-300 hover:text-red-500 font-bold text-2xl px-2 transition">×</button>
+  </div>`;
   
   container.insertAdjacentHTML('beforeend', html);
 }
@@ -7976,18 +8072,8 @@ function saveDeliveryPlatformsData() {
   }).saveDeliveryPlatformsGS(JSON.stringify(data));
 }
 
-function syncDeliveryDropdownUI() {
-  google.script.run.withSuccessHandler(function(data) {
-    let select = document.getElementById('selectDeliveryApp');
-    if(!select) return;
-    select.innerHTML = '';
-    for(let i = 1; i < data.length; i++) {
-      select.innerHTML += `<option value="${data[i][0]}">🛵 ${data[i][0]} (GP ${data[i][1]}%)</option>`;
-    }
-  }).getDeliveryPlatforms();
-}
-// เรียกใช้งานอัตโนมัติเมื่อเปิดแอป
-syncDeliveryDropdownUI();
+
+
 
 // ====================================================
 // NEW FRONTEND JS: คำสั่งควบคุมหน้าจัดการโต๊ะและพิมพ์ QR Code
@@ -8019,10 +8105,10 @@ let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&d
                 let statusClass = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "bg-rose-100 text-rose-700" : "bg-red-100 text-red-700";
                 let statusText = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "🟢 ว่าง" : "🔴 ไม่ว่าง";
 
-                html += '<tr class="border-b hover:bg-purple-50/40 transition">';
+                html += '<tr class="border-b hover:bg-rose-50/40 transition">';
                 html += '<td class="p-4 font-bold text-gray-800">🪑 ' + table.name + '</td>';
                 html += '<td class="p-4 text-center"><span class="' + statusClass + ' px-3 py-1 text-xs rounded-full font-bold">' + statusText + '</span></td>';
-                html += '<td class="p-4 text-center"><a href="' + qrGeneratorApi + '" target="_blank" class="px-3 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-xl font-bold text-xs inline-flex items-center gap-1 transition shadow-sm">🖨️ ดูคิวอาร์ (Print QR)</a></td>';
+                html += '<td class="p-4 text-center"><a href="' + qrGeneratorApi + '" target="_blank" class="px-3 py-1.5 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl font-bold text-xs inline-flex items-center gap-1 transition shadow-sm">🖨️ ดูคิวอาร์ (Print QR)</a></td>';
                 html += '<td class="p-4 text-center whitespace-nowrap"><button onclick="editTable(' + index + ')" class="text-rose-500 hover:text-rose-700 font-bold text-xs mr-3">แก้ไข</button><button onclick="deleteTable(' + table.rowIdx + ', \'' + table.name + '\')" class="text-red-500 hover:text-red-700 font-bold text-xs">ลบ</button></td>';
                 html += '</tr>';
             });
@@ -8032,16 +8118,56 @@ let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&d
     }).getTablesData();
 }
 
+// ฟังก์ชันควบคุม Custom Dropdown สำหรับสถานะโต๊ะ
+function selectTableStatus(val, text, element) {
+    document.getElementById('tableStatus').value = val;
+    document.getElementById('tableStatusText').innerText = text;
+    document.getElementById('tableStatusMenu').classList.add('hidden');
+    
+    // เคลียร์สีไฮไลต์ในรายการทั้งหมดให้กลับเป็นปกติ
+    let items = document.querySelectorAll('.table-status-item');
+    items.forEach(item => {
+        item.classList.remove('bg-rose-50', 'text-rose-700');
+        item.classList.add('text-gray-700');
+    });
+    
+    // ไฮไลต์สีชมพูอ่อนให้กับตัวเลือกที่คลิกใช้งาน
+    if (element) {
+        element.classList.remove('text-gray-700');
+        element.classList.add('bg-rose-50', 'text-rose-700');
+    }
+}
+
+// ซ่อนเมนูกางอัตโนมัติเมื่อพนักงานคลิกพื้นที่อื่นบนหน้าจอ
+document.addEventListener('click', function(event) {
+    const tsContainer = document.getElementById('tableStatusContainer');
+    const tsMenu = document.getElementById('tableStatusMenu');
+    if (tsContainer && !tsContainer.contains(event.target) && tsMenu && !tsMenu.classList.contains('hidden')) {
+        tsMenu.classList.add('hidden');
+    }
+});
+
 function openAddTableModal() {
     document.getElementById('tableFormTitle').innerText = "➕ เพิ่มโต๊ะใหม่";
     document.getElementById('tableRowIdx').value = "";
     document.getElementById('newTableName').value = "";
+    
+    // คืนค่าเริ่มต้นให้ช่องปุ่มกด Custom Dropdown
     document.getElementById('tableStatus').value = "ว่าง";
+    document.getElementById('tableStatusText').innerText = "🟢 ว่าง";
+    
+    let items = document.querySelectorAll('.table-status-item');
+    items.forEach((item, idx) => {
+        if(idx === 0) {
+            item.classList.remove('text-gray-700');
+            item.classList.add('bg-rose-50', 'text-rose-700');
+        } else {
+            item.classList.remove('bg-rose-50', 'text-rose-700');
+            item.classList.add('text-gray-700');
+        }
+    });
+    
     document.getElementById('addTableModal').classList.remove('hidden');
-}
-
-function closeAddTableModal() {
-    document.getElementById('addTableModal').classList.add('hidden');
 }
 
 function editTable(index) {
@@ -8049,8 +8175,30 @@ function editTable(index) {
     document.getElementById('tableFormTitle').innerText = "✏️ แก้ไขข้อมูลโต๊ะ";
     document.getElementById('tableRowIdx').value = b.rowIdx;
     document.getElementById('newTableName').value = b.name;
-    document.getElementById('tableStatus').value = b.status;
+    
+    // ซิงค์การแสดงผลของ Custom Dropdown ตามสถานะจริงของโต๊ะ
+    let statusVal = b.status || "ว่าง";
+    let isAvailable = (statusVal === "ว่าง" || statusVal === "🟢 ว่าง");
+    
+    document.getElementById('tableStatus').value = isAvailable ? "ว่าง" : "ไม่ว่าง";
+    document.getElementById('tableStatusText').innerText = isAvailable ? "🟢 ว่าง" : "🔴 ไม่ว่าง (มีลูกค้า)";
+    
+    let items = document.querySelectorAll('.table-status-item');
+    items.forEach((item, idx) => {
+        if((isAvailable && idx === 0) || (!isAvailable && idx === 1)) {
+            item.classList.remove('text-gray-700');
+            item.classList.add('bg-rose-50', 'text-rose-700');
+        } else {
+            item.classList.remove('bg-rose-50', 'text-rose-700');
+            item.classList.add('text-gray-700');
+        }
+    });
+    
     document.getElementById('addTableModal').classList.remove('hidden');
+}
+
+function closeAddTableModal() {
+    document.getElementById('addTableModal').classList.add('hidden');
 }
 
 function saveTableData() {
@@ -8224,6 +8372,73 @@ function checkForNewQROrders() {
 
 // ⏰ สั่งให้ POS คอยเช็คออเดอร์ใหม่ทุกๆ 15 วินาที
 setInterval(checkForNewQROrders, 15000);
+
+
+
+// ==========================================
+// 🔔 // ฟังก์ชันเปิด-ปิด Dropdown ค่ายแอป)
+// ==========================================
+
+function toggleDeliveryAppDropdown() {
+    document.getElementById('deliveryAppDropdownMenu').classList.toggle('hidden');
+}
+
+// 2. ฟังก์ชันเมื่อกดเลือกค่ายแอป (ปรับให้สีเหมือนกล่องใบเสร็จ)
+function selectDeliveryApp(value, text, element) {
+    document.getElementById('selectDeliveryApp').value = value;
+    document.getElementById('deliveryAppSelectedText').innerText = text;
+    document.getElementById('deliveryAppDropdownMenu').classList.add('hidden');
+
+    // ล้างไฮไลต์สีเดิม และคืนค่าเป็นตัวหนังสือสีเทาปกติ (เหมือนภาพที่ 1)
+    let items = document.querySelectorAll('.delivery-app-item');
+    items.forEach(item => {
+        item.classList.remove('bg-rose-50', 'text-rose-700', 'font-bold');
+        item.classList.add('text-gray-700');
+    });
+    
+    // ไฮไลต์พื้นหลังให้เฉพาะตัวที่เพิ่งถูกเลือก
+    if (element) {
+        element.classList.remove('text-gray-700');
+        element.classList.add('bg-rose-50', 'text-rose-700', 'font-bold');
+    }
+}
+
+// 3. ปรับฟังก์ชันดึงค่ายแอปจากหลังบ้าน ให้วาดกล่องออกมาเหมือนภาพที่ 1 เป๊ะๆ
+function syncDeliveryDropdownUI() {
+    google.script.run.withSuccessHandler(function(data) {
+        let menu = document.getElementById('deliveryAppDropdownMenu');
+        if(!menu) return;
+        menu.innerHTML = ''; 
+        
+        let isFirst = true;
+        for(let i = 1; i < data.length; i++) {
+            let appName = data[i][0];
+            let gp = data[i][1];
+            let displayText = `🛵 ${appName} (GP ${gp}%)`;
+            let safeText = displayText.replace(/'/g, "\\'"); 
+            
+            // ปรับระยะ p-4 และสีข้อความ text-gray-700 ให้เหมือนภาพที่ 1
+            let activeClass = isFirst ? 'bg-rose-50 text-rose-700 font-bold' : 'text-gray-700';
+            let borderClass = (i < data.length - 1) ? 'border-b border-gray-100' : '';
+            
+            menu.innerHTML += `<div onclick="selectDeliveryApp('${appName}', '${safeText}', this)" class="delivery-app-item p-4 cursor-pointer hover:bg-rose-50 transition-colors ${borderClass} ${activeClass}">${displayText}</div>`;
+            
+            if(isFirst) {
+                let hiddenInput = document.getElementById('selectDeliveryApp');
+                if(hiddenInput) hiddenInput.value = appName;
+                
+                let textSpan = document.getElementById('deliveryAppSelectedText');
+                if(textSpan) textSpan.innerText = displayText;
+                
+                isFirst = false;
+            }
+        }
+    }).getDeliveryPlatforms();
+}
+
+// เรียกใช้งานอัตโนมัติเมื่อเปิดแอป
+syncDeliveryDropdownUI();
+
 
 // ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
 window.addEventListener('load', function() { loadModifiersData(); });
