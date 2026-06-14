@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบจอห้องครัว | FamePOS Kitchen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap');
+    body { font-family: 'Kanit', sans-serif; background-color: #0f172a; color: #f8fafc; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+  </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+  <header class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center shrink-0 shadow-lg">
+    <div class="flex items-center gap-3">
+      <span class="text-3xl">👨‍🍳</span>
+      <div>
+        <h1 class="text-xl font-bold text-white tracking-wide">FamePOS จอห้องครัว</h1>
+        <p class="text-xs text-slate-400">อัปเดตออเดอร์อัตโนมัติ Real-time</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="text-right">
+        <div id="clockTime" class="text-xl font-bold text-rose-500 tracking-wider">00:00:00</div>
+        <div id="orderCount" class="text-xs text-slate-400 font-medium">กำลังโหลดคิว...</div>
+      </div>
+      <button onclick="fetchKitchenOrders()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+        🔄 รีเฟรช
+      </button>
+    </div>
+  </header>
+
+  <main id="kitchenGrid" class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 overflow-y-auto content-start">
+    <div class="col-span-full h-96 flex flex-col items-center justify-center text-slate-500 font-bold gap-3">
+      <span class="text-5xl animate-spin">⏳</span>
+      <span class="text-lg">กำลังเชื่อมต่อคลังออเดอร์หลังบ้าน...</span>
+    </div>
+  </main>
+
+  <script>
+    // 🔗 วางลิงก์ Web App API ของคุณเฟรมตรงนี้ (ดึงมาจากระบบเดิม)
+    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+
+    // ================= MAGIC PROXY (V2) CONNECT =================
+    const google = {
+        script: {
+            get run() {
+                let successCb = null; let failureCb = null;
+                const proxy = new Proxy({}, {
+                    get: function(target, prop) {
+                        if (prop === 'withSuccessHandler') { return function(cb) { successCb = cb; return proxy; }; }
+                        if (prop === 'withFailureHandler') { return function(cb) { failureCb = cb; return proxy; }; }
+                        return function(...args) {
+                            fetch(API_URL, {
+                                method: "POST",
+                                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                                body: JSON.stringify({ action: prop, args: args }),
+                                redirect: "follow"
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if(data.status === "Success" && successCb) successCb(data.result);
+                                else if (data.status !== "Success" && failureCb) failureCb(data.message);
+                            })
+                            .catch(err => { if(failureCb) failureCb(err); else console.error("Fetch Error:", err); });
+                        };
+                    }
+                });
+                return proxy;
+            }
+        }
+    };
+
+    let activeOrdersList = [];
+    let previousOrdersCount = 0;
+
+    // ระบบแจ้งเตือนเสียง (Beep อัจฉริยะเมื่อมีออเดอร์ใหม่เข้าครัว)
+    function playAlertSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // โน้ต D5 หรูหราสบายหู
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.15);
+      } catch(e) { console.log("Audio play blocked by browser styling guidelines."); }
+    }
+
+    // ฟังก์ชันดึงข้อมูลจากชีต
+    function fetchKitchenOrders() {
+      google.script.run.withSuccessHandler(function(orders) {
+        activeOrdersList = orders;
+        document.getElementById('orderCount').innerText = `คิวค้างในครัว: ${orders.length} ออเดอร์`;
+        
+        // ถ้าจำนวนคิวเพิ่มขึ้นจากเดิม ให้ส่งเสียงเตือนพ่อครัว
+        if (orders.length > previousOrdersCount && previousOrdersCount !== 0) {
+          playAlertSound();
+        }
+        previousOrdersCount = orders.length;
+        renderKitchenCards();
+      }).getKitchenOrdersGS();
+    }
+
+    // ฟังก์ชันจัดฟอร์แมตและพ่นรายการอาหารออกมาเป็นดวงการ์ด
+    function renderKitchenCards() {
+      const grid = document.getElementById('kitchenGrid');
+      if (activeOrdersList.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full h-96 flex flex-col items-center justify-center text-slate-600 font-bold gap-2">
+            <span class="text-6xl">🎉</span>
+            <span class="text-xl text-slate-400">ห้องครัวว่าง! ไม่มีออเดอร์ค้างแล้วค่ะ</span>
+          </div>`;
+        return;
+      }
+
+      let html = '';
+      activeOrdersList.forEach(order => {
+        // แยกวิเคราะห์สายอักขระรายการสินค้า: "ชาไทย (x1), อเมริกาโน่ [หวานน้อย] (x2)"
+        const itemsArray = order.items.split(', ');
+        let itemsHtml = '';
+        
+        itemsArray.forEach(itemStr => {
+          let baseName = itemStr;
+          let optionsText = "";
+          let qty = "1";
+          
+          // สกัดหาจำนวนชิ้น (xN)
+          let qtyMatch = itemStr.match(/\(x(\d+)\)/);
+          if (qtyMatch) {
+            qty = qtyMatch[1];
+            baseName = baseName.replace(/\s*\(x\d+\)/, '');
+          }
+          
+          // สกัดหารายการตัวเลือกเสริม [...]
+          let optMatch = baseName.match(/\[(.*?)\]/);
+          if (optMatch) {
+            optionsText = optMatch[1];
+            baseName = baseName.replace(/\s*\[.*?\]/, '');
+          }
+
+          itemsHtml += `
+            <div class="py-2 border-b border-slate-800/60 flex justify-between items-start gap-2">
+              <div class="min-w-0 flex-1">
+                <div class="font-bold text-lg text-slate-100 leading-tight">${baseName}</div>
+                ${optionsText ? `<div class="text-xs font-bold text-rose-400 mt-1">🌿 ตัวเลือก: ${optionsText}</div>` : ''}
+              </div>
+              <div class="text-2xl font-black text-amber-400 bg-slate-800/80 px-2.5 py-0.5 rounded-lg border border-slate-700 shrink-0">x${qty}</div>
+            </div>`;
+        });
+
+        // คำนวณระยะเวลาตั้งแต่สั่งอาหารจนถึงปัจจุบัน
+        let minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
+        if(minutesElapsed < 0) minutesElapsed = 0;
+
+        // สลับสีหัวการ์ดตามความวิกฤตของเวลารออาหาร (เกิน 10 นาทีหัวจะแดงเตือนครัวเดือด)
+        let borderAndHeaderColor = "border-slate-800 bg-slate-900";
+        let badgeColor = "bg-slate-800 text-slate-300";
+        let timerColor = "text-slate-400";
+
+        if (minutesElapsed >= 10) {
+          borderAndHeaderColor = "border-red-900/60 bg-gradient-to-b from-red-950/80 to-slate-900";
+          timerColor = "text-red-400 font-bold animate-pulse";
+        } else if (minutesElapsed >= 5) {
+          borderAndHeaderColor = "border-amber-900/60 bg-gradient-to-b from-amber-950/40 to-slate-900";
+          timerColor = "text-amber-400";
+        }
+
+        // จัดไอคอนหัวการ์ดตามประเภทช่องทางบริการ
+        let typeBadge = `🛎️ ${order.orderType}`;
+        if (order.orderType.includes("ร้าน")) {
+          typeBadge = `🍽️ โต๊ะ: ${order.tableNo || '-'}`;
+          badgeColor = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        } else if (order.orderType.includes("บ้าน")) {
+          typeBadge = `🛍️ กลับบ้าน`;
+          badgeColor = "bg-purple-500/10 text-purple-400 border border-purple-500/20";
+        } else if (order.orderType.includes("เดลิ")) {
+          typeBadge = `🛵 ${order.deliveryApp} ${order.deliveryId ? `#${order.deliveryId}` : ''}`;
+          badgeColor = "bg-blue-500/10 text-blue-400 border border-blue-500/20";
+        }
+
+        html += `
+        <div class="rounded-2xl border-2 flex flex-col justify-between shadow-2xl transition-all h-[420px] ${borderAndHeaderColor}">
+          <div class="p-4 flex flex-col overflow-hidden">
+            <div class="flex justify-between items-start gap-2 mb-2 shrink-0">
+              <div>
+                <span class="text-3xl font-black text-white leading-none">${order.queueNo}</span>
+                <div class="text-[10px] text-slate-500 mt-0.5 tracking-wider">ID: ${order.orderId}</div>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="text-xs px-2.5 py-1 rounded-full font-bold ${badgeColor}">${typeBadge}</span>
+                <div class="text-xs font-semibold mt-1.5 ${timerColor}">⏳ รอแล้ว ${minutesElapsed} นาที</div>
+              </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto space-y-1 mt-1 pr-1">
+              ${itemsHtml}
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-950/40 border-t border-slate-800/50 shrink-0">
+            <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl text-base shadow-lg transition active:scale-95 transform">
+              ✔️ เสิร์ฟอาหารสำเร็จ
+            </button>
+          </div>
+        </div>`;
+      });
+
+      grid.innerHTML = html;
+    }
+
+    // ฟังก์ชันกดปุ่มเสิร์ฟอาหารสำเร็จ
+    function serveOrder(rowIdx, queueNo) {
+      Swal.fire({
+        title: `เสิร์ฟคิว ${queueNo}?`,
+        text: "ยืนยันทำรายการอาหารชิ้นนี้เสร็จสิ้นแล้วใช่หรือไม่",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#475569',
+        confirmButtonText: 'ใช่, ทำเสร็จแล้ว',
+        cancelButtonText: 'ยกเลิก',
+        background: '#1e293b',
+        color: '#f8fafc'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // สั่งอัปเดตสเตตัสไปชีตหลังบ้านผ่าน Adapter Proxy
+          google.script.run.withSuccessHandler(function(res) {
+            if(res === "Success") {
+              Swal.fire({ title: 'สำเร็จ!', text: 'คิวอาหารเคลียร์เรียบร้อย', icon: 'success', timer: 1000, showConfirmButton: false, background: '#1e293b', color: '#f8fafc' });
+              fetchKitchenOrders(); // ดึงรอบใหม่มาพ่นล้างตารางทันที
+            } else {
+              Swal.fire('ผิดพลาด', res, 'error');
+            }
+          }).completeKitchenOrderGS(rowIdx);
+        }
+      });
+    }
+
+    // รันนาฬิกาหัวจอ
+    setInterval(function() {
+      document.getElementById('clockTime').innerText = new Date().toLocaleTimeString('th-TH', { hour12: false });
+    }, 1000);
+
+    // วนลูป Auto-Fetch ดึงข้อมูลใหม่ทุกๆ 15 วินาที พร้อมรันดึงรอบแรกทันทีเมื่อเปิดเว็บบราวเซอร์
+    fetchKitchenOrders();
+    setInterval(fetchKitchenOrders, 15000);
+  </script>
+</body>
+</html>
