@@ -70,14 +70,29 @@
     </div>
   </div>
 
-  <script>
-    // รับข้อมูลจากหน้าจอหลัก (Cashier) แบบ Real-time
-    window.addEventListener('storage', function(e) {
-      if (e.key === 'famepos_cds_state') {
-        const data = JSON.parse(e.newValue);
-        updateCDSUI(data);
-      }
-    });
+<script>
+    // 🧙‍♂️ เปลี่ยน API_URL ให้ชี้ไปที่ Web App ของคุณเฟรมโดยตรง
+    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+
+    // ⏰ สั่งให้ระบบคอยยิงตอดถามข้อมูลใหม่จาก Google Script ทุกๆ 2 วินาที (2000 มิลลิวินาที)
+    setInterval(fetchCdsDataFromBackend, 2000);
+
+    function fetchCdsDataFromBackend() {
+        // ดึงข้อมูลผ่านกระบวนการถังพัก PropertiesService หลังบ้าน
+        fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "getCdsLiveStateGS", args: [] }),
+            redirect: "follow"
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "Success" && data.result) {
+                updateCDSUI(data.result); // เอาข้อมูลที่ได้ไปอัปเดตหน้าจอโชว์ลูกค้า
+            }
+        })
+        .catch(err => console.error("CDS Fetch Error:", err));
+    }
 
     function updateCDSUI(data) {
       // 1. อัปเดตรายการสินค้า
@@ -91,7 +106,7 @@
           </div>`;
       } else {
         itemsContainer.innerHTML = data.cart.map(item => `
-          <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center text-xl font-bold">
+          <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center text-xl font-bold animate-fade-in">
             <div class="flex items-center gap-4">
               <span class="bg-rose-100 text-rose-600 w-10 h-10 flex items-center justify-center rounded-xl text-base">${item.qty}</span>
               <span class="text-gray-700">${item.name}</span>
@@ -99,7 +114,6 @@
             <span class="text-rose-600">฿${(item.price * item.qty).toLocaleString('th-TH', {minimumFractionDigits: 2})}</span>
           </div>
         `).join('');
-        // เลื่อนลงล่างสุดอัตโนมัติ
         itemsContainer.scrollTop = itemsContainer.scrollHeight;
       }
 
@@ -116,20 +130,27 @@
       const thanksSection = document.getElementById('cdsThanksSection');
 
       if (data.status === "completed") {
-        qrSection.classList.add('hidden');
-        thanksSection.classList.remove('hidden');
-        thanksSection.classList.add('flex');
+        if(qrSection) qrSection.classList.add('hidden');
+        if(thanksSection) {
+            thanksSection.classList.remove('hidden');
+            thanksSection.classList.add('flex');
+        }
       } else if (data.qrImage) {
-        document.getElementById('cdsQrImage').src = data.qrImage;
-        document.getElementById('cdsQrAmount').innerText = data.grandTotal;
-        qrSection.classList.remove('hidden');
-        qrSection.classList.add('flex');
-        thanksSection.classList.add('hidden');
+        let cdsQrImg = document.getElementById('cdsQrImage');
+        let cdsQrAmt = document.getElementById('cdsQrAmount');
+        if(cdsQrImg) cdsQrImg.src = data.qrImage;
+        if(cdsQrAmt) cdsQrAmt.innerText = data.grandTotal;
+        
+        if(qrSection) {
+            qrSection.classList.remove('hidden');
+            qrSection.classList.add('flex');
+        }
+        if(thanksSection) thanksSection.classList.add('hidden');
       } else {
-        qrSection.classList.add('hidden');
-        thanksSection.classList.add('hidden');
+        if(qrSection) qrSection.classList.add('hidden');
+        if(thanksSection) thanksSection.classList.add('hidden');
       }
     }
-  </script>
+</script>
 </body>
 </html>
