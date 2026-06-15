@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; margin: 0; overflow: hidden; }
+    /* ซ่อน Scrollbar แต่ยังเลื่อนได้ */
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="h-screen w-full flex text-gray-800">
+
+  <div class="w-7/12 h-full bg-white flex flex-col border-r-2 border-rose-100 shadow-xl z-10 relative">
+    <div class="bg-rose-600 text-white p-6 shadow-md flex justify-between items-center">
+      <h1 class="text-3xl font-bold flex items-center gap-3">
+        <span class="bg-white text-rose-600 w-12 h-12 rounded-full flex items-center justify-center text-2xl">🛒</span> 
+        รายการสินค้า
+      </h1>
+      <span class="text-rose-200 font-medium">FamePOS</span>
+    </div>
+    
+    <div id="cdsItems" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50">
+      <div id="emptyCart" class="h-full flex flex-col items-center justify-center text-gray-300 opacity-80">
+        <div class="text-9xl mb-6">🏪</div>
+        <h2 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h2>
+        <p class="text-xl mt-2">เชิญเลือกชมสินค้าได้เลยครับ/ค่ะ</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-5/12 h-full bg-rose-50 flex flex-col p-8 relative">
+    
+    <div class="bg-white rounded-[2.5rem] p-8 shadow-lg border border-rose-100 flex-1 flex flex-col">
+      <h2 class="text-2xl font-bold text-gray-500 border-b-2 border-dashed border-gray-200 pb-4 mb-6 text-center">สรุปยอดชำระเงิน</h2>
+      
+      <div class="space-y-4 mb-6 text-xl font-bold text-gray-600">
+        <div class="flex justify-between items-center">
+          <span>ยอดรวมสินค้า</span>
+          <span id="cdsSubTotal">฿0.00</span>
+        </div>
+        <div class="flex justify-between items-center text-red-500">
+          <span>ส่วนลด</span>
+          <span id="cdsDiscount">- ฿0.00</span>
+        </div>
+        <div id="cdsTaxRow" class="flex justify-between items-center hidden">
+          <span>ภาษี / ค่าบริการ</span>
+          <span id="cdsTax">฿0.00</span>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="bg-rose-100 rounded-2xl p-6 flex flex-col items-center justify-center text-rose-800 shadow-inner mb-6">
+          <span class="text-xl font-bold mb-1">ยอดสุทธิ (Grand Total)</span>
+          <span id="cdsGrandTotal" class="text-6xl font-black">฿0.00</span>
+        </div>
+
+        <div id="cdsQrSection" class="hidden flex-col items-center justify-center bg-white border-4 border-rose-500 rounded-3xl p-6 shadow-xl animate-bounce-slight">
+          <span class="text-rose-600 font-bold text-lg mb-2">📱 สแกนชำระเงิน</span>
+          <img id="cdsQrImage" src="" class="w-48 h-48 object-contain">
+          <span id="cdsQrAmount" class="text-2xl font-black text-rose-600 mt-3">฿0.00</span>
+        </div>
+
+        <div id="cdsThanksSection" class="hidden flex-col items-center justify-center text-emerald-500 py-8">
+          <div class="text-7xl mb-4">✅</div>
+          <h3 class="text-3xl font-bold text-gray-800">รับชำระเงินเรียบร้อย</h3>
+          <p class="text-gray-500 text-lg mt-2">ขอบคุณที่ใช้บริการครับ/ค่ะ</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // รับข้อมูลจากหน้าจอหลัก (Cashier) แบบ Real-time
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'famepos_cds_state') {
+        const data = JSON.parse(e.newValue);
+        updateCDSUI(data);
+      }
+    });
+
+    function updateCDSUI(data) {
+      // 1. อัปเดตรายการสินค้า
+      const itemsContainer = document.getElementById('cdsItems');
+      if (!data.cart || data.cart.length === 0) {
+        itemsContainer.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-gray-300 opacity-80">
+            <div class="text-9xl mb-6">🏪</div>
+            <h2 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h2>
+            <p class="text-xl mt-2">เชิญเลือกชมสินค้าได้เลยครับ/ค่ะ</p>
+          </div>`;
+      } else {
+        itemsContainer.innerHTML = data.cart.map(item => `
+          <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center text-xl font-bold">
+            <div class="flex items-center gap-4">
+              <span class="bg-rose-100 text-rose-600 w-10 h-10 flex items-center justify-center rounded-xl text-base">${item.qty}</span>
+              <span class="text-gray-700">${item.name}</span>
+            </div>
+            <span class="text-rose-600">฿${(item.price * item.qty).toLocaleString('th-TH', {minimumFractionDigits: 2})}</span>
+          </div>
+        `).join('');
+        // เลื่อนลงล่างสุดอัตโนมัติ
+        itemsContainer.scrollTop = itemsContainer.scrollHeight;
+      }
+
+      // 2. อัปเดตตัวเลขยอดเงิน
+      document.getElementById('cdsSubTotal').innerText = data.subTotal;
+      
+      const discountVal = parseFloat(data.discount) || 0;
+      document.getElementById('cdsDiscount').innerText = "- ฿" + discountVal.toLocaleString('th-TH', {minimumFractionDigits: 2});
+      
+      document.getElementById('cdsGrandTotal').innerText = data.grandTotal;
+
+      // 3. จัดการแสดง QR Code / สถานะรับเงิน
+      const qrSection = document.getElementById('cdsQrSection');
+      const thanksSection = document.getElementById('cdsThanksSection');
+
+      if (data.status === "completed") {
+        qrSection.classList.add('hidden');
+        thanksSection.classList.remove('hidden');
+        thanksSection.classList.add('flex');
+      } else if (data.qrImage) {
+        document.getElementById('cdsQrImage').src = data.qrImage;
+        document.getElementById('cdsQrAmount').innerText = data.grandTotal;
+        qrSection.classList.remove('hidden');
+        qrSection.classList.add('flex');
+        thanksSection.classList.add('hidden');
+      } else {
+        qrSection.classList.add('hidden');
+        thanksSection.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
