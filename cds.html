@@ -90,8 +90,6 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
-    
-    // 🟢 ตัวแปรสำหรับจำค่าล่าสุด ป้องกันหน้าจอกระพริบซ้ำๆ ทุก 2 วินาที
     let lastCdsStateString = "";
 
     startLiveClock();
@@ -115,7 +113,6 @@
         .then(res => res.json())
         .then(data => {
             if(data.status === "Success" && data.result) {
-                // 🟢 ตรวจสอบเงื่อนไข: ถ้าข้อมูลเหมือนเดิมเป๊ะ ไม่ต้องวาดใหม่ เพื่อดับปัญหากระพริบ
                 let currentStateString = JSON.stringify(data.result);
                 if (currentStateString !== lastCdsStateString) {
                     lastCdsStateString = currentStateString;
@@ -137,7 +134,7 @@
       const summaryHeader = document.getElementById('standardSummarySection');
       const dynamicArea = document.getElementById('dynamicStatusArea');
 
-      // 🟢 เงื่อนไขข้อที่ 2: ถ้าตะกร้าหน้าจอแคชเชียร์ไม่มีสินค้า หรือสถานะเป็น shopping แต่ตะกร้าโล่ง ให้ล้างหน้าจอกลับสู่หน้าแรกทันที
+      // ตะกร้าว่าง เคลียร์จอทั้งหมดกลับสู่ค่าเริ่มต้น
       if (!data.cart || data.cart.length === 0) {
         itemsContainer.innerHTML = `
           <div id="emptyCart" class="h-full flex flex-col items-center justify-center text-gray-300 opacity-80 animate-fade-in">
@@ -159,7 +156,7 @@
         return; 
       }
 
-      // วาดรายการสินค้าฝั่งซ้ายเมื่อมีสินค้า
+      // 1. วาดรายการสินค้าฝั่งซ้ายพ่วงแสดงรูปภาพตามข้อ 1
       itemsContainer.innerHTML = data.cart.map(item => {
           let baseName = item.name; let optionsHtml = "";
           let match = item.name.match(/(.+) \[(.+)\]/);
@@ -167,15 +164,21 @@
               baseName = match[1].trim();
               optionsHtml = match[2].split(',').map(opt => `<div class="text-xs text-rose-400 font-semibold mt-0.5">• ${opt.trim()}</div>`).join('');
           }
-          let rowPrice = parseFloat(item.price) || 0;
+          
           let rowQty = parseInt(item.qty) || 1;
-          let rowTotal = rowPrice * rowQty;
+          let rowTotal = parseFloat(item.total) || 0;
+
+          // 🟢 แทรกรูปสินค้าเข้าหัวแถวการ์ดแสดงผลฝั่งลูกค้า
+          let imgTag = item.image 
+              ? `<img src="${item.image}" class="w-12 h-12 rounded-xl object-cover border border-rose-100 shadow-sm shrink-0">` 
+              : `<div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-400 flex items-center justify-center text-xl border border-rose-100 shrink-0 shadow-sm">📦</div>`;
 
           return `
             <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center font-bold text-lg animate-fade-in">
-              <div class="flex items-center gap-4 min-w-0 flex-1">
-                <span class="bg-rose-500 text-white w-9 h-9 flex items-center justify-center rounded-lg text-sm shrink-0">${rowQty}</span>
-                <div class="truncate text-left">
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                ${imgTag}
+                <span class="bg-rose-500 text-white w-7 h-7 flex items-center justify-center rounded-lg text-xs shrink-0">${rowQty}</span>
+                <div class="truncate text-left min-w-0 flex-1">
                     <div class="text-gray-700 text-base truncate">${baseName}</div>
                     <div class="flex flex-col">${optionsHtml}</div>
                 </div>
@@ -184,15 +187,15 @@
             </div>`;
       }).join('');
 
-      // อัปเดตตัวเลขแผงราคามาตรฐาน
+      // อัปเดตตัวเลขราคา
       document.getElementById('cdsSubTotal').innerText = data.subTotal;
       let discVal = parseFloat(data.discount) || 0;
       document.getElementById('cdsDiscount').innerText = "- ฿" + discVal.toLocaleString('th-TH', {minimumFractionDigits: 2});
       document.getElementById('cdsGrandTotal').innerText = data.grandTotal;
 
-      // 🔳 จัดการสถานะกล่องสลับเปลี่ยนตามช่องทางชำระเงินคัดกรองพาสเทล
+      // 2. 🔳 แยกแผงประมวลผลจ่ายเงิน (Completed / Checkout / Shopping) ตามข้อ 2
       if (data.status === "completed") {
-          summaryHeader.classList.add('hidden'); // 🟢 เงื่อนไขข้อที่ 3: ปิดหน้าจอแสดง QR สรุปยอดทันทีเมื่อชำระสำเร็จ ไม่ต้องแสดงรอ
+          summaryHeader.classList.add('hidden'); // ซ่อนแผงยอดคำนวณหลักออกไปเมื่อกดจบงาน
           
           if(data.paymentType === 'เงินสด') {
               dynamicArea.innerHTML = `
@@ -217,7 +220,8 @@
                 </div>`;
           }
       } 
-      else {
+      else if (data.status === "checkout") {
+          // สแตมป์รายละเอียดวิธีการจ่ายเงินเมื่อแคชเชียร์เปิดหน้าต่างชำระเงินขึ้นมาเท่านั้น
           summaryHeader.classList.remove('hidden'); 
           
           if (data.paymentType === 'โอนเงิน' && data.qrImage) {
@@ -229,7 +233,6 @@
                 </div>`;
           } 
           else if (data.paymentType === 'คนละครึ่ง') {
-              // 🟢 เงื่อนไขข้อที่ 4: คนละครึ่ง (ไทยช่วย) ปรับสูตรเป็น รัฐ 60% / ประชาชน 40%
               let numericGrandTotal = parseFloat(data.grandTotal.replace(/[^\d.]/g, '')) || 0;
               let citizenPay = numericGrandTotal * 0.40;
               let governmentPay = numericGrandTotal * 0.60;
@@ -263,10 +266,19 @@
           else {
               dynamicArea.innerHTML = `
                 <div class="text-center text-gray-400 py-6 font-medium animate-fade-in">
-                    <span class="text-4xl block mb-1 opacity-60">🛒</span>
-                    กำลังรอพนักงานสรุปช่องทางคิดเงิน...
+                    <span class="text-4xl block mb-1 opacity-60">💵</span>
+                    ชำระด้วยเงินสดหน้าเคาน์เตอร์...
                 </div>`;
           }
+      } 
+      else {
+          // 🟢 บิลกำลังทำงาน/เพิ่มสแกนสินค้าอยู่ (Shopping ทั่วไป) ล้างจอขวารอพนักงานกดชำระเงินตามคำสั่งข้อ 2
+          summaryHeader.classList.remove('hidden');
+          dynamicArea.innerHTML = `
+            <div class="text-center text-gray-400 py-6 font-medium animate-fade-in">
+                <span class="text-4xl block mb-1 opacity-60">🛒</span>
+                กำลังรอพนักงานสรุปช่องทางคิดเงิน...
+            </div>`;
       }
     }
   </script>
