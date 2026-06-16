@@ -125,7 +125,7 @@
         <div id="clockDate" class="text-[11px] text-gray-400 mt-0.5">วันเสาร์ที่ 6 มิ.ย. 2026</div>
     </div>
 
-    <nav class="space-y-4">
+<nav class="space-y-4">
       <a id="nav-sales" onclick="showView('sales')" class="flex items-center gap-3 text-rose-700 bg-rose-50 p-3 rounded-xl font-semibold cursor-pointer transition">
         <span class="text-xl">🛒</span> <span class="hidden lg:block">ขายสินค้า</span>
       </a>
@@ -144,6 +144,11 @@
       <a id="nav-shift" onclick="showView('shift')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
         <span class="text-xl">⏱️</span> <span class="hidden lg:block">จัดการกะ</span>
       </a>
+      
+      <a id="nav-cds" onclick="window.open('https://famepos.github.io/Coffee/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
+        <span class="text-xl">🖥️</span> <span class="hidden lg:block">หน้าจอลูกค้า (CDS)</span>
+      </a>
+
       <a id="nav-settings" onclick="showView('settings')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
         <span class="text-xl">⚙️</span> <span class="hidden lg:block">ตั้งค่า</span>
       </a>
@@ -205,12 +210,7 @@
     </div>
 
 <div class="mb-4 bg-gray-50 p-3 rounded-2xl border border-gray-100 shadow-inner w-full">
-          <div class="flex justify-between items-center mb-2">
-              <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0">📋 รูปแบบการบริการ</label>
-              <button type="button" onclick="printManualKitchenSlip()" class="bg-slate-800 text-white px-3 py-1 rounded-lg font-bold hover:bg-slate-900 transition text-[10px] shadow-sm flex items-center gap-1 active:scale-95 border border-slate-700">
-                  🖨️ พิมพ์ใบครัว
-              </button>
-          </div>
+          <label class="block text-[11px] font-bold text-gray-400 mb-2 uppercase tracking-wider">📋 รูปแบบการบริการ</label>
           
           <div class="grid grid-cols-3 gap-2">
             <button type="button" onclick="setOrderType('DineIn', this)" id="btnOrderDineIn" class="order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500 shadow-sm">🍽️ ทานที่ร้าน</button>
@@ -267,20 +267,14 @@
     </div>
 </div> 
 <div id="salesTableModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-[2.5rem] w-full max-w-5xl h-[85vh] shadow-2xl relative flex flex-col animate-fade-in">
+    <div class="bg-white p-6 rounded-[2rem] w-full max-w-lg shadow-2xl relative flex flex-col">
         <button onclick="document.getElementById('salesTableModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
-        
-        <div class="flex justify-between items-center mb-4 border-b pb-3 shrink-0">
-            <div class="flex items-center gap-3">
-                <span class="text-3xl">🪑</span>
-                <div>
-                    <h3 class="text-xl font-bold text-rose-800">เลือกหมายเลขโต๊ะ / ดูบิลค้าง</h3>
-                    <p class="text-xs text-rose-400 mt-0.5">คลิกที่โต๊ะว่างเพื่อเปิดบิลใหม่ หรือคลิกโต๊ะไม่ว่างเพื่อสั่งอาหารเพิ่ม/เรียกเก็บเงิน</p>
-                </div>
-            </div>
+        <div class="flex items-center gap-3 mb-4 border-b pb-3">
+            <span class="text-3xl">🪑</span>
+            <h3 class="text-xl font-bold text-rose-800">เลือกหมายเลขโต๊ะ</h3>
         </div>
         
-        <div id="modalTableGridContainer" class="flex-1 w-full bg-slate-50 border-2 border-dashed border-rose-200 rounded-[2rem] relative overflow-hidden shadow-inner">
+<div id="modalTableGridContainer" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[50vh] overflow-y-auto pr-2 pb-2">
             </div>
     </div>
 </div>
@@ -473,20 +467,20 @@
                  </button>
                  
              <div id="reportDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
-                   <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-rose-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
-                   <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">📦 รายงานสินค้าขายดี</div>
-                   <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
-                   <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
+                   <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-green-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
+                   <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">📦 รายงานสินค้าขายดี</div>
+                   <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
+                   <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
                    
-                   <div onclick="selectReport('user', '👨‍💼 รายงานยอดขายพนักงาน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">👨‍💼 รายงานยอดขายพนักงาน</div>
-                   <div onclick="selectReport('branch', '🏢 รายงานยอดขายสาขา', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">🏢 รายงานยอดขายสาขา</div>
+                   <div onclick="selectReport('user', '👨‍💼 รายงานยอดขายพนักงาน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">👨‍💼 รายงานยอดขายพนักงาน</div>
+                   <div onclick="selectReport('branch', '🏢 รายงานยอดขายสาขา', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">🏢 รายงานยอดขายสาขา</div>
                    
                    <div class="border-t border-gray-100 my-1"></div>
                    <div onclick="selectReport('void', '❌ รายงานบิลที่ยกเลิก', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-red-50 transition-colors">❌ รายงานบิลที่ยกเลิก</div>
                  </div>
                </div>
 
-               <button onclick="downloadCSV()" class="px-4 py-2.5 bg-rose-200 text-white font-bold rounded-xl hover:bg-rose-300 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
+               <button onclick="downloadCSV()" class="px-4 py-2.5 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
                   📥 โหลดไฟล์ CSV
                </button>
                
@@ -1081,8 +1075,7 @@
 </div>
 
 <!-- ================= หน้าจอ: เมนูตั้งค่าหลัก ================= -->
-<!-- ================= หน้าจอ: เมนูตั้งค่าหลัก ================= -->
-<div id="settingsView" class="hidden w-full h-full p-8 overflow-y-auto bg-gray-50/50">
+</div> </div> <div id="settingsView" class="hidden w-full h-full p-8 overflow-y-auto bg-gray-50/50">
       <div class="max-w-6xl mx-auto">
         <h1 class="text-3xl font-bold mb-8 text-rose-800 border-b pb-4">⚙️ ตั้งค่าระบบ</h1>
         
@@ -1108,7 +1101,7 @@
           <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 transition" onclick="openBarcodeSettings()">
             <div class="text-5xl mb-4">🏷️</div><h3 class="font-bold text-lg text-rose-700">บาร์โค้ด</h3>
           </div>
-          <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 transition" onclick="openBranchManagement()">
+      <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 transition" onclick="openBranchManagement()">
             <div class="text-5xl mb-4">🏢</div><h3 class="font-bold text-lg text-rose-700">จัดการร้านค้า</h3>
           </div>
           <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 border-transparent hover:border-rose-200 transition" onclick="openDeliverySettings()">
@@ -1117,21 +1110,13 @@
           <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 border-transparent hover:border-rose-200 transition" onclick="openTableManagement()">
             <div class="text-5xl mb-4">🪑</div><h3 class="font-bold text-lg text-rose-700">จัดการโต๊ะ & QR</h3>
           </div>
-
-          <!-- 🍽️ ปุ่มตั้งค่าบุฟเฟต์ (แยกออกมาให้ถูกต้อง) -->
-          <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 border-transparent hover:border-rose-200 transition" onclick="openBuffetSettings()">
-            <div class="text-5xl mb-4">🍽️</div><h3 class="font-bold text-lg text-rose-700">ตั้งค่าราคาบุฟเฟต์</h3>
-          </div>
-
-          <!-- 🧨 ปุ่มรีเซ็ตระบบ -->
           <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-red-50 border-transparent hover:border-red-200 transition" onclick="triggerFactoryReset()">
             <div class="text-5xl mb-4">🧨</div><h3 class="font-bold text-lg text-rose-600">รีเซ็ตระบบ</h3>
           </div>
 
         </div>
       </div>
-</div>
-
+    </div>
 
     <!-- ================= หน้าจอ: ตั้งค่าข้อมูลร้าน ================= -->
 <div id="storeInfoView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
@@ -1494,7 +1479,7 @@
              <tr class="bg-rose-50 text-rose-800 border-b border-rose-100">
                 <th class="p-4 font-bold">เบอร์โทรศัพท์ (ID)</th>
                 <th class="p-4 font-bold">ประเภทลูกค้า</th>
-                <th class="p-4 font-bold text-center text-orange-500">แต้มสะสม</th>
+                <th class="p-4 font-bold text-center text-amber-500">แต้มสะสม</th>
                 <th class="p-4 font-bold text-right text-rose-600">ยอดซื้อสะสม (บาท)</th>
                 <th class="p-4 font-bold text-center text-gray-500">อัปเดตล่าสุด</th>
              </tr>
@@ -1637,56 +1622,37 @@
     </div>
   </div>
 </div>
-<!-- ================= หน้าจอ:โต๊ะ (Floor Plan Canvas ตัวสมบูรณ์) ================= -->
-</div> <div id="tableManagementView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col gap-4">
+
+    <!-- ================= หน้าจอ:โต๊ะ ================= -->
+<div id="tableManagementView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
+  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col gap-6">
     
-    <!-- Header แถบควบคุมบนสุด -->
-    <div class="flex flex-wrap justify-between items-center border-b pb-4 gap-4">
+    <div class="flex justify-between items-center border-b pb-4">
       <div class="flex items-center gap-4">
           <button onclick="backToSettings()" class="text-gray-500 hover:text-rose-600 bg-gray-100 hover:bg-rose-50 p-2 rounded-xl transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <div>
-            <h1 class="text-2xl font-bold text-rose-800">🪑 ออกแบบผังโต๊ะ & QR Code สั่งอาหาร</h1>
-            <p class="text-xs text-rose-400 mt-0.5">กดค้างที่ดวงโต๊ะเพื่อลากวางย้ายตำแหน่งร้านจริงได้เลย</p>
-          </div>
+          <h1 class="text-2xl font-bold text-rose-800">🪑 จัดการโต๊ะและพิมพ์ QR Code สั่งอาหาร</h1>
       </div>
-      <div class="flex items-center gap-2 w-full sm:w-auto">
-          <button onclick="saveFloorPlanLayoutPositions()" class="flex-1 sm:flex-none bg-orange-500 text-white px-5 py-2.5 rounded-xl hover:bg-orange-600 transition shadow font-bold text-sm flex items-center justify-center gap-1.5">
-              💾 บันทึกตำแหน่งผังร้าน
-          </button>
-          <button onclick="openAddTableModal()" class="flex-1 sm:flex-none bg-rose-500 text-white px-5 py-2.5 rounded-xl hover:bg-rose-600 transition shadow flex items-center justify-center gap-1.5 font-bold text-sm">
-              ➕ เพิ่มโต๊ะใหม่
-          </button>
-      </div>
-    </div>
-
-    <!-- ⚙️ กล่องระบบสลับเลือกโหมดการเคลียร์โต๊ะส่วนกลางของร้าน (ตัวที่หายไป) -->
-    <div class="bg-rose-50 p-5 rounded-2xl border border-rose-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm animate-fade-in">
-        <div>
-            <h3 class="text-rose-800 font-bold text-base flex items-center gap-2">⚙️ ระบบเลือกรูปแบบการคืนสถานะโต๊ะ</h3>
-            <p class="text-xs text-rose-600 mt-0.5">เลือกเงื่อนไขการเปลี่ยนสถานะเป็น "โต๊ะว่าง" ให้ตรงกับประเภทการบริการของทางร้าน</p>
-        </div>
-        <div class="relative w-full md:w-72" id="tableClearModeContainer">
-            <input type="hidden" id="tableClearMode" value="manual">
-            <button type="button" onclick="document.getElementById('tableClearModeMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl bg-white flex justify-between items-center shadow-sm text-sm outline-none">
-                <span id="tableClearModeText">🪑 พนักงานกดเคลียร์เองด้วยมือ</span>
-                <span class="text-rose-500 text-xs">▼</span>
-            </button>
-            <div id="tableClearModeMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden text-sm">
-                <div onclick="changeTableClearMode('payment', '💵 เคลียร์ทันทีหลังจ่ายเงิน', this)" class="clear-mode-item p-3 hover:bg-rose-50 text-gray-700 font-medium border-b cursor-pointer transition">💵 เคลียร์ทันทีหลังจ่ายเงิน</div>
-                <div onclick="changeTableClearMode('kitchen', '👨‍🍳 เคลียร์เมื่อครัวเสิร์ฟอาหาร', this)" class="clear-mode-item p-3 hover:bg-rose-50 text-gray-700 font-medium border-b cursor-pointer transition">👨‍🍳 เคลียร์เมื่อครัวเสิร์ฟอาหาร</div>
-                <div onclick="changeTableClearMode('manual', '🪑 พนักงานกดเคลียร์เองด้วยมือ', this)" class="clear-mode-item p-3 hover:bg-rose-50 text-rose-700 bg-rose-50 font-bold cursor-pointer transition">🪑 พนักงานกดเคลียร์เองด้วยมือ</div>
-            </div>
-        </div>
+      <button onclick="openAddTableModal()" class="bg-rose-600 text-white px-5 py-2.5 rounded-xl hover:bg-rose-700 transition shadow flex items-center gap-2 font-bold">
+          + เพิ่มโต๊ะใหม่
+      </button>
     </div>
     
-    <!-- 🗺️ Canvas พื้นที่จำลองร้านอาหารสำหรับลากวางโต๊ะ -->
-    <div class="flex-1 w-full min-h-[550px] bg-slate-50 border-2 border-dashed border-rose-200 rounded-[2rem] relative overflow-hidden shadow-inner" id="floorPlanCanvas">
-        <div id="canvasLoading" class="absolute inset-0 flex items-center justify-center text-rose-400 font-bold gap-2 text-lg bg-white/50 backdrop-blur-[1px]">
-            <span class="animate-spin text-2xl">⏳</span> กำลังจำลองผังร้านค้า...
-        </div>
+    <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-inner bg-white">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-rose-50">
+                <tr>
+                    <th class="p-4 text-rose-800 font-bold">ชื่อโต๊ะ / หมายเลขโต๊ะ</th>
+                    <th class="p-4 text-rose-800 font-bold text-center">สถานะโต๊ะปัจจุบัน</th>
+                    <th class="p-4 text-rose-800 font-bold text-center w-64">สิทธิ์ QR Code ประจำโต๊ะ</th>
+                    <th class="p-4 text-rose-800 font-bold text-center w-40">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="branchTableBodyTable">
+                <tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูลโต๊ะ... ⏳</td></tr>
+            </tbody>
+        </table>
     </div>
   </div>
 </div>
@@ -1699,64 +1665,30 @@
         
         <div class="space-y-4 mb-6">
             <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">ชื่อโต๊ะ / หมายเลขโต๊ะ <span class="text-red-500">*</span></label>
-                <input type="text" id="newTableName" class="w-full p-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-rose-500 font-bold text-gray-700 transition" placeholder="เช่น โต๊ะ 05, บาร์มุม">
+                <label class="block text-sm font-bold text-gray-600 mb-1.5">ชื่อโต๊ะ / หมายเลขโต๊ะ <span class="text-red-500">*</span></label>
+                <input type="text" id="newTableName" class="w-full p-3.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-rose-500 font-semibold text-gray-700 transition" placeholder="เช่น โต๊ะ 01, บาร์ 02">
             </div>
-            
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">รูปทรงโต๊ะกราฟิก</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="setTableShapeForm('square', this)" id="btnShapeSquare" class="table-shape-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700">⬜ โต๊ะสี่เหลี่ยม</button>
-                    <button type="button" onclick="setTableShapeForm('circle', this)" id="btnShapeCircle" class="table-shape-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500">⭕ โต๊ะกลม</button>
-                </div>
-                <input type="hidden" id="newTableShape" value="square">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">ขนาดโต๊ะ (ความจุผู้รวมนั่ง)</label>
-                <div class="grid grid-cols-3 gap-2">
-                    <button type="button" onclick="setTableSizeForm('small', this)" id="btnSizeSmall" class="table-size-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500">🧍 เล็ก (1-2 ที่นั่ง)</button>
-                    <button type="button" onclick="setTableSizeForm('medium', this)" id="btnSizeMedium" class="table-size-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700">👥 กลาง (3-4 ที่นั่ง)</button>
-                    <button type="button" onclick="setTableSizeForm('large', this)" id="btnSizeLarge" class="table-size-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500">👨‍👩‍👦 ใหญ่ (5 ที่นั่ง+)</button>
-                </div>
-                <input type="hidden" id="newTableSize" value="medium">
-            </div>
+<div class="relative" id="tableStatusContainer">
+              <label class="block text-sm font-semibold mb-2 text-gray-700">สถานะโต๊ะ</label>
+              <input type="hidden" id="tableStatus" value="ว่าง">
+              
+              <button type="button" onclick="document.getElementById('tableStatusMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 flex justify-between items-center shadow-sm transition text-left">
+                  <span id="tableStatusText">🟢 ว่าง</span>
+                  <span class="text-rose-500 text-xs leading-none">▼</span>
+              </button>
+              
+              <div id="tableStatusMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                  <div onclick="selectTableStatus('ว่าง', '🟢 ว่าง', this)" class="table-status-item p-3 hover:bg-rose-50 hover:text-rose-600 text-rose-700 bg-rose-50 font-bold cursor-pointer border-b border-rose-50 transition-colors">🟢 ว่าง</div>
+                  <div onclick="selectTableStatus('ไม่ว่าง', '🔴 ไม่ว่าง (มีลูกค้า)', this)" class="table-status-item p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold cursor-pointer transition-colors">🔴 ไม่ว่าง (มีลูกค้า)</div>
+              </div>
+          </div>
         </div>
-        
         <div class="flex gap-3">
-            <button onclick="closeAddTableModal()" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition text-sm">ยกเลิก</button>
-            <button onclick="saveTableData()" class="flex-1 py-3 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition shadow-md text-sm">💾 บันทึกข้อมูล</button>
+            <button onclick="closeAddTableModal()" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition">ยกเลิก</button>
+            <button onclick="saveTableData()" class="flex-1 py-3 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition shadow-md">💾 บันทึก</button>
         </div>
     </div>
 </div>
-
-    <!-- ================= หน้าจอ:ต่างบุฟเฟต์ ================= -->
-
-<div id="buffetSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col">
-    
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <div class="flex items-center gap-4">
-          <button onclick="backToSettings()" class="text-gray-500 hover:text-rose-600 bg-gray-100 hover:bg-rose-50 p-2 rounded-xl transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h1 class="text-2xl font-bold text-rose-800">🍽️ ตั้งค่าราคาแพ็กเกจบุฟเฟต์</h1>
-      </div>
-      <button onclick="addBuffetPackageRow('', 0)" class="bg-rose-600 text-white px-4 py-2.5 rounded-xl hover:bg-rose-700 transition shadow flex items-center gap-2 font-bold text-sm">
-          + เพิ่มรูปแบบการทาน
-      </button>
-    </div>
-    
-    <div id="buffetPackagesContainer" class="flex-1 space-y-3 overflow-y-auto pr-1 max-h-[60vh]">
-        <div class="text-center p-8 text-gray-400 font-bold">⏳ กำลังดึงข้อมูลแพ็กเกจบุฟเฟต์...</div>
-    </div>
-    
-    <div class="pt-6 mt-auto border-t border-rose-100">
-       <button id="btnSaveBuffet" onclick="saveBuffetPackagesData()" class="w-full p-4 bg-rose-500 text-white rounded-xl font-bold text-xl shadow-md hover:bg-rose-600 transition">💾 บันทึกตั้งค่าบุฟเฟต์</button>
-    </div>
-  </div>
-</div>
-
 
     <!-- ================= หน้าจอ:รีเซ็ตระบบ ================= -->
 
@@ -2529,23 +2461,15 @@
 </div>
 
     <!-- ================= หน้าจอ:เทมเพลตกระดาษใบครัว ================= -->
-<div id="kitchenPrintContainer" class="hidden receipt-slip slip-80mm flex-col relative bg-white pb-6 pt-4">
-    <div class="text-center mb-4 border-b-2 border-dashed border-gray-400 pb-3">
-        <div id="kitchenManualQueueDisplay" class="font-black text-5xl mb-2 text-gray-900 hidden">คิว: <span id="kitchenManualQueueNo">000</span></div>
-        
-        <h2 class="text-2xl font-black">👨‍🍳 ใบสั่งทำอาหาร</h2>
-        
-        <div id="kitchenOrderTypeDisplay" class="text-lg mt-2 font-bold bg-gray-100 p-2 rounded-lg border border-gray-200">
-            บิล: <span>-</span>
-        </div>
-        
-        <div class="text-sm font-bold text-gray-700 mt-2">ออเดอร์: <span id="kitchenOrderId"></span></div>
-        <div class="text-xs text-gray-500 mt-1 font-medium">พนักงาน: <span id="kitchenManualUser"></span></div>
-        <div class="text-xs text-gray-500 mt-0.5 font-medium">เวลาพิมพ์: <span id="kitchenTime"></span></div>
+<div id="kitchenPrintContainer" class="hidden no-print" style="display: none !important;">
+      <div class="text-center mb-4 border-b-2 border-black pb-3">
+        <h2 class="text-2xl font-bold">👨‍🍳 ใบสั่งทำอาหาร</h2>
+        <div class="text-sm mt-1 font-bold">บิลเลขที่: <span id="kitchenOrderId"></span></div>
+        <div class="text-sm">เวลา: <span id="kitchenTime"></span></div>
     </div>
-    <div id="kitchenItems" class="space-y-3 mb-4 font-bold text-gray-800 text-lg"></div>
+    <div id="kitchenItems" class="space-y-3 mb-4 font-bold text-gray-800"></div>
     <div class="dashed-line my-1"></div>
-    <div class="text-center text-xs mt-2 text-gray-400 font-medium">*** พิมพ์สำหรับส่งเข้าห้องครัว ***</div>
+    <div class="text-center text-xs mt-2 text-gray-500">*** พิมพ์สำหรับส่งเข้าห้องครัว ***</div>
 </div>
 
     <!-- ================= หน้าจอ:📱 สแกน QR Code เพื่อชำระเงิน ================= -->
@@ -2636,7 +2560,6 @@ let currentAdminProducts = [];
 let currentReceiveHistory = [];
 let currentOutHistory = [];
 let heldOrders = JSON.parse(localStorage.getItem('famepos_held_orders') || '[]');
-let globalSalesTableList = [];
 
 
 // 1. ฟังก์ชันช่วยแจ้งเตือน (Toast) [เวอร์ชันแก้บั๊กสีแดงไม่แสดง]
@@ -2930,33 +2853,10 @@ function updateStoreUI(settings) {
   safeToggle('kitchenContent', settings.enableKitchenSlip !== false);
   safeToggle('kitchenSeparator', settings.enableKitchenSlip !== false);
   safeToggle('receiptQueueDisplay', settings.showReceiptQueue === true); // 🎫 ควบคุมคิวฝั่งลูกค้า
-  safeToggle('kitchenQueueDisplay', settings.showReceiptQueue === true);
-  toggleCustomReceiptType();
+  safeToggle('kitchenQueueDisplay', settings.showReceiptQueue === true); // 🎫 ควบคุมคิวฝั่งห้องครัว
 
-// 🪑 ผูกฟังก์ชันเข้ากับระบบส่วนกลาง ปรับเปลี่ยนให้ใช้ globalStoreSettings เพื่อแก้ปัญหาตัวแปร เออเร่อ
-if (globalStoreSettings && globalStoreSettings.tableClearMode && document.getElementById('tableClearMode')) {
-    document.getElementById('tableClearMode').value = globalStoreSettings.tableClearMode;
-    let modeText = "🪑 พนักงานกดเคลียร์เองด้วยมือ";
-    if(globalStoreSettings.tableClearMode === 'payment') modeText = "💵 เคลียร์ทันทีหลังจ่ายเงิน";
-    if(globalStoreSettings.tableClearMode === 'kitchen') modeText = "👨‍🍳 เคลียร์เมื่อครัวเสิร์ฟอาหาร";
-    document.getElementById('tableClearModeText').innerText = modeText;
-    
-    let items = document.querySelectorAll('.clear-mode-item');
-    items.forEach((item, idx) => {
-        item.classList.remove('bg-rose-50', 'text-rose-700', 'font-bold');
-        item.classList.add('text-gray-700', 'font-medium');
-        if((globalStoreSettings.tableClearMode === 'payment' && idx === 0) || 
-           (globalStoreSettings.tableClearMode === 'kitchen' && idx === 1) || 
-           (globalStoreSettings.tableClearMode === 'manual' && idx === 2)) {
-            item.classList.remove('text-gray-700', 'font-medium');
-            item.classList.add('bg-rose-50', 'text-rose-700', 'font-bold');
-        }
-    });
+  toggleCustomReceiptType();
 }
-}
-// ============================================
-// ฟังก์ชันควบคุมการสลับหน้าจอ (Views) และเปลี่ยนเมนูด้านซ้าย
-// ============================================
 function showView(viewName) {
     // 1. รวบรวมหน้าจอหลักทั้งหมดให้ครบ
     let views = [
@@ -2969,11 +2869,11 @@ function showView(viewName) {
         if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
     });
     
-    // 2. ซ่อนหน้ารายละเอียดตั้งค่าชั้นในทั้งหมด (เพิ่มเดลิเวอรี่, โต๊ะ, และบุฟเฟต์เข้าไปในแก๊งนี้ด้วย)
+    // 2. ซ่อนหน้ารายละเอียดตั้งค่าชั้นในทั้งหมด (เพิ่มเดลิเวอรี่และโต๊ะเข้าไปในแก๊งนี้ด้วย)
     let settingsViews = [
         'storeInfoView', 'paymentSettingsView', 'receiptSettingsView', 
         'taxServiceSettingsView', 'employeeSettingsView', 'barcodeSettingsView',
-        'deliverySettingsView', 'tableManagementView', 'buffetSettingsView'
+        'deliverySettingsView', 'tableManagementView'
     ];
     settingsViews.forEach(id => { let el = document.getElementById(id); if (el) el.classList.add('hidden'); });
 
@@ -3050,11 +2950,6 @@ function showView(viewName) {
         if(navSettings) navSettings.className = activeClass;
         if(typeof loadTablesData === 'function') loadTablesData();
     }
-}
-
-// 🪑 ฟังก์ชันเชื่อมทางสำหรับปุ่มเมนูกล่องตั้งค่า "จัดการโต๊ะ & QR" (ผูกไว้ข้างๆ กันเพื่อกันบั๊ก)
-function openTableManagement() {
-    showView('table');
 }
     function openStoreInfo() {
       document.getElementById('settingsView').classList.add('hidden');
@@ -3243,6 +3138,7 @@ function updateCartUI() {
     document.getElementById('cartItems').innerHTML = newHtml; 
     document.getElementById('totalPrice').innerText = '฿' + total.toFixed(2);
     calculateChange();
+    syncCustomerDisplay();
 }
 
 function renderPaymentButtons() {
@@ -3485,6 +3381,7 @@ function calculateChange() {
     cash = parseFloat(currentCash) || 0;
     let change = cash - grandTot;
     document.getElementById('changeAmount').innerText = (change > 0 && selectedPayment === 'เงินสด' && !isSplitIntended ? change.toFixed(2) : "0.00");
+    syncCustomerDisplay();
 }
 
 function handleNum(num) {
@@ -3527,6 +3424,7 @@ function startQRTimer() {
         updateTimerDisplay();
         if (qrTimeLeft <= 0) { clearInterval(qrTimerInterval); expireQR(); }
     }, 1000);
+    syncCustomerDisplay('qr_payment');
 }
 
 // ฟังก์ชันเมื่อ QR หมดเวลา
@@ -3704,18 +3602,16 @@ function confirmPayment() {
         if(btn) { btn.innerText = "ยืนยันชำระเงิน (Enter)"; btn.disabled = false; }
         if(btnQR) { btnQR.innerText = "ชำระเงินแล้ว"; btnQR.disabled = false; }
         
-showToast("บันทึกรายการขายสำเร็จ!", "success");
-
-        // 🪑 รีเฟรชสถานะโต๊ะบนหน้าจอ POS ให้ซิงค์ตรงตามโหมดการเคลียร์โต๊ะที่คุณเฟรมเลือกไว้
-        if (typeof loadTablesData === 'function') {
-            loadTablesData();
-        }
-
-        // 👉 แทรกโค้ดล้างบิลค้างโต๊ะหลังบ้านออกจากระบบตรงนี้ได้เลยครับ 👈
+        showToast("บันทึกรายการขายสำเร็จ!", "success");
         if (currentOrderType === 'ทานที่ร้าน' && tableNo !== "") {
-            google.script.run.clearTableOrderGS(tableNo);
+            google.script.run.withSuccessHandler(function(updatedTables) {
+                if (updatedTables) {
+                    globalSalesTableList = updatedTables; globalTablesList = updatedTables;
+                    let tableView = document.getElementById('tableManagementView');
+                    if (tableView && !tableView.classList.contains('hidden')) { loadTablesData(); }
+                }
+            }).updateTableStatusGS(tableNo, "ว่าง");
         }
-        
     }).processSale(cartData, finalPaymentType, currentCash, changeStr, totalDiscountForDB, phone, exactCash, exactTransfer, tax, service, usedPoints, currentUserLog, currentBranchLog, currentOrderType, tableNo, deliveryApp, deliveryOrderId);
 }
 
@@ -3744,6 +3640,7 @@ function finishRealTime() {
   if(deliveryBox) deliveryBox.classList.add('hidden');
   
   clearInterval(qrTimerInterval); calculateChange(); 
+  syncCustomerDisplay('idle');
 }
 
 function toggleDropdown() { document.getElementById('dropdownMenu').classList.toggle('hidden'); }
@@ -4032,53 +3929,39 @@ function holdOrder() {
 
 function closeHoldPrompt() { document.getElementById('holdPromptModal').classList.add('hidden'); }
 
-// ⏸️ ฟังก์ชันยืนยันการพักบิลรายการ 
 function confirmHoldOrder() {
     let orderName = document.getElementById('holdPromptInput').value;
     if (orderName.trim() === "") orderName = "บิลพักที่ " + (heldOrders.length + 1);
     let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     
-    let tNo = document.getElementById('inputTableNo') ? document.getElementById('inputTableNo').value : ""; 
+    // 🧠 ระบบอัจฉริยะ: แอบจำสถานะโต๊ะ/แอป เพื่อเอาไว้เรียกคืน
+    let tNo = document.getElementById('inputTableNo') ? document.getElementById('inputTableNo').value : "";
     let dApp = document.getElementById('selectDeliveryApp') ? document.getElementById('selectDeliveryApp').value : "";
     let dId = document.getElementById('inputDeliveryOrderId') ? document.getElementById('inputDeliveryOrderId').value : "";
 
-    // 👉 1. ดึงชื่อผู้ใช้และสาขาปัจจุบันมาเตรียมไว้
-    let currentUserLog = window.currentUser || "Admin";
-    let currentBranchLog = window.currentBranch || "สาขาหลัก";
-
-    // 🧠 ลอจิกพิเศษ: ถ้าเปิดบิลค้างโต๊ะ ทานที่ร้าน ให้ส่งข้อมูลไปฝังจำบนระบบ Google Sheet เรียบร้อยทันที
-    if (currentOrderType === 'ทานที่ร้าน' && tNo !== "") {
-        showToast("กำลังบันทึกรายการค้างโต๊ะลงฐานข้อมูล...", "info");
-        let cartDataStr = JSON.stringify(cart);
-        
-        google.script.run.withSuccessHandler(function(res) {
-            if(res === "Success") {
-                showToast(`ฝังรายการบิลค้างที่ ${tNo} สำเร็จ! โต๊ะขึ้นสถานะไม่ว่างแล้ว`, "success");
-                if(typeof loadTablesData === 'function') loadTablesData(); // อัปเดตผังสีโต๊ะทันที
-            }
-        }).holdTableOrderGS(tNo, cartDataStr, total, currentUserLog, currentBranchLog); // 👉 2. ยัดชื่อพนักงานต่อท้ายไปเลย!
-    }
-
-    // บันทึกจัดเก็บข้อมูลบิลพักเข้าหน่วยความจำชั่วคราวหน้าร้าน
     heldOrders.push({
-        id: Date.now(), // [cite: 8955]
-        name: orderName, // [cite: 8955]
-        cart: JSON.parse(JSON.stringify(cart)), // [cite: 8955]
-        total: total, // [cite: 8955]
-        time: new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}), // [cite: 8955]
-        orderType: currentOrderType, // [cite: 9811]
-        tableNo: tNo, // [cite: 9811]
-        deliveryApp: dApp, // [cite: 9811]
-        deliveryId: dId // [cite: 9811]
+        id: Date.now(), 
+        name: orderName, 
+        cart: JSON.parse(JSON.stringify(cart)), 
+        total: total, 
+        time: new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}),
+        orderType: currentOrderType,
+        tableNo: tNo,
+        deliveryApp: dApp,
+        deliveryId: dId
     });
-    closeHoldPrompt(); // [cite: 8956]
     
-    finishRealTime(); // [cite: 8957] 
+    closeHoldPrompt();
     
-    if(typeof updateHeldCount === 'function') {
-        updateHeldCount(); // [cite: 8957]
-    }
-    showToast("พักบิล '" + orderName + "' เรียบร้อย", "success"); // [cite: 8957]
+    // เคลียร์หน้าจอทั้งหมดให้โล่ง พร้อมรับลูกค้าคนต่อไป (แต่หลังบ้านสถานะโต๊ะเก่ายังล็อกแดงไว้อยู่)
+    finishRealTime(); 
+    
+    // อัปเดตตัวเลขแจ้งเตือนปุ่มพักบิล
+  // แทนที่คำสั่ง updateHeldCount(); เดิมด้วยโค้ดด้านล่างนี้
+if(typeof updateHeldCount === 'function') {
+    updateHeldCount();
+}
+showToast("พักบิล '" + orderName + "' เรียบร้อย", "success");
 }
 
 function updateHeldCount() {
@@ -4327,7 +4210,7 @@ function loadAdminProducts() {
                     <td class="p-3 font-bold text-rose-600">฿${parseFloat(p.price).toFixed(2)}</td>
                     <td class="p-3 font-bold text-rose-600">${displayRemaining}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="openRecipeManager('${safeName}', ${p.price})" class="px-3 py-2 bg-orange-50 text-orange-600 rounded-xl font-bold mr-1 hover:bg-orange-100 transition">🍳 ผูกสูตร</button>
+                        <button onclick="openRecipeManager('${safeName}', ${p.price})" class="px-3 py-2 bg-amber-50 text-amber-600 rounded-xl font-bold mr-1 hover:bg-amber-100 transition">🍳 ผูกสูตร</button>
                         <button onclick="openProductModal(${index})" class="px-3 py-2 bg-rose-50 text-rose-500 rounded-xl font-bold mr-1">แก้ไข</button>
                         <button onclick="deleteProduct(${p.rowIdx}, '${safeName}')" class="px-3 py-2 bg-red-50 text-red-500 rounded-xl font-bold">ลบ</button>
                     </td>
@@ -4616,7 +4499,7 @@ function loadDashboardData() {
         if(chartDaily) chartDaily.destroy();
         if(chartPayment) chartPayment.destroy();
 
-        let colorMain = '#b91010', colorLight = '#f3a7a7', colorBg = 'rgba(16, 185, 129, 0.1)';
+        let colorMain = '#10b981', colorLight = '#a7f3d0', colorBg = 'rgba(16, 185, 129, 0.1)';
         chartHourly = new Chart(document.getElementById('hourlyChart').getContext('2d'), {
             type: 'bar',
             data: { labels: Array.from({length: 24}, (_, i) => i + ":00"), datasets: [{ data: data.hourly, backgroundColor: colorLight, hoverBackgroundColor: colorMain }] },
@@ -4629,7 +4512,7 @@ function loadDashboardData() {
         });
         chartPayment = new Chart(document.getElementById('paymentChart').getContext('2d'), {
             type: 'doughnut',
-            data: { labels: Object.keys(data.payment), datasets: [{ data: Object.values(data.payment), backgroundColor: [colorMain, '#d33434', '#e76e6e'] }] },
+            data: { labels: Object.keys(data.payment), datasets: [{ data: Object.values(data.payment), backgroundColor: [colorMain, '#34d399', '#6ee7b7'] }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
         });
     }).getAdvancedDashboardData(startDate, endDate);
@@ -6726,16 +6609,14 @@ function openBranchManagement() {
 }
 
 // ✅ ฟังก์ชันปุ่มกดย้อนกลับจากหน้าจอชั้นใน
-// ✅ ฟังก์ชันปุ่มกดย้อนกลับจากหน้าจอชั้นใน
 function backToSettings() {
-    let viewsToHide = ['employeeSettingsView', 'barcodeSettingsView', 'branchManagementView', 'deliverySettingsView', 'tableManagementView', 'buffetSettingsView'];
+    let viewsToHide = ['employeeSettingsView', 'barcodeSettingsView', 'branchManagementView', 'deliverySettingsView', 'tableManagementView'];
     viewsToHide.forEach(id => {
         let el = document.getElementById(id);
         if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
     });
     let settingsGrid = document.getElementById('settingsView'); if (settingsGrid) { settingsGrid.classList.remove('hidden'); }
 }
-
 function triggerFactoryReset() {
     showConfirmModal("🛑 คำเตือนวิกฤต: คุณต้องการล้างข้อมูลสินค้า ยอดขาย และการตั้งค่าทั้งหมดกลับเป็นค่าเริ่มต้นโรงงานใช่หรือไม่? ข้อมูลทั้งหมดจะหายถาวร!", function() {
         let btn = document.getElementById('btnFactoryReset');
@@ -8201,71 +8082,256 @@ function saveDeliveryPlatformsData() {
 }
 
 
-// 2. ฟังก์ชันเปิดป๊อปอัปเลือกโต๊ะฝั่งหน้าขาย (เวอร์ชันดึงข้อมูลสดจากหลังบ้านป้องกันหน้าจอขาว)
-function openSalesTableModal() {
-  // ⏳ พ่นข้อความกำลังโหลดรอไว้ก่อน เพื่อความสมูทของหน้าจอ
-  document.getElementById('modalTableGridContainer').innerHTML = `
-    <div class="absolute inset-0 flex items-center justify-center text-rose-400 font-bold gap-2 text-sm">
-        <span class="animate-spin text-lg">⏳</span> กำลังโหลดผังโต๊ะล่าสุดจากหลังบ้าน...
-    </div>`;
-    
-  document.getElementById('salesTableModal').classList.remove('hidden'); 
 
-  // 🔄 ยิงคำสั่งไปดึงข้อมูลพิกัดโต๊ะล่าสุดจาก Google Sheet มาวาดแบบสด ๆ ร้อน ๆ
+
+// ====================================================
+// NEW FRONTEND JS: คำสั่งควบคุมหน้าจัดการโต๊ะและพิมพ์ QR Code
+// ====================================================
+let globalTablesList = [];
+
+function openTableManagement() {
+    if (typeof showView === 'function') { showView('table'); }
+}
+
+function loadTablesData() {
+    let tbody = document.getElementById('branchTableBodyTable');
+    if (globalTablesList.length === 0 && tbody) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูลโต๊ะ... ⏳</td></tr>';
+    }
+    google.script.run.withSuccessHandler(function(data) {
+        globalTablesList = data; globalSalesTableList = data; 
+        let html = '';
+        if (!data || data.length === 0) {
+            if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-400 font-bold">ยังไม่มีข้อมูลโต๊ะในระบบ</td></tr>';
+        } else {
+            data.forEach(function(table, index) {
+                // 📱 เปลี่ยนปลายทาง QR Code ให้วิ่งเข้าแอปสั่งอาหารบน GitHub
+let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html";
+let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(table.name);
+let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrTargetUrl);
+                
+                // 🎨 สลับสีสถานะ ว่าง(เขียว) ไม่ว่าง(แดง)
+                let statusClass = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "bg-rose-100 text-rose-700" : "bg-red-100 text-red-700";
+                let statusText = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "🟢 ว่าง" : "🔴 ไม่ว่าง";
+
+                html += '<tr class="border-b hover:bg-rose-50/40 transition">';
+                html += '<td class="p-4 font-bold text-gray-800">🪑 ' + table.name + '</td>';
+                html += '<td class="p-4 text-center"><span class="' + statusClass + ' px-3 py-1 text-xs rounded-full font-bold">' + statusText + '</span></td>';
+                html += '<td class="p-4 text-center"><a href="' + qrGeneratorApi + '" target="_blank" class="px-3 py-1.5 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl font-bold text-xs inline-flex items-center gap-1 transition shadow-sm">🖨️ ดูคิวอาร์ (Print QR)</a></td>';
+                html += '<td class="p-4 text-center whitespace-nowrap"><button onclick="editTable(' + index + ')" class="text-rose-500 hover:text-rose-700 font-bold text-xs mr-3">แก้ไข</button><button onclick="deleteTable(' + table.rowIdx + ', \'' + table.name + '\')" class="text-red-500 hover:text-red-700 font-bold text-xs">ลบ</button></td>';
+                html += '</tr>';
+            });
+            if (tbody) tbody.innerHTML = html;
+        }
+        buildSalesTableGrid(); 
+    }).getTablesData();
+}
+
+// ฟังก์ชันควบคุม Custom Dropdown สำหรับสถานะโต๊ะ
+function selectTableStatus(val, text, element) {
+    document.getElementById('tableStatus').value = val;
+    document.getElementById('tableStatusText').innerText = text;
+    document.getElementById('tableStatusMenu').classList.add('hidden');
+    
+    // เคลียร์สีไฮไลต์ในรายการทั้งหมดให้กลับเป็นปกติ
+    let items = document.querySelectorAll('.table-status-item');
+    items.forEach(item => {
+        item.classList.remove('bg-rose-50', 'text-rose-700');
+        item.classList.add('text-gray-700');
+    });
+    
+    // ไฮไลต์สีชมพูอ่อนให้กับตัวเลือกที่คลิกใช้งาน
+    if (element) {
+        element.classList.remove('text-gray-700');
+        element.classList.add('bg-rose-50', 'text-rose-700');
+    }
+}
+
+// ซ่อนเมนูกางอัตโนมัติเมื่อพนักงานคลิกพื้นที่อื่นบนหน้าจอ
+document.addEventListener('click', function(event) {
+    const tsContainer = document.getElementById('tableStatusContainer');
+    const tsMenu = document.getElementById('tableStatusMenu');
+    if (tsContainer && !tsContainer.contains(event.target) && tsMenu && !tsMenu.classList.contains('hidden')) {
+        tsMenu.classList.add('hidden');
+    }
+});
+
+function openAddTableModal() {
+    document.getElementById('tableFormTitle').innerText = "➕ เพิ่มโต๊ะใหม่";
+    document.getElementById('tableRowIdx').value = "";
+    document.getElementById('newTableName').value = "";
+    
+    // คืนค่าเริ่มต้นให้ช่องปุ่มกด Custom Dropdown
+    document.getElementById('tableStatus').value = "ว่าง";
+    document.getElementById('tableStatusText').innerText = "🟢 ว่าง";
+    
+    let items = document.querySelectorAll('.table-status-item');
+    items.forEach((item, idx) => {
+        if(idx === 0) {
+            item.classList.remove('text-gray-700');
+            item.classList.add('bg-rose-50', 'text-rose-700');
+        } else {
+            item.classList.remove('bg-rose-50', 'text-rose-700');
+            item.classList.add('text-gray-700');
+        }
+    });
+    
+    document.getElementById('addTableModal').classList.remove('hidden');
+}
+
+function editTable(index) {
+    let b = globalTablesList[index];
+    document.getElementById('tableFormTitle').innerText = "✏️ แก้ไขข้อมูลโต๊ะ";
+    document.getElementById('tableRowIdx').value = b.rowIdx;
+    document.getElementById('newTableName').value = b.name;
+    
+    // ซิงค์การแสดงผลของ Custom Dropdown ตามสถานะจริงของโต๊ะ
+    let statusVal = b.status || "ว่าง";
+    let isAvailable = (statusVal === "ว่าง" || statusVal === "🟢 ว่าง");
+    
+    document.getElementById('tableStatus').value = isAvailable ? "ว่าง" : "ไม่ว่าง";
+    document.getElementById('tableStatusText').innerText = isAvailable ? "🟢 ว่าง" : "🔴 ไม่ว่าง (มีลูกค้า)";
+    
+    let items = document.querySelectorAll('.table-status-item');
+    items.forEach((item, idx) => {
+        if((isAvailable && idx === 0) || (!isAvailable && idx === 1)) {
+            item.classList.remove('text-gray-700');
+            item.classList.add('bg-rose-50', 'text-rose-700');
+        } else {
+            item.classList.remove('bg-rose-50', 'text-rose-700');
+            item.classList.add('text-gray-700');
+        }
+    });
+    
+    document.getElementById('addTableModal').classList.remove('hidden');
+}
+
+function closeAddTableModal() {
+    document.getElementById('addTableModal').classList.add('hidden');
+}
+
+function saveTableData() {
+    let name = document.getElementById('newTableName').value.trim();
+    let rowIdx = document.getElementById('tableRowIdx').value;
+    let status = document.getElementById('tableStatus').value;
+    if (!name) return showToast("กรุณาระบุชื่อโต๊ะ/หมายเลขโต๊ะ", "error");
+    
+    let data = { rowIdx: rowIdx, name: name, status: status };
+    google.script.run.withSuccessHandler(function(res) {
+        if (res === "Success") {
+            showToast("บันทึกข้อมูลโต๊ะสำเร็จ!", "success");
+            closeAddTableModal();
+            loadTablesData();
+        } else {
+            showToast(res, "error");
+        }
+    }).saveTableGS(data);
+}
+
+function deleteTable(rowIdx, name) {
+    showConfirmModal("⚠️ ต้องการลบ '" + name + "' ใช่หรือไม่? (QR Code ของโต๊ะนี้จะใช้งานไม่ได้ทันที)", function() {
+        google.script.run.withSuccessHandler(function(res) {
+            if (res === "Success") {
+                showToast("ลบข้อมูลโต๊ะเรียบร้อย!", "success");
+                loadTablesData();
+            } else {
+                showToast(res, "error");
+            }
+        }).deleteTableGS(rowIdx);
+    });
+}
+
+// --- 🪑 ระบบสร้างแผงป๊อปอัปเลือกโต๊ะหน้าขาย (ครบชุด) ---
+let globalSalesTableList = [];
+
+function syncTableListUI() {
   google.script.run.withSuccessHandler(function(data) {
-      if (data) {
-          globalSalesTableList = data; 
-          globalTablesList = data; // ซิงค์ข้อมูลพิกัดหลักควบคู่ไปด้วย 
-          buildSalesTableGrid();   // สั่งวาดดวงโต๊ะเหลี่ยม/กลมตามพิกัดจริงทันที 
-      }
+    globalSalesTableList = data;
+    buildSalesTableGrid(); // วาดปุ่มรอไว้
   }).getTablesData();
 }
+window.addEventListener('load', syncTableListUI);
 
-// ==========================================
-// 🔊 ฟังก์ชันสร้างเสียงเตือนอัจฉริยะสำหรับแคชเชียร์ (ดัง ติ๊ง-ติ๊ง!)
-// ==========================================
-function playPOSAlertSound() {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.type = 'sine'; 
-        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // โน้ต A5 เสียงใส
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        
-        oscillator.start(audioCtx.currentTime);
-        oscillator.stop(audioCtx.currentTime + 0.15);
-        
-        setTimeout(() => {
-            const osc2 = audioCtx.createOscillator();
-            const gain2 = audioCtx.createGain();
-            osc2.connect(gain2);
-            gain2.connect(audioCtx.destination);
-            osc2.type = 'sine';
-            osc2.frequency.setValueAtTime(1046.50, audioCtx.currentTime); // โน้ต C6 เสียงสูงขึ้นนิดหน่อย
-            gain2.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            osc2.start(audioCtx.currentTime);
-            osc2.stop(audioCtx.currentTime + 0.15);
-        }, 200);
-    } catch(e) { console.log("ระบบเสียงเตือนถูกบล็อกโดยเบราว์เซอร์"); }
+// 1. ฟังก์ชันวาดปุ่มโต๊ะ
+function buildSalesTableGrid() {
+  let container = document.getElementById('modalTableGridContainer');
+  if (!container) return;
+  
+  if (!globalSalesTableList || globalSalesTableList.length === 0) {
+    container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-400 py-6 font-medium">ยังไม่มีข้อมูลโต๊ะในระบบ<br>กรุณาเพิ่มโต๊ะที่เมนูตั้งค่า</div>';
+    return;
+  }
+
+  let html = '';
+  globalSalesTableList.forEach(function(t) {
+    html += '<button type="button" data-tablename="' + t.name + '" onclick="selectSalesTable(\'' + t.name + '\')" class="table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 transition shadow-sm">' + t.name + '</button>';
+  });
+  
+  container.innerHTML = html;
 }
 
+// 2. ฟังก์ชันเปิดป๊อปอัปและอัปเดตสีปุ่ม
+function openSalesTableModal() {
+  let currentSelected = document.getElementById('inputTableNo').value;
+  let buttons = document.querySelectorAll('.table-btn-item');
+  buttons.forEach(function(btn) {
+    let tName = btn.getAttribute('data-tablename');
+    if (tName === currentSelected && currentSelected !== "") {
+      btn.className = "table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-rose-500 border-rose-500 text-white shadow-md transition transform scale-95 ring-2 ring-rose-300 ring-offset-1";
+    } else {
+      btn.className = "table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 transition shadow-sm";
+    }
+  });
+  document.getElementById('salesTableModal').classList.remove('hidden');
+}
+
+// ฟังก์ชันจิ้มเลือกโต๊ะ (อัปเดตสถานะหลังบ้านเป็น "ไม่ว่าง" อัตโนมัติ)
+function selectSalesTable(tableName) {
+  let prevTable = document.getElementById('inputTableNo').value;
+  
+  document.getElementById('inputTableNo').value = tableName;
+  let display = document.getElementById('displaySelectedTable');
+  if(display) display.innerText = tableName;
+  
+  document.getElementById('salesTableModal').classList.add('hidden');
+  
+  // ⚡ 1. ถ้ามีโต๊ะเก่าที่เลือกไว้ค้างอยู่ คืนสถานะให้เป็น "ว่าง"
+  if (prevTable !== "" && prevTable !== tableName) {
+     google.script.run.updateTableStatusGS(prevTable, "ว่าง");
+  }
+  
+  // ⚡ 2. ล็อกโต๊ะใหม่ที่เพิ่งจิ้มให้เป็น "ไม่ว่าง" ทันที
+  google.script.run.withSuccessHandler(function(data) {
+     if(data) { 
+         globalSalesTableList = data; 
+         globalTablesList = data; 
+         if(typeof loadTablesData === 'function' && !document.getElementById('tableManagementView').classList.contains('hidden')) {
+             loadTablesData(); // รีเฟรชหน้าตั้งค่าถ้าเราเปิดหน้านั้นดูอยู่
+         }
+     }
+  }).updateTableStatusGS(tableName, "ไม่ว่าง");
+}
+window.addEventListener('load', syncDeliveryDropdownUI);
+
 // ==========================================
-// 🔔 ฟังก์ชันดึงออเดอร์ QR Code อัตโนมัติ (ดึงเข้าครัว + แจ้งเตือนแคชเชียร์)
+// 🔔 ระบบดึงออเดอร์ QR Code เข้า POS อัตโนมัติ (Auto-Sync)
 // ==========================================
+
+// ฟังก์ชันดึงออเดอร์ที่สั่งผ่าน QR Code (ที่ยังไม่ได้คิดเงิน)
 function checkForNewQROrders() {
     google.script.run.withSuccessHandler(function(newOrders) {
-        if (!newOrders || newOrders.length === 0) return; // ไม่มีออเดอร์ใหม่ ก็ข้ามไป
+        if (!newOrders || newOrders.length === 0) return; // ไม่มีออเดอร์ใหม่
         
         let orderCount = 0;
         
         newOrders.forEach(order => {
-            // 1. ตรวจสอบและจัดการยัดรายการลงตะกร้าบิลพักหน้าร้าน POS
+            // order.table = "โต๊ะ 1", order.items = [{name:"ข้าวผัด", qty:1, price:50}], order.id = "QR123"
+            
+            // 1. หาว่าโต๊ะนี้มี "บิลพัก" อยู่แล้วหรือเปล่า?
             let existingHoldIndex = heldOrders.findIndex(h => h.name === order.table);
             
             if (existingHoldIndex !== -1) {
+                // ถ้ามีบิลพักอยู่แล้ว -> เอาของใหม่ไปต่อท้ายตะกร้าเดิม
                 order.items.forEach(newItem => {
                     let foundItem = heldOrders[existingHoldIndex].cart.find(c => c.name === newItem.name);
                     if (foundItem) {
@@ -8274,8 +8340,10 @@ function checkForNewQROrders() {
                         heldOrders[existingHoldIndex].cart.push(newItem);
                     }
                 });
+                // คำนวณยอดเงินรวมใหม่
                 heldOrders[existingHoldIndex].total = heldOrders[existingHoldIndex].cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             } else {
+                // ถ้ายังไม่มีบิลพักเลย -> สร้างบิลพักใบใหม่ให้โต๊ะนี้ทันที
                 let newTotal = order.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
                 heldOrders.push({
                     id: order.id, 
@@ -8288,103 +8356,31 @@ function checkForNewQROrders() {
                 });
             }
             
-            // 2. เคลียร์สถานะการรับออเดอร์และล็อกสีดวงโต๊ะหลักหลังบ้านให้เป็นสีแดง (ไม่ว่าง)
+            // ส่งคำสั่งไปบอกหลังบ้านว่า "รับออเดอร์นี้แล้วนะ เลิกเตือนได้"
             google.script.run.markQROrderAsReceivedGS(order.id);
+            
+            // สั่งเปลี่ยนสถานะโต๊ะนั้นๆ ให้กลายเป็น "ไม่ว่าง" ทันทีที่มีออเดอร์คิวอาร์เข้าระบบ
             if (order.table && order.table !== "") {
                 google.script.run.updateTableStatusGS(order.table, "ไม่ว่าง");
             }
             
-            // 3. เสกรายการพ่นใบสั่งทำอาหาร (Kitchen Slip) ส่งเข้าครัวทันทีก่อนเช็กบิล
-            let kitchenItemsHtml = "";
-            order.items.forEach(function(item) {
-                let baseName = item.name;
-                let optionsText = "";
-                let match = item.name.match(/(.+) \[(.+)\]/);
-                if (match) { 
-                    baseName = match[1].trim(); 
-                    optionsText = "- " + match[2].trim(); 
-                }
-                kitchenItemsHtml += `
-                <div class="flex justify-between items-start border-b border-gray-100 pb-2 mb-2 leading-tight">
-                    <div class="flex-1 pr-2">
-                        <div class="text-base font-bold text-gray-900">${baseName}</div>
-                        ${optionsText ? `<div class="text-xs text-gray-600 mt-0.5">${optionsText}</div>` : ''}
-                    </div>
-                    <div class="text-2xl font-bold text-gray-800 shrink-0">x${item.qty}</div>
-                </div>`;
-            });
-
-            // สแตมป์ข้อมูลลงบล็อกพรีวิวโครงสร้างใบสั่งทำครัวหลักของเครื่อง POS
-            let kitItemsEl = document.getElementById('kitchenItemsLinked');
-            if (kitItemsEl) kitItemsEl.innerHTML = kitchenItemsHtml;
-            
-            let kitOrderIdEl = document.getElementById('kitchenOrderIdLinked');
-            if (kitOrderIdEl) kitOrderIdEl.innerText = order.id;
-            
-            let kitTimeEl = document.getElementById('kitchenTimeLinked');
-            if (kitTimeEl) kitTimeEl.innerText = new Date().toLocaleTimeString('th-TH');
-            
-            let queueNumber = "Q" + order.id.slice(-3);
-            let kitQueueNo = document.getElementById('kitchenQueueNoLinked');
-            if (kitQueueNo) kitQueueNo.innerText = queueNumber;
-
-            // 🖨️ สั่งปริ้นท์ใบครัวออกทางเครื่องพิมพ์ความร้อนทันที
-            let kitchenPrintContainer = document.getElementById('kitchenPrintContainer');
-            if (kitchenPrintContainer) {
-                let kitId = document.getElementById('kitchenOrderId');
-                let kitTime = document.getElementById('kitchenTime');
-                let kitItems = document.getElementById('kitchenItems');
-                
-                // ให้หัวบิลครัวแสดงชื่อโต๊ะแทนเลข ID เพื่อให้ครัวรู้ว่าไปส่งโต๊ะไหน
-                if (kitId) kitId.innerText = "โต๊ะ: " + order.table; 
-                if (kitTime) kitTime.innerText = new Date().toLocaleTimeString('th-TH');
-                if (kitItems) kitItems.innerHTML = kitchenItemsHtml;
-                
-                if (typeof printKitchenSlip === 'function') printKitchenSlip();
-            }
             orderCount++;
         });
 
-        // 🌟 4. ระบบแจ้งเตือนแคชเชียร์แบบครบวงจร
+        // อัปเดตตัวเลขแจ้งเตือนบนปุ่ม "เรียกบิล" และส่งเสียงเตือน
         if (orderCount > 0) {
-            if (typeof updateHeldCount === 'function') updateHeldCount();
-            if (!document.getElementById('recallModal').classList.contains('hidden')) openRecallModal();
-            if (typeof loadTablesData === 'function') loadTablesData(); // อัปเดตผังโต๊ะเป็นสีแดงทันที
-            
-            // 🔊 เล่นเสียงเตือน
-            playPOSAlertSound();
-
-            // 🔔 แจ้งเตือนมุมขวาบน
-            showToast(`🛎️ มีออเดอร์จาก QR เข้ามาใหม่ ${orderCount} โต๊ะ!`, "success");
-            
-            // 💬 ป๊อปอัปกลางหน้าจอ (ดีไซน์พรีเมียม จะหายไปเองใน 5 วินาที)
-            let lastOrder = newOrders[newOrders.length - 1]; // ดึงออเดอร์ล่าสุดมาโชว์
-            Swal.fire({
-                title: `🛎️ ออเดอร์ใหม่เข้า!`,
-                html: `
-                    <div class="text-base text-gray-600 mt-1 mb-2">ลูกค้าสั่งอาหารผ่านมือถือที่ <span class="font-bold text-rose-600">${lastOrder.table}</span></div>
-                    <div class="text-sm bg-rose-50 p-3 rounded-xl border border-rose-100 font-bold text-rose-800 shadow-inner">
-                       ระบบส่งคิวเข้าห้องครัวเรียบร้อยแล้ว
-                    </div>
-                `,
-                icon: 'info',
-                timer: 5000, // ปิดอัตโนมัติใน 5 วิ ไม่ต้องคอยกดปิดเอง
-                timerProgressBar: true,
-                showConfirmButton: false, // เอาปุ่มกดปิดออกให้หน้าจอคลีน
-                buttonsStyling: false,
-                customClass: {
-                    popup: 'rounded-[2.5rem] p-6 max-w-sm bg-white shadow-2xl border border-rose-100 text-center font-bold',
-                    title: 'text-2xl font-bold text-rose-800 mt-2 block',
-                    icon: 'mx-auto mb-1 text-rose-500 scale-110 border-none'
-                }
-            });
+            if (typeof updateHeldCount === 'function') {
+                updateHeldCount();
+            }
+            if(!document.getElementById('recallModal').classList.contains('hidden')) openRecallModal(); // ถ้าระบบเปิดหน้าเรียกบิลอยู่ ให้รีเฟรชโชว์ของใหม่ด้วย
+            showToast(`🔔 มีออเดอร์ใหม่จากลูกค้า (สแกน QR) เข้ามา ${orderCount} โต๊ะ!`, "success");
         }
 
-    }).getNewQROrdersGS();
+    }).getNewQROrdersGS(); // ไปเรียกฟังก์ชันหลังบ้าน
 }
 
 // ⏰ สั่งให้ POS คอยเช็คออเดอร์ใหม่ทุกๆ 15 วินาที
-setInterval(checkForNewQROrders, 1000);
+setInterval(checkForNewQROrders, 15000);
 
 
 
@@ -8452,967 +8448,37 @@ function syncDeliveryDropdownUI() {
 // เรียกใช้งานอัตโนมัติเมื่อเปิดแอป
 syncDeliveryDropdownUI();
 
-
-// ฟังก์ชันสลับเปลี่ยนโหมดคืนสถานะโต๊ะว่าง
-// ⚙️ เพิ่มฟังก์ชัน JavaScript รองรับการกดเปลี่ยนโหมดและยิงคำสั่งไปเซฟหลังบ้านให้สมบูรณ์
-function changeTableClearMode(mode, text, element) {
-    if(!document.getElementById('tableClearMode')) return;
-    document.getElementById('tableClearMode').value = mode;
-    document.getElementById('tableClearModeText').innerText = text;
-    document.getElementById('tableClearModeMenu').classList.add('hidden');
+// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display)
+function syncCustomerDisplay(overrideStatus = null) {
+    let subTot = document.getElementById('totalPrice') ? document.getElementById('totalPrice').innerText : "฿0.00";
+    let grandTot = document.getElementById('modalGrandTotal') ? document.getElementById('modalGrandTotal').innerText : "฿0.00";
+    let qrImg = document.getElementById('qrModalImage') ? document.getElementById('qrModalImage').src : "";
+    let changeAmt = document.getElementById('changeAmount') ? document.getElementById('changeAmount').innerText : "0.00";
     
-    let items = document.querySelectorAll('.clear-mode-item');
-    items.forEach(item => {
-        item.classList.remove('bg-rose-50', 'text-rose-700', 'font-bold');
-        item.classList.add('text-gray-700', 'font-medium');
-    });
-    if(element) {
-        element.classList.remove('text-gray-700', 'font-medium');
-        element.classList.add('bg-rose-50', 'text-rose-700', 'font-bold');
-    }
+    // 👇 เพิ่ม 2 บรรทัดนี้ เพื่อดึงโลโก้และชื่อร้านจากหน้าจอแคชเชียร์
+    let storeLogo = document.getElementById('sidebarLogo') ? document.getElementById('sidebarLogo').src : "https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png";
+    let storeName = document.getElementById('sidebarStoreName') ? document.getElementById('sidebarStoreName').innerText : "FamePOS";
+
+    let isQROpen = !document.getElementById('qrModal').classList.contains('hidden');
     
-    showToast("กำลังบันทึกโหมดคืนโต๊ะ...", "info");
-    google.script.run.withSuccessHandler(function(res) {
-        if(res === "Success") {
-            showToast("เปลี่ยนเงื่อนไขการเคลียร์โต๊ะสำเร็จ!", "success");
-            globalStoreSettings.tableClearMode = mode; // เซฟค่าทับลง Memory หน้าร้านด้วย
-            if(typeof loadTablesData === 'function') loadTablesData();
-        }
-    }).saveTableClearModeGS(mode);
-}
+    let currentStatus = 'shopping';
+    if (cart.length === 0) currentStatus = 'idle';
+    if (isQROpen) currentStatus = 'qr_payment';
+    if (overrideStatus) currentStatus = overrideStatus; 
 
-// ปิด Dropdown ตั้งค่าโหมดอัตโนมัติเมื่อพนักงานเผลอกดพื้นที่อื่น
-document.addEventListener('click', function(event) {
-    const container = document.getElementById('tableClearModeContainer');
-    const menu = document.getElementById('tableClearModeMenu');
-    if (container && !container.contains(event.target) && menu && !menu.classList.contains('hidden')) {
-        menu.classList.add('hidden');
-    }
-});
-
-// ====================================================
-// 🪑 VISUAL FLOOR PLAN SYSTEM (FRONTEND JAVASCRIPT)
-// ====================================================
-
-// ตัวแปรควบคุมฟอร์มเพิ่ม/แก้ไขโต๊ะ
-let currentSelectedFormShape = 'square';
-let currentSelectedFormSize = 'medium';
-
-function setTableShapeForm(shape, btnElement) {
-    currentSelectedFormShape = shape;
-    document.getElementById('newTableShape').value = shape;
-    let buttons = document.querySelectorAll('.table-shape-btn');
-    buttons.forEach(btn => btn.className = "table-shape-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500");
-    if(btnElement) btnElement.className = "table-shape-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700";
-}
-
-function setTableSizeForm(size, btnElement) {
-    currentSelectedFormSize = size;
-    document.getElementById('newTableSize').value = size;
-    let buttons = document.querySelectorAll('.table-size-btn');
-    buttons.forEach(btn => btn.className = "table-size-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500");
-    if(btnElement) btnElement.className = "table-size-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700";
-}
-
-// 🔄 ทับฟังก์ชันดึงข้อมูลโต๊ะเดิม: โหลดเสร็จแล้วส่งไปวาดลง Canvas ทันที
-function loadTablesData() {
-    let canvas = document.getElementById('floorPlanCanvas');
-    let loading = document.getElementById('canvasLoading');
-    if(loading) loading.classList.remove('hidden');
-
-    google.script.run.withSuccessHandler(function(data) {
-        globalTablesList = data;
-        globalSalesTableList = data;
-        if(loading) loading.classList.add('hidden');
-        
-        // 🎨 เรียกฟังก์ชันวาดดวงโต๊ะลงบนแผนผังจำลองร้านค้า
-        renderFloorPlanCanvas();
-        // วาดปุ่มในหน้าต่างป๊อปอัปฝั่งหน้าขายพ่วงไปด้วย
-        if(typeof buildSalesTableGrid === 'function') buildSalesTableGrid();
-    }).getTablesData();
-}
-
-// 🎨 ฟังก์ชันวาดดวงโต๊ะหน้าออกแบบ (เวอร์ชันสมบูรณ์: เพิ่มปุ่ม 🖨️ เจน QR Code สั่งอาหารประจำโต๊ะ)
-function renderFloorPlanCanvas() {
-    let canvas = document.getElementById('floorPlanCanvas');
-    if(!canvas) return;
-    
-    let loaders = document.getElementById('canvasLoading')?.outerHTML || '';
-    canvas.innerHTML = loaders;
-
-    const sizeMap = {
-        'small': { w: 'w-16', h: 'h-16', text: 'text-xs' },
-        'medium': { w: 'w-24', h: 'h-24', text: 'text-sm' },
-        'large': { w: 'w-32', h: 'h-32', text: 'text-base' }
+    let displayData = {
+        status: currentStatus,
+        cart: cart,
+        totalPrice: subTot,
+        grandTotal: grandTot,
+        change: changeAmt,
+        qrImage: isQROpen ? qrImg : "",
+        logoUrl: storeLogo,  // 👇 ส่งข้อมูลโลโก้
+        storeName: storeName // 👇 ส่งข้อมูลชื่อร้าน
     };
 
-    globalTablesList.forEach((table, index) => {
-        let sizeStyle = sizeMap[table.size] || sizeMap['medium'];
-        let shapeStyle = table.shape === 'circle' ? 'rounded-full' : 'rounded-2xl';
-        
-        let isOccupied = !(table.status === "ว่าง" || table.status === "🟢 ว่าง");
-        
-         let statusBg = isOccupied 
-            ? 'bg-rose-500 border-rose-600 text-white shadow-rose-500/20' 
-            : 'bg-emerald-500 border-emerald-600 text-white shadow-emerald-500/20';
-
-        let tableDiv = document.createElement('div');
-        tableDiv.id = `floor-table-${index}`;
-        tableDiv.className = `absolute select-none cursor-grab active:cursor-grabbing flex flex-col items-center justify-center font-bold border-4 shadow-xl transition-transform hover:scale-105 z-10 ${sizeStyle.w} ${sizeStyle.h} ${shapeStyle} ${statusBg}`;
-        tableDiv.style.left = `${table.posX}px`;
-        tableDiv.style.top = `${table.posY}px`;
-        tableDiv.dataset.name = table.name;
-        tableDiv.dataset.index = index;
-
-        // 📱 ลิงก์ปลายทางสำหรับให้ลูกค้าสแกนสั่งอาหารผ่าน GitHub Pages ของคุณเฟรม
-        let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html";
-        let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(table.name);
-        let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrTargetUrl);
-
-        tableDiv.innerHTML = `
-            <span class="${sizeStyle.text} tracking-tight">${table.name}</span>
-            <span class="text-[10px] opacity-80 font-normal mt-0.5">${isOccupied ? '🔴 ไม่ว่าง' : '🟢 ว่าง'}</span>
-            
-            <div class="absolute -top-2 -left-2 bg-green-500 border border-green-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center cursor-pointer shadow hover:bg-green-600 transition" title="พิมพ์คิวอาร์โค้ดประจำโต๊ะ" onclick="event.stopPropagation(); window.open('${qrGeneratorApi}', '_blank')">🖨️</div>
-            
-            <div class="absolute -top-2 -right-2 bg-slate-900 border border-slate-700 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center cursor-pointer shadow hover:bg-rose-600 transition" onclick="event.stopPropagation(); openEditTableFromCanvas(${index})">✏️</div>
-        `;
-
-        canvas.appendChild(tableDiv);
-        makeElementDraggable(tableDiv, canvas);
-    });
+    localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
 }
-
-// 🪄 ระบบคำนวณและจับการลากวางวัตถุ (Drag & Drop) รองรับทั้งเมาส์และหน้าจอสัมผัส iPad/มือถือ
-function makeElementDraggable(element, container) {
-    let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
-
-    element.onmousedown = dragMouseDown;
-    element.ontouchstart = dragMouseDown;
-
-    function dragMouseDown(e) {
-        e = e || window.event;
-        // ป้องกันไม่ให้หน้าจอเลื่อนหลุดตอนใช้นิ้วลากบนมือถือ
-        if(e.type === 'touchstart') {
-            mouseX = e.touches[0].clientX;
-            mouseY = e.touches[0].clientY;
-        } else {
-            e.preventDefault();
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        }
-        document.onmouseup = closeDragElement;
-        document.ontouchend = closeDragElement;
-        document.onmousemove = elementDrag;
-        document.ontouchmove = elementDrag;
-    }
-
-    function elementDrag(e) {
-        e = e || window.event;
-        let currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-        let currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-        
-        posX = mouseX - currentX;
-        posY = mouseY - currentY;
-        mouseX = currentX;
-        mouseY = currentY;
-
-        // คำนวณพิกัดใหม่ไม่ให้ลากหลุดออกนอกขอบกรอบ Canvas จำลองร้าน
-        let newLeft = element.offsetLeft - posX;
-        let newTop = element.offsetTop - posY;
-
-        if(newLeft < 10) newLeft = 10;
-        if(newTop < 10) newTop = 10;
-        if(newLeft > container.clientWidth - element.offsetWidth - 10) newLeft = container.clientWidth - element.offsetWidth - 10;
-        if(newTop > container.clientHeight - element.offsetHeight - 10) newTop = container.clientHeight - element.offsetHeight - 10;
-
-        element.style.left = `${newLeft}px`;
-        element.style.top = `${newTop}px`;
-    }
-
-    function closeDragElement() {
-        document.onmouseup = null;
-        document.ontouchend = null;
-        document.onmousemove = null;
-        document.ontouchmove = null;
-    }
-}
-
-// 💾 รวบรวมพิกัดโต๊ะทุกดวงบนจอแล้วกวาดส่งไปบันทึกลง Google Sheet
-function saveFloorPlanLayoutPositions() {
-    let container = document.getElementById('floorPlanCanvas');
-    let tablesOnCanvas = container.querySelectorAll('[id^="floor-table-"]');
-    let layoutArray = [];
-
-    tablesOnCanvas.forEach(el => {
-        layoutArray.push({
-            name: el.dataset.name,
-            posX: parseInt(el.style.left),
-            posY: parseInt(el.style.top)
-        });
-    });
-
-    if(layoutArray.length === 0) return showToast("ไม่มีข้อมูลโต๊ะให้บันทึกค่ะ", "error");
-
-    showToast("กำลังบันทึกพิกัดผังร้าน...", "info");
-    google.script.run.withSuccessHandler(function(res) {
-        if(res === "Success") {
-            showToast("🎯 บันทึกตำแหน่งผังร้านอาหารเรียบร้อยแล้ว!", "success");
-            loadTablesData();
-        } else {
-            showToast("เกิดข้อผิดพลาด: " + res, "error");
-        }
-    }).saveTableLayoutPositionsGS(JSON.stringify(layoutArray));
-}
-
-// ฟังก์ชันเปิดหน้าต่างเพิ่มโต๊ะตัวใหม่
-function openAddTableModal() {
-    document.getElementById('tableFormTitle').innerText = "➕ เพิ่มโต๊ะใหม่";
-    document.getElementById('tableRowIdx').value = "";
-    document.getElementById('newTableName').value = "";
-    setTableShapeForm('square', document.getElementById('btnShapeSquare'));
-    setTableSizeForm('medium', document.getElementById('btnSizeMedium'));
-    document.getElementById('addTableModal').classList.remove('hidden');
-}
-
-// ฟังก์ชันเปิดหน้าต่างแก้ไขข้อมูลโต๊ะเดิมจากปุ่มดินสอ
-function openEditTableFromCanvas(index) {
-    let t = globalTablesList[index];
-    document.getElementById('tableFormTitle').innerText = "✏️ แก้ไขข้อมูลรูปแบบโต๊ะ";
-    document.getElementById('tableRowIdx').value = t.rowIdx;
-    document.getElementById('newTableName').value = t.name;
-    
-    let shapeBtn = t.shape === 'circle' ? document.getElementById('btnShapeCircle') : document.getElementById('btnShapeSquare');
-    setTableShapeForm(t.shape, shapeBtn);
-
-    let sizeBtnId = 'btnSizeMedium';
-    if(t.size === 'small') sizeBtnId = 'btnSizeSmall';
-    if(t.size === 'large') sizeBtnId = 'btnSizeLarge';
-    setTableSizeForm(t.size, document.getElementById(sizeBtnId));
-
-    document.getElementById('addTableModal').classList.remove('hidden');
-}
-
-function closeAddTableModal() {
-    document.getElementById('addTableModal').classList.add('hidden');
-}
-
-// 🪑 ฟังก์ชันบันทึกข้อมูลโต๊ะ (เวอร์ชันออโต้เซฟผังร้านก่อนเพิ่ม/แก้ไข กันโต๊ะกะโดด 100%)
-function saveTableData() {
-    let name = document.getElementById('newTableName').value.trim();
-    let rowIdx = document.getElementById('tableRowIdx').value;
-    let shape = document.getElementById('newTableShape').value;
-    let size = document.getElementById('newTableSize').value;
-    if (!name) return showToast("กรุณาระบุชื่อโต๊ะ/หมายเลขโต๊ะด้วยค่ะ", "error");
-
-    // 🗺️ 1. กวาดพิกัดล่าสุดของโต๊ะทุกตัวบนหน้าจอตอนนี้มาจำไว้ใน Array
-    let container = document.getElementById('floorPlanCanvas');
-    let tablesOnCanvas = container.querySelectorAll('[id^="floor-table-"]');
-    let layoutArray = [];
-    tablesOnCanvas.forEach(el => {
-        layoutArray.push({
-            name: el.dataset.name,
-            posX: parseInt(el.style.left),
-            posY: parseInt(el.style.top)
-        });
-    });
-
-    let posX = 50, posY = 150, status = "ว่าง";
-
-    if (rowIdx !== "") {
-        // ✏️ กรณีแก้ไขข้อมูลโต๊ะเดิม
-        let oldData = globalTablesList.find(t => t.rowIdx == rowIdx);
-        if (oldData) {
-            status = oldData.status;
-            let liveEl = Array.from(tablesOnCanvas).find(el => el.dataset.name === oldData.name);
-            if (liveEl) {
-                posX = parseInt(liveEl.style.left) || oldData.posX;
-                posY = parseInt(liveEl.style.top) || oldData.posY;
-            } else {
-                posX = oldData.posX;
-                posY = oldData.posY;
-            }
-        }
-    } else {
-        // ➕ กรณีเพิ่มโต๊ะใหม่: ใช้จำนวนโต๊ะปัจจุบันบนจอมาคำนวณเยื้องสลับแถวหลบกัน ไม่ให้กองทับกัน
-        posX = 60 + ((layoutArray.length % 5) * 50);
-        posY = 160 + (Math.floor(layoutArray.length / 5) * 50);
-    }
-
-    let data = { rowIdx: rowIdx, name: name, status: status, shape: shape, size: size, posX: posX, posY: posY };
-    showToast("กำลังประมวลผลเซฟผังร้าน...", "info");
-
-    // 🪄 2. ลอจิกไม้ตาย: สั่งบันทึกตำแหน่งโต๊ะปัจจุบันทั้งหมดลงฐานข้อมูลให้เสร็จก่อน ค่อยบันทึกโต๊ะใหม่ตามหลัง
-    if (layoutArray.length > 0) {
-        google.script.run.withSuccessHandler(function() {
-            // ผังร้านเดิมถูกล็อกตำแหน่งลง Google Sheet เรียบร้อยแล้ว ค่อยปล่อยให้เซฟข้อมูลตัวโต๊ะหลักต่อ
-            executeSaveTableRecord(data);
-        }).saveTableLayoutPositionsGS(JSON.stringify(layoutArray));
-    } else {
-        executeSaveTableRecord(data);
-    }
-}
-
-// ฟังก์ชันย่อยช่วยยิงข้อมูลลงทะเบียนตัวโต๊ะหลักหลัก
-function executeSaveTableRecord(data) {
-    google.script.run.withSuccessHandler(function(res) {
-        if (res === "Success") {
-            showToast("บันทึกสำเร็จ ผังร้านนิ่งสนิทไม่กะโดดแล้วครับ! ✨", "success");
-            closeAddTableModal();
-            loadTablesData(); // รีเฟรชผังอัปเดตกระดานหน้าร้าน
-        } else {
-            showToast(res, "error");
-        }
-    }).saveTableGS(data);
-}
-
-// 🔄 อัปเกรดฟังก์ชันวาดปุ่มโต๊ะหน้าขายให้เป็นกราฟิกผังร้านลอยตัวตามพิกัดจริง (Interactive Floor Plan)
-function buildSalesTableGrid() {
-  let container = document.getElementById('modalTableGridContainer');
-  if (!container) return;
-  
-  if (!globalSalesTableList || globalSalesTableList.length === 0) {
-    container.innerHTML = '<div class="absolute inset-0 flex items-center justify-center text-sm text-gray-400 font-medium">ยังไม่มีข้อมูลโต๊ะในระบบ<br>กรุณาเพิ่มโต๊ะที่เมนูตั้งค่าก่อนค่ะ</div>';
-    return;
-  }
-
-  container.innerHTML = ''; // ล้างแผนผังเดิม
-  
-  // มาตรส่วนขนาดพิกเซลประจำ Size เหมือนหน้าแอดมินออกแบบ
-  const sizeMap = {
-    'small': { w: 'w-16', h: 'h-16', text: 'text-xs' },
-    'medium': { w: 'w-24', h: 'h-24', text: 'text-sm' },
-    'large': { w: 'w-32', h: 'h-32', text: 'text-base' }
-  };
-
-  let currentSelected = document.getElementById('inputTableNo') ? document.getElementById('inputTableNo').value : "";
-
-  globalSalesTableList.forEach(function(t, index) {
-    let sizeStyle = sizeMap[t.size] || sizeMap['medium'];
-    let shapeStyle = t.shape === 'circle' ? 'rounded-full' : 'rounded-2xl';
-    let isOccupied = !(t.status === "ว่าง" || t.status === "🟢 ว่าง");
-    
-    let statusBg = "";
-    // เช็กสถานะเพื่อสลับสีดวงโต๊ะหน้าร้านขาย
-    if (t.name === currentSelected && currentSelected !== "") {
-      statusBg = "bg-rose-500 border-rose-600 text-white ring-4 ring-rose-300 ring-offset-1 scale-95 animate-pulse font-black";
-    } else if (isOccupied) {
-      statusBg = "bg-rose-500 border-rose-600 text-white hover:bg-rose-600";
-    } else {
-      statusBg = "bg-white border-rose-500 text-gray-700 hover:bg-rose-50 hover:text-rose-700";
-    }
-
-    // เจนเนอเรตปุ่มโต๊ะกราฟิกลอยตัวตามพิกัดจำลองพิกัดจริงร้าน
-    let btn = document.createElement('button');
-    btn.type = "button";
-    btn.className = `absolute select-none flex flex-col items-center justify-center border-4 shadow-md font-bold transition-all hover:scale-105 active:scale-95 ${sizeStyle.w} ${sizeStyle.h} ${shapeStyle} ${statusBg}`;
-    btn.style.left = `${t.posX}px`;
-    btn.style.top = `${t.posY}px`;
-    
-    btn.innerHTML = `
-      <span class="${sizeStyle.text} tracking-tight">${t.name}</span>
-      <span class="text-[9px] font-normal opacity-90 mt-0.5">${isOccupied ? '🔴 ไม่ว่าง' : '🟢 ว่าง'}</span>
-    `;
-    
-    // ผูกลอจิกจัดการตรวจสอบสิทธิ์เมื่อแคชเชียร์กดจิ้มที่ตัวโต๊ะ
-    btn.onclick = function() {
-        handleSalesTableClick(t);
-    };
-    
-    container.appendChild(btn);
-  });
-}
-
-// 🪑 1. ฟังก์ชันจิ้มเลือกโต๊ะว่างเข้าตะกร้า (ตัวที่หายไป เอาคืนกลับมาให้แล้วครับคุณเฟรม)
-function selectSalesTable(tableName) {
-  let prevTable = document.getElementById('inputTableNo').value;
-  
-  document.getElementById('inputTableNo').value = tableName;
-  let display = document.getElementById('displaySelectedTable');
-  if(display) display.innerText = tableName;
-  
-  document.getElementById('salesTableModal').classList.add('hidden'); // ปิดหน้าต่างผังโต๊ะ
-  
-  // ⚡ ถ้าก่อนหน้านี้เคยจิ้มโต๊ะอื่นค้างไว้ในบิลนี้ ให้ปล่อยโต๊ะเก่ากลับเป็น "ว่าง" ก่อน
-  if (prevTable !== "" && prevTable !== tableName) {
-     google.script.run.updateTableStatusGS(prevTable, "ว่าง");
-  }
-  
-  // ⚡ สั่งล็อกสถานะโต๊ะใหม่หลังบ้านให้กลายเป็น "ไม่ว่าง" ทันที เพื่อกันคนสแกนซ้ำ
-  google.script.run.withSuccessHandler(function(data) {
-     if(data) { 
-         globalSalesTableList = data; 
-         globalTablesList = data; 
-         if(typeof buildSalesTableGrid === 'function') buildSalesTableGrid(); // วาดสีผังโต๊ะใหม่
-     }
-  }).updateTableStatusGS(tableName, "ไม่ว่าง");
-  
-  // 🎨 จัดการเปลี่ยนสไตล์ปุ่มตะกร้าสินค้าฝั่งขวาให้สวยงาม นิ่งสนิท ไม่มีย่อยเด้งวูบวาบ
-  let btnDineIn = document.getElementById('btnOrderDineIn');
-  let buttons = document.querySelectorAll('.order-type-btn');
-  buttons.forEach(btn => btn.className = "order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500 shadow-sm");
-  if (btnDineIn) btnDineIn.className = "order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700 shadow-sm";
-  
-  let tableBox = document.getElementById('tableSelectedDisplayContainer');
-  if (tableBox) { tableBox.classList.remove('hidden'); tableBox.classList.add('flex'); }
-  
-  let deliveryBox = document.getElementById('deliveryInfoContainer');
-  if (deliveryBox) deliveryBox.classList.add('hidden');
-  
-  currentOrderType = 'ทานที่ร้าน';
-  updateCartUI();
-  showToast(`เลือก ${tableName} เรียบร้อยครับ`, "success");
-}
-
-// ⬇️ วาง 2 ฟังก์ชันนี้ทับแทนที่ฟังก์ชัน handleSalesTableClick() ตัวเดิมได้เลยครับ
-
-// 1. ฟังก์ชันย่อยสำหรับจัดการ Dropdown ในหน้าต่างเปิดโต๊ะ
-function selectSwalDropdown(val, text) {
-    document.getElementById('openTableType').value = val;
-    document.getElementById('swalDropdownText').innerText = text;
-    document.getElementById('swalDropdownMenu').classList.add('hidden');
-}
-
-// 2. 🧠 ฟังก์ชันจิ้มโต๊ะ: ถ้าว่างให้เด้งป๊อปอัป "เปิดโต๊ะบุฟเฟต์" (ดีไซน์ Custom Dropdown แก้ยกเลเยอร์บังปุ่ม)
-function handleSalesTableClick(table) {
-  let isOccupied = !(table.status === "ว่าง" || table.status === "🟢 ว่าง");
-  if (!isOccupied) {
-
-    // 🌟 สร้างรายการ Option อัตโนมัติจากฐานข้อมูลบุฟเฟต์ (เปลี่ยนเป็นดีไซน์ Custom Dropdown)
-    let buffetOptionsHtml = '';
-    let firstPackageValue = "";
-    let firstPackageText = "";
-
-    if (globalBuffetPackages && globalBuffetPackages.length > 1) {
-        for (let i = 1; i < globalBuffetPackages.length; i++) {
-            let name = globalBuffetPackages[i][0];
-            let price = globalBuffetPackages[i][1];
-            let displayPrice = price > 0 ? `(${price}.-)` : ``;
-            let val = `${name}_${price}`;
-            let text = `${name} ${displayPrice}`;
-
-            if (i === 1) {
-                firstPackageValue = val;
-                firstPackageText = text;
-            }
-
-            buffetOptionsHtml += `<div onclick="selectSwalDropdown('${val}', '${text}')" class="p-4 hover:bg-rose-50 cursor-pointer border-b border-rose-50 text-rose-700 font-bold transition-colors">${text}</div>`;
-        }
-    } else {
-        firstPackageValue = "A La Carte (สั่งปกติ)_0";
-        firstPackageText = "A La Carte (สั่งปกติไม่คิดรายหัว)";
-        buffetOptionsHtml = `<div onclick="selectSwalDropdown('${firstPackageValue}', '${firstPackageText}')" class="p-4 hover:bg-rose-50 cursor-pointer text-rose-700 font-bold transition-colors">${firstPackageText}</div>`;
-    }
-
-    Swal.fire({
-        title: `🪑 เปิดโต๊ะ: ${table.name}`,
-        html: `
-            <div class="text-left text-sm space-y-4 mt-4">
-                <div class="relative z-[100]"> <label class="block font-bold text-gray-700 mb-1">รูปแบบการทาน (ราคา/ท่าน)</label>
-
-                    <input type="hidden" id="openTableType" value="${firstPackageValue}">
-                    <button type="button" onclick="document.getElementById('swalDropdownMenu').classList.toggle('hidden')" class="w-full p-4 rounded-xl border-2 border-rose-100 bg-white text-left flex justify-between items-center focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition shadow-sm cursor-pointer">
-                        <span id="swalDropdownText" class="font-bold text-rose-700">${firstPackageText}</span>
-                        <span class="text-rose-500 text-xs font-bold leading-none">▼</span>
-                    </button>
-
-                    <div id="swalDropdownMenu" class="hidden absolute left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-2xl overflow-hidden z-[100] max-h-48 overflow-y-auto">
-                        ${buffetOptionsHtml}
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3 relative z-0">
-                    <div>
-                        <label class="block font-bold text-gray-700 mb-1">จำนวนลูกค้า (ท่าน)</label>
-                        <input type="number" id="openTablePax" value="1" min="1" class="w-full p-3.5 rounded-xl border-2 border-gray-100 outline-none text-center font-bold text-lg focus:border-rose-400 transition">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-gray-700 mb-1">จำกัดเวลา (นาที)</label>
-                        <input type="number" id="openTableTime" placeholder="ไม่จำกัด" class="w-full p-3.5 rounded-xl border-2 border-gray-100 outline-none text-center font-bold text-lg focus:border-rose-400 transition">
-                    </div>
-                </div>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: '🖨️ เปิดโต๊ะและพิมพ์ QR',
-        cancelButtonText: 'ยกเลิก',
-        buttonsStyling: false,
-        customClass: {
-            popup: 'rounded-[2.5rem] p-8 max-w-md bg-white shadow-2xl border border-gray-50 overflow-visible',
-            htmlContainer: 'overflow-visible relative !z-50', // 🟢 บังคับให้ส่วนเนื้อหาอยู่เลเยอร์บน
-            actions: 'relative !z-0 mt-4', // 🟢 บังคับกดให้ปุ่มตกลง/ยกเลิก ลงไปอยู่เลเยอร์ล่างสุด
-            title: 'text-2xl font-black text-rose-800 border-b pb-3',
-            confirmButton: 'w-full py-3.5 mb-2 bg-rose-500 text-white font-bold rounded-2xl shadow-md hover:bg-rose-600 transition relative z-0',
-            cancelButton: 'w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition relative z-0'
-        },
-        preConfirm: () => {
-            let selectedType = document.getElementById('openTableType').value.split('_');
-            return {
-                typeName: selectedType[0],
-                typePrice: parseInt(selectedType[1]) || 0,
-                pax: parseInt(document.getElementById('openTablePax').value) || 1,
-                timeLimit: parseInt(document.getElementById('openTableTime').value) || 0
-            }
-        }
-    }).then((res) => {
-        if(res.isConfirmed) {
-            processOpenTableWithQR(table.name, res.value);
-        }
-    });
-  } else {
-    // โต๊ะไม่ว่าง (จัดการบิลเดิม)
-    showToast("กำลังดึงบิลค้างประจำโต๊ะ...", "info");
-    google.script.run.withSuccessHandler(function(itemsJsonStr) {
-      let cartItems = [];
-      let totalAmount = 0;
-      if (itemsJsonStr) {
-          cartItems = JSON.parse(itemsJsonStr);
-          totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      }
-
-      Swal.fire({
-        title: `🪑 จัดการบิล: ${table.name}`,
-        html: `<div class="text-left text-sm bg-slate-50 p-4 rounded-2xl border font-medium space-y-1 text-slate-500 w-full shadow-inner">
-                <div>สถานะปัจจุบัน: <span class="text-rose-500 font-bold">🔴 มีลูกค้านั่งทานอาหาร</span></div>
-                <div>ยอดเงินค้างในโต๊ะ: <span class="text-rose-600 font-black text-xl">฿${totalAmount.toFixed(2)}</span></div>
-                <div class="text-[11px] text-slate-400 mt-2 leading-tight">เลือกสั่งอาหารเพิ่ม หรือเรียกเก็บเงินปิดบิลเพื่อชำระเงินทางขวาได้เลยค่ะ</div>
-               </div>`,
-        icon: 'warning',
-        showCancelButton: true,
-        showDenyButton: true,
-        buttonsStyling: false,
-        customClass: {
-          popup: 'rounded-[2.5rem] p-8 max-w-md bg-white shadow-2xl border border-gray-50 flex flex-col items-center justify-center font-bold tracking-wide',
-          icon: 'mx-auto mb-1 text-amber-500 border-none scale-110',
-          title: 'text-2xl font-black text-slate-800 mt-2 block w-full text-center',
-          htmlContainer: 'w-full my-3 block',
-          actions: 'grid grid-cols-2 gap-3 w-full mt-2',
-          confirmButton: 'py-3.5 px-4 bg-rose-500 text-white font-bold rounded-2xl shadow-md hover:bg-rose-600 active:scale-95 transition-all text-sm order-2',
-          denyButton: 'py-3.5 px-4 bg-emerald-500 text-white font-bold rounded-2xl shadow-md hover:bg-emerald-600 active:scale-95 transition-all text-sm order-3',
-          cancelButton: 'col-span-2 py-3 bg-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-200 active:scale-95 transition-all text-xs order-1 mt-1'
-        },
-        confirmButtonText: '➕ สั่งอาหารเพิ่ม',
-        denyButtonText: '💰 เรียกเก็บเงิน',
-        cancelButtonText: '🔘 ตัวเลือก: เคลียร์โต๊ะนี้ให้ว่าง'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          cart = cartItems;
-          document.getElementById('inputTableNo').value = table.name;
-          if (document.getElementById('displaySelectedTable')) document.getElementById('displaySelectedTable').innerText = table.name;
-          currentOrderType = 'ทานที่ร้าน';
-
-          let btnDineIn = document.getElementById('btnOrderDineIn');
-          let buttons = document.querySelectorAll('.order-type-btn');
-          buttons.forEach(btn => btn.className = "order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500 shadow-sm");
-          if(btnDineIn) btnDineIn.className = "order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-rose-50 border-rose-500 text-rose-700 shadow-sm";
-
-          let tableBox = document.getElementById('tableSelectedDisplayContainer');
-          if(tableBox) { tableBox.classList.remove('hidden'); tableBox.classList.add('flex'); }
-
-          let deliveryBox = document.getElementById('deliveryInfoContainer');
-          if(deliveryBox) deliveryBox.classList.add('hidden');
-
-          updateCartUI();
-          document.getElementById('salesTableModal').classList.add('hidden');
-          showToast(`ดึงบิล ${table.name} มาสั่งเพิ่มแล้วค่ะ`, "success");
-
-        } else if (result.isDenied) {
-          cart = cartItems;
-          document.getElementById('inputTableNo').value = table.name;
-          if (document.getElementById('displaySelectedTable')) document.getElementById('displaySelectedTable').innerText = table.name;
-          currentOrderType = 'ทานที่ร้าน';
-          let tableBox = document.getElementById('tableSelectedDisplayContainer');
-          if(tableBox) { tableBox.classList.remove('hidden'); tableBox.classList.add('flex'); }
-          updateCartUI();
-          document.getElementById('salesTableModal').classList.add('hidden');
-          checkout();
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          Swal.fire({
-            title: `ยืนยันเคลียร์สถานะ: ${table.name}?`,
-            text: "คุณต้องการเปลี่ยนโต๊ะนี้ให้กลับเป็นสถานะ 'โต๊ะว่าง' ใช่หรือไม่? (รายการบิลค้างคาเดิมจะถูกลบออกทั้งหมด)",
-            icon: 'warning',
-            showCancelButton: true,
-            buttonsStyling: false,
-            customClass: {
-              popup: 'rounded-[2.5rem] p-8 max-w-sm bg-white shadow-2xl border border-gray-100 text-center flex flex-col items-center justify-center font-bold animate-fade-in',
-              icon: 'mx-auto mb-2 text-rose-500 scale-110',
-              title: 'text-xl font-bold text-slate-800 mt-3 block w-full text-center',
-              htmlContainer: 'text-sm text-slate-400 font-medium my-4 leading-relaxed block w-full text-center',
-              actions: 'flex gap-3 w-full mt-4 justify-center items-center',
-              cancelButton: 'flex-1 py-3.5 px-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 active:scale-95 transition-all text-sm order-1',
-              confirmButton: 'flex-1 py-3.5 px-4 bg-rose-500 text-white font-bold rounded-2xl shadow-md hover:bg-rose-600 active:scale-95 transition-all text-sm order-2 shadow-rose-500/10'
-            },
-            confirmButtonText: 'ใช่, เปลี่ยนเป็นโต๊ะว่าง',
-            cancelButtonText: 'ยกเลิก'
-          }).then((res) => {
-            if(res.isConfirmed) {
-              showToast("กำลังอัปเดตสถานะโต๊ะ...", "info");
-              google.script.run.withSuccessHandler(function(updatedTables) {
-                if(updatedTables) {
-                  globalSalesTableList = updatedTables;
-                  globalTablesList = updatedTables;
-                  buildSalesTableGrid();
-                  showToast(`รีเซ็ต ${table.name} เป็นสถานะว่างแล้วค่ะ`, "success");
-                }
-              }).updateTableStatusGS(table.name, "ว่าง");
-              google.script.run.clearTableOrderGS(table.name);
-            }
-          });
-        }
-      });
-    }).getTableOrderGS(table.name);
-  }
-}
-
-// 🖨️ ฟังก์ชันดำเนินการเปิดโต๊ะ จัดตะกร้าบุฟเฟต์ และพิมพ์สลิป QR Code
-function processOpenTableWithQR(tableName, options) {
-    showToast("กำลังสร้าง QR Code และเปิดโต๊ะ...", "info");
-    
-    // 1. สั่งเปลี่ยนโต๊ะเป็นสีแดง
-    google.script.run.withSuccessHandler(function(data) {
-        if(data) { globalSalesTableList = data; globalTablesList = data; buildSalesTableGrid(); }
-        
-        // 2. ดึงโต๊ะเข้าตะกร้า POS ฝั่งแคชเชียร์ทันที
-        selectSalesTable(tableName);
-        cart = []; // ล้างตะกร้าให้ว่างก่อน
-        
-        // 3. ถ้าเป็นบุฟเฟต์ แอดราคาหัวบุฟเฟต์ลงตะกร้าอัตโนมัติตามจำนวนคน
-        if (options.typeName.includes("บุฟเฟต์")) {
-            cart.push({name: `${options.typeName} (ทาน ${options.pax} ท่าน)`, price: options.typePrice, qty: options.pax});
-            updateCartUI();
-        }
-        
-        // 4. สั่งปริ้นท์ใบ QR แจ้งเวลาส่งให้ลูกค้าที่โต๊ะ
-        let container = document.getElementById('barcodePrintContainer');
-        container.innerHTML = '';
-        
-        let now = new Date();
-        let startTime = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-        let endTimeStr = "ไม่จำกัดเวลา";
-        
-        if (options.timeLimit > 0) {
-            let endTime = new Date(now.getTime() + options.timeLimit * 60000);
-            endTimeStr = endTime.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-        }
-
-        let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html";
-        let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(tableName);
-        let qrImgSrc = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(qrTargetUrl);
-
-        let html = `
-        <div class="receipt-slip slip-80mm flex flex-col items-center p-4 bg-white mx-auto text-center" style="width: 100%; max-width: 320px;">
-            <h2 class="text-3xl font-black text-black mb-1">${tableName}</h2>
-            <div class="text-base font-bold border-b-2 border-dashed border-gray-400 pb-2 mb-3 w-full">${options.typeName}</div>
-            
-            <img src="${qrImgSrc}" class="w-48 h-48 object-contain mb-3">
-            
-            <div class="text-lg font-bold mb-1">สแกนเพื่อสั่งอาหาร</div>
-            
-            <div class="w-full border-t-2 border-dashed border-gray-400 my-2"></div>
-            <div class="text-sm font-bold text-left w-full space-y-1">
-                <div class="flex justify-between"><span>เริ่มเวลา:</span><span>${startTime} น.</span></div>
-                <div class="flex justify-between text-black"><span>จำนวน:</span><span>${options.pax} ท่าน</span></div>
-                <div class="flex justify-between text-black text-base mt-2 pt-1 border-t border-gray-200"><span>หมดเวลาสั่ง:</span><span>${endTimeStr} ${options.timeLimit > 0 ? 'น.' : ''}</span></div>
-            </div>
-            <div class="w-full border-t-2 border-dashed border-gray-400 my-2"></div>
-            
-            <div class="text-xs text-gray-500 mt-2 font-medium">กรุณานำบิลนี้ไปชำระเงินที่เคาน์เตอร์</div>
-        </div>`;
-        
-        container.innerHTML = html;
-        container.classList.remove('hidden');
-        container.classList.add('print-active-view');
-        
-        // รอให้รูป QR โหลดเสร็จก่อน 1 วินาที แล้วค่อยสั่งเครื่องพิมพ์ตัดกระดาษ
-        setTimeout(() => {
-            window.print();
-            container.classList.remove('print-active-view');
-            container.classList.add('hidden');
-            showToast("ส่งสลิป QR เข้าเครื่องพิมพ์เรียบร้อย!", "success");
-            
-            // พิมพ์เสร็จ สั่งพักบิลลงระบบค้างโต๊ะไว้เลย
-            setTimeout(() => { holdOrder(); }, 500);
-            
-        }, 1000); 
-        
-    }).updateTableStatusGS(tableName, "ไม่ว่าง");
-}
-
-// ==========================================
-// 2. ฟังก์ชันใหม่! สร้าง QR โต๊ะบุฟเฟต์ (วางต่อท้ายด้านล่าง handleSalesTableClick เลยครับ)
-// ==========================================
-function processOpenTableWithQR(tableName, options) {
-    showToast("กำลังสร้าง QR Code และเปิดโต๊ะ...", "info");
-    
-    // 1. สั่งเปลี่ยนโต๊ะเป็นสีแดง
-    google.script.run.withSuccessHandler(function(data) {
-        if(data) { globalSalesTableList = data; globalTablesList = data; buildSalesTableGrid(); }
-        
-        // 2. ดึงโต๊ะเข้าตะกร้า POS ฝั่งแคชเชียร์ทันที
-        selectSalesTable(tableName);
-        cart = []; // ล้างตะกร้าให้ว่างก่อน
-        
-        // 3. ถ้าเป็นบุฟเฟต์ แอดราคาหัวบุฟเฟต์ลงตะกร้าอัตโนมัติตามจำนวนคน
-        if (options.typeName.includes("บุฟเฟต์")) {
-            cart.push({name: `${options.typeName} (ทาน ${options.pax} ท่าน)`, price: options.typePrice, qty: options.pax});
-            updateCartUI();
-        }
-        
-        // 4. สั่งปริ้นท์ใบ QR แจ้งเวลาส่งให้ลูกค้าที่โต๊ะ
-        let container = document.getElementById('barcodePrintContainer');
-        container.innerHTML = '';
-        
-        let now = new Date();
-        let startTime = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-        let endTimeStr = "ไม่จำกัดเวลา";
-        
-        if (options.timeLimit > 0) {
-            let endTime = new Date(now.getTime() + options.timeLimit * 60000);
-            endTimeStr = endTime.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-        }
-
-        let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html";
-        let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(tableName);
-        let qrImgSrc = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(qrTargetUrl);
-
-        let html = `
-        <div class="receipt-slip slip-80mm flex flex-col items-center p-4 bg-white mx-auto text-center" style="width: 100%; max-width: 320px;">
-            <h2 class="text-3xl font-black text-black mb-1">${tableName}</h2>
-            <div class="text-base font-bold border-b-2 border-dashed border-gray-400 pb-2 mb-3 w-full">${options.typeName}</div>
-            
-            <img src="${qrImgSrc}" class="w-48 h-48 object-contain mb-3">
-            
-            <div class="text-lg font-bold mb-1">สแกนเพื่อสั่งอาหาร</div>
-            
-            <div class="w-full border-t-2 border-dashed border-gray-400 my-2"></div>
-            <div class="text-sm font-bold text-left w-full space-y-1">
-                <div class="flex justify-between"><span>เริ่มเวลา:</span><span>${startTime} น.</span></div>
-                <div class="flex justify-between text-black"><span>จำนวน:</span><span>${options.pax} ท่าน</span></div>
-                <div class="flex justify-between text-black text-base mt-2 pt-1 border-t border-gray-200"><span>หมดเวลาสั่ง:</span><span>${endTimeStr} ${options.timeLimit > 0 ? 'น.' : ''}</span></div>
-            </div>
-            <div class="w-full border-t-2 border-dashed border-gray-400 my-2"></div>
-            
-            <div class="text-xs text-gray-500 mt-2 font-medium">กรุณานำบิลนี้ไปชำระเงินที่เคาน์เตอร์</div>
-        </div>`;
-        
-        container.innerHTML = html;
-        container.classList.remove('hidden');
-        container.classList.add('print-active-view');
-        
-        // รอให้รูป QR โหลดเสร็จก่อน 1 วินาที แล้วค่อยสั่งเครื่องพิมพ์ตัดกระดาษ
-        setTimeout(() => {
-            window.print();
-            container.classList.remove('print-active-view');
-            container.classList.add('hidden');
-            showToast("ส่งสลิป QR เข้าเครื่องพิมพ์เรียบร้อย!", "success");
-            
-            // พิมพ์เสร็จ สั่งพักบิลลงระบบค้างโต๊ะไว้เลย
-            setTimeout(() => { holdOrder(); }, 500);
-            
-        }, 1000); 
-        
-    }).updateTableStatusGS(tableName, "ไม่ว่าง");
-}
-
-// ============================================
-// 👨‍🍳 ระบบสั่งพิมพ์ใบครัวแบบ Manual (เวอร์ชันดึงเลขบิลจริงจากหลังบ้าน 100%)
-// ============================================
-function printManualKitchenSlip() {
-    if (cart.length === 0) return showToast("ยังไม่มีรายการอาหารในตะกร้าให้พิมพ์ส่งครัวครับ!", "error");
-
-    let btn = event.currentTarget || document.activeElement;
-    let originalText = btn.innerText;
-    
-    // เปลี่ยนข้อความปุ่มเพื่อบอกให้พนักงานรู้ว่ากำลังดึงเลขบิล
-    btn.innerHTML = "⏳ กำลังจองเลขบิล...";
-    btn.disabled = true;
-
-    // 1. ดึงหมายเลขโต๊ะ หรือ ประเภทบริการมาแสดง
-    let tNo = document.getElementById('inputTableNo') ? document.getElementById('inputTableNo').value.trim() : "";
-    let orderTypeDisplay = currentOrderType;
-    
-    if (currentOrderType === 'ทานที่ร้าน' && tNo !== "") {
-        orderTypeDisplay = "🪑 โต๊ะ: " + tNo;
-    } else if (currentOrderType === 'เดลิเวอรี่') {
-        let dApp = document.getElementById('selectDeliveryApp') ? document.getElementById('selectDeliveryApp').value : "";
-        let dId = document.getElementById('inputDeliveryOrderId') ? document.getElementById('inputDeliveryOrderId').value : "";
-        orderTypeDisplay = "🛵 " + dApp + " " + dId;
-    } else if (currentOrderType === 'กลับบ้าน') {
-        orderTypeDisplay = "🛍️ กลับบ้าน";
-    }
-
-    // 🧠 2. วิ่งไปถามหลังบ้านเพื่อดึง "เลขบิลของจริง" มารอล่วงหน้า
-    google.script.run.withSuccessHandler(function(realOrderId) {
-        
-        // ดึงสำเร็จ คืนค่าปุ่มกลับมาเหมือนเดิม
-        btn.innerHTML = "🖨️ พิมพ์ใบครัว";
-        btn.disabled = false;
-
-        let kitchenItemsHtml = "";
-        cart.forEach(function(item) {
-            let baseName = item.name;
-            let optionsText = "";
-            let match = item.name.match(/(.+) \[(.+)\]/);
-            if (match) { 
-                baseName = match[1].trim(); 
-                optionsText = "- " + match[2].trim(); 
-            }
-            kitchenItemsHtml += `
-            <div class="flex justify-between items-start border-b border-gray-100 pb-2 mb-2 leading-tight">
-                <div class="flex-1 pr-2">
-                    <div class="text-base font-bold text-gray-900">${baseName}</div>
-                    ${optionsText ? `<div class="text-xs text-gray-600 mt-0.5">${optionsText}</div>` : ''}
-                </div>
-                <div class="text-2xl font-bold text-gray-800 shrink-0">x${item.qty}</div>
-            </div>`;
-        });
-
-        // สร้างเลขคิวของจริง (3 ตัวท้ายจากรหัสบิลจริง)
-        let tempQueue = "Q" + realOrderId.slice(-3);
-
-        // 3. ยัดข้อมูลลงเทมเพลตกระดาษพิมพ์ใบครัว
-        let kitTypeEl = document.getElementById('kitchenOrderTypeDisplay');
-        let kitIdEl = document.getElementById('kitchenOrderId');
-        let kitTimeEl = document.getElementById('kitchenTime');
-        let kitUserEl = document.getElementById('kitchenManualUser');
-        let kitQueueBox = document.getElementById('kitchenManualQueueDisplay');
-        let kitQueueEl = document.getElementById('kitchenManualQueueNo');
-        let kitItemsEl = document.getElementById('kitchenItems');
-        
-        if (kitTypeEl) kitTypeEl.innerHTML = `บิล: <span class="text-rose-600">${orderTypeDisplay}</span>`; 
-        if (kitIdEl) kitIdEl.innerText = realOrderId; 
-        if (kitUserEl) kitUserEl.innerText = window.currentUser || "Admin"; 
-        if (kitTimeEl) kitTimeEl.innerText = new Date().toLocaleTimeString('th-TH');
-        if (kitItemsEl) kitItemsEl.innerHTML = kitchenItemsHtml;
-        
-        if (kitQueueBox) {
-            if (globalStoreSettings && globalStoreSettings.showReceiptQueue) {
-                kitQueueBox.classList.remove('hidden');
-                if(kitQueueEl) kitQueueEl.innerText = tempQueue;
-            } else {
-                kitQueueBox.classList.add('hidden');
-            }
-        }
-        
-        // 🖨️ สั่งเครื่องพิมพ์ทำงาน
-        let container = document.getElementById('kitchenPrintContainer');
-        let receiptModal = document.getElementById('receiptModal');
-        let changeModal = document.getElementById('changeModal');
-        if (receiptModal) receiptModal.classList.add('no-print');
-        if (changeModal) changeModal.classList.add('no-print');
-        
-        container.classList.remove('hidden');
-        container.classList.add('print-active-view');
-        
-        setTimeout(() => {
-            window.print();
-            
-            container.classList.remove('print-active-view');
-            container.classList.add('hidden');
-            if (receiptModal) receiptModal.classList.remove('no-print');
-            if (changeModal) changeModal.classList.remove('no-print');
-            
-            showToast("ส่งใบสั่งทำอาหารไปที่เครื่องปริ้นท์แล้ว!", "success");
-            
-            if (tNo !== "") {
-                setTimeout(() => {
-                    Swal.fire({
-                        title: 'ต้องการพักบิลลงโต๊ะเลยไหม?',
-                        text: `ส่งใบครัวของ ${orderTypeDisplay} แล้ว จะให้ระบบแขวนพักบิลไว้ที่โต๊ะนี้เลยหรือไม่`,
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'ใช่, พักบิลเลย',
-                        cancelButtonText: 'ยังก่อน',
-                        confirmButtonColor: '#f43f5e',
-                        cancelButtonColor: '#9ca3af',
-                        customClass: { popup: 'rounded-[2.5rem]' }
-                    }).then((result) => {
-                        if (result.isConfirmed) holdOrder();
-                    });
-                }, 1000);
-            }
-        }, 300);
-
-    }).withFailureHandler(function(err) {
-        btn.innerHTML = "🖨️ พิมพ์ใบครัว";
-        btn.disabled = false;
-        showToast("ไม่สามารถจองเลขบิลได้: " + err.message, "error");
-    }).getNextExpectedOrderIdGS(currentOrderType, tNo);
-}
-
-// ====================================================
-// NEW FRONTEND JS: ควบคุมระบบหน้าตั้งค่าราคาบุฟเฟต์
-// ====================================================
-let globalBuffetPackages = [];
-
-// ดึงข้อมูลมารอตั้งแต่เปิดเว็บ
-window.addEventListener('load', function() {
-    google.script.run.withSuccessHandler(function(data) { globalBuffetPackages = data; }).getBuffetPackages();
-});
-
-function openBuffetSettings() {
-  document.getElementById('settingsView').classList.add('hidden');
-  document.getElementById('buffetSettingsView').classList.remove('hidden');
-  document.getElementById('buffetPackagesContainer').innerHTML = '<div class="text-center p-8 text-gray-400 font-bold">⏳ กำลังโหลด...</div>';
-  
-  google.script.run.withSuccessHandler(function(data) {
-    globalBuffetPackages = data;
-    let container = document.getElementById('buffetPackagesContainer');
-    container.innerHTML = '';
-    
-    if(data.length <= 1) {
-      addBuffetPackageRow('A La Carte (สั่งปกติไม่คิดรายหัว)', 0);
-      addBuffetPackageRow('บุฟเฟต์หมูกระทะ', 299);
-    } else {
-      for(let i = 1; i < data.length; i++) {
-        addBuffetPackageRow(data[i][0], data[i][1]);
-      }
-    }
-  }).getBuffetPackages();
-}
-
-function addBuffetPackageRow(name = '', price = 0) {
-  let container = document.getElementById('buffetPackagesContainer');
-  let html = `
-  <div class="flex gap-3 items-center bg-white p-3 rounded-2xl border border-rose-100 shadow-sm buffet-package-row">
-      <input type="text" value="${name}" class="pkg-name flex-1 p-2.5 border-2 border-rose-200 text-rose-700 rounded-xl font-bold text-sm focus:outline-none focus:border-rose-400 transition placeholder-rose-300" placeholder="ชื่อแพ็กเกจ เช่น บุฟเฟต์หมูกระทะ">
-      
-      <div class="flex items-center gap-1 bg-white border-2 border-rose-200 rounded-xl px-3 w-40 shadow-sm focus-within:border-rose-400 transition">
-          <span class="text-sm text-gray-400 font-bold">฿</span>
-          <input type="number" value="${price}" class="pkg-price w-full p-2.5 font-bold text-center outline-none text-sm text-rose-700 bg-transparent" placeholder="0">
-          <span class="text-xs text-rose-400 font-bold">/ท่าน</span>
-      </div>
-      
-      <button onclick="this.closest('.buffet-package-row').remove()" class="text-gray-300 hover:text-red-500 font-bold text-2xl px-2 transition">×</button>
-  </div>`;
-  container.insertAdjacentHTML('beforeend', html);
-}
-
-function saveBuffetPackagesData() {
-  let rows = document.querySelectorAll('.buffet-package-row');
-  let data = [];
-  rows.forEach(r => {
-    let name = r.querySelector('.pkg-name').value.trim();
-    let price = parseFloat(r.querySelector('.pkg-price').value) || 0;
-    if(name) data.push({ name: name, price: price });
-  });
-  
-  let btn = document.getElementById('btnSaveBuffet');
-  btn.innerText = "กำลังบันทึก..."; btn.disabled = true;
-  
-  google.script.run.withSuccessHandler(function(res) {
-    btn.innerText = "💾 บันทึกตั้งค่าบุฟเฟต์"; btn.disabled = false;
-    if(res === "Success") {
-      showToast("บันทึกราคาบุฟเฟต์สำเร็จ!", "success");
-      // อัปเดตหน่วยความจำเพื่อให้ตอนกดเปิดโต๊ะได้ข้อมูลใหม่ทันที
-      google.script.run.withSuccessHandler(function(d){ globalBuffetPackages = d; }).getBuffetPackages();
-      backToSettings();
-    } else { showToast(res, "error"); }
-  }).saveBuffetPackagesGS(JSON.stringify(data));
-}
-
-
-
-
 
 
 // ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
