@@ -8455,7 +8455,6 @@ function syncCustomerDisplay(overrideStatus = null) {
     let qrImg = document.getElementById('qrModalImage') ? document.getElementById('qrModalImage').src : "";
     let changeAmt = document.getElementById('changeAmount') ? document.getElementById('changeAmount').innerText : "0.00";
     
-    // 👇 เพิ่ม 2 บรรทัดนี้ เพื่อดึงโลโก้และชื่อร้านจากหน้าจอแคชเชียร์
     let storeLogo = document.getElementById('sidebarLogo') ? document.getElementById('sidebarLogo').src : "https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png";
     let storeName = document.getElementById('sidebarStoreName') ? document.getElementById('sidebarStoreName').innerText : "FamePOS";
 
@@ -8473,8 +8472,9 @@ function syncCustomerDisplay(overrideStatus = null) {
         grandTotal: grandTot,
         change: changeAmt,
         qrImage: isQROpen ? qrImg : "",
-        logoUrl: storeLogo,  // 👇 ส่งข้อมูลโลโก้
-        storeName: storeName // 👇 ส่งข้อมูลชื่อร้าน
+        logoUrl: storeLogo,  
+        storeName: storeName,
+        timestamp: Date.now() // 👈 ใส่บรรทัดนี้เพิ่ม เพื่อบังคับอัปเดตเสมอ!
     };
 
     localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
