@@ -84,6 +84,7 @@
   </main>
 
   <script>
+<script>
     // ⏱️ นาฬิกา
     setInterval(() => {
         const now = new Date();
@@ -91,25 +92,25 @@
         if(timeEl) timeEl.innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
     }, 1000);
 
-    // 🚀 [ระบบใหม่] สแกนข้อมูลดึงจากแคชเชียร์ทุกๆ 0.5 วินาที ชัวร์ 100%
-    let lastDataString = "";
+    // 🚀 ระบบดึงข้อมูลขั้นสุดยอด (ดักจับ + วนลูปเช็ค)
+    let lastUpdate = 0;
     
     function checkPOSData() {
         try {
             let currentDataString = localStorage.getItem('famepos_customer_display');
-            
-            // ถ้ามีข้อมูล และข้อมูลหน้าตาเปลี่ยนไปจากเดิม (มีการขยับตะกร้า) ให้สั่งอัปเดตจอ
-            if (currentDataString && currentDataString !== lastDataString) {
-                lastDataString = currentDataString;
+            if (currentDataString) {
                 let data = JSON.parse(currentDataString);
-                updateCustomerUI(data);
+                // อัปเดตก็ต่อเมื่อเวลา timestamp เปลี่ยนไปจากเดิมเท่านั้น
+                if (data.timestamp && data.timestamp !== lastUpdate) {
+                    lastUpdate = data.timestamp;
+                    updateCustomerUI(data);
+                }
             }
-        } catch(e) {
-            console.log("กำลังรอรับข้อมูล...");
-        }
+        } catch(e) {}
     }
 
-    // วนลูปเช็คข้อมูลตลอดเวลาทุกๆ ครึ่งวินาที
+    // สั่งให้จับตาดูทั้ง 2 ระบบ (ปลอดภัย 100%)
+    window.addEventListener('storage', checkPOSData);
     setInterval(checkPOSData, 500);
     window.addEventListener('load', checkPOSData);
 
