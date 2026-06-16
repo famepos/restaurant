@@ -25,10 +25,10 @@
 </head>
 <body class="h-screen w-screen flex flex-col">
 
-  <header class="bg-rose-600 text-white p-4 shadow-md flex justify-between items-center shrink-0 z-10">
+<header class="bg-rose-600 text-white p-4 shadow-md flex justify-between items-center shrink-0 z-10">
     <div class="flex items-center gap-3">
-        <div class="bg-white text-rose-600 w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold">F</div>
-        <h1 class="text-3xl font-bold tracking-wide">FamePOS</h1>
+        <img id="displayLogo" src="https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png" class="w-12 h-12 object-contain bg-white rounded-xl p-1 shadow-sm" alt="FamePOS Logo">
+        <h1 class="text-3xl font-bold tracking-wide" id="displayStoreName">FamePOS</h1>
     </div>
     <div id="dateTimeDisplay" class="text-lg font-medium opacity-90"></div>
   </header>
@@ -98,7 +98,17 @@
         }
     });
 
-    function updateCustomerUI(data) {
+function updateCustomerUI(data) {
+        // 0. อัปเดตโลโก้และชื่อร้านให้ตรงกับแคชเชียร์
+        if (data.logoUrl) {
+            let logoEl = document.getElementById('displayLogo');
+            if (logoEl) logoEl.src = data.logoUrl;
+        }
+        if (data.storeName) {
+            let storeNameEl = document.getElementById('displayStoreName');
+            if (storeNameEl) storeNameEl.innerText = data.storeName;
+        }
+
         // 1. อัปเดตตะกร้าสินค้า
         const cartContainer = document.getElementById('customerCartItems');
         if (!data.cart || data.cart.length === 0) {
@@ -110,13 +120,25 @@
         } else {
             let html = '';
             data.cart.forEach(item => {
+                // แยกชื่อหลักกับตัวเลือกเสริม (ถ้ามี) เพื่อให้แสดงผลสวยงามขึ้น
+                let baseName = item.name;
+                let optionsHtml = '';
+                let optionIndex = item.name.search(/ \[| \+/); 
+                
+                if (optionIndex !== -1) {
+                    baseName = item.name.substring(0, optionIndex);
+                    let optionsText = item.name.substring(optionIndex).trim();
+                    optionsHtml = `<div class="text-sm font-semibold text-rose-500 mt-1">${optionsText}</div>`;
+                }
+
                 html += `
                 <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm fade-in">
                     <div class="flex-1 pr-4">
-                        <div class="font-bold text-gray-800 text-xl">${item.name}</div>
+                        <div class="font-bold text-gray-800 text-xl">${baseName}</div>
+                        ${optionsHtml}
                     </div>
                     <div class="font-bold text-gray-500 text-xl w-16 text-center">x${item.qty}</div>
-                    <div class="font-bold text-rose-600 text-xl w-24 text-right">฿${(item.price * item.qty).toFixed(2)}</div>
+                    <div class="font-bold text-rose-600 text-xl w-28 text-right">฿${(item.price * item.qty).toFixed(2)}</div>
                 </div>`;
             });
             cartContainer.innerHTML = html;
