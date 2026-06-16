@@ -84,22 +84,39 @@
   </main>
 
   <script>
-    // นาฬิกา
+    // ⏱️ นาฬิกา
     setInterval(() => {
         const now = new Date();
         document.getElementById('dateTimeDisplay').innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
     }, 1000);
 
-    // ดักฟังการส่งข้อมูลจากหน้าจอแคชเชียร์
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'famepos_customer_display') {
-            const data = JSON.parse(e.newValue);
-            updateCustomerUI(data);
+    // 🚀 [ระบบใหม่] สแกนข้อมูลดึงจากแคชเชียร์ทุกๆ 0.5 วินาที ชัวร์ 100%
+    let lastDataString = "";
+    
+    function checkPOSData() {
+        try {
+            let currentDataString = localStorage.getItem('famepos_customer_display');
+            
+            // ถ้ามีข้อมูล และข้อมูลหน้าตาเปลี่ยนไปจากเดิม (มีการขยับตะกร้า) ให้สั่งอัปเดตจอ
+            if (currentDataString && currentDataString !== lastDataString) {
+                lastDataString = currentDataString;
+                let data = JSON.parse(currentDataString);
+                updateCustomerUI(data);
+            }
+        } catch(e) {
+            console.log("กำลังรอรับข้อมูล...");
         }
-    });
+    }
 
-function updateCustomerUI(data) {
-        // 0. อัปเดตโลโก้และชื่อร้านให้ตรงกับแคชเชียร์
+    // วนลูปเช็คข้อมูลตลอดเวลาทุกๆ ครึ่งวินาที
+    setInterval(checkPOSData, 500);
+    window.addEventListener('load', checkPOSData);
+
+    // 🎨 ฟังก์ชันวาดหน้าจอ (ปรับปรุงเรื่องความเสถียร)
+    function updateCustomerUI(data) {
+        if (!data) return;
+
+        // 0. อัปเดตโลโก้และชื่อร้าน
         if (data.logoUrl) {
             let logoEl = document.getElementById('displayLogo');
             if (logoEl) logoEl.src = data.logoUrl;
@@ -120,10 +137,9 @@ function updateCustomerUI(data) {
         } else {
             let html = '';
             data.cart.forEach(item => {
-                // แยกชื่อหลักกับตัวเลือกเสริม (ถ้ามี) เพื่อให้แสดงผลสวยงามขึ้น
-                let baseName = item.name;
+                let baseName = item.name || "สินค้า";
                 let optionsHtml = '';
-                let optionIndex = item.name.search(/ \[| \+/); 
+                let optionIndex = baseName.search(/ \[| \+/); 
                 
                 if (optionIndex !== -1) {
                     baseName = item.name.substring(0, optionIndex);
@@ -142,13 +158,13 @@ function updateCustomerUI(data) {
                 </div>`;
             });
             cartContainer.innerHTML = html;
-            // เลื่อนลงล่างสุดอัตโนมัติ
+            // เลื่อนบาร์ลงล่างสุดอัตโนมัติ
             cartContainer.scrollTop = cartContainer.scrollHeight;
         }
 
         // 2. อัปเดตตัวเลข
-        document.getElementById('displaySubTotal').innerText = data.totalPrice;
-        document.getElementById('displayGrandTotal').innerText = data.grandTotal;
+        document.getElementById('displaySubTotal').innerText = data.totalPrice || "฿0.00";
+        document.getElementById('displayGrandTotal').innerText = data.grandTotal || "฿0.00";
 
         // 3. จัดการเงินทอน
         const changeBox = document.getElementById('changeContainer');
@@ -172,15 +188,6 @@ function updateCustomerUI(data) {
             adState.classList.remove('hidden');
         }
     }
-
-    // เพิ่มโค้ดนี้เพื่อบังคับให้ดึงข้อมูล "ทันทีที่เปิดหน้าจอ"
-    window.addEventListener('load', function() {
-        let savedData = localStorage.getItem('famepos_customer_display');
-        if (savedData) {
-            updateCustomerUI(JSON.parse(savedData));
-        }
-    });
-    
   </script>
 </body>
 </html>
