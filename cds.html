@@ -23,263 +23,132 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="h-screen w-full flex text-gray-800">
+<body class="h-screen w-screen flex flex-col">
 
-  <div class="w-7/12 h-full bg-white flex flex-col border-r border-rose-100 shadow-xl z-10 relative">
-    <div class="bg-rose-600 text-white p-5 shadow-md flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <img src="https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png" class="w-11 h-11 object-contain bg-white rounded-xl p-1 shadow-sm">
-        <div>
-          <h1 class="text-xl font-extrabold leading-tight tracking-wide">FamePOS</h1>
-          <p class="text-xs text-rose-200 font-medium">รายการสินค้าในตะกร้า</p>
-        </div>
+  <header class="bg-rose-600 text-white p-4 shadow-md flex justify-between items-center shrink-0 z-10">
+    <div class="flex items-center gap-3">
+        <div class="bg-white text-rose-600 w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-bold">F</div>
+        <h1 class="text-3xl font-bold tracking-wide">FamePOS</h1>
+    </div>
+    <div id="dateTimeDisplay" class="text-lg font-medium opacity-90"></div>
+  </header>
+
+  <main class="flex-1 flex gap-6 p-6 overflow-hidden">
+    
+    <section class="flex-1 bg-white rounded-[2rem] shadow-xl border border-rose-100 flex flex-col overflow-hidden">
+      <div class="bg-rose-50 p-4 border-b border-rose-100">
+        <h2 class="text-2xl font-bold text-rose-800">รายการสินค้า (Order Items)</h2>
       </div>
       
-      <div class="text-right font-semibold leading-tight">
-        <div id="liveTime" class="text-xl tracking-wider text-white">00:00:00</div>
-        <div id="liveDate" class="text-[11px] text-rose-200">วันจันทร์ที่ 15 มิ.ย. 2026</div>
+      <div class="flex-1 overflow-y-auto p-4 space-y-3" id="customerCartItems">
+        <div class="h-full flex flex-col items-center justify-center text-rose-200">
+            <span class="text-8xl mb-4">🛒</span>
+            <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับ เชิญสั่งอาหารได้เลยครับ</p>
+        </div>
       </div>
-    </div>
-    
-    <div id="cdsItems" class="flex-1 overflow-y-auto p-6 space-y-3 bg-slate-50/50">
-      <div id="emptyCart" class="h-full flex flex-col items-center justify-center text-gray-300 opacity-80">
-        <img src="https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png" class="w-28 h-28 object-contain mb-4 animate-pulse">
-        <h2 class="text-3xl font-bold text-gray-400" id="welcomeStoreName">FamePOS</h2>
-        <p class="text-gray-400 mt-1">ยินดีต้อนรับ เชิญเลือกชมสินค้าได้เลยค่ะ</p>
+    </section>
+
+    <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
+      
+      <div class="bg-white rounded-[2rem] shadow-xl border border-rose-100 p-6 flex flex-col gap-4">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
+        <div class="flex justify-between items-center text-xl text-gray-600">
+            <span>ยอดรวม:</span>
+            <span id="displaySubTotal" class="font-bold">฿0.00</span>
+        </div>
+        <div class="flex justify-between items-center text-xl text-rose-600 font-bold bg-rose-50 p-4 rounded-2xl border border-rose-100">
+            <span>ยอดสุทธิ:</span>
+            <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
+        </div>
+        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
+            <span class="font-bold">เงินทอน:</span>
+            <span id="displayChange" class="text-3xl font-bold">฿0.00</span>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="w-5/12 h-full bg-gradient-to-br from-rose-50/60 to-rose-100/40 flex flex-col p-6 justify-between">
-    
-    <div class="bg-white border border-rose-100 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div class="flex items-center gap-3 min-w-0">
-            <img src="https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png" class="w-12 h-12 object-contain shrink-0">
-            <div class="truncate text-left">
-                <h2 class="text-rose-600 font-extrabold text-xl tracking-wide uppercase truncate" id="cdsDisplayStoreName">FamePOS</h2>
-                <p class="text-[10px] text-gray-400 font-medium mt-0.5">CUSTOMER DISPLAY SCREEN</p>
-            </div>
-        </div>
-        <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2.5 py-1 rounded-full shrink-0">FamePOS System</span>
-    </div>
+      <div class="bg-white rounded-[2rem] shadow-xl border border-rose-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
+         <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-rose-50 to-white">
+            <span class="text-6xl mb-4">✨</span>
+            <h3 class="text-2xl font-bold text-rose-700 mb-2">รับสิทธิพิเศษมากมาย</h3>
+            <p class="text-gray-500 font-medium">สมัครสมาชิกเพื่อสะสมแต้มและรับส่วนลด</p>
+         </div>
 
-    <div class="bg-white rounded-[2.2rem] p-6 shadow-md border border-rose-100/70 flex-1 my-4 flex flex-col justify-between overflow-visible relative">
-        
-        <div id="standardSummarySection" class="space-y-3 font-bold text-gray-500 text-base border-b border-dashed pb-4 mb-4">
-            <div class="flex justify-between"><span>ยอดรวมสินค้า</span><span id="cdsSubTotal" class="text-gray-700">฿0.00</span></div>
-            <div class="flex justify-between text-rose-500"><span>ส่วนลดพิเศษ</span><span id="cdsDiscount">- ฿0.00</span></div>
-            <div class="bg-rose-50/60 text-rose-800 rounded-2xl p-4 flex flex-col items-center justify-center shadow-inner mt-4">
-              <span class="text-sm font-bold text-rose-600">ยอดสุทธิที่ต้องชำระ</span>
-              <span id="cdsGrandTotal" class="text-5xl font-black text-rose-600 mt-1">฿0.00</span>
-            </div>
-        </div>
+         <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4">
+            <h3 class="text-2xl font-bold text-blue-800 mb-2">📱 สแกน QR เพื่อชำระเงิน</h3>
+            <img id="qrDisplayImage" src="" class="w-64 h-64 object-contain border-4 border-blue-100 p-2 rounded-2xl shadow-sm mb-4">
+            <p class="text-gray-500 font-medium animate-pulse">กรุณาสแกนผ่านแอปธนาคาร</p>
+         </div>
+      </div>
 
-        <div id="dynamicStatusArea" class="flex-1 flex flex-col items-center justify-center animate-fade-in">
-             <div class="text-center text-gray-400 py-6 font-medium">
-                 <span class="text-5xl block mb-2 opacity-60">🛒</span>
-                 กำลังรอพนักงานทำรายการ...
-             </div>
-        </div>
-        
-    </div>
-    
-    <div class="text-center text-gray-400 text-xs font-semibold">
-        Powered by <span class="text-rose-500">FamePOS Success System</span>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
-    let lastCdsStateString = "";
+    // นาฬิกา
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('dateTimeDisplay').innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
+    }, 1000);
 
-    startLiveClock();
-    setInterval(fetchCdsDataFromBackend, 2000);
+    // ดักฟังการส่งข้อมูลจากหน้าจอแคชเชียร์
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'famepos_customer_display') {
+            const data = JSON.parse(e.newValue);
+            updateCustomerUI(data);
+        }
+    });
 
-    function startLiveClock() {
-      setInterval(function() {
-        let now = new Date();
-        if(document.getElementById('liveTime')) document.getElementById('liveTime').innerText = now.toLocaleTimeString('th-TH', { hour12: false });
-        if(document.getElementById('liveDate')) document.getElementById('liveDate').innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
-      }, 1000);
-    }
+    function updateCustomerUI(data) {
+        // 1. อัปเดตตะกร้าสินค้า
+        const cartContainer = document.getElementById('customerCartItems');
+        if (!data.cart || data.cart.length === 0) {
+            cartContainer.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center text-rose-200 fade-in">
+                    <span class="text-8xl mb-4">🛒</span>
+                    <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับ เชิญสั่งอาหารได้เลยครับ</p>
+                </div>`;
+        } else {
+            let html = '';
+            data.cart.forEach(item => {
+                html += `
+                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm fade-in">
+                    <div class="flex-1 pr-4">
+                        <div class="font-bold text-gray-800 text-xl">${item.name}</div>
+                    </div>
+                    <div class="font-bold text-gray-500 text-xl w-16 text-center">x${item.qty}</div>
+                    <div class="font-bold text-rose-600 text-xl w-24 text-right">฿${(item.price * item.qty).toFixed(2)}</div>
+                </div>`;
+            });
+            cartContainer.innerHTML = html;
+            // เลื่อนลงล่างสุดอัตโนมัติ
+            cartContainer.scrollTop = cartContainer.scrollHeight;
+        }
 
-    function fetchCdsDataFromBackend() {
-        fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action: "getCdsLiveStateGS", args: [] }),
-            redirect: "follow"
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === "Success" && data.result) {
-                let currentStateString = JSON.stringify(data.result);
-                if (currentStateString !== lastCdsStateString) {
-                    lastCdsStateString = currentStateString;
-                    renderCdsScreen(data.result);
-                }
-            }
-        })
-        .catch(err => console.error("CDS Connection Error:", err));
-    }
+        // 2. อัปเดตตัวเลข
+        document.getElementById('displaySubTotal').innerText = data.totalPrice;
+        document.getElementById('displayGrandTotal').innerText = data.grandTotal;
 
-    function renderCdsScreen(data) {
-      if(data.storeName) {
-          document.getElementById('cdsDisplayStoreName').innerText = data.storeName;
-          let welcomeTitle = document.getElementById('welcomeStoreName');
-          if(welcomeTitle) welcomeTitle.innerText = data.storeName;
-      }
+        // 3. จัดการเงินทอน
+        const changeBox = document.getElementById('changeContainer');
+        if (data.change && parseFloat(data.change) > 0) {
+            document.getElementById('displayChange').innerText = "฿" + data.change;
+            changeBox.classList.remove('hidden');
+        } else {
+            changeBox.classList.add('hidden');
+        }
 
-      const itemsContainer = document.getElementById('cdsItems');
-      const summaryHeader = document.getElementById('standardSummarySection');
-      const dynamicArea = document.getElementById('dynamicStatusArea');
-
-      // ตะกร้าว่าง เคลียร์จอทั้งหมดกลับสู่ค่าเริ่มต้น
-      if (!data.cart || data.cart.length === 0) {
-        itemsContainer.innerHTML = `
-          <div id="emptyCart" class="h-full flex flex-col items-center justify-center text-gray-300 opacity-80 animate-fade-in">
-            <img src="https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png" class="w-28 h-28 object-contain mb-4 animate-pulse">
-            <h2 class="text-3xl font-bold text-gray-400">${data.storeName || 'FamePOS'}</h2>
-            <p class="text-gray-400 mt-1">ยินดีต้อนรับ เชิญเลือกชมสินค้าได้เลยค่ะ</p>
-          </div>`;
-          
-        document.getElementById('cdsSubTotal').innerText = "฿0.00";
-        document.getElementById('cdsDiscount').innerText = "- ฿0.00";
-        document.getElementById('cdsGrandTotal').innerText = "฿0.00";
-        summaryHeader.classList.remove('hidden');
+        // 4. จัดการ QR Code
+        const adState = document.getElementById('adState');
+        const qrState = document.getElementById('qrState');
         
-        dynamicArea.innerHTML = `
-          <div class="text-center text-gray-400 py-6 font-medium animate-fade-in">
-              <span class="text-4xl block mb-1 opacity-60">🛒</span>
-              กำลังรอพนักงานทำรายการ...
-          </div>`;
-        return; 
-      }
-
-      // 1. วาดรายการสินค้าฝั่งซ้ายพ่วงแสดงรูปภาพตามข้อ 1
-      itemsContainer.innerHTML = data.cart.map(item => {
-          let baseName = item.name; let optionsHtml = "";
-          let match = item.name.match(/(.+) \[(.+)\]/);
-          if (match) {
-              baseName = match[1].trim();
-              optionsHtml = match[2].split(',').map(opt => `<div class="text-xs text-rose-400 font-semibold mt-0.5">• ${opt.trim()}</div>`).join('');
-          }
-          
-          let rowQty = parseInt(item.qty) || 1;
-          let rowTotal = parseFloat(item.total) || 0;
-
-          // 🟢 แทรกรูปสินค้าเข้าหัวแถวการ์ดแสดงผลฝั่งลูกค้า
-          let imgTag = item.image 
-              ? `<img src="${item.image}" class="w-12 h-12 rounded-xl object-cover border border-rose-100 shadow-sm shrink-0">` 
-              : `<div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-400 flex items-center justify-center text-xl border border-rose-100 shrink-0 shadow-sm">📦</div>`;
-
-          return `
-            <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center font-bold text-lg animate-fade-in">
-              <div class="flex items-center gap-3 min-w-0 flex-1">
-                ${imgTag}
-                <span class="bg-rose-500 text-white w-7 h-7 flex items-center justify-center rounded-lg text-xs shrink-0">${rowQty}</span>
-                <div class="truncate text-left min-w-0 flex-1">
-                    <div class="text-gray-700 text-base truncate">${baseName}</div>
-                    <div class="flex flex-col">${optionsHtml}</div>
-                </div>
-              </div>
-              <span class="text-rose-600 shrink-0 ml-2">฿${rowTotal.toFixed(2)}</span>
-            </div>`;
-      }).join('');
-
-      // อัปเดตตัวเลขราคา
-      document.getElementById('cdsSubTotal').innerText = data.subTotal;
-      let discVal = parseFloat(data.discount) || 0;
-      document.getElementById('cdsDiscount').innerText = "- ฿" + discVal.toLocaleString('th-TH', {minimumFractionDigits: 2});
-      document.getElementById('cdsGrandTotal').innerText = data.grandTotal;
-
-      // 2. 🔳 แยกแผงประมวลผลจ่ายเงิน (Completed / Checkout / Shopping) ตามข้อ 2
-      if (data.status === "completed") {
-          summaryHeader.classList.add('hidden'); // ซ่อนแผงยอดคำนวณหลักออกไปเมื่อกดจบงาน
-          
-          if(data.paymentType === 'เงินสด') {
-              dynamicArea.innerHTML = `
-                <div class="w-full text-center space-y-5 animate-fade-in">
-                    <div class="text-6xl text-emerald-500 drop-shadow-sm">✅</div>
-                    <h3 class="text-2xl font-black text-gray-700">ชำระเงินสำเร็จ (เงินสด)</h3>
-                    <div class="bg-rose-50 border border-rose-100 rounded-3xl p-5 mx-2 shadow-inner">
-                        <span class="text-sm font-bold text-rose-500 uppercase tracking-wider block">เงินทอนลูกค้า (Change)</span>
-                        <span class="text-6xl font-black text-rose-600 block mt-1">฿${data.changeAmount}</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm font-bold text-gray-400 px-6 pt-2">
-                        <span>รับเงินมา: ฿${parseFloat(data.cashReceived).toFixed(2)}</span>
-                        <span>ยอดบิล: ${data.grandTotal}</span>
-                    </div>
-                </div>`;
-          } else {
-              dynamicArea.innerHTML = `
-                <div class="w-full text-center space-y-4 animate-fade-in">
-                    <div class="text-6xl text-emerald-500">✨</div>
-                    <h3 class="text-3xl font-black text-gray-800">ขอบคุณที่ใช้บริการ</h3>
-                    <p class="text-rose-500 font-bold text-base bg-rose-50 rounded-xl py-2 mx-6 border border-rose-100 shadow-sm">ชำระด้วยสิทธิ์ [ ${data.paymentType} ] สำเร็จเรียบร้อยค่ะ</p>
-                </div>`;
-          }
-      } 
-      else if (data.status === "checkout") {
-          // สแตมป์รายละเอียดวิธีการจ่ายเงินเมื่อแคชเชียร์เปิดหน้าต่างชำระเงินขึ้นมาเท่านั้น
-          summaryHeader.classList.remove('hidden'); 
-          
-          if (data.paymentType === 'โอนเงิน' && data.qrImage) {
-              dynamicArea.innerHTML = `
-                <div class="w-full flex flex-col items-center justify-center bg-white border-2 border-dashed border-rose-400 rounded-2xl p-4 shadow-sm animate-fade-in">
-                    <span class="text-rose-600 font-extrabold text-sm mb-2 flex items-center gap-1">📱 SCAN PROMPTPAY QR CODE</span>
-                    <img src="${data.qrImage}" class="w-44 h-48 object-contain drop-shadow">
-                    <span class="text-xs text-gray-400 mt-2 font-medium">กรุณาตรวจสอบยอดเงินก่อนกดสแกนจ่ายนะครับ</span>
-                </div>`;
-          } 
-          else if (data.paymentType === 'คนละครึ่ง') {
-              let numericGrandTotal = parseFloat(data.grandTotal.replace(/[^\d.]/g, '')) || 0;
-              let citizenPay = numericGrandTotal * 0.40;
-              let governmentPay = numericGrandTotal * 0.60;
-              
-              dynamicArea.innerHTML = `
-                <div class="w-full space-y-3 animate-fade-in">
-                    <div class="text-center font-bold text-rose-700 text-sm mb-1">สิทธิ์โครงการคนละครึ่ง (ไทยช่วยไทย)</div>
-                    <div class="border-2 border-rose-200 bg-rose-50/40 rounded-2xl p-3 flex justify-between items-center font-bold">
-                        <span class="text-gray-600 text-sm">👤 ประชาชนจ่ายเอง (40%)</span>
-                        <span class="text-rose-600 text-xl">฿${citizenPay.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    </div>
-                    <div class="border-2 border-blue-200 bg-blue-50/30 rounded-2xl p-3 flex justify-between items-center font-bold">
-                        <span class="text-gray-500 text-sm">🏢 โครงการร่วมรัฐช่วยจ่าย (60%)</span>
-                        <span class="text-blue-600 text-xl">฿${governmentPay.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    </div>
-                </div>`;
-          } 
-          else if (data.paymentType === 'เดลิเวอรี่') {
-              let appTag = data.deliveryApp ? data.deliveryApp.toUpperCase() : 'DELIEVERY';
-              let idTag = data.deliveryOrderId ? data.deliveryOrderId : 'ไม่มีเลขที่ออเดอร์';
-              dynamicArea.innerHTML = `
-                <div class="w-full text-center p-4 bg-gradient-to-br from-rose-50 to-rose-100/50 rounded-2xl border-2 border-rose-200/80 shadow-inner animate-fade-in">
-                    <span class="text-3xl block mb-2">🛵</span>
-                    <h4 class="text-lg font-black text-rose-700">ออเดอร์ช่องทางออนไลน์</h4>
-                    <div class="mt-3 grid grid-cols-2 gap-2 text-xs font-bold">
-                        <div class="bg-white p-2.5 rounded-xl border">ค่ายแอป: <span class="text-rose-600 block text-sm mt-0.5">${appTag}</span></div>
-                        <div class="bg-white p-2.5 rounded-xl border">เลขออเดอร์: <span class="text-rose-600 block text-sm mt-0.5">${idTag}</span></div>
-                    </div>
-                </div>`;
-          } 
-          else {
-              dynamicArea.innerHTML = `
-                <div class="text-center text-gray-400 py-6 font-medium animate-fade-in">
-                    <span class="text-4xl block mb-1 opacity-60">💵</span>
-                    ชำระด้วยเงินสดหน้าเคาน์เตอร์...
-                </div>`;
-          }
-      } 
-      else {
-          // 🟢 บิลกำลังทำงาน/เพิ่มสแกนสินค้าอยู่ (Shopping ทั่วไป) ล้างจอขวารอพนักงานกดชำระเงินตามคำสั่งข้อ 2
-          summaryHeader.classList.remove('hidden');
-          dynamicArea.innerHTML = `
-            <div class="text-center text-gray-400 py-6 font-medium animate-fade-in">
-                <span class="text-4xl block mb-1 opacity-60">🛒</span>
-                กำลังรอพนักงานสรุปช่องทางคิดเงิน...
-            </div>`;
-      }
+        if (data.status === 'qr_payment' && data.qrImage) {
+            document.getElementById('qrDisplayImage').src = data.qrImage;
+            adState.classList.add('hidden');
+            qrState.classList.remove('hidden');
+        } else {
+            qrState.classList.add('hidden');
+            adState.classList.remove('hidden');
+        }
     }
   </script>
 </body>
