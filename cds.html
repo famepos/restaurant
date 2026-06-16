@@ -87,7 +87,8 @@
     // ⏱️ นาฬิกา
     setInterval(() => {
         const now = new Date();
-        document.getElementById('dateTimeDisplay').innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
+        let timeEl = document.getElementById('dateTimeDisplay');
+        if(timeEl) timeEl.innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
     }, 1000);
 
     // 🚀 [ระบบใหม่] สแกนข้อมูลดึงจากแคชเชียร์ทุกๆ 0.5 วินาที ชัวร์ 100%
@@ -112,7 +113,7 @@
     setInterval(checkPOSData, 500);
     window.addEventListener('load', checkPOSData);
 
-    // 🎨 ฟังก์ชันวาดหน้าจอ (ปรับปรุงเรื่องความเสถียร)
+    // 🎨 ฟังก์ชันวาดหน้าจอ
     function updateCustomerUI(data) {
         if (!data) return;
 
@@ -163,16 +164,19 @@
         }
 
         // 2. อัปเดตตัวเลข
-        document.getElementById('displaySubTotal').innerText = data.totalPrice || "฿0.00";
-        document.getElementById('displayGrandTotal').innerText = data.grandTotal || "฿0.00";
+        let subTotalEl = document.getElementById('displaySubTotal');
+        if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
+        
+        let grandTotalEl = document.getElementById('displayGrandTotal');
+        if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
         // 3. จัดการเงินทอน
         const changeBox = document.getElementById('changeContainer');
         if (data.change && parseFloat(data.change) > 0) {
             document.getElementById('displayChange').innerText = "฿" + data.change;
-            changeBox.classList.remove('hidden');
+            if(changeBox) changeBox.classList.remove('hidden');
         } else {
-            changeBox.classList.add('hidden');
+            if(changeBox) changeBox.classList.add('hidden');
         }
 
         // 4. จัดการ QR Code
@@ -181,11 +185,11 @@
         
         if (data.status === 'qr_payment' && data.qrImage) {
             document.getElementById('qrDisplayImage').src = data.qrImage;
-            adState.classList.add('hidden');
-            qrState.classList.remove('hidden');
+            if(adState) adState.classList.add('hidden');
+            if(qrState) qrState.classList.remove('hidden');
         } else {
-            qrState.classList.add('hidden');
-            adState.classList.remove('hidden');
+            if(qrState) qrState.classList.add('hidden');
+            if(adState) adState.classList.remove('hidden');
         }
     }
   </script>
