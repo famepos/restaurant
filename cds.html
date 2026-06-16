@@ -172,6 +172,15 @@ function updateCustomerUI(data) {
             adState.classList.remove('hidden');
         }
     }
+
+    // เพิ่มโค้ดนี้เพื่อบังคับให้ดึงข้อมูล "ทันทีที่เปิดหน้าจอ"
+    window.addEventListener('load', function() {
+        let savedData = localStorage.getItem('famepos_customer_display');
+        if (savedData) {
+            updateCustomerUI(JSON.parse(savedData));
+        }
+    });
+    
   </script>
 </body>
 </html>
