@@ -6886,7 +6886,6 @@ function startDigitalClock() {
     if (dateEl) dateEl.innerText = dateStr;
   }, 1000);
 }
-
 function processLogout() {
   // 👉 ใช้ SweetAlert2 ดีไซน์หรูหรา แทนระบบแจ้งเตือนของเบราว์เซอร์
   Swal.fire({
@@ -8479,46 +8478,24 @@ function syncCustomerDisplay(overrideStatus = null) {
         if (isQROpen) currentStatus = 'qr_payment';
         if (overrideStatus) currentStatus = overrideStatus; 
 
-        // 🌟 [เพิ่มใหม่] ค้นหารูปภาพสินค้าแนบไปกับตะกร้าด้วย
-        let enrichedCart = cart.map(item => {
-            let baseName = item.name;
-            let optionIndex = item.name.search(/ \[| \+/);
-            if (optionIndex !== -1) {
-                baseName = item.name.substring(0, optionIndex).trim();
-            }
-            
-            let imgUrl = "";
-            if (typeof allSalesProducts !== 'undefined') {
-                let matchedProd = allSalesProducts.find(p => p[1] === baseName);
-                if (matchedProd && matchedProd[8]) {
-                    imgUrl = matchedProd[8];
-                }
-            }
-            return {
-                name: item.name,
-                qty: item.qty,
-                price: item.price,
-                image: imgUrl // 👈 แนบลิงก์รูปไปตรงนี้
-            };
-        });
-
         let displayData = {
             status: currentStatus,
-            cart: enrichedCart, // 👈 ส่งตะกร้าที่อัปเกรดแล้วไปแทน
+            cart: cart,
             totalPrice: subTot,
             grandTotal: grandTot,
             change: changeAmt,
             qrImage: isQROpen ? qrImg : "",
             logoUrl: storeLogo,  
             storeName: storeName,
-            timestamp: Date.now() 
+            timestamp: Date.now() // บังคับสร้างข้อมูลใหม่เสมอ
         };
 
         localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
     } catch(e) {
-        console.error("Sync Error:", e); 
+        console.error("Sync Error:", e); // ดักจับ Error ไม่ให้กระทบระบบอื่น
     }
 }
+
 
 // ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
 window.addEventListener('load', function() { loadModifiersData(); });
