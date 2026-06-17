@@ -83,7 +83,7 @@
     </section>
   </main>
 
-<script>
+  <script>
     // ⏱️ นาฬิกา
     setInterval(() => {
         const now = new Date();
@@ -103,7 +103,7 @@
         } catch(e) {}
     }
     
-    // บังคับให้วนลูปเช็คทุก 0.5 วินาที (แก้บั๊กจอไม่ยอมรีเฟรช)
+    // บังคับให้วนลูปเช็คทุก 0.5 วินาที
     setInterval(checkPOSData, 500);
     window.addEventListener('load', checkPOSData);
 
