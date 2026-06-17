@@ -3073,7 +3073,7 @@ function addToCart(name, price) {
     function decreaseQty(index) { if(cart[index].qty > 1) cart[index].qty--; else cart.splice(index, 1); updateCartUI(); }
     function removeItem(index) { cart.splice(index, 1); updateCartUI(); }
     
-// อัปเดตหน้าจอส่วนตะกร้าสินค้า (เพิ่มรูปภาพ และจัด Option ลงบรรทัดใหม่)
+// อัปเดตหน้าจอส่วนตะกร้าสินค้า (เพิ่มรูปภาพ และจัด Option เป็นป้ายสวยๆ)
 function updateCartUI() {
     let total = 0;
     let newHtml = '';
@@ -3084,13 +3084,21 @@ function updateCartUI() {
         
         // 1. แยกชื่อสินค้าหลัก และ ตัวเลือกเสริม ออกจากกัน
         let baseName = item.name;
-        let optionsText = "";
+        let optionsHtml = "";
         
         // ค้นหาจุดเริ่มต้นของออปชัน (เว้นวรรคแล้วตามด้วย [ หรือ +)
         let optionIndex = item.name.search(/ \[| \+/); 
         if (optionIndex !== -1) {
-            baseName = item.name.substring(0, optionIndex); // ชื่อหลัก
-            optionsText = item.name.substring(optionIndex).trim(); // ออปชัน
+            baseName = item.name.substring(0, optionIndex).trim(); // ชื่อหลัก
+            
+            // 🌟 ใช้ Regex ดึงข้อความในวงเล็บออกมาหั่นทำเป็นป้าย Badge สวยๆ
+            let match = item.name.match(/\[(.*?)\]/);
+            if (match && match[1]) {
+                let opts = match[1].split(',');
+                optionsHtml = `<div class="flex flex-wrap gap-1 mt-1">` + 
+                    opts.map(opt => `<span class="bg-rose-50 text-rose-600 px-2 py-0.5 rounded-md text-[11px] font-bold border border-rose-200 shadow-sm">${opt.trim()}</span>`).join('') + 
+                `</div>`;
+            }
         }
 
         // 2. ค้นหารูปภาพจากฐานข้อมูลที่โหลดมา โดยใช้ชื่อหลัก (baseName)
@@ -3102,14 +3110,10 @@ function updateCartUI() {
             }
         }
 
-        // 3. เตรียม HTML สำหรับรูปภาพ และ ตัวเลือก
+        // 3. เตรียม HTML สำหรับรูปภาพ
         let imgTag = imgUrl 
             ? `<img src="${imgUrl}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 shrink-0">` 
             : `<div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl border border-rose-100 shrink-0">📦</div>`;
-        
-        let optionsHtml = optionsText 
-            ? `<div class="text-xs text-rose-700 font-semibold mt-0.5 leading-tight">${optionsText}</div>` 
-            : '';
 
         // 4. วาดการ์ดสินค้าแต่ละชิ้นในตะกร้า
         newHtml += `
@@ -3138,7 +3142,11 @@ function updateCartUI() {
     document.getElementById('cartItems').innerHTML = newHtml; 
     document.getElementById('totalPrice').innerText = '฿' + total.toFixed(2);
     calculateChange();
-    syncCustomerDisplay();
+    
+    // ส่งอัปเดตไปที่หน้าจอลูกค้าด้วย
+    if (typeof syncCustomerDisplay === 'function') {
+        syncCustomerDisplay();
+    }
 }
 
 function renderPaymentButtons() {
