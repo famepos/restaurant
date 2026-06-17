@@ -145,7 +145,7 @@
         <span class="text-xl">⏱️</span> <span class="hidden lg:block">จัดการกะ</span>
       </a>
       
-      <a id="nav-cds" onclick="window.open('https://famepos.github.io/Coffee/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
+ <a id="nav-cds" onclick="syncCustomerDisplay(); window.open('https://famepos.github.io/Coffee/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
         <span class="text-xl">🖥️</span> <span class="hidden lg:block">หน้าจอลูกค้า (CDS)</span>
       </a>
 
@@ -6911,6 +6911,12 @@ function processLogout() {
       // ล้างความจำการ Login ในเครื่องออกไป
       localStorage.removeItem('famepos_user');
       
+      // 🧹 [เพิ่มโค้ดส่วนนี้] สั่งล้างตะกร้าและรีเซ็ตหน้าจอลูกค้าตอนพนักงานกดออกจากระบบ
+      cart = [];
+      if (typeof syncCustomerDisplay === 'function') {
+          syncCustomerDisplay('idle');
+      }
+      
       let statusBox = document.getElementById('userStatusContainer');
       if (statusBox) statusBox.innerHTML = '';
       
@@ -6967,9 +6973,15 @@ function applyRolePermissions() {
 
 // ระบบดึงข้อมูลร้านและเช็กแต้มทันทีที่เปิดแอปพลิเคชันขึ้นมา
 window.addEventListener('load', function() {
-    startDigitalClock(); // รันนาฬิกาเรียลไทม์ [cite: 2704]
+    startDigitalClock(); // รันนาฬิกาเรียลไทม์ 
 
-    if (typeof loadBranchesData === 'function') loadBranchesData(); // ซิงค์สาขาจากชีตมารอในหน่วยความจำ [cite: 2704]
+    // 🧹 [เพิ่มโค้ดส่วนนี้] สั่งล้างตะกร้าและอัปเดตจอลูกค้าให้เป็น "ปัจจุบัน" ทันทีที่เปิดเว็บ
+    cart = [];
+    if (typeof syncCustomerDisplay === 'function') {
+        syncCustomerDisplay('idle');
+    }
+
+    if (typeof loadBranchesData === 'function') loadBranchesData(); // ซิงค์สาขาจากชีตมารอในหน่วยความจำ 
     
     // ตรวจสอบว่าในเครื่องมีสถานะพนักงานล็อกอินค้างไว้หรือไม่
     let savedUser = localStorage.getItem('famepos_user');
@@ -6980,15 +6992,15 @@ window.addEventListener('load', function() {
         window.currentRole = res.role;
         window.currentBranch = res.branch;
         
-        document.getElementById('loginOverlay').classList.add('hidden'); // ซ่อนแผงล็อกอิน [cite: 2705]
-        updateUserStatusUI(); // สแตมป์โปรไฟล์ซ้ายล่าง [cite: 2705]
-        applyRolePermissions(); // จัดสิทธิ์เมนู [cite: 2705]
+        document.getElementById('loginOverlay').classList.add('hidden'); // ซ่อนแผงล็อกอิน 
+        updateUserStatusUI(); // สแตมป์โปรไฟล์ซ้ายล่าง 
+        applyRolePermissions(); // จัดสิทธิ์เมนู 
         
-        if(typeof loadProducts === 'function') loadProducts(); // โหลดหน้าสินค้า [cite: 2705]
-        if(typeof loadShiftHistory === 'function') loadShiftHistory(); // เช็กกะทำงาน [cite: 2705]
+        if(typeof loadProducts === 'function') loadProducts(); // โหลดหน้าสินค้า 
+        if(typeof loadShiftHistory === 'function') loadShiftHistory(); // เช็กกะทำงาน 
     }
     
-    if(typeof loadMembers === 'function') loadMembers(); // ดึงประวัติเมมเบอร์ [cite: 2705]
+    if(typeof loadMembers === 'function') loadMembers(); // ดึงประวัติเมมเบอร์ 
 
     // อัปเดตจำนวนยอดบิลพักทันทีเมื่อเปิดหน้าจอสำเร็จ
     if (typeof updateHeldCount === 'function') {
@@ -8448,36 +8460,41 @@ function syncDeliveryDropdownUI() {
 // เรียกใช้งานอัตโนมัติเมื่อเปิดแอป
 syncDeliveryDropdownUI();
 
-// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display)
+// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - ป้องกัน Error 100%
 function syncCustomerDisplay(overrideStatus = null) {
-    let subTot = document.getElementById('totalPrice') ? document.getElementById('totalPrice').innerText : "฿0.00";
-    let grandTot = document.getElementById('modalGrandTotal') ? document.getElementById('modalGrandTotal').innerText : "฿0.00";
-    let qrImg = document.getElementById('qrModalImage') ? document.getElementById('qrModalImage').src : "";
-    let changeAmt = document.getElementById('changeAmount') ? document.getElementById('changeAmount').innerText : "0.00";
-    
-    let storeLogo = document.getElementById('sidebarLogo') ? document.getElementById('sidebarLogo').src : "https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png";
-    let storeName = document.getElementById('sidebarStoreName') ? document.getElementById('sidebarStoreName').innerText : "FamePOS";
+    try {
+        let subTot = document.getElementById('totalPrice') ? document.getElementById('totalPrice').innerText : "฿0.00";
+        let grandTot = document.getElementById('modalGrandTotal') ? document.getElementById('modalGrandTotal').innerText : "฿0.00";
+        let qrImg = document.getElementById('qrModalImage') ? document.getElementById('qrModalImage').src : "";
+        let changeAmt = document.getElementById('changeAmount') ? document.getElementById('changeAmount').innerText : "0.00";
+        
+        let storeLogo = document.getElementById('sidebarLogo') ? document.getElementById('sidebarLogo').src : "";
+        let storeName = document.getElementById('sidebarStoreName') ? document.getElementById('sidebarStoreName').innerText : "FamePOS";
 
-    let isQROpen = !document.getElementById('qrModal').classList.contains('hidden');
-    
-    let currentStatus = 'shopping';
-    if (cart.length === 0) currentStatus = 'idle';
-    if (isQROpen) currentStatus = 'qr_payment';
-    if (overrideStatus) currentStatus = overrideStatus; 
+        let qrModal = document.getElementById('qrModal');
+        let isQROpen = qrModal && !qrModal.classList.contains('hidden');
+        
+        let currentStatus = 'shopping';
+        if (cart.length === 0) currentStatus = 'idle';
+        if (isQROpen) currentStatus = 'qr_payment';
+        if (overrideStatus) currentStatus = overrideStatus; 
 
-    let displayData = {
-        status: currentStatus,
-        cart: cart,
-        totalPrice: subTot,
-        grandTotal: grandTot,
-        change: changeAmt,
-        qrImage: isQROpen ? qrImg : "",
-        logoUrl: storeLogo,  
-        storeName: storeName,
-        timestamp: Date.now() // 👈 ใส่บรรทัดนี้เพิ่ม เพื่อบังคับอัปเดตเสมอ!
-    };
+        let displayData = {
+            status: currentStatus,
+            cart: cart,
+            totalPrice: subTot,
+            grandTotal: grandTot,
+            change: changeAmt,
+            qrImage: isQROpen ? qrImg : "",
+            logoUrl: storeLogo,  
+            storeName: storeName,
+            timestamp: Date.now() // บังคับสร้างข้อมูลใหม่เสมอ
+        };
 
-    localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
+        localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
+    } catch(e) {
+        console.error("Sync Error:", e); // ดักจับ Error ไม่ให้กระทบระบบอื่น
+    }
 }
 
 
