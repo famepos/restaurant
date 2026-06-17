@@ -144,6 +144,10 @@
       <a id="nav-shift" onclick="showView('shift')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
         <span class="text-xl">⏱️</span> <span class="hidden lg:block">จัดการกะ</span>
       </a>
+
+      <a id="nav-table-plan" onclick="showView('tablePlan')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
+        <span class="text-xl">🍽️</span> <span class="hidden lg:block">ผังโต๊ะ</span>
+      </a>
       
  <a id="nav-cds" onclick="syncCustomerDisplay(); window.open('https://famepos.github.io/Coffee/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
         <span class="text-xl">🖥️</span> <span class="hidden lg:block">หน้าจอลูกค้า (CDS)</span>
@@ -280,6 +284,24 @@
 </div>
 
     <!-- ================= หน้าจอ: บิล ================= -->
+
+    <div id="tablePlanView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
+      <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 gap-4">
+          <div>
+              <h1 class="text-3xl font-bold text-rose-800 flex items-center gap-2">🍽️ ผังโต๊ะร้านอาหาร</h1>
+              <p class="text-gray-500 text-sm mt-1 font-medium">กดที่โต๊ะสีเขียวเพื่อเปิดบิลใหม่ หรือกดโต๊ะสีแดงเพื่อคิดเงิน</p>
+          </div>
+          <button onclick="loadTablePlanDashboard()" class="px-5 py-3 bg-white text-rose-600 font-bold rounded-xl border-2 border-rose-200 hover:bg-rose-50 transition shadow-sm flex items-center gap-2 whitespace-nowrap">
+              🔄 อัปเดตผังโต๊ะ
+          </button>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 content-start" id="tablePlanGrid">
+           </div>
+      </div>
+    </div>
+
 </div> <div id="historyView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
 <div class="w-full mt-6 mb-6 min-h-[calc(100vh-3rem)] bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col">        
         <div class="flex flex-col xl:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
@@ -2857,19 +2879,20 @@ function updateStoreUI(settings) {
 
   toggleCustomReceiptType();
 }
+
 function showView(viewName) {
     // 1. รวบรวมหน้าจอหลักทั้งหมดให้ครบ
     let views = [
         'salesView', 'settingsView', 'historyView', 'productManagementView', 
         'dashboardView', 'inventoryView', 'stockAdjustView', 'membershipView', 
-        'employeeView', 'shiftView', 'branchManagementView', 'tableManagementView'
+        'employeeView', 'shiftView', 'branchManagementView', 'tableManagementView', 'tablePlanView'
     ];
     views.forEach(v => {
         let el = document.getElementById(v);
         if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
     });
-    
-    // 2. ซ่อนหน้ารายละเอียดตั้งค่าชั้นในทั้งหมด (เพิ่มเดลิเวอรี่และโต๊ะเข้าไปในแก๊งนี้ด้วย)
+
+    // 2. ซ่อนหน้ารายละเอียดตั้งค่าชั้นในทั้งหมด
     let settingsViews = [
         'storeInfoView', 'paymentSettingsView', 'receiptSettingsView', 
         'taxServiceSettingsView', 'employeeSettingsView', 'barcodeSettingsView',
@@ -2877,11 +2900,10 @@ function showView(viewName) {
     ];
     settingsViews.forEach(id => { let el = document.getElementById(id); if (el) el.classList.add('hidden'); });
 
-    // 3. จัดการสไตล์ไฮไลต์ของเมนูด้านซ้าย (Sidebar)
+    // 3. จัดการสไตล์ไฮไลต์ของเมนูด้านซ้าย
     let inactiveClass = "flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition";
     let activeClass = "flex items-center gap-3 text-rose-700 bg-rose-50 p-3 rounded-xl font-semibold cursor-pointer transition";
-
-    let navIds = ['nav-sales', 'nav-history', 'nav-settings', 'nav-products', 'nav-dashboard', 'nav-inventory', 'nav-stock_adjust', 'nav-membership', 'nav-shift'];
+    let navIds = ['nav-sales', 'nav-history', 'nav-settings', 'nav-products', 'nav-dashboard', 'nav-inventory', 'nav-stock_adjust', 'nav-membership', 'nav-shift', 'nav-table-plan'];
     navIds.forEach(id => {
         let el = document.getElementById(id);
         if(el) el.className = inactiveClass;
@@ -2889,12 +2911,20 @@ function showView(viewName) {
 
     // 4. แสดงหน้าจอเดี่ยวตามที่สั่ง
     if (viewName === 'sales') {
-        let el = document.getElementById('salesView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('salesView');
+        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-sales'); if(nav) nav.className = activeClass;
         if(typeof loadProducts === 'function') loadProducts();
     } 
+    else if (viewName === 'tablePlan') { // 👈 เพิ่มเงื่อนไขหน้าผังโต๊ะ
+        let el = document.getElementById('tablePlanView');
+        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let nav = document.getElementById('nav-table-plan'); if(nav) nav.className = activeClass;
+        if(typeof loadTablePlanDashboard === 'function') loadTablePlanDashboard();
+    }
     else if (viewName === 'history') {
-        let el = document.getElementById('historyView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('historyView');
+        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-history'); if(nav) nav.className = activeClass;
         let today = new Date();
         today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
@@ -2906,27 +2936,32 @@ function showView(viewName) {
         let nav = document.getElementById('nav-settings'); if(nav) nav.className = activeClass;
     }
     else if (viewName === 'products') {
-        let el = document.getElementById('productManagementView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('productManagementView');
+        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-products'); if(nav) nav.className = activeClass;
         if(typeof loadAdminProducts === 'function') loadAdminProducts();
     }
     else if (viewName === 'dashboard') {
-        let el = document.getElementById('dashboardView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('dashboardView');
+        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-dashboard'); if(nav) nav.className = activeClass;
         if(typeof initDashboard === 'function') initDashboard();
     }
     else if (viewName === 'inventory') {
-        let el = document.getElementById('inventoryView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('inventoryView');
+        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-inventory'); if(nav) nav.className = activeClass;
         if(typeof renderStockList === 'function') renderStockList(); 
     }
     else if (viewName === 'membership') {
-        let el = document.getElementById('membershipView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('membershipView');
+        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-membership'); if(nav) nav.className = activeClass;
         if(typeof loadMembers === 'function') loadMembers();
     }
     else if (viewName === 'employee') {
-        let el = document.getElementById('employeeView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('employeeView');
+        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-settings'); if(nav) nav.className = activeClass;
         if(typeof loadEmployees === 'function') loadEmployees();
     }
@@ -2946,7 +2981,7 @@ function showView(viewName) {
     else if (viewName === 'table') {
         let tableView = document.getElementById('tableManagementView');
         if (tableView) { tableView.classList.remove('hidden'); tableView.classList.add('flex'); }
-        let navSettings = document.getElementById('nav-settings'); 
+        let navSettings = document.getElementById('nav-settings');
         if(navSettings) navSettings.className = activeClass;
         if(typeof loadTablesData === 'function') loadTablesData();
     }
@@ -3237,7 +3272,6 @@ function setPaymentType(type) {
     }
     calculateChange();
     if (typeof syncCustomerDisplay === 'function') syncCustomerDisplay();
-
 }
 
 
@@ -3627,7 +3661,7 @@ function finishRealTime() {
   document.getElementById('discountInput').value = "0";
   document.getElementById('customerPhone').value = "";
 
-    if (typeof setPaymentType === 'function') setPaymentType('เงินสด');
+  if (typeof setPaymentType === 'function') setPaymentType('เงินสด');
   
   // 🧼🧹 ล้างข้อมูลระบบโต๊ะและข้อมูลแอปเดลิเวอรี่ให้กลับเป็นว่างเปล่า
   currentOrderType = 'ยังไม่ระบุ';
@@ -8527,10 +8561,98 @@ function syncCustomerDisplay(overrideStatus = null) {
         console.error("Sync Error:", e); 
     }
 }
+
 // ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
 window.addEventListener('load', function() { loadModifiersData(); });
 
+// ============================================
+// 🍽️ ระบบผังโต๊ะอัจฉริยะ (Table Plan Dashboard)
+// ============================================
 
+// 1. ดึงข้อมูลโต๊ะมาวาดลงหน้าจอ
+function loadTablePlanDashboard() {
+    let grid = document.getElementById('tablePlanGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = '<div class="col-span-full text-center text-rose-500 py-12 font-bold text-xl animate-pulse">⏳ กำลังโหลดผังโต๊ะ...</div>';
+    
+    // วิ่งไปขอข้อมูลโต๊ะจากฐานข้อมูลหลังบ้าน
+    google.script.run.withSuccessHandler(function(tables) {
+        window.globalTablesList = tables; 
+        
+        if (!tables || tables.length === 0) {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-12 font-bold text-xl">ยังไม่มีข้อมูลโต๊ะ ไปเพิ่มโต๊ะที่เมนูตั้งค่าได้เลยครับ 🪑</div>';
+            return;
+        }
+
+        let html = '';
+        tables.forEach(table => {
+            let tableName = table.name || table[1]; // รองรับข้อมูลทั้งจาก Object และ Array
+            
+            // เช็คว่าโต๊ะนี้มี "บิลพัก" ค้างอยู่ไหม
+            let activeOrderIndex = heldOrders.findIndex(o => o.tableNo === tableName);
+            let hasOrder = activeOrderIndex !== -1;
+            
+            // ถ้ามีบิลพัก ถือว่าโต๊ะไม่ว่าง (สีแดง) ถ้าไม่มีคือโต๊ะว่าง (สีเขียว)
+            let isOccupied = hasOrder; 
+            
+            let bgClass = isOccupied ? 'bg-rose-50 border-rose-200' : 'bg-emerald-50 border-emerald-200';
+            let textClass = isOccupied ? 'text-rose-800' : 'text-emerald-800';
+            let icon = isOccupied ? '🍽️' : '🟢';
+            let statusText = isOccupied ? 'มีออเดอร์ค้าง' : 'โต๊ะว่าง';
+            
+            let orderAmountHtml = '';
+            if (hasOrder) {
+                let orderTotal = heldOrders[activeOrderIndex].total;
+                orderAmountHtml = `<div class="text-sm font-bold text-rose-500 mt-1 bg-white px-2 py-0.5 rounded-lg border border-rose-100 shadow-sm">บิล: ฿${orderTotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</div>`;
+            }
+
+            // ตั้งค่าคำสั่งเวลากดโต๊ะ
+            let actionCall = isOccupied ? `openTableOrder('${tableName}', ${activeOrderIndex})` : `openNewTable('${tableName}')`;
+
+            html += `
+            <div onclick="${actionCall}" class="flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 ${bgClass} cursor-pointer hover:-translate-y-1 transition transform shadow-sm">
+                <div class="text-4xl mb-2">${icon}</div>
+                <h3 class="text-xl font-bold ${textClass} text-center leading-tight line-clamp-2">${tableName}</h3>
+                <p class="text-xs font-bold ${isOccupied ? 'text-rose-400' : 'text-emerald-500'} mt-1">${statusText}</p>
+                ${orderAmountHtml}
+            </div>`;
+        });
+        grid.innerHTML = html;
+    }).getTablesData();
+}
+
+// 2. เวลากดโต๊ะที่ว่าง (สีเขียว)
+function openNewTable(tableName) {
+    if (cart.length > 0) {
+        showToast("ตะกร้าปัจจุบันมีสินค้าอยู่ กรุณาชำระเงินหรือพักบิลปัจจุบันก่อนเปิดโต๊ะใหม่ครับ", "error");
+        return;
+    }
+    
+    showView('sales'); // เด้งไปหน้าขาย
+    
+    // ตั้งค่าเป็นโหมด "ทานที่ร้าน" และใส่ชื่อโต๊ะให้อัตโนมัติ
+    let btnDineIn = document.getElementById('btnOrderDineIn');
+    setOrderType('DineIn', btnDineIn, true); 
+    document.getElementById('inputTableNo').value = tableName;
+    let display = document.getElementById('displaySelectedTable');
+    if(display) display.innerText = tableName;
+    
+    showToast(`เปิดโต๊ะ ${tableName} เรียบร้อย สั่งอาหารได้เลยครับ!`, "success");
+}
+
+// 3. เวลากดโต๊ะที่มีลูกค้าอยู่แล้ว (สีแดง)
+function openTableOrder(tableName, orderIndex) {
+    if (cart.length > 0) {
+        showToast("ตะกร้ามีสินค้าอยู่ กรุณาเคลียร์ตะกร้าหรือพักบิลปัจจุบันก่อนเรียกบิลโต๊ะนี้ครับ", "error");
+        return;
+    }
+    
+    // ดึงบิลของโต๊ะนั้นกลับมาหน้าขาย
+    processRecall(orderIndex);
+    showView('sales');
+    showToast(`ดึงรายการอาหารของโต๊ะ ${tableName} เรียบร้อยแล้ว`, "success");
+}
 
   </script>
 </body>
