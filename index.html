@@ -3626,6 +3626,8 @@ function finishRealTime() {
   document.getElementById('cashInput').innerText = "0"; 
   document.getElementById('discountInput').value = "0";
   document.getElementById('customerPhone').value = "";
+
+    if (typeof setPaymentType === 'function') setPaymentType('เงินสด');
   
   // 🧼🧹 ล้างข้อมูลระบบโต๊ะและข้อมูลแอปเดลิเวอรี่ให้กลับเป็นว่างเปล่า
   currentOrderType = 'ยังไม่ระบุ';
