@@ -107,10 +107,11 @@
     setInterval(checkPOSData, 500);
     window.addEventListener('load', checkPOSData);
 
-    // 🎨 ฟังก์ชันวาดหน้าจอ
+    // 🎨 ฟังก์ชันวาดหน้าจอ (อัปเกรดความสวยงาม + รูปภาพ)
     function updateCustomerUI(data) {
         if (!data) return;
 
+        // 0. อัปเดตโลโก้และชื่อร้าน
         if (data.logoUrl) {
             let logoEl = document.getElementById('displayLogo');
             if (logoEl) logoEl.src = data.logoUrl;
@@ -120,6 +121,7 @@
             if (storeNameEl) storeNameEl.innerText = data.storeName;
         }
 
+        // 1. อัปเดตตะกร้าสินค้า
         const cartContainer = document.getElementById('customerCartItems');
         if (!data.cart || data.cart.length === 0) {
             cartContainer.innerHTML = `
@@ -133,31 +135,47 @@
                 let baseName = item.name || "สินค้า";
                 let optionsHtml = '';
                 let optionIndex = baseName.search(/ \[| \+/); 
+                
+                // 🌟 แยกตัวเลือกมาทำเป็นป้าย Badge สวยๆ
                 if (optionIndex !== -1) {
-                    baseName = item.name.substring(0, optionIndex);
-                    let optionsText = item.name.substring(optionIndex).trim();
-                    optionsHtml = `<div class="text-sm font-semibold text-rose-500 mt-1">${optionsText}</div>`;
+                    baseName = item.name.substring(0, optionIndex).trim();
+                    let match = item.name.match(/\[(.*?)\]/);
+                    if (match && match[1]) {
+                        let opts = match[1].split(',');
+                        optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
+                            opts.map(opt => `<span class="bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-rose-200 shadow-sm">${opt.trim()}</span>`).join('') + 
+                        `</div>`;
+                    }
                 }
+
+                // 🌟 จัดการรูปภาพ (ถ้าร้านไม่ได้ใส่รูป จะแสดงไอคอนกล่องแทน)
+                let imgTag = item.image 
+                    ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-rose-100 shadow-sm shrink-0">` 
+                    : `<div class="w-16 h-16 rounded-2xl bg-rose-50 text-rose-400 flex items-center justify-center text-2xl border border-rose-100 shadow-sm shrink-0">📦</div>`;
+
                 html += `
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm fade-in mb-3">
-                    <div class="flex-1 pr-4">
-                        <div class="font-bold text-gray-800 text-xl">${baseName}</div>
+                <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
+                    ${imgTag}
+                    <div class="flex-1 min-w-0 py-1">
+                        <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
                         ${optionsHtml}
                     </div>
-                    <div class="font-bold text-gray-500 text-xl w-16 text-center">x${item.qty}</div>
-                    <div class="font-bold text-rose-600 text-xl w-28 text-right">฿${(item.price * item.qty).toFixed(2)}</div>
+                    <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
+                    <div class="font-bold text-rose-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
                 </div>`;
             });
             cartContainer.innerHTML = html;
             cartContainer.scrollTop = cartContainer.scrollHeight;
         }
 
+        // 2. อัปเดตตัวเลข
         let subTotalEl = document.getElementById('displaySubTotal');
         if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
         
         let grandTotalEl = document.getElementById('displayGrandTotal');
         if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
+        // 3. จัดการเงินทอน
         const changeBox = document.getElementById('changeContainer');
         if (data.change && parseFloat(data.change) > 0) {
             document.getElementById('displayChange').innerText = "฿" + data.change;
@@ -166,6 +184,7 @@
             if(changeBox) changeBox.classList.add('hidden');
         }
 
+        // 4. จัดการ QR Code
         const adState = document.getElementById('adState');
         const qrState = document.getElementById('qrState');
         if (data.status === 'qr_payment' && data.qrImage) {
