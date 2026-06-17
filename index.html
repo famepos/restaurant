@@ -8462,7 +8462,7 @@ function syncDeliveryDropdownUI() {
 // เรียกใช้งานอัตโนมัติเมื่อเปิดแอป
 syncDeliveryDropdownUI();
 
-// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - ป้องกัน Error 100%
+// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - Cloud Sync + คนละครึ่ง
 function syncCustomerDisplay(overrideStatus = null) {
     try {
         let subTot = document.getElementById('totalPrice') ? document.getElementById('totalPrice').innerText : "฿0.00";
@@ -8508,15 +8508,20 @@ function syncCustomerDisplay(overrideStatus = null) {
             logoUrl: storeLogo,  
             storeName: storeName,
             timestamp: Date.now(),
-            paymentMethod: selectedPayment // 👈 [เพิ่มตรงนี้] ส่งชื่อวิธีจ่ายเงินไปให้จอลูกค้ารู้ด้วย
+            paymentMethod: selectedPayment // 👈 ส่งวิธีจ่ายเงินไปให้จอลูกค้ารู้ด้วย (คนละครึ่ง)
         };
 
+        // 🚀 สั่งยิงข้อมูลตะกร้าล่าสุดขึ้นระบบ Cloud ของ Google
+        if(typeof google !== 'undefined' && google.script && google.script.run) {
+            google.script.run.updateCDSStateGS(JSON.stringify(displayData));
+        }
+
+        // (เก็บสำรองไว้ในเครื่อง เผื่อเน็ตหลุด)
         localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
     } catch(e) {
         console.error("Sync Error:", e); 
     }
 }
-
 
 // ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
 window.addEventListener('load', function() { loadModifiersData(); });
