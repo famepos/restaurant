@@ -84,7 +84,6 @@
   </main>
 
   <script>
-<script>
     // ⏱️ นาฬิกา
     setInterval(() => {
         const now = new Date();
@@ -92,25 +91,19 @@
         if(timeEl) timeEl.innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
     }, 1000);
 
-    // 🚀 ระบบดึงข้อมูลขั้นสุดยอด (ดักจับ + วนลูปเช็ค)
-    let lastUpdate = 0;
-    
+    // 🚀 ระบบดึงข้อมูลขั้นสุดยอด (เช็คการเปลี่ยนแปลงแบบวินาทีต่อวินาที)
+    let lastUpdateStr = "";
     function checkPOSData() {
         try {
-            let currentDataString = localStorage.getItem('famepos_customer_display');
-            if (currentDataString) {
-                let data = JSON.parse(currentDataString);
-                // อัปเดตก็ต่อเมื่อเวลา timestamp เปลี่ยนไปจากเดิมเท่านั้น
-                if (data.timestamp && data.timestamp !== lastUpdate) {
-                    lastUpdate = data.timestamp;
-                    updateCustomerUI(data);
-                }
+            let currentStr = localStorage.getItem('famepos_customer_display');
+            if (currentStr && currentStr !== lastUpdateStr) {
+                lastUpdateStr = currentStr;
+                updateCustomerUI(JSON.parse(currentStr));
             }
         } catch(e) {}
     }
-
-    // สั่งให้จับตาดูทั้ง 2 ระบบ (ปลอดภัย 100%)
-    window.addEventListener('storage', checkPOSData);
+    
+    // บังคับให้วนลูปเช็คทุก 0.5 วินาที
     setInterval(checkPOSData, 500);
     window.addEventListener('load', checkPOSData);
 
@@ -118,7 +111,6 @@
     function updateCustomerUI(data) {
         if (!data) return;
 
-        // 0. อัปเดตโลโก้และชื่อร้าน
         if (data.logoUrl) {
             let logoEl = document.getElementById('displayLogo');
             if (logoEl) logoEl.src = data.logoUrl;
@@ -128,7 +120,6 @@
             if (storeNameEl) storeNameEl.innerText = data.storeName;
         }
 
-        // 1. อัปเดตตะกร้าสินค้า
         const cartContainer = document.getElementById('customerCartItems');
         if (!data.cart || data.cart.length === 0) {
             cartContainer.innerHTML = `
@@ -142,15 +133,13 @@
                 let baseName = item.name || "สินค้า";
                 let optionsHtml = '';
                 let optionIndex = baseName.search(/ \[| \+/); 
-                
                 if (optionIndex !== -1) {
                     baseName = item.name.substring(0, optionIndex);
                     let optionsText = item.name.substring(optionIndex).trim();
                     optionsHtml = `<div class="text-sm font-semibold text-rose-500 mt-1">${optionsText}</div>`;
                 }
-
                 html += `
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm fade-in">
+                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm fade-in mb-3">
                     <div class="flex-1 pr-4">
                         <div class="font-bold text-gray-800 text-xl">${baseName}</div>
                         ${optionsHtml}
@@ -160,18 +149,15 @@
                 </div>`;
             });
             cartContainer.innerHTML = html;
-            // เลื่อนบาร์ลงล่างสุดอัตโนมัติ
             cartContainer.scrollTop = cartContainer.scrollHeight;
         }
 
-        // 2. อัปเดตตัวเลข
         let subTotalEl = document.getElementById('displaySubTotal');
         if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
         
         let grandTotalEl = document.getElementById('displayGrandTotal');
         if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
-        // 3. จัดการเงินทอน
         const changeBox = document.getElementById('changeContainer');
         if (data.change && parseFloat(data.change) > 0) {
             document.getElementById('displayChange').innerText = "฿" + data.change;
@@ -180,10 +166,8 @@
             if(changeBox) changeBox.classList.add('hidden');
         }
 
-        // 4. จัดการ QR Code
         const adState = document.getElementById('adState');
         const qrState = document.getElementById('qrState');
-        
         if (data.status === 'qr_payment' && data.qrImage) {
             document.getElementById('qrDisplayImage').src = data.qrImage;
             if(adState) adState.classList.add('hidden');
