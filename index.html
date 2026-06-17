@@ -8460,7 +8460,7 @@ function syncDeliveryDropdownUI() {
 // เรียกใช้งานอัตโนมัติเมื่อเปิดแอป
 syncDeliveryDropdownUI();
 
-// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - ป้องกัน Error 100%
+// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - Cloud Sync
 function syncCustomerDisplay(overrideStatus = null) {
     try {
         let subTot = document.getElementById('totalPrice') ? document.getElementById('totalPrice').innerText : "฿0.00";
@@ -8479,21 +8479,39 @@ function syncCustomerDisplay(overrideStatus = null) {
         if (isQROpen) currentStatus = 'qr_payment';
         if (overrideStatus) currentStatus = overrideStatus; 
 
+        let enrichedCart = cart.map(item => {
+            let baseName = item.name;
+            let optionIndex = item.name.search(/ \[| \+/);
+            if (optionIndex !== -1) {
+                baseName = item.name.substring(0, optionIndex).trim();
+            }
+            let imgUrl = "";
+            if (typeof allSalesProducts !== 'undefined') {
+                let matchedProd = allSalesProducts.find(p => p[1] === baseName);
+                if (matchedProd && matchedProd[8]) imgUrl = matchedProd[8];
+            }
+            return { name: item.name, qty: item.qty, price: item.price, image: imgUrl };
+        });
+
         let displayData = {
             status: currentStatus,
-            cart: cart,
+            cart: enrichedCart, 
             totalPrice: subTot,
             grandTotal: grandTot,
             change: changeAmt,
             qrImage: isQROpen ? qrImg : "",
             logoUrl: storeLogo,  
             storeName: storeName,
-            timestamp: Date.now() // บังคับสร้างข้อมูลใหม่เสมอ
+            timestamp: Date.now() 
         };
 
+        // 🚀 สั่งยิงข้อมูลตะกร้าล่าสุดขึ้นระบบ Cloud ของ Google
+        google.script.run.updateCDSStateGS(JSON.stringify(displayData));
+        
+        // (เก็บสำรองไว้ในเครื่อง เผื่อเน็ตหลุด)
         localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
     } catch(e) {
-        console.error("Sync Error:", e); // ดักจับ Error ไม่ให้กระทบระบบอื่น
+        console.error("Sync Error:", e); 
     }
 }
 
