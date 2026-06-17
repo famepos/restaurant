@@ -83,7 +83,43 @@
     </section>
   </main>
 
-  <script>
+<script>
+    // 🔗 1. เอาลิงก์ Web App ของ Google Script มาใส่ที่นี่ (เพื่อให้จอลูกค้าดึงข้อมูลจาก Cloud ได้)
+    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+
+    // 🚀 2. ระบบ Magic Proxy สำหรับจอลูกค้า
+    const google = {
+        script: {
+            get run() {
+                let successCb = null;
+                let failureCb = null;
+                const proxy = new Proxy({}, {
+                    get: function(target, prop) {
+                        if (prop === 'withSuccessHandler') { return function(cb) { successCb = cb; return proxy; }; }
+                        if (prop === 'withFailureHandler') { return function(cb) { failureCb = cb; return proxy; }; }
+                        return function(...args) {
+                            fetch(API_URL, {
+                                method: "POST",
+                                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                                body: JSON.stringify({ action: prop, args: args }),
+                                redirect: "follow"
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if(data.status === "Success" && successCb) successCb(data.result);
+                                else if (data.status !== "Success" && failureCb) failureCb(data.message);
+                            }).catch(err => {
+                                if(failureCb) failureCb(err);
+                                else console.error("Fetch Error:", err);
+                            });
+                        };
+                    }
+                });
+                return proxy;
+            }
+        }
+    };
+
     // ⏱️ นาฬิกา
     setInterval(() => {
         const now = new Date();
@@ -91,34 +127,38 @@
         if(timeEl) timeEl.innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
     }, 1000);
 
-    // 🚀 ระบบดึงข้อมูลขั้นสุดยอด (เช็คการเปลี่ยนแปลงแบบวินาทีต่อวินาที)
+    // ☁️ 3. ระบบดึงข้อมูลจาก Cloud อัตโนมัติ ทุกๆ 1.5 วินาที
     let lastUpdateStr = "";
-    function checkPOSData() {
-        try {
-            let currentStr = localStorage.getItem('famepos_customer_display');
-            if (currentStr && currentStr !== lastUpdateStr) {
-                lastUpdateStr = currentStr;
-                updateCustomerUI(JSON.parse(currentStr));
-            }
-        } catch(e) {}
+    let isFetching = false;
+
+    function checkCloudData() {
+        if (isFetching) return; // ป้องกันดึงข้อมูลซ้อนกันถ้าเน็ตมือถือช้า
+        isFetching = true;
+
+        google.script.run
+            .withSuccessHandler(function(currentStr) {
+                isFetching = false;
+                if (currentStr && currentStr !== lastUpdateStr) {
+                    lastUpdateStr = currentStr;
+                    updateCustomerUI(JSON.parse(currentStr));
+                }
+            })
+            .withFailureHandler(function(err) {
+                isFetching = false;
+                console.error("Cloud Sync Error:", err);
+            })
+            .getCDSStateGS();
     }
     
-    // บังคับให้วนลูปเช็คทุก 0.5 วินาที
-    setInterval(checkPOSData, 500);
-    window.addEventListener('load', checkPOSData);
+    // วนลูปดึงข้อมูลทุกๆ 1.5 วินาที (เร็วพอดีๆ และไม่ทำให้ Google ล่ม)
+    setInterval(checkCloudData, 1500);
+    window.addEventListener('load', checkCloudData);
 
-    // 🎨 ฟังก์ชันวาดหน้าจอ
+    // 🎨 ฟังก์ชันวาดหน้าจอ (เหมือนเดิม)
     function updateCustomerUI(data) {
         if (!data) return;
-
-        if (data.logoUrl) {
-            let logoEl = document.getElementById('displayLogo');
-            if (logoEl) logoEl.src = data.logoUrl;
-        }
-        if (data.storeName) {
-            let storeNameEl = document.getElementById('displayStoreName');
-            if (storeNameEl) storeNameEl.innerText = data.storeName;
-        }
+        if (data.logoUrl) { let logoEl = document.getElementById('displayLogo'); if (logoEl) logoEl.src = data.logoUrl; }
+        if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
 
         const cartContainer = document.getElementById('customerCartItems');
         if (!data.cart || data.cart.length === 0) {
@@ -133,19 +173,31 @@
                 let baseName = item.name || "สินค้า";
                 let optionsHtml = '';
                 let optionIndex = baseName.search(/ \[| \+/); 
+                
                 if (optionIndex !== -1) {
-                    baseName = item.name.substring(0, optionIndex);
-                    let optionsText = item.name.substring(optionIndex).trim();
-                    optionsHtml = `<div class="text-sm font-semibold text-rose-500 mt-1">${optionsText}</div>`;
+                    baseName = item.name.substring(0, optionIndex).trim();
+                    let match = item.name.match(/\[(.*?)\]/);
+                    if (match && match[1]) {
+                        let opts = match[1].split(',');
+                        optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
+                            opts.map(opt => `<span class="bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-rose-200 shadow-sm">${opt.trim()}</span>`).join('') + 
+                        `</div>`;
+                    }
                 }
+
+                let imgTag = item.image 
+                    ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-rose-100 shadow-sm shrink-0">` 
+                    : `<div class="w-16 h-16 rounded-2xl bg-rose-50 text-rose-400 flex items-center justify-center text-2xl border border-rose-100 shadow-sm shrink-0">📦</div>`;
+
                 html += `
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm fade-in mb-3">
-                    <div class="flex-1 pr-4">
-                        <div class="font-bold text-gray-800 text-xl">${baseName}</div>
+                <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
+                    ${imgTag}
+                    <div class="flex-1 min-w-0 py-1">
+                        <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
                         ${optionsHtml}
                     </div>
-                    <div class="font-bold text-gray-500 text-xl w-16 text-center">x${item.qty}</div>
-                    <div class="font-bold text-rose-600 text-xl w-28 text-right">฿${(item.price * item.qty).toFixed(2)}</div>
+                    <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
+                    <div class="font-bold text-rose-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
                 </div>`;
             });
             cartContainer.innerHTML = html;
