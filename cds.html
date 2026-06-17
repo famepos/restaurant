@@ -73,10 +73,14 @@
             <p class="text-gray-500 font-medium">สมัครสมาชิกเพื่อสะสมแต้มและรับส่วนลด</p>
          </div>
 
-         <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4">
-            <h3 class="text-2xl font-bold text-rose-800 mb-2">📱 สแกน QR เพื่อชำระเงิน</h3>
-            <img id="qrDisplayImage" src="" class="w-64 h-64 object-contain border-4 border-rose-100 p-2 rounded-2xl shadow-sm mb-4">
-            <p class="text-gray-500 font-medium animate-pulse">กรุณาสแกนผ่านแอปธนาคาร</p>
+     <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4 md:p-6">
+            <h3 class="text-xl xl:text-2xl font-bold text-blue-800 mb-2 xl:mb-4 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
+            
+            <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2 xl:mb-4">
+                <img id="qrDisplayImage" src="" class="w-full h-full max-w-[220px] object-contain border-4 border-blue-100 p-2 rounded-2xl shadow-sm">
+            </div>
+            
+            <p class="text-gray-500 font-medium animate-pulse text-sm xl:text-base shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
          </div>
       </div>
 
