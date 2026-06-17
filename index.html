@@ -3236,6 +3236,8 @@ function setPaymentType(type) {
         numBtns.forEach(b => { b.style.opacity = "0.4"; b.style.pointerEvents = "none"; });
     }
     calculateChange();
+    if (typeof syncCustomerDisplay === 'function') syncCustomerDisplay();
+
 }
 
 
@@ -8460,7 +8462,7 @@ function syncDeliveryDropdownUI() {
 // เรียกใช้งานอัตโนมัติเมื่อเปิดแอป
 syncDeliveryDropdownUI();
 
-// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - Cloud Sync
+// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - ป้องกัน Error 100%
 function syncCustomerDisplay(overrideStatus = null) {
     try {
         let subTot = document.getElementById('totalPrice') ? document.getElementById('totalPrice').innerText : "฿0.00";
@@ -8479,6 +8481,7 @@ function syncCustomerDisplay(overrideStatus = null) {
         if (isQROpen) currentStatus = 'qr_payment';
         if (overrideStatus) currentStatus = overrideStatus; 
 
+        // ค้นหารูปภาพสินค้าแนบไปกับตะกร้าด้วย
         let enrichedCart = cart.map(item => {
             let baseName = item.name;
             let optionIndex = item.name.search(/ \[| \+/);
@@ -8488,7 +8491,9 @@ function syncCustomerDisplay(overrideStatus = null) {
             let imgUrl = "";
             if (typeof allSalesProducts !== 'undefined') {
                 let matchedProd = allSalesProducts.find(p => p[1] === baseName);
-                if (matchedProd && matchedProd[8]) imgUrl = matchedProd[8];
+                if (matchedProd && matchedProd[8]) {
+                    imgUrl = matchedProd[8];
+                }
             }
             return { name: item.name, qty: item.qty, price: item.price, image: imgUrl };
         });
@@ -8502,13 +8507,10 @@ function syncCustomerDisplay(overrideStatus = null) {
             qrImage: isQROpen ? qrImg : "",
             logoUrl: storeLogo,  
             storeName: storeName,
-            timestamp: Date.now() 
+            timestamp: Date.now(),
+            paymentMethod: selectedPayment // 👈 [เพิ่มตรงนี้] ส่งชื่อวิธีจ่ายเงินไปให้จอลูกค้ารู้ด้วย
         };
 
-        // 🚀 สั่งยิงข้อมูลตะกร้าล่าสุดขึ้นระบบ Cloud ของ Google
-        google.script.run.updateCDSStateGS(JSON.stringify(displayData));
-        
-        // (เก็บสำรองไว้ในเครื่อง เผื่อเน็ตหลุด)
         localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
     } catch(e) {
         console.error("Sync Error:", e); 
