@@ -8464,7 +8464,7 @@ function syncDeliveryDropdownUI() {
 // เรียกใช้งานอัตโนมัติเมื่อเปิดแอป
 syncDeliveryDropdownUI();
 
-// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - Cloud Sync + คนละครึ่ง
+// ฟังก์ชันส่งข้อมูลไปยังหน้าจอลูกค้า (Customer Facing Display) - ป้องกัน Error 100%
 function syncCustomerDisplay(overrideStatus = null) {
     try {
         let subTot = document.getElementById('totalPrice') ? document.getElementById('totalPrice').innerText : "฿0.00";
@@ -8472,7 +8472,10 @@ function syncCustomerDisplay(overrideStatus = null) {
         let qrImg = document.getElementById('qrModalImage') ? document.getElementById('qrModalImage').src : "";
         let changeAmt = document.getElementById('changeAmount') ? document.getElementById('changeAmount').innerText : "0.00";
         
-        let storeLogo = document.getElementById('sidebarLogo') ? document.getElementById('sidebarLogo').src : "";
+        // 🌟 [แก้ตรงนี้] ดักจับรูปร้านค้า ป้องกันรูปแตกเวลาไม่ได้อัปโหลดโลโก้ร้าน
+        let logoEl = document.getElementById('sidebarLogo');
+        let storeLogo = (logoEl && logoEl.getAttribute('src')) ? logoEl.src : "https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png";
+        
         let storeName = document.getElementById('sidebarStoreName') ? document.getElementById('sidebarStoreName').innerText : "FamePOS";
 
         let qrModal = document.getElementById('qrModal');
@@ -8510,21 +8513,20 @@ function syncCustomerDisplay(overrideStatus = null) {
             logoUrl: storeLogo,  
             storeName: storeName,
             timestamp: Date.now(),
-            paymentMethod: selectedPayment // 👈 ส่งวิธีจ่ายเงินไปให้จอลูกค้ารู้ด้วย (คนละครึ่ง)
+            paymentMethod: selectedPayment
         };
 
         // 🚀 สั่งยิงข้อมูลตะกร้าล่าสุดขึ้นระบบ Cloud ของ Google
-        if(typeof google !== 'undefined' && google.script && google.script.run) {
+        if(typeof google !== 'undefined' && google.script && google.script.run && typeof google.script.run.updateCDSStateGS === 'function') {
             google.script.run.updateCDSStateGS(JSON.stringify(displayData));
         }
 
-        // (เก็บสำรองไว้ในเครื่อง เผื่อเน็ตหลุด)
+        // เก็บสำรองไว้ในเครื่อง
         localStorage.setItem('famepos_customer_display', JSON.stringify(displayData));
     } catch(e) {
         console.error("Sync Error:", e); 
     }
 }
-
 // ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
 window.addEventListener('load', function() { loadModifiersData(); });
 
