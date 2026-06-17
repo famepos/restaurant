@@ -229,15 +229,12 @@
 
 // 🌟 3. จัดการระบบแสดงผล "คนละครึ่ง" (คำนวณ 60 / 40)
         const halfHalfBox = document.getElementById('halfHalfContainer');
-        if (data.paymentMethod === 'คนละครึ่ง') {
-            // ดึงตัวเลขจากสตริง (เช่น "฿100.00" แปลงเป็นตัวเลข 100)
+        // 👉 [แก้ตรงนี้] เพิ่มเงื่อนไขว่า ตะกร้าต้องมีของด้วย ถึงจะโชว์กล่อง
+        if (data.paymentMethod === 'คนละครึ่ง' && data.cart && data.cart.length > 0) {
             let totalVal = parseFloat((data.grandTotal || "0").toString().replace(/[^0-9.-]+/g,"")) || 0;
-            
-            // สูตรคำนวณ: รัฐ 60% และ ลูกค้า 40%
             let customerPay = totalVal * 0.40;
             let govPay = totalVal * 0.60;
             
-            // แสดงผลลงหน้าจอ
             document.getElementById('displayGovPay').innerText = "฿" + govPay.toLocaleString('th-TH', {minimumFractionDigits: 2});
             document.getElementById('displayCustomerPay').innerText = "฿" + customerPay.toLocaleString('th-TH', {minimumFractionDigits: 2});
             
@@ -251,7 +248,6 @@
                 halfHalfBox.classList.remove('flex');
             }
         }
-
 
         const changeBox = document.getElementById('changeContainer');
         if (data.change && parseFloat(data.change) > 0) {
