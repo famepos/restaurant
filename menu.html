@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>สั่งอาหาร | FamePOS</title>
+    <title>FamePOS Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -149,6 +149,12 @@
         let currentSelectedModifiers = {};
         let hasOrderedThisSession = false;
         let hasBeenOccupied = false;
+        // 🌟 1. เพิ่มตัวแปรสำหรับระบบบุฟเฟต์
+        let isBuffetMode = false;
+        const premiumCategories = ["Premium", "Extra", "เครื่องดื่มแอลกอฮอล์"]; 
+        
+        window.cachedModifiersRaw = [];
+        
 
         function showAlert(title, message, icon = '🔔', type = 'info') {
             document.getElementById('customAlertIcon').innerText = icon;
@@ -250,10 +256,10 @@
                                     cart = []; 
                                     
                                     document.body.innerHTML = `
-                                        <div class="fixed inset-0 z-[9999] bg-rose-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+                                        <div class="fixed inset-0 z-[9999] bg-emerald-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
                                             <div class="text-7xl mb-4">🙏</div>
-                                            <h1 class="text-3xl font-black text-rose-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
-                                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 mt-4 max-w-sm w-full">
+                                            <h1 class="text-3xl font-black text-emerald-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
+                                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 mt-4 max-w-sm w-full">
                                                 <p class="text-gray-600 font-medium leading-relaxed">บิลของโต๊ะนี้ถูกชำระเงินเรียบร้อยแล้ว<br>เซสชันการสั่งอาหารของคุณได้สิ้นสุดลง</p>
                                             </div>
                                             <p class="text-sm text-gray-400 mt-8 font-bold">หากต้องการสั่งใหม่ กรุณาสแกน QR Code ที่โต๊ะอีกครั้ง</p>
@@ -267,6 +273,7 @@
             }
         }
 
+// 🌟 2. อัปเดตการแสดงผลราคาในเมนู
         function processRawProducts(rawArray, isSilent = false) {
             if (!rawArray || !Array.isArray(rawArray)) return;
             let tempProducts = [];
@@ -275,10 +282,18 @@
                 if (!p || !p[1] || p[1].toString().trim() === "" || p[1] === "ชื่อสินค้า") continue;
                 let stock = p[6];
                 if (stock === "" || stock === undefined || parseFloat(stock) > 0) {
+                    let cat = (p[2] || "ทั่วไป").toString().trim();
+                    let activePrice = parseFloat(p[3]) || 0;
+                    
+                    // 🥩 ลอจิกบุฟเฟต์: ถ้าเป็นโต๊ะบุฟเฟต์ และไม่ได้อยู่ในหมวดที่ต้องจ่ายเพิ่ม ให้ราคาเป็น 0 บาท!
+                    if (isBuffetMode && !premiumCategories.includes(cat)) {
+                        activePrice = 0;
+                    }
+
                     tempProducts.push({
                         name: p[1].toString(),
-                        category: (p[2] || "ทั่วไป").toString().trim(),
-                        price: parseFloat(p[3]) || 0,
+                        category: cat,
+                        price: activePrice,
                         image: (p[8] || "").toString().trim(),
                         options: (p[10] || "").toString().trim()
                     });
@@ -544,12 +559,36 @@
             });
         }
 
+  // 🌟 3. อัปเดตตอนเปิดหน้าเว็บ ให้เช็คโหมดโต๊ะก่อนดึงเมนู
         function initPage() {
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.has('table')) {
                 currentTable = urlParams.get('table').trim();
                 document.getElementById('tableDisplay').innerText = "โต๊ะ: " + currentTable;
-                fetchMenuData();
+                
+                // 🔍 ดึงข้อมูลสถานะโต๊ะจากหลังบ้านก่อน ว่าเปิดโหมด Buffet ไว้หรือไม่
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ action: "getTablesData" }),
+                    redirect: "follow"
+                })
+                .then(res => res.json())
+                .then(tableData => {
+                    if(tableData.status === "Success" && Array.isArray(tableData.result)) {
+                        let myTable = tableData.result.find(t => t && t.name === currentTable);
+                        if(myTable && myTable.orderMode === 'Buffet') {
+                            isBuffetMode = true; // เปิดโหมดซ่อนราคา
+                            document.getElementById('tableDisplay').innerText = "โต๊ะ: " + currentTable + " (บุฟเฟต์)";
+                        }
+                    }
+                    // พอรู้แล้วว่าเป็นโหมดไหน ค่อยสั่งดึงเมนูอาหารมาแสดง
+                    fetchMenuData(); 
+                })
+                .catch(err => {
+                    fetchMenuData(); // เผื่อเน็ตหลุด ก็ยังดึงเมนูได้ปกติ
+                });
+
             } else {
                 document.getElementById('tableDisplay').innerText = "โปรดสแกน QR ใหม่";
                 document.getElementById('loadingOverlay').classList.add('hidden');
