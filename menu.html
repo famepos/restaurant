@@ -208,9 +208,9 @@
             .catch(e => console.log("โหลดตัวเลือกเสริมล้มเหลว"));
         }
 
-// 🔄 ระบบ Real-time: เช็คข้อมูลสินค้า และเช็คสถานะเช็คบิลหน้าร้าน
+// 🔄 ระบบ Real-time: เช็คข้อมูลสินค้า ตัวเลือกเสริม และสถานะโต๊ะ
         function fetchMenuDataSilent() {
-            // 1. Sync ข้อมูลสินค้าอัปเดตเมนู
+            // 1. Sync ข้อมูลสินค้าอัปเดตเมนูหลัก
             fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -219,7 +219,18 @@
             })
             .then(res => res.json())
             .then(data => { if(data.status === "Success") processRawProducts(data.result, true); })
-            .catch(e => console.log("Silent Sync..."));
+            .catch(e => console.log("Silent Sync Products..."));
+
+            // 🌟 เพิ่มใหม่: Sync ข้อมูลตัวเลือกเสริม (ท็อปปิ้ง) ให้เรียลไทม์ด้วย
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ action: "getModifiersData" }),
+                redirect: "follow"
+            })
+            .then(res => res.json())
+            .then(data => { if(data.status === "Success") window.cachedModifiersRaw = data.result; })
+            .catch(e => console.log("Silent Sync Modifiers..."));
 
             // 2. 🧼 ตรวจสอบสถานะโต๊ะเพื่อป้องกัน "ออเดอร์ผี"
             if (currentTable !== "ไม่ระบุ") {
@@ -235,36 +246,29 @@
                         let myTable = tableData.result.find(t => t && t.name === currentTable);
                         
                         if (myTable) {
-                            // 👉 ก้าวที่ 1: ตรวจจับว่า POS ดึงออเดอร์ไปแล้วและเปลี่ยนโต๊ะเป็น "ไม่ว่าง"
                             if (myTable.status === "ไม่ว่าง" || myTable.status === "🔴 ไม่ว่าง") {
                                 hasBeenOccupied = true;
                             }
                             
-                            // 👉 ก้าวที่ 2: ถ้าระบบหลังบ้านโต๊ะกลับเป็น "ว่าง"
                             if(myTable.status === "ว่าง" || myTable.status === "🟢 ว่าง") {
-                                
-                                // ✅ กรณีที่ 1: ลูกค้าใหม่เพิ่งสแกนเข้ามา และยังไม่ได้กดส่งออเดอร์ (ล้างประวัติขยะทิ้ง)
                                 if (!hasOrderedThisSession) {
                                     localStorage.removeItem('famepos_menu_history_' + currentTable);
                                 }
                                 
-                                // ✅ กรณีที่ 2: ลูกค้ากินเสร็จแล้ว (สั่งแล้ว + โต๊ะเคยแดงแล้ว + ตอนนี้โต๊ะกลับมาเขียว)
                                 if (hasOrderedThisSession && hasBeenOccupied) {
-                                    
-                                    // ล้างประวัติการสั่งทิ้ง และบล็อกหน้าจอ
                                     localStorage.removeItem('famepos_menu_history_' + currentTable);
                                     cart = []; 
                                     
-                                    document.body.innerHTML = `
-                                        <div class="fixed inset-0 z-[9999] bg-rose-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-                                            <div class="text-7xl mb-4">🙏</div>
-                                            <h1 class="text-3xl font-black text-rose-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
-                                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 mt-4 max-w-sm w-full">
-                                                <p class="text-gray-600 font-medium leading-relaxed">บิลของโต๊ะนี้ถูกชำระเงินเรียบร้อยแล้ว<br>เซสชันการสั่งอาหารของคุณได้สิ้นสุดลง</p>
-                                            </div>
-                                            <p class="text-sm text-gray-400 mt-8 font-bold">หากต้องการสั่งใหม่ กรุณาสแกน QR Code ที่โต๊ะอีกครั้ง</p>
+                                document.body.innerHTML = `
+                                    <div class="fixed inset-0 z-[9999] bg-rose-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+                                        <div class="text-7xl mb-4">🙏</div>
+                                        <h1 class="text-3xl font-black text-rose-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
+                                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 mt-4 max-w-sm w-full">
+                                            <p class="text-gray-600 font-medium leading-relaxed">บิลของโต๊ะนี้ถูกชำระเงินเรียบร้อยแล้ว<br>เซสชันการสั่งอาหารของคุณได้สิ้นสุดลง</p>
                                         </div>
-                                    `;
+                                        <p class="text-sm text-gray-400 mt-8 font-bold">หากต้องการสั่งใหม่ กรุณาสแกน QR Code ที่โต๊ะอีกครั้ง</p>
+                                    </div>
+                                `;
                                 }
                             }
                         }
