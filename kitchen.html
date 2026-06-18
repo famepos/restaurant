@@ -183,15 +183,14 @@
         let cardColorStyles = "border-rose-200/80 bg-white";
         let timerColor = "text-gray-400";
 
-        if (minutesElapsed >= 10) {
-          // ครัวเดือดเกิน 10 นาที (การ์ดจะฉีดสีแดงพาสเทลกระพริบเตือนเร่งมือ)
-          cardColorStyles = "border-red-300 bg-red-50/40 animate-pulse ring-2 ring-red-200";
+if (minutesElapsed >= 10) {
+          // ครัวเดือดเกิน 10 นาที (การ์ดจะเปลี่ยนเป็นสีแดง แต่ไม่กระพริบแล้ว)
+          cardColorStyles = "border-red-300 bg-red-50/40 ring-2 ring-red-200";
           timerColor = "text-red-500 font-bold";
         } else if (minutesElapsed >= 5) {
           // ครัวเร่งด่วนเกิน 5 นาที (การ์ดฉีดโทนสีส้มพาสเทล)
           cardColorStyles = "border-amber-300 bg-amber-50/30";
           timerColor = "text-amber-500 font-bold";
-        }
 
         let typeBadge = `🛎️ ${order.orderType}`;
         let badgeColor = "bg-gray-100 text-gray-600 border border-gray-200";
