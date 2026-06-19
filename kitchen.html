@@ -310,8 +310,27 @@ function showToast(message, type = "success") {
   });
 }
 
-fetchKitchenOrders();
-setInterval(fetchKitchenOrders, 15000);
+// =========================
+// นาฬิกา Real-Time
+// =========================
+function updateClock() {
+  const clock = document.getElementById('clockTime');
+
+  if (!clock) return;
+
+  clock.innerText = new Date().toLocaleTimeString(
+    'th-TH',
+    {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    }
+  );
+}
+
+updateClock();
+setInterval(updateClock, 1000);
 
   </script>
 </body>
