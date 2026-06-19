@@ -332,6 +332,12 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
+// =========================
+// โหลดคิวครัวอัตโนมัติ
+// =========================
+fetchKitchenOrders();
+setInterval(fetchKitchenOrders, 15000);
+
   </script>
 </body>
 </html>
