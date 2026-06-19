@@ -527,41 +527,49 @@
 
         function closeHistoryModal() { document.getElementById('orderHistoryModal').classList.add('hidden'); }
 
- function submitOrder() {
-            if(cart.length === 0) return showAlert("ตะกร้าว่างเปล่า", "กรุณาเลือกเมนูอาหารที่ต้องการก่อนกดสั่งซื้อนะครับ", "🛒", "error");
-            if(currentTable === "ไม่ระบุ") return showAlert("เกิดข้อผิดพลาด", "ไม่สามารถส่งออเดอร์ได้ เนื่องจากระบบไม่ทราบหมายเลขโต๊ะ", "❌", "error");
-            
-            let btn = document.getElementById('btnSubmitOrder');
-            btn.disabled = true; btn.innerHTML = "กำลังส่งออเดอร์... ⏳";
-            
-            let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            let orderPayload = { table: currentTable, items: cart, total: total };
+// ปรับแก้ในไฟล์ Menu App (แหล่งอ้างอิง: source 6)
+function submitOrder() {
+    if(cart.length === 0) return showAlert("ตะกร้าว่างเปล่า", "กรุณาเลือกเมนูอาหารที่ต้องการก่อนกดสั่งซื้อนะครับ", "🛒", "error");
+    if(currentTable === "ไม่ระบุ") return showAlert("เกิดข้อผิดพลาด", "ไม่สามารถส่งออเดอร์ได้ เนื่องจากระบบไม่ทราบหมายเลขโต๊ะ", "❌", "error");
+    
+    let btn = document.getElementById('btnSubmitOrder');
+    btn.disabled = true; btn.innerHTML = "กำลังส่งออเดอร์... ⏳";
+    
+    let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    
+    // 💡 ปรับปรุง payload ให้ระบุ serviceType เพื่อให้ระบบหลังบ้านแยก Flow การทำงาน
+    let orderPayload = { 
+        table: currentTable, 
+        items: cart, 
+        total: total,
+        orderType: "DineIn" // ระบุประเภทออเดอร์
+    };
 
-            fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: "submitCustomerOrder", args: [orderPayload] }),
-                redirect: "follow"
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === "Success" && data.result === "Success") {
-                    // 👉 2. เพิ่มบรรทัดนี้: แจ้งระบบว่าลูกค้าคนนี้ได้ส่งออเดอร์ในรอบนี้แล้วนะ!
-                    hasOrderedThisSession = true; 
-                    
-                    showAlert("ส่งออเดอร์สำเร็จ!", "รายการอาหารของคุณถูกส่งเข้าครัวเรียบร้อยแล้ว นั่งรอรับความอร่อยได้เลยครับ", "✅", "success");
-                    saveOrderToLocalHistory(cart, total); 
-                    cart = []; updateCartUI(); closeCartModal();
-                } else {
-                    showAlert("เกิดข้อผิดพลาด", "ระบบส่งออเดอร์ไม่ได้: " + (data.message || data.result), "❌", "error");
-                }
-                btn.disabled = false; btn.innerHTML = "ส่งออเดอร์เข้าครัว 🔥";
-            })
-            .catch(err => {
-                showAlert("เกิดข้อผิดพลาด", "การเชื่อมต่อล้มเหลว: " + err, "❌", "error");
-                btn.disabled = false; btn.innerHTML = "ส่งออเดอร์เข้าครัว 🔥";
-            });
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "submitCustomerOrder", args: [orderPayload] }),
+        redirect: "follow"
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "Success" && data.result === "Success") {
+            hasOrderedThisSession = true; 
+            
+            // ปรับข้อความแจ้งเตือนให้ชัดเจนขึ้นสำหรับกรณี Dine-In
+            showAlert("ส่งออเดอร์สำเร็จ!", "รายการอาหารส่งเข้าครัวแล้ว รอสักครู่ครับ", "✅", "success");
+            saveOrderToLocalHistory(cart, total); 
+            cart = []; updateCartUI(); closeCartModal();
+        } else {
+            showAlert("เกิดข้อผิดพลาด", "ระบบส่งออเดอร์ไม่ได้: " + (data.message || data.result), "❌", "error");
         }
+        btn.disabled = false; btn.innerHTML = "ส่งออเดอร์เข้าครัว 🔥";
+    })
+    .catch(err => {
+        showAlert("เกิดข้อผิดพลาด", "การเชื่อมต่อล้มเหลว: " + err, "❌", "error");
+        btn.disabled = false; btn.innerHTML = "ส่งออเดอร์เข้าครัว 🔥";
+    });
+}
 
   // 🌟 3. อัปเดตตอนเปิดหน้าเว็บ ให้เช็คโหมดโต๊ะก่อนดึงเมนู
         function initPage() {
