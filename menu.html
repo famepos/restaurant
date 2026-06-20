@@ -579,7 +579,7 @@ let buffetIncludedCategories = [];
             });
         }
 
-  // 🌟 3. อัปเดตตอนเปิดหน้าเว็บ ให้เช็คโหมดโต๊ะก่อนดึงเมนู
+// 🌟 3. อัปเดตตอนเปิดหน้าเว็บ ให้เช็คโหมดโต๊ะก่อนดึงเมนู
 function initPage() {
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -591,16 +591,16 @@ function initPage() {
         document.getElementById('tableDisplay').innerText =
             "โต๊ะ: " + currentTable;
 
-        // 🔍 ดึงข้อมูลโต๊ะ
-        fetch(API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8"
+        // 🔍 โหลดข้อมูลโต๊ะ
+        fetch(API_URL,{
+            method:"POST",
+            headers:{
+                "Content-Type":"text/plain;charset=utf-8"
             },
-            body: JSON.stringify({
-                action: "getTablesData"
+            body:JSON.stringify({
+                action:"getTablesData"
             }),
-            redirect: "follow"
+            redirect:"follow"
         })
         .then(res => res.json())
         .then(tableData => {
@@ -620,13 +620,13 @@ function initPage() {
                 // ===========================
                 if(
                     myTable &&
-                    myTable.orderMode === 'Buffet'
+                    myTable.orderMode === "Buffet"
                 ){
 
                     isBuffetMode = true;
 
                     document.getElementById(
-                        'tableDisplay'
+                        "tableDisplay"
                     ).innerText =
                         "โต๊ะ: " +
                         currentTable +
@@ -634,23 +634,38 @@ function initPage() {
 
                     buffetIncludedCategories = [];
 
-                    // โหลดหมวดหมู่จากชื่อแพ็กเกจ
-                    google.script.run
-                    .withSuccessHandler(function(categories){
+                    // โหลดหมวดหมู่ของแพ็กเกจจาก API
+                    fetch(API_URL,{
+                        method:"POST",
+                        headers:{
+                            "Content-Type":"text/plain;charset=utf-8"
+                        },
+                        body:JSON.stringify({
+                            action:"getBuffetCategoriesByPackage",
+                            packageName: myTable.packageName || ""
+                        }),
+                        redirect:"follow"
+                    })
+                    .then(res => res.json())
+                    .then(data => {
 
-                        buffetIncludedCategories =
-                            categories || [];
+                        if(
+                            data.status === "Success"
+                        ){
 
-                        console.log(
-                            "Buffet Categories:",
-                            buffetIncludedCategories
-                        );
+                            buffetIncludedCategories =
+                                data.result || [];
 
-                        // โหลดเมนูหลังจากได้หมวดแล้ว
+                            console.log(
+                                "Buffet Categories:",
+                                buffetIncludedCategories
+                            );
+                        }
+
                         fetchMenuData();
 
                     })
-                    .withFailureHandler(function(err){
+                    .catch(err => {
 
                         console.error(
                             "Load Buffet Categories Error",
@@ -659,10 +674,7 @@ function initPage() {
 
                         fetchMenuData();
 
-                    })
-                    .getBuffetCategoriesByPackageGS(
-                        myTable.packageName
-                    );
+                    });
 
                     return;
                 }
@@ -682,11 +694,14 @@ function initPage() {
 
     } else {
 
-        document.getElementById('tableDisplay').innerText =
+        document.getElementById(
+            'tableDisplay'
+        ).innerText =
             "โปรดสแกน QR ใหม่";
 
-        document.getElementById('loadingOverlay')
-            .classList.add('hidden');
+        document.getElementById(
+            'loadingOverlay'
+        ).classList.add('hidden');
 
         showAlert(
             "ไม่พบหมายเลขโต๊ะ",
