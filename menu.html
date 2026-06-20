@@ -27,15 +27,15 @@
 <body class="pb-24">
 
     <!-- แถบด้านบน (Header) -->
-    <div class="bg-rose-600 text-white p-4 sticky top-0 z-50 shadow-md">
+    <div class="bg-pink-600 text-white p-4 sticky top-0 z-50 shadow-md">
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <h1 class="text-xl font-bold">เมนูอาหาร 🍽️</h1>
-                <button onclick="openHistoryModal()" class="bg-rose-700 hover:bg-rose-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 shadow-md transition">
+                <button onclick="openHistoryModal()" class="bg-pink-700 hover:bg-pink-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 shadow-md transition">
                     📜 ประวัติสั่งซื้อ
                 </button>
             </div>
-            <div id="tableDisplay" class="bg-rose-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
+            <div id="tableDisplay" class="bg-pink-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
                 โต๊ะ: กำลังโหลด...
             </div>
         </div>
@@ -43,8 +43,8 @@
 
     <!-- โซนแจ้งเตือนกำลังโหลด -->
     <div id="loadingOverlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-40 flex flex-col items-center justify-center">
-        <div class="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-rose-500 mb-4"></div>
-        <p class="text-rose-700 font-bold text-base">กำลังจัดเตรียมเมนูอาหาร...</p>
+        <div class="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-pink-500 mb-4"></div>
+        <p class="text-pink-700 font-bold text-base">กำลังจัดเตรียมเมนูอาหาร...</p>
     </div>
 
     <!-- แถบเลือกหมวดหมู่ (Categories) -->
@@ -62,9 +62,9 @@
         <div class="flex justify-between items-center max-w-lg mx-auto">
             <div class="flex flex-col">
                 <span class="text-sm text-gray-500 font-bold">ตะกร้าของคุณ</span>
-                <span class="text-xl font-bold text-rose-600"><span id="cartCount">0</span> รายการ</span>
+                <span class="text-xl font-bold text-pink-600"><span id="cartCount">0</span> รายการ</span>
             </div>
-            <button onclick="openCartModal()" class="bg-rose-500 text-white px-6 py-3 rounded-2xl font-bold hover:bg-rose-600 transition shadow-lg flex items-center gap-2">
+            <button onclick="openCartModal()" class="bg-pink-500 text-white px-6 py-3 rounded-2xl font-bold hover:bg-pink-600 transition shadow-lg flex items-center gap-2">
                 ดูตะกร้า / สั่งอาหาร ➔
             </button>
         </div>
@@ -81,9 +81,9 @@
             <div class="p-5 bg-white border-t border-gray-100 rounded-b-3xl">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-lg font-bold text-gray-600">ยอดรวมทั้งสิ้น</span>
-                    <span id="cartTotal" class="text-3xl font-black text-rose-600">฿0.00</span>
+                    <span id="cartTotal" class="text-3xl font-black text-pink-600">฿0.00</span>
                 </div>
-                <button id="btnSubmitOrder" onclick="submitOrder()" class="w-full bg-rose-500 text-white py-4 rounded-2xl font-bold text-xl hover:bg-rose-600 transition shadow-xl">
+                <button id="btnSubmitOrder" onclick="submitOrder()" class="w-full bg-pink-500 text-white py-4 rounded-2xl font-bold text-xl hover:bg-pink-600 transition shadow-xl">
                     ส่งออเดอร์เข้าครัว 🔥
                 </button>
             </div>
@@ -94,12 +94,12 @@
     <div id="productOptionsModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[160] flex items-center justify-center p-4">
         <div class="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl relative flex flex-col max-h-[85vh]">
             <button onclick="closeOptionsModal()" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
-            <h2 id="optionProductName" class="text-xl font-bold text-rose-800 mb-1 mt-2">ชื่อสินค้า</h2>
-            <div id="optionProductPrice" class="text-rose-600 font-bold mb-4 text-lg">฿0.00</div>
+            <h2 id="optionProductName" class="text-xl font-bold text-pink-800 mb-1 mt-2">ชื่อสินค้า</h2>
+            <div id="optionProductPrice" class="text-pink-600 font-bold mb-4 text-lg">฿0.00</div>
             
             <div id="dynamicSalesOptionsContainer" class="flex-1 overflow-y-auto space-y-4 pr-1 hide-scroll"></div>
 
-            <button onclick="confirmProductOptions()" class="w-full mt-4 bg-rose-500 text-white font-bold py-4 rounded-xl text-lg hover:bg-rose-600 shadow-md transition">
+            <button onclick="confirmProductOptions()" class="w-full mt-4 bg-pink-500 text-white font-bold py-4 rounded-xl text-lg hover:bg-pink-600 shadow-md transition">
                 ✔️ ยืนยันหยิบลงตะกร้า
             </button>
         </div>
@@ -127,7 +127,7 @@
             <div id="customAlertIcon" class="text-6xl mb-4 drop-shadow-md">🔔</div>
             <h3 id="customAlertTitle" class="text-xl font-black text-gray-800 mb-2">แจ้งเตือน</h3>
             <p id="customAlertMessage" class="text-gray-500 mb-6 font-medium leading-relaxed">ข้อความ...</p>
-            <button onclick="closeCustomAlert()" id="customAlertBtn" class="w-full bg-rose-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-rose-600 transition shadow-lg active:scale-95">ตกลง</button>
+            <button onclick="closeCustomAlert()" id="customAlertBtn" class="w-full bg-pink-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-pink-600 transition shadow-lg active:scale-95">ตกลง</button>
         </div>
     </div>
 
@@ -150,8 +150,9 @@
         let hasOrderedThisSession = false;
         let hasBeenOccupied = false;
         // 🌟 1. เพิ่มตัวแปรสำหรับระบบบุฟเฟต์
-        let isBuffetMode = false;
-        const premiumCategories = ["Premium", "Extra", "เครื่องดื่มแอลกอฮอล์"]; 
+let isBuffetMode = false;
+// หมวดที่กินฟรีตามแพ็กเกจ
+let buffetIncludedCategories = [];
         
         window.cachedModifiersRaw = [];
         
@@ -161,7 +162,7 @@
             document.getElementById('customAlertTitle').innerText = title;
             document.getElementById('customAlertMessage').innerText = message;
             let btn = document.getElementById('customAlertBtn');
-            btn.className = type === 'error' ? "w-full bg-rose-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-rose-600 transition shadow-lg" : "w-full bg-rose-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-rose-600 transition shadow-lg";
+            btn.className = type === 'error' ? "w-full bg-pink-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-pink-600 transition shadow-lg" : "w-full bg-pink-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-pink-600 transition shadow-lg";
             let modal = document.getElementById('customAlertModal');
             let box = document.getElementById('customAlertBox');
             modal.classList.remove('hidden');
@@ -260,10 +261,10 @@
                                     cart = []; 
                                     
                                 document.body.innerHTML = `
-                                    <div class="fixed inset-0 z-[9999] bg-rose-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+                                    <div class="fixed inset-0 z-[9999] bg-pink-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
                                         <div class="text-7xl mb-4">🙏</div>
-                                        <h1 class="text-3xl font-black text-rose-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
-                                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 mt-4 max-w-sm w-full">
+                                        <h1 class="text-3xl font-black text-pink-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
+                                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-pink-100 mt-4 max-w-sm w-full">
                                             <p class="text-gray-600 font-medium leading-relaxed">บิลของโต๊ะนี้ถูกชำระเงินเรียบร้อยแล้ว<br>เซสชันการสั่งอาหารของคุณได้สิ้นสุดลง</p>
                                         </div>
                                         <p class="text-sm text-gray-400 mt-8 font-bold">หากต้องการสั่งใหม่ กรุณาสแกน QR Code ที่โต๊ะอีกครั้ง</p>
@@ -290,9 +291,24 @@
                     let activePrice = parseFloat(p[3]) || 0;
                     
                     // 🥩 ลอจิกบุฟเฟต์: ถ้าเป็นโต๊ะบุฟเฟต์ และไม่ได้อยู่ในหมวดที่ต้องจ่ายเพิ่ม ให้ราคาเป็น 0 บาท!
-                    if (isBuffetMode && !premiumCategories.includes(cat)) {
-                        activePrice = 0;
-                    }
+                 if (isBuffetMode) {
+
+    // ALL = ฟรีทุกหมวด
+    if (buffetIncludedCategories.includes("ALL")) {
+        activePrice = 0;
+    }
+
+    // ฟรีเฉพาะหมวดที่เลือกไว้ในแพ็กเกจ
+    else if (buffetIncludedCategories.includes(cat)) {
+        activePrice = 0;
+    }
+
+    // หมวดที่ไม่ได้เลือกในแพ็กเกจ
+    // ใช้ราคาสินค้าปกติ
+    else {
+        activePrice = parseFloat(p[3]) || 0;
+    }
+}
 
                     tempProducts.push({
                         name: p[1].toString(),
@@ -306,7 +322,7 @@
             if (isSilent) {
                 if (JSON.stringify(allProducts) !== JSON.stringify(tempProducts)) {
                     allProducts = tempProducts;
-                    let activeBtn = document.querySelector('.cat-btn.bg-rose-50');
+                    let activeBtn = document.querySelector('.cat-btn.bg-pink-50');
                     filterCategory(activeBtn ? activeBtn.getAttribute('data-cat') : "ทั้งหมด");
                 }
             } else {
@@ -320,7 +336,7 @@
             let html = '';
             cats.forEach(c => {
                 let safeCat = c.replace(/'/g, "\\'");
-                let btnStyle = (c === 'ทั้งหมด') ? "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-rose-50 border-rose-500 text-rose-700" : "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-white border-gray-200 text-gray-500";
+                let btnStyle = (c === 'ทั้งหมด') ? "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-pink-50 border-pink-500 text-pink-700" : "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-white border-gray-200 text-gray-500";
                 html += '<button onclick="filterCategory(\'' + safeCat + '\')" data-cat="' + safeCat + '" class="' + btnStyle + '">' + c + '</button>';
             });
             document.getElementById('categoryContainer').innerHTML = html;
@@ -328,7 +344,7 @@
 
         function filterCategory(cat) {
             document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.className = (btn.getAttribute('data-cat') === cat) ? "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-rose-50 border-rose-500 text-rose-700" : "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-white border-gray-200 text-gray-500";
+                btn.className = (btn.getAttribute('data-cat') === cat) ? "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-pink-50 border-pink-500 text-pink-700" : "cat-btn shrink-0 px-4 py-2 rounded-xl font-bold text-sm border-2 transition bg-white border-gray-200 text-gray-500";
             });
             renderProducts(cat);
         }
@@ -340,14 +356,14 @@
             let html = '';
             filtered.forEach(p => {
                 let safeName = p.name.replace(/'/g, "\\'");
-                let imgHtml = p.image ? '<img src="' + p.image + '" class="w-full h-32 object-cover rounded-xl mb-2" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-full h-32 bg-rose-50 rounded-xl flex items-center justify-center text-3xl mb-2 border border-rose-100">🍽️</div>';
+                let imgHtml = p.image ? '<img src="' + p.image + '" class="w-full h-32 object-cover rounded-xl mb-2" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-full h-32 bg-pink-50 rounded-xl flex items-center justify-center text-3xl mb-2 border border-pink-100">🍽️</div>';
                 html += `
                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full relative">
                     ${imgHtml}
                     <h3 class="font-bold text-sm text-gray-800 line-clamp-2 leading-tight">${p.name}</h3>
                     <div class="mt-auto pt-3 flex justify-between items-end">
-                        <span class="text-rose-600 font-bold">฿${p.price.toFixed(2)}</span>
-                        <button onclick="handleProductClick('${safeName}')" class="w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold shadow-md hover:bg-rose-600 transition active:scale-95">+</button>
+                        <span class="text-pink-600 font-bold">฿${p.price.toFixed(2)}</span>
+                        <button onclick="handleProductClick('${safeName}')" class="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold shadow-md hover:bg-pink-600 transition active:scale-95">+</button>
                     </div>
                 </div>`;
             });
@@ -380,7 +396,7 @@
                 hasOptions = true;
                 currentSelectedModifiers[groupName] = { name: "ไม่รับ", price: 0 }; 
 
-                let buttonsHtml = `<button onclick="selectSalesModifierButton('${groupName}', 'ไม่รับ', 0, this)" class="mod-sales-btn px-3 py-2 border-2 text-xs font-bold rounded-xl transition bg-rose-50 border-rose-500 text-rose-700">❌ ไม่รับ</button>`;
+                let buttonsHtml = `<button onclick="selectSalesModifierButton('${groupName}', 'ไม่รับ', 0, this)" class="mod-sales-btn px-3 py-2 border-2 text-xs font-bold rounded-xl transition bg-pink-50 border-pink-500 text-pink-700">❌ ไม่รับ</button>`;
                 buttonsHtml += items.map((item) => {
                     let itemName = String(item[1]).replace(/'/g, "\\'");
                     let itemPrice = parseFloat(item[2]) || 0;
@@ -397,7 +413,7 @@
         function selectSalesModifierButton(groupName, itemName, price, btnElement) {
             currentSelectedModifiers[groupName] = { name: itemName, price: parseFloat(price) };
             btnElement.parentElement.querySelectorAll('.mod-sales-btn').forEach(btn => btn.className = "mod-sales-btn px-3 py-2 border-2 text-xs font-bold rounded-xl transition bg-white border-gray-200 text-gray-600");
-            btnElement.className = "mod-sales-btn px-3 py-2 border-2 text-xs font-bold rounded-xl transition bg-rose-50 border-rose-500 text-rose-700";
+            btnElement.className = "mod-sales-btn px-3 py-2 border-2 text-xs font-bold rounded-xl transition bg-pink-50 border-pink-500 text-pink-700";
         }
 
         function confirmProductOptions() {
@@ -442,7 +458,7 @@
                     let baseName = item.name.split(' [')[0];
                     let prod = allProducts.find(p => p.name === baseName);
                     let imgUrl = prod ? prod.image : "";
-                    let cartImgHtml = imgUrl ? '<img src="' + imgUrl + '" class="w-12 h-12 object-cover rounded-xl border shrink-0" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-xl shrink-0">📦</div>';
+                    let cartImgHtml = imgUrl ? '<img src="' + imgUrl + '" class="w-12 h-12 object-cover rounded-xl border shrink-0" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-xl shrink-0">📦</div>';
                     
                     html += `
                     <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
@@ -450,13 +466,13 @@
                             ${cartImgHtml}
                             <div class="flex flex-col min-w-0">
                                 <h4 class="font-bold text-gray-800 text-sm leading-tight truncate">${item.name}</h4>
-                                <div class="text-rose-600 font-bold text-xs mt-1">฿${item.price.toFixed(2)}</div>
+                                <div class="text-pink-600 font-bold text-xs mt-1">฿${item.price.toFixed(2)}</div>
                             </div>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
                             <button onclick="adjustQty(${index}, -1)" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition">-</button>
                             <span class="font-bold w-4 text-center">${item.qty}</span>
-                            <button onclick="adjustQty(${index}, 1)" class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 font-bold hover:bg-rose-200 transition">+</button>
+                            <button onclick="adjustQty(${index}, 1)" class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 font-bold hover:bg-pink-200 transition">+</button>
                         </div>
                     </div>`;
                 });
@@ -499,14 +515,14 @@
                 let html = '';
                 history.forEach(order => {
                     let itemsHtml = order.items.map(i => {
-                        let historyImgHtml = i.image ? '<img src="' + i.image + '" class="w-10 h-10 object-cover rounded-lg border shrink-0" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center text-md shrink-0">📦</div>';
+                        let historyImgHtml = i.image ? '<img src="' + i.image + '" class="w-10 h-10 object-cover rounded-lg border shrink-0" onerror="this.onerror=null; this.src=\'https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png\';">' : '<div class="w-10 h-10 bg-pink-50 rounded-lg flex items-center justify-center text-md shrink-0">📦</div>';
                         return `
                         <div class="flex justify-between items-center py-1.5">
                             <div class="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
                                 ${historyImgHtml}
                                 <span class="text-xs text-gray-700 font-bold truncate">📌 ${i.name}</span>
                             </div>
-                            <span class="text-rose-600 font-black text-sm shrink-0">x${i.qty}</span>
+                            <span class="text-pink-600 font-black text-sm shrink-0">x${i.qty}</span>
                         </div>`;
                     }).join('');
                     
@@ -514,10 +530,10 @@
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-2">
                         <div class="flex justify-between items-center border-b pb-1.5 border-gray-100 text-[11px] font-bold">
                             <span class="text-gray-400">⏱️ เวลาส่งครัว: ${order.time} น.</span>
-                            <span class="text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">ส่งครัวแล้ว</span>
+                            <span class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full">ส่งครัวแล้ว</span>
                         </div>
                         <div class="space-y-1 py-1 divide-y divide-gray-50">${itemsHtml}</div>
-                        <div class="text-right text-xs font-black text-rose-600 pt-1.5 border-t border-dashed border-gray-100">รวมบิลนี้: ฿${order.total.toFixed(2)}</div>
+                        <div class="text-right text-xs font-black text-pink-600 pt-1.5 border-t border-dashed border-gray-100">รวมบิลนี้: ฿${order.total.toFixed(2)}</div>
                     </div>`;
                 });
                 container.innerHTML = html;
@@ -564,44 +580,129 @@
         }
 
   // 🌟 3. อัปเดตตอนเปิดหน้าเว็บ ให้เช็คโหมดโต๊ะก่อนดึงเมนู
-        function initPage() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.has('table')) {
-                currentTable = urlParams.get('table').trim();
-                document.getElementById('tableDisplay').innerText = "โต๊ะ: " + currentTable;
-                
-                // 🔍 ดึงข้อมูลสถานะโต๊ะจากหลังบ้านก่อน ว่าเปิดโหมด Buffet ไว้หรือไม่
-                fetch(API_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ action: "getTablesData" }),
-                    redirect: "follow"
-                })
-                .then(res => res.json())
-                .then(tableData => {
-                    if(tableData.status === "Success" && Array.isArray(tableData.result)) {
-                        let myTable = tableData.result.find(t => t && t.name === currentTable);
-                        if(myTable && myTable.orderMode === 'Buffet') {
-                            isBuffetMode = true; // เปิดโหมดซ่อนราคา
-                            document.getElementById('tableDisplay').innerText = "โต๊ะ: " + currentTable + " (บุฟเฟต์)";
-                        }
-                    }
-                    // พอรู้แล้วว่าเป็นโหมดไหน ค่อยสั่งดึงเมนูอาหารมาแสดง
-                    fetchMenuData(); 
-                })
-                .catch(err => {
-                    fetchMenuData(); // เผื่อเน็ตหลุด ก็ยังดึงเมนูได้ปกติ
-                });
+function initPage() {
 
-            } else {
-                document.getElementById('tableDisplay').innerText = "โปรดสแกน QR ใหม่";
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                showAlert("ไม่พบหมายเลขโต๊ะ", "กรุณาสแกน QR Code ที่ตั้งอยู่บนโต๊ะ เพื่อดูเมนูและสั่งอาหารนะครับ", "⚠️", "error");
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if(urlParams.has('table')) {
+
+        currentTable = urlParams.get('table').trim();
+
+        document.getElementById('tableDisplay').innerText =
+            "โต๊ะ: " + currentTable;
+
+        // 🔍 ดึงข้อมูลโต๊ะ
+        fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({
+                action: "getTablesData"
+            }),
+            redirect: "follow"
+        })
+        .then(res => res.json())
+        .then(tableData => {
+
+            if(
+                tableData.status === "Success" &&
+                Array.isArray(tableData.result)
+            ){
+
+                let myTable =
+                    tableData.result.find(
+                        t => t && t.name === currentTable
+                    );
+
+                // ===========================
+                // 🍖 โต๊ะบุฟเฟต์
+                // ===========================
+                if(
+                    myTable &&
+                    myTable.orderMode === 'Buffet'
+                ){
+
+                    isBuffetMode = true;
+
+                    document.getElementById(
+                        'tableDisplay'
+                    ).innerText =
+                        "โต๊ะ: " +
+                        currentTable +
+                        " (บุฟเฟต์)";
+
+                    buffetIncludedCategories = [];
+
+                    // โหลดหมวดหมู่จากชื่อแพ็กเกจ
+                    google.script.run
+                    .withSuccessHandler(function(categories){
+
+                        buffetIncludedCategories =
+                            categories || [];
+
+                        console.log(
+                            "Buffet Categories:",
+                            buffetIncludedCategories
+                        );
+
+                        // โหลดเมนูหลังจากได้หมวดแล้ว
+                        fetchMenuData();
+
+                    })
+                    .withFailureHandler(function(err){
+
+                        console.error(
+                            "Load Buffet Categories Error",
+                            err
+                        );
+
+                        fetchMenuData();
+
+                    })
+                    .getBuffetCategoriesByPackageGS(
+                        myTable.packageName
+                    );
+
+                    return;
+                }
             }
-        }
 
-        initPage();
-        setInterval(fetchMenuDataSilent, 5000); // คอย Sync ข้อมูลและคอยแอบตรวจเช็คบิลหน้าร้านทุกๆ 5 วินาที[cite: 2]
+            // ไม่ใช่บุฟเฟต์
+            fetchMenuData();
+
+        })
+        .catch(err => {
+
+            console.error(err);
+
+            fetchMenuData();
+
+        });
+
+    } else {
+
+        document.getElementById('tableDisplay').innerText =
+            "โปรดสแกน QR ใหม่";
+
+        document.getElementById('loadingOverlay')
+            .classList.add('hidden');
+
+        showAlert(
+            "ไม่พบหมายเลขโต๊ะ",
+            "กรุณาสแกน QR Code ที่ตั้งอยู่บนโต๊ะ เพื่อดูเมนูและสั่งอาหารนะครับ",
+            "⚠️",
+            "error"
+        );
+    }
+}
+
+initPage();
+
+setInterval(
+    fetchMenuDataSilent,
+    5000
+);
     </script>
 </body>
 </html>
