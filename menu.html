@@ -634,18 +634,18 @@ function initPage() {
 
                     buffetIncludedCategories = [];
 
-                    // โหลดหมวดหมู่ของแพ็กเกจจาก API
-                    fetch(API_URL,{
-                        method:"POST",
-                        headers:{
-                            "Content-Type":"text/plain;charset=utf-8"
-                        },
-                        body:JSON.stringify({
-                            action:"getBuffetCategoriesByPackage",
-                            packageName: myTable.packageName || ""
-                        }),
-                        redirect:"follow"
-                    })
+              // โหลดหมวดหมู่ของแพ็กเกจจาก API
+fetch(API_URL,{
+    method:"POST",
+    headers:{
+        "Content-Type":"text/plain;charset=utf-8"
+    },
+    body:JSON.stringify({
+        action: "getBuffetCategoriesByPackageGS", // เติม GS ให้ตรงกับชื่อฟังก์ชันหลังบ้าน
+        args: [myTable.packageName || ""] // เปลี่ยนแพ็กเกจให้อยู่ในรูปแบบ Array (args)
+    }),
+    redirect:"follow"
+})
                     .then(res => res.json())
                     .then(data => {
 
