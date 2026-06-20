@@ -9538,6 +9538,121 @@ function loadBuffetPackagesTable() {
 
     }).getBuffetPackagesGS();
 }
+
+let currentBuffetPackage = "";
+
+function openBuffetCategoryModal(packageName){
+
+    currentBuffetPackage = packageName;
+
+    document.getElementById('buffetCategoryTitle').innerText =
+        "📂 หมวดหมู่ : " + packageName;
+
+    google.script.run
+    .withSuccessHandler(function(categories){
+
+        google.script.run
+        .withSuccessHandler(function(saved){
+
+            let html = "";
+
+            categories.forEach(cat => {
+
+                let checked = "";
+
+                if (
+                    Array.isArray(saved) &&
+                    saved.includes(cat)
+                ) {
+                    checked = "checked";
+                }
+
+                html += `
+                <label class="flex items-center gap-3 border p-3 rounded-xl hover:bg-pink-50 cursor-pointer">
+
+                    <input
+                        type="checkbox"
+                        value="${cat}"
+                        ${checked}
+                        class="buffet-category-check accent-red-600 w-5 h-5">
+
+                    <span class="font-medium">
+                        ${cat}
+                    </span>
+
+                </label>`;
+            });
+
+            let allChecked = "";
+
+            if (
+                Array.isArray(saved) &&
+                saved.includes("ALL")
+            ) {
+                allChecked = "checked";
+            }
+
+            html += `
+            <label class="flex items-center gap-3 border p-3 rounded-xl bg-yellow-50 hover:bg-yellow-100 cursor-pointer">
+
+                <input
+                    type="checkbox"
+                    value="ALL"
+                    ${allChecked}
+                    class="buffet-category-check accent-red-600 w-5 h-5">
+
+                <span class="font-bold">
+                    ALL (ทุกหมวดหมู่)
+                </span>
+
+            </label>`;
+
+            document.getElementById(
+                'buffetCategoryContainer'
+            ).innerHTML = html;
+
+            document.getElementById(
+                'buffetCategoryModal'
+            ).classList.remove('hidden');
+
+        })
+        .getBuffetCategoriesGS(packageName);
+
+    })
+    .getProductCategoriesGS();
+}
+
+function saveBuffetCategoryData(){
+
+    let selected = [];
+
+    document
+    .querySelectorAll('.buffet-category-check:checked')
+    .forEach(el => {
+
+        selected.push(el.value);
+
+    });
+
+    google.script.run
+    .withSuccessHandler(function(){
+
+        showToast(
+            "บันทึกหมวดหมู่สำเร็จ",
+            "success"
+        );
+
+        document
+        .getElementById('buffetCategoryModal')
+        .classList.add('hidden');
+
+    })
+    .saveBuffetCategoriesGS(
+        currentBuffetPackage,
+        selected
+    );
+}
+
     function openBuffetPackageModal() {
         document.getElementById('buffetFormTitle').innerText = "➕ เพิ่มราคาแพ็กเกจใหม่";
         document.getElementById('oldBuffetName').value = "";
