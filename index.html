@@ -8,9 +8,9 @@
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<link rel="icon" type="image/png" href="https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png" sizes="192x192">
+<link rel="icon" type="image/png" href="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png" sizes="192x192">
 
-<link rel="apple-touch-icon" href="https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png">
+<link rel="apple-touch-icon" href="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="FamePOS">
@@ -92,7 +92,7 @@
 
 <div id="loginOverlay" class="fixed inset-0 bg-gradient-to-br from-rose-50 via-white to-rose-100 flex flex-col items-center justify-center z-[9999] p-4">
   <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-rose-100 flex flex-col items-center text-center">
-    <img src="https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png" class="w-24 h-24 object-contain mb-4 drop-shadow-md">
+    <img src="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png" class="w-24 h-24 object-contain mb-4 drop-shadow-md">
     <h2 class="text-3xl font-bold text-gray-800">FamePOS</h2>
     <p class="text-gray-500 text-sm mt-1 mb-8">ระบบจัดการร้านค้า ยินดีให้บริการ</p>
     
@@ -144,12 +144,8 @@
       <a id="nav-shift" onclick="showView('shift')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
         <span class="text-xl">⏱️</span> <span class="hidden lg:block">จัดการกะ</span>
       </a>
-
-      <a id="nav-table-plan" onclick="showView('tablePlan')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
-        <span class="text-xl">🍽️</span> <span class="hidden lg:block">ผังโต๊ะ</span>
-      </a>
       
- <a id="nav-cds" onclick="syncCustomerDisplay(); window.open('https://famepos.github.io/Coffee/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
+ <a id="nav-cds" onclick="syncCustomerDisplay(); window.open('https://famepos.github.io/restaurant/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition">
         <span class="text-xl">🖥️</span> <span class="hidden lg:block">หน้าจอลูกค้า (CDS)</span>
       </a>
 
@@ -207,9 +203,14 @@
     </div>
 
     <div class="flex flex-wrap gap-2 mb-4">
-        <button onclick="holdOrder()" class="flex-1 bg-orange-100 text-orange-600 p-2 rounded-xl font-bold hover:bg-orange-200 transition text-sm shadow-sm">⏸️ พักบิล</button>
-        <button onclick="openRecallModal()" class="flex-1 bg-rose-100 text-rose-700 p-2 rounded-xl font-bold hover:bg-rose-200 transition text-sm relative shadow-sm">📋 เรียกบิล <span id="heldCount" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden shadow-md">0</span></button>
-        <button onclick="clearCart()" class="flex-1 bg-red-100 text-red-600 p-2 rounded-xl font-bold hover:bg-red-200 transition text-sm shadow-sm">🗑️ ล้างบิล</button>
+<button onclick="holdOrder()" class="flex-1 bg-pink-100 text-pink-600 p-2 rounded-xl font-bold hover:bg-pink-200 transition text-sm shadow-sm">⏸️ พักบิล</button>
+
+<button onclick="openRecallModal()" class="flex-1 bg-orange-100 text-orange-600 p-2 rounded-xl font-bold hover:bg-orange-200 transition text-sm relative shadow-sm">
+    📋 เรียกบิล 
+    <span id="heldCount" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden shadow-md">0</span>
+</button>
+
+<button onclick="clearCart()" class="flex-1 bg-rose-100 text-rose-600 p-2 rounded-xl font-bold hover:bg-rose-200 transition text-sm shadow-sm">🗑️ ล้างบิล</button>
         <button id="btnUndoCart" onclick="undoClearCart()" class="hidden flex-1 bg-gray-800 text-white p-2 rounded-xl font-bold hover:bg-gray-900 transition text-sm shadow-md">↩️ ดึงกลับ</button>
     </div>
 
@@ -284,24 +285,6 @@
 </div>
 
     <!-- ================= หน้าจอ: บิล ================= -->
-
-    <div id="tablePlanView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-      <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 gap-4">
-          <div>
-              <h1 class="text-3xl font-bold text-rose-800 flex items-center gap-2">🍽️ ผังโต๊ะร้านอาหาร</h1>
-              <p class="text-gray-500 text-sm mt-1 font-medium">กดที่โต๊ะสีเขียวเพื่อเปิดบิลใหม่ หรือกดโต๊ะสีแดงเพื่อคิดเงิน</p>
-          </div>
-          <button onclick="loadTablePlanDashboard()" class="px-5 py-3 bg-white text-rose-600 font-bold rounded-xl border-2 border-rose-200 hover:bg-rose-50 transition shadow-sm flex items-center gap-2 whitespace-nowrap">
-              🔄 อัปเดตผังโต๊ะ
-          </button>
-        </div>
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 content-start" id="tablePlanGrid">
-           </div>
-      </div>
-    </div>
-
 </div> <div id="historyView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
 <div class="w-full mt-6 mb-6 min-h-[calc(100vh-3rem)] bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col">        
         <div class="flex flex-col xl:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
@@ -335,10 +318,16 @@
         <div class="flex justify-between items-center mb-6 border-b pb-4">
           <h1 class="text-3xl font-bold text-rose-800">📑 จัดการสินค้า (Stock)</h1>
           <div class="flex gap-3">
-             <button onclick="loadAdminProducts()" class="px-5 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition shadow-sm">🔄 รีเฟรช</button>
-             <button onclick="openProductModal()" class="px-5 py-3 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition shadow-sm flex items-center gap-2"><span>➕</span> เพิ่มสินค้าใหม่</button>
-             <button onclick="openModifiersManagerModal()" class="px-5 py-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition shadow-sm flex items-center gap-2">
+<button onclick="loadAdminProducts()" class="px-5 py-3 bg-pink-100 text-pink-600 font-bold rounded-xl hover:bg-pink-200 transition shadow-sm flex items-center gap-2">
+    🔄 รีเฟรช
+</button>
+
+<button onclick="openModifiersManagerModal()" class="px-5 py-3 bg-orange-100 text-orange-600 font-bold rounded-xl hover:bg-orange-200 transition shadow-sm flex items-center gap-2">
     <span>🧩</span> ตัวเลือกเสริม
+</button>
+
+<button onclick="openProductModal()" class="px-5 py-3 bg-rose-100 text-rose-600 font-bold rounded-xl hover:bg-rose-200 transition shadow-sm flex items-center gap-2">
+    <span>➕</span> เพิ่มสินค้าใหม่
 </button>
           </div>
         </div>
@@ -488,21 +477,20 @@
                    <span class="text-gray-500 font-bold text-xs leading-none">v</span>
                  </button>
                  
-             <div id="reportDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
-                   <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-green-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
-                   <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">📦 รายงานสินค้าขายดี</div>
-                   <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
-                   <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
-                   
-                   <div onclick="selectReport('user', '👨‍💼 รายงานยอดขายพนักงาน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">👨‍💼 รายงานยอดขายพนักงาน</div>
-                   <div onclick="selectReport('branch', '🏢 รายงานยอดขายสาขา', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-green-50 transition-colors">🏢 รายงานยอดขายสาขา</div>
-                   
-                   <div class="border-t border-gray-100 my-1"></div>
-                   <div onclick="selectReport('void', '❌ รายงานบิลที่ยกเลิก', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-red-50 transition-colors">❌ รายงานบิลที่ยกเลิก</div>
-                 </div>
+         <div id="reportDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+    <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-rose-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
+    <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">📦 รายงานสินค้าขายดี</div>
+    <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
+    <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
+    <div onclick="selectReport('user', '👨‍💼 รายงานยอดขายพนักงาน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">👨‍💼 รายงานยอดขายพนักงาน</div>
+    <div onclick="selectReport('branch', '🏢 รายงานยอดขายสาขา', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-rose-50 transition-colors">🏢 รายงานยอดขายสาขา</div>
+    
+    <div class="border-t border-gray-100 my-1"></div>
+    <div onclick="selectReport('void', '❌ รายงานบิลที่ยกเลิก', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-red-50 transition-colors">❌ รายงานบิลที่ยกเลิก</div>
+</div>
                </div>
 
-               <button onclick="downloadCSV()" class="px-4 py-2.5 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
+               <button onclick="downloadCSV()" class="px-4 py-2.5 bg-rose-300 text-white font-bold rounded-xl hover:bg-rose-400 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
                   📥 โหลดไฟล์ CSV
                </button>
                
@@ -1132,6 +1120,9 @@
           <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 border-transparent hover:border-rose-200 transition" onclick="openTableManagement()">
             <div class="text-5xl mb-4">🪑</div><h3 class="font-bold text-lg text-rose-700">จัดการโต๊ะ & QR</h3>
           </div>
+          <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 transition" onclick="openBuffetManagementMenu()">
+            <div class="text-5xl mb-4">🥩</div><h3 class="font-bold text-lg text-rose-700">จัดการราคาบุฟเฟต์</h3>
+          </div>
           <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-red-50 border-transparent hover:border-red-200 transition" onclick="triggerFactoryReset()">
             <div class="text-5xl mb-4">🧨</div><h3 class="font-bold text-lg text-rose-600">รีเซ็ตระบบ</h3>
           </div>
@@ -1474,11 +1465,11 @@
       <div class="bg-red-50 p-5 rounded-2xl border border-rose-100 flex flex-col gap-3 shadow-sm">
         <h3 class="font-bold text-rose-800 border-b border-rose-200 pb-2 flex items-center gap-2"><span>➖</span> การใช้แต้มแลกส่วนลด</h3>
         <div class="flex items-center gap-2 text-sm font-bold text-rose-700">
-          <span class="whitespace-nowrap">ส่วนลด</span>
-          <input type="number" id="settingRedeemPoint" class="w-full p-2 rounded-xl border border-rose-200 text-center outline-none focus:border-rose-500 focus:bg-white" placeholder="เช่น 10">
-          <span class="whitespace-nowrap">บาท = ใช้แต้ม</span>
+          <span class="whitespace-nowrap">ใช้แต้ม</span>
+          <input type="number" id="settingRedeemPoint" class="w-full p-2 rounded-xl border border-rose-200 text-center outline-none focus:border-rose-500 focus:bg-white" placeholder="เช่น 100">
+          <span class="whitespace-nowrap">แต้ม = ส่วนลด</span>
           <input type="number" id="settingRedeemBaht" class="w-full p-2 rounded-xl border border-rose-200 text-center outline-none focus:border-rose-500 focus:bg-white" placeholder="เช่น 1">
-          <span class="whitespace-nowrap">แต้ม</span>
+          <span class="whitespace-nowrap">บาท</span>
         </div>
       </div>
       
@@ -1495,24 +1486,56 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-x-auto rounded-xl border border-gray-200 shadow-inner">
+<div class="flex-1 overflow-x-auto rounded-xl border border-gray-200 shadow-inner">
        <table class="w-full text-left border-collapse">
          <thead>
              <tr class="bg-rose-50 text-rose-800 border-b border-rose-100">
                 <th class="p-4 font-bold">เบอร์โทรศัพท์ (ID)</th>
                 <th class="p-4 font-bold">ประเภทลูกค้า</th>
-                <th class="p-4 font-bold text-center text-amber-500">แต้มสะสม</th>
+                <th class="p-4 font-bold text-center text-rose-500">แต้มสะสม</th>
                 <th class="p-4 font-bold text-right text-rose-600">ยอดซื้อสะสม (บาท)</th>
                 <th class="p-4 font-bold text-center text-gray-500">อัปเดตล่าสุด</th>
-             </tr>
+                <th class="p-4 font-bold text-center text-gray-500">จัดการ</th> </tr>
          </thead>
          <tbody id="memberTableBody" class="divide-y divide-gray-100 text-gray-700">
-             <tr><td colspan="5" class="p-8 text-center text-gray-400 font-bold">⏳ กำลังโหลดข้อมูล...</td></tr>
-         </tbody>
-</table>
+             <tr><td colspan="6" class="p-8 text-center text-gray-400 font-bold">⏳ กำลังโหลดข้อมูล...</td></tr> </tbody>
+      </table>
     </div>
   </div>
 
+    <!-- ================= หน้าจอ: แก้ไขสมาชิก ================= -->
+<div id="editCustomerModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl relative animate-fade-in">
+        <button onclick="document.getElementById('editCustomerModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+        <h2 class="text-xl font-bold text-rose-800 mb-4 flex items-center gap-2">📝 แก้ไขข้อมูลสมาชิก</h2>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1">เบอร์โทรศัพท์ (ID)</label>
+                <input type="text" id="editCusPhone" readonly class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 font-bold outline-none cursor-not-allowed">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1">ชื่อลูกค้า (ถ้ามี)</label>
+                <input type="text" id="editCusName" class="w-full p-3 border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-400 outline-none text-gray-700">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1">ประเภทลูกค้า</label>
+                <select id="editCusType" class="w-full p-3 border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-400 outline-none text-rose-700 font-bold">
+                    <option value="ลูกค้าทั่วไป">ลูกค้าทั่วไป</option>
+                    <option value="VIP">VIP</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1">แต้มสะสม</label>
+                <input type="number" id="editCusPoints" class="w-full p-3 border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-400 outline-none text-rose-600 font-bold text-lg text-center">
+            </div>
+        </div>
+
+        <button onclick="saveEditCustomer()" id="btnSaveEditCustomer" class="w-full mt-6 bg-rose-500 text-white font-bold py-3.5 rounded-xl text-lg hover:bg-rose-600 shadow-md transition">
+            💾 บันทึกการแก้ไข
+        </button>
+    </div>
+</div>
 
     <!-- ================= หน้าจอ: พิมพ์บาร์โค้ดสินค้า ================= -->
 </div> <div id="barcodeSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
@@ -1680,9 +1703,9 @@
 </div>
 
 <div id="addTableModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl relative flex flex-col">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-md shadow-2xl relative flex flex-col">
         <button onclick="closeAddTableModal()" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
-        <h3 id="tableFormTitle" class="text-xl font-bold mb-4 text-rose-700 border-b pb-3">➕ เพิ่มโต๊ะใหม่</h3>
+        <h3 id="tableFormTitle" class="text-xl font-bold mb-4 text-rose-700 border-b pb-3">➕ เพิ่ม/แก้ไขโต๊ะ</h3>
         <input type="hidden" id="tableRowIdx" value="">
         
         <div class="space-y-4 mb-6">
@@ -1690,15 +1713,51 @@
                 <label class="block text-sm font-bold text-gray-600 mb-1.5">ชื่อโต๊ะ / หมายเลขโต๊ะ <span class="text-red-500">*</span></label>
                 <input type="text" id="newTableName" class="w-full p-3.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-rose-500 font-semibold text-gray-700 transition" placeholder="เช่น โต๊ะ 01, บาร์ 02">
             </div>
-<div class="relative" id="tableStatusContainer">
-              <label class="block text-sm font-semibold mb-2 text-gray-700">สถานะโต๊ะ</label>
+            
+            <!-- 🌟 เพิ่มช่องกรอกโซนพื้นที่ -->
+     <!-- 🌟 เปลี่ยนเป็น Dropdown เลือกโซนพื้นที่แทนการพิมพ์ -->
+            <div class="relative" id="tableZoneContainer">
+                <label class="block text-sm font-bold text-gray-600 mb-1.5">โซนพื้นที่ (Zone)</label>
+                <input type="hidden" id="newTableZone" value="หน้าร้าน">
+                
+                <button type="button" onclick="document.getElementById('tableZoneMenu').classList.toggle('hidden')" class="w-full p-3.5 border-2 border-gray-100 text-gray-700 font-bold rounded-xl bg-white focus:outline-none focus:border-rose-500 transition text-left flex justify-between items-center">
+                    <span id="tableZoneText">หน้าร้าน</span>
+                    <span class="text-gray-400 text-xs leading-none">▼</span>
+                </button>
+                
+                <div id="tableZoneMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden max-h-48 overflow-y-auto">
+                    <div onclick="selectTableZone('หน้าร้าน', this)" class="table-zone-item p-3 hover:bg-rose-50 hover:text-rose-600 text-rose-700 bg-rose-50 font-bold cursor-pointer border-b border-gray-50 transition-colors">หน้าร้าน</div>
+                    <div onclick="selectTableZone('โซนด้านใน', this)" class="table-zone-item p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold cursor-pointer border-b border-gray-50 transition-colors">โซนด้านใน</div>
+                    <div onclick="selectTableZone('โซนสวน', this)" class="table-zone-item p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold cursor-pointer border-b border-gray-50 transition-colors">โซนสวน</div>
+                    <div onclick="selectTableZone('ชั้น 2', this)" class="table-zone-item p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold cursor-pointer border-b border-gray-50 transition-colors">ชั้น 2</div>
+                    <div onclick="selectTableZone('VIP', this)" class="table-zone-item p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold cursor-pointer transition-colors">VIP</div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <!-- 🌟 เพิ่มปุ่มเลือกทรงโต๊ะ -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1.5">รูปทรงโต๊ะ</label>
+                    <input type="hidden" id="newTableShape" value="square">
+                    <div class="flex gap-2">
+                        <button type="button" id="btnShapeSquare" onclick="setTableShape('square')" class="flex-1 py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition shadow-sm">สี่เหลี่ยม</button>
+                        <button type="button" id="btnShapeRound" onclick="setTableShape('round')" class="flex-1 py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm">วงกลม</button>
+                    </div>
+                </div>
+                <!-- 🌟 เพิ่มช่องใส่จำนวนที่นั่ง -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1.5">จำนวนที่นั่ง</label>
+                    <input type="number" id="newTableCapacity" class="w-full p-3.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-rose-500 font-bold text-rose-700 transition text-center text-lg bg-gray-50" value="4" min="1">
+                </div>
+            </div>
+
+            <div class="relative" id="tableStatusContainer">
+              <label class="block text-sm font-semibold mb-2 text-gray-700">สถานะเริ่มต้น</label>
               <input type="hidden" id="tableStatus" value="ว่าง">
-              
               <button type="button" onclick="document.getElementById('tableStatusMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-rose-200 text-rose-700 font-bold rounded-xl bg-white focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 flex justify-between items-center shadow-sm transition text-left">
                   <span id="tableStatusText">🟢 ว่าง</span>
                   <span class="text-rose-500 text-xs leading-none">▼</span>
               </button>
-              
               <div id="tableStatusMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden">
                   <div onclick="selectTableStatus('ว่าง', '🟢 ว่าง', this)" class="table-status-item p-3 hover:bg-rose-50 hover:text-rose-600 text-rose-700 bg-rose-50 font-bold cursor-pointer border-b border-rose-50 transition-colors">🟢 ว่าง</div>
                   <div onclick="selectTableStatus('ไม่ว่าง', '🔴 ไม่ว่าง (มีลูกค้า)', this)" class="table-status-item p-3 hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold cursor-pointer transition-colors">🔴 ไม่ว่าง (มีลูกค้า)</div>
@@ -1712,11 +1771,104 @@
     </div>
 </div>
 
+    <!-- ================= หน้าจอ:ตารางราคาบุฟเฟต์ ================= -->
+
+<div id="buffetManagementView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
+  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-rose-100 flex flex-col">
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
+      <div class="flex items-center gap-4">
+        <button onclick="backToSettings()" class="text-gray-500 hover:text-rose-600 bg-gray-100 hover:bg-rose-50 p-2 rounded-xl transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 class="text-2xl font-bold text-rose-800">🥩 ตั้งค่าราคา & แพ็กเกจบุฟเฟต์</h1>
+      </div>
+      <button onclick="openBuffetPackageModal()" class="bg-rose-600 text-white px-5 py-2.5 rounded-xl hover:bg-rose-700 font-bold transition shadow">
+          + เพิ่มราคาแพ็กเกจใหม่
+      </button>
+    </div>
+    <div class="flex-1 overflow-x-auto rounded-xl border border-gray-100 shadow-inner">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-rose-50">
+                <tr>
+                    <th class="p-4 text-rose-800 font-bold">ชื่อแพ็กเกจบุฟเฟต์</th>
+                    <th class="p-4 text-rose-800 font-bold text-center">ราคาต่อหัว (บาท)</th>
+                    <th class="p-4 text-rose-800 font-bold text-center">เวลาจำหน่าย (นาที)</th>
+                    <th class="p-4 text-rose-800 font-bold text-center w-40">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="buffetPackageTableBody">
+                <tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดราคาบุฟเฟต์... ⏳</td></tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+
+<div id="buffetFormModal" class="hidden fixed inset-0 bg-rose/50 backdrop-rose-sm z-[210] flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-[2rem] w-full max-w-sm shadow-2xl relative flex flex-col">
+        <h3 id="buffetFormTitle" class="text-xl font-bold mb-4 text-rose-700 border-b pb-2">🥩 แพ็กเกจราคา</h3>
+        <input type="hidden" id="oldBuffetName" value="">
+        <div class="space-y-3 mb-6">
+            <div>
+                <label class="block text-xs font-bold text-rose-400 mb-1">ชื่อเรียกแพ็กเกจ</label>
+                <input type="text" id="buffetNameInput" class="w-full p-2.5 border rounded-xl outline-none" placeholder="เช่น บุฟเฟต์ทะเลเผา">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-rose-400 mb-1">ราคาเหมาต่อหัว (บาท)</label>
+                <input type="number" id="buffetPriceInput" class="w-full p-2.5 border rounded-xl outline-none text-center font-bold text-rose-600" placeholder="399">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-rose-400 mb-1">จำกัดเวลารับประทาน (นาที)</label>
+                <input type="number" id="buffetTimeInput" class="w-full p-2.5 border rounded-xl outline-none text-center font-bold" value="90">
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="document.getElementById('buffetFormModal').classList.add('hidden')" class="flex-1 py-2.5 bg-gray-100 rounded-xl font-bold text-sm">ยกเลิก</button>
+            <button onclick="saveBuffetPackageData()" class="flex-1 py-2.5 bg-rose-600 text-white rounded-xl font-bold text-sm shadow">💾 บันทึกข้อมูล</button>
+        </div>
+    </div>
+</div>
+
+<div id="buffetCategoryModal"
+     class="hidden fixed inset-0 bg-black/60 z-[200] flex items-center justify-center">
+
+    <div class="bg-white rounded-3xl p-6 w-full max-w-2xl">
+
+        <h3 id="buffetCategoryTitle"
+            class="text-xl font-bold mb-4">
+            📂 จัดการหมวดหมู่
+        </h3>
+
+        <div id="buffetCategoryContainer"
+             class="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto">
+        </div>
+
+        <div class="flex justify-end gap-3 mt-5">
+
+            <button
+                onclick="document.getElementById('buffetCategoryModal').classList.add('hidden')"
+                class="px-4 py-2 bg-gray-200 rounded-xl">
+                ยกเลิก
+            </button>
+
+            <button
+                onclick="saveBuffetCategoryData()"
+                class="px-4 py-2 bg-rose-500 text-white rounded-xl">
+                บันทึก
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
     <!-- ================= หน้าจอ:รีเซ็ตระบบ ================= -->
 
 <div id="factoryWelcomeView" class="hidden fixed inset-0 bg-rose-50 z-[999] flex flex-col items-center justify-center text-center p-6 animate-fade-in">
     <div class="bg-white p-12 rounded-[2.5rem] shadow-2xl border border-rose-100 flex flex-col items-center max-w-sm w-full">
-        <img src="https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png" class="w-32 h-32 object-contain mb-4 drop-shadow-md">
+        <img src="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png" class="w-32 h-32 object-contain mb-4 drop-shadow-md">
         <h2 class="text-3xl font-bold text-rose-800 mb-1">FamePOS</h2>
         <p class="text-rose-600 font-bold text-sm mb-6">ระบบจัดการร้านค้าสำเร็จรูป</p>
         
@@ -1745,8 +1897,8 @@
         <div id="memberPointSection" class="hidden mb-4 p-4 bg-rose-50/80 rounded-2xl border border-rose-200 transition-all shadow-inner">
             <div class="flex justify-between items-center mb-3">
                 <span class="font-bold text-rose-800 flex items-center gap-1.5">
-                    <span class="text-amber-400 text-xl drop-shadow-sm">🌟</span> 
-                    แต้มสะสม: <span id="currentMemberPoints" class="text-2xl text-amber-500 ml-1">0</span> 
+                    <span class="text-rose-400 text-xl drop-shadow-sm">🌟</span> 
+                    แต้มสะสม: <span id="currentMemberPoints" class="text-2xl text-rose-500 ml-1">0</span> 
                 </span>
                 <span class="text-xs font-bold text-rose-700 bg-rose-100/80 px-3 py-1.5 rounded-lg border border-rose-200">
                     ลดได้สูงสุด ฿<span id="maxPointDiscount" class="text-sm">0.00</span>
@@ -1754,7 +1906,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <input type="number" id="usePointsInput" oninput="calculateChange()" placeholder="ระบุแต้มที่ต้องการใช้" class="w-full p-3 rounded-xl border-2 border-rose-200 outline-none focus:border-rose-400 focus:bg-white font-bold text-rose-700 bg-rose-50/50 transition">
-                <button onclick="useMaxPoints()" class="px-4 py-3 bg-amber-400 text-white font-bold rounded-xl text-sm whitespace-nowrap shadow-sm hover:bg-amber-500 transition active:scale-95">ใช้สูงสุด</button>
+                <button onclick="useMaxPoints()" class="px-4 py-3 bg-rose-400 text-white font-bold rounded-xl text-sm whitespace-nowrap shadow-sm hover:bg-rose-500 transition active:scale-95">ใช้สูงสุด</button>
             </div>
             <div id="pointDiscountDisplay" class="hidden mt-3 text-sm font-bold text-orange-500 text-right bg-orange-50 p-2.5 rounded-xl border border-orange-100 shadow-sm">
                 ✨ ส่วนลดจากแต้ม: -฿<span id="pointDiscountValue">0.00</span>
@@ -2293,13 +2445,13 @@
   <div class="bg-white rounded-[2.5rem] w-full max-w-2xl p-8 shadow-2xl relative flex flex-col max-h-[85vh]">
     <button onclick="document.getElementById('modifiersManagerModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
     <div class="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 class="text-2xl font-bold text-amber-600 flex items-center gap-2">🧩 จัดการกลุ่มตัวเลือกเสริม ทั้งหมด</h2>
+        <h2 class="text-2xl font-bold text-rose-600 flex items-center gap-2">🧩 จัดการกลุ่มตัวเลือกเสริม ทั้งหมด</h2>
         <button onclick="openModifierGroupForm()" class="px-4 py-2 bg-rose-500 text-white font-bold rounded-xl text-sm hover:bg-rose-600 transition">+ สร้างกลุ่มใหม่</button>
     </div>
     <div class="flex-1 overflow-y-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-amber-50 text-amber-900 font-bold border-b text-sm">
+                <tr class="bg-rose-50 text-rose-900 font-bold border-b text-sm">
                     <th class="p-3">ชื่อกลุ่มตัวเลือก</th>
                     <th class="p-3">รายการย่อยภายในกลุ่ม</th>
                     <th class="p-3 text-center w-32">จัดการ</th>
@@ -2318,7 +2470,7 @@
     <input type="hidden" id="oldModGroupName">
     <div class="mb-4">
         <label class="block text-sm font-bold text-gray-600 mb-1">ชื่อกลุ่มตัวเลือก (เช่น ความหวาน, ท็อปปิ้ง)</label>
-        <input type="text" id="modGroupNameInput" class="w-full p-3 border rounded-xl outline-none focus:border-amber-500 font-bold" placeholder="ระบุชื่อกลุ่ม...">
+        <input type="text" id="modGroupNameInput" class="w-full p-3 border rounded-xl outline-none focus:border-rose-500 font-bold" placeholder="ระบุชื่อกลุ่ม...">
     </div>
     <div class="flex justify-between items-center mb-2">
         <label class="text-sm font-bold text-gray-600">รายการย่อย & ราคาบวกเพิ่ม</label>
@@ -2517,6 +2669,101 @@
         <button id="btnConfirmQR" onclick="confirmPayment()" class="w-full py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-lg shadow-md transition active:scale-95">
             ชำระเงินเรียบร้อยแล้ว
         </button>
+    </div>
+</div>
+
+    <!-- ================= หน้าจอ: ป๊อปอัปเปิดโต๊ะ (เลือกว่าเป็น Buffet หรือ A la carte) ================= -->
+<div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl relative flex flex-col">
+        <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
+        
+        <div class="text-center mb-4">
+            <h2 class="text-2xl font-black text-rose-700">🪑 เปิดโต๊ะอาหาร: <span id="openTableNameDisplay">-</span></h2>
+            <p class="text-xs text-gray-400 mt-0.5">ระบุประเภทแพ็กเกจ จำนวนลูกค้า และเงื่อนไขรับชำระเงิน</p>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">รูปแบบการบริการ</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition shadow-sm text-sm">🥩 ระบบบุฟเฟต์</button>
+                    <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm text-sm">🍽️ สั่งแยก (A la carte)</button>
+                </div>
+                <input type="hidden" id="selectedTableMode" value="Buffet">
+            </div>
+
+           <div id="buffetPackageContainer" class="relative">
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">เลือกแพ็กเกจราคาบุฟเฟต์</label>
+                
+                <input type="hidden" id="selectBuffetPackage" value="">
+                <input type="hidden" id="selectBuffetPackagePrice" value="0">
+                <input type="hidden" id="selectBuffetPackageTime" value="90">
+                
+                <button type="button" onclick="toggleBuffetDropdown()" class="w-full p-3.5 border-2 border-rose-100 rounded-xl bg-white text-left flex justify-between items-center focus:outline-none focus:border-rose-400 shadow-sm transition">
+                    <span id="buffetPackageSelectedText" class="text-rose-700 font-bold text-sm">🥩 กำลังโหลดแพ็กเกจ...</span>
+                    <span class="text-rose-500 text-xs leading-none">▼</span>
+                </button>
+                
+                <div id="buffetPackageMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-rose-100 rounded-xl shadow-lg z-50 overflow-hidden max-h-48 overflow-y-auto">
+                    </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">จำนวนลูกค้า (ท่าน)</label>
+                    <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                        <button type="button" onclick="adjustHeadCount(-1)" class="w-10 py-2.5 font-bold text-gray-500 hover:bg-gray-200">-</button>
+                        <input type="number" id="inputHeadCount" value="1" min="1" class="w-full text-center bg-transparent font-bold text-gray-800 outline-none">
+                        <button type="button" onclick="adjustHeadCount(1)" class="w-10 py-2.5 font-bold text-gray-500 hover:bg-gray-200">+</button>
+                    </div>
+                </div>
+                <div id="timeLimitContainer">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">จำกัดเวลา (นาที)</label>
+                    <div class="flex items-center border border-rose-100 rounded-xl overflow-hidden bg-rose-50/40">
+                        <button type="button" onclick="adjustTimeLimit(-10)" class="w-10 py-2.5 font-bold text-rose-600 hover:bg-rose-100">-</button>
+                        <input type="number" id="inputTimeLimit" value="90" min="1" class="w-full text-center bg-transparent font-bold text-rose-700 outline-none">
+                        <button type="button" onclick="adjustTimeLimit(10)" class="w-10 py-2.5 font-bold text-rose-600 hover:bg-rose-100">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">รูปแบบการชำระเงิน</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="btnPayLater" onclick="setPaymentWorkflow(false)" class="py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition text-xs shadow-sm">💵 กินก่อนจ่ายทีหลัง</button>
+                    <button type="button" id="btnPayNow" onclick="setPaymentWorkflow(true)" class="py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm">💳 จ่ายก่อนกิน (Prepaid)</button>
+                </div>
+                <input type="hidden" id="isPrepaidWorkflow" value="false">
+            </div>
+        </div>
+
+        <button onclick="confirmOpenTable()" id="btnConfirmOpenTable" class="w-full mt-6 py-4 bg-rose-600 text-white rounded-2xl font-bold text-lg hover:bg-rose-700 transition shadow-md active:scale-95 transform">
+            🚀 ยืนยันเปิดโต๊ะ & พิมพ์คิวอาร์สั่งอาหาร
+        </button>
+    </div>
+</div>
+
+<div id="tableQRPrintContainer" class="hidden flex-col bg-white p-6 text-black" style="font-family: 'Courier New', monospace; max-width: 300px; margin: auto;">
+    <div class="text-center border-b-2 border-black pb-3 mb-3">
+        <h1 class="text-2xl font-black" id="printSlipStoreName">FamePOS Buffet</h1>
+        <p class="text-xs mt-1 font-bold">ใบเปิดโต๊ะ & คิวอาร์สั่งอาหาร</p>
+    </div>
+    <div class="text-sm space-y-1.5 font-bold mb-4">
+        <div class="flex justify-between text-xl font-black bg-black text-white p-1 text-center justify-center rounded-md"><span>หมายเลข: <span id="printSlipTable">-</span></span></div>
+        <div class="flex justify-between pt-2"><span>รูปแบบ:</span><span id="printSlipMode">-</span></div>
+        <div class="flex justify-between"><span>แพ็กเกจ:</span><span id="printSlipPkg">-</span></div>
+        <div class="flex justify-between"><span>จำนวนลูกค้า:</span><span><span id="printSlipHead">-</span> ท่าน</span></div>
+        
+        <div class="flex justify-between border-t border-dashed border-gray-300 pt-2 mt-2"><span>เวลาเริ่มทาน:</span><span id="printSlipStartTime">-</span></div>
+        <div class="flex justify-between text-rose-600"><span>เวลาหมดรอบ:</span><span id="printSlipEndTime">-</span></div>
+    </div>
+    <div class="text-center border-t border-b border-dashed border-black py-4 my-2 flex flex-col items-center">
+        <p class="text-xs font-bold mb-2">📸 สแกนคิวอาร์ด้านล่างเพื่อสั่งอาหาร</p>
+        <img id="printSlipQRImage" src="" class="w-48 h-48 object-contain mx-auto">
+    </div>
+    <div class="text-center text-xs font-bold mt-2 text-gray-500">
+        <p>*** โปรดเก็บสลิปใบนี้ไว้เพื่อสั่งอาหาร ***</p>
+        <p class="mt-1">Powered by FamePOS</p>
     </div>
 </div>
 
@@ -2747,7 +2994,7 @@ function renderProductGrid(data) {
         // สลับโหมดราคาขายตามปุ่มรูปแบบบริการหน้าร้านที่เลือกอยู่
         let activePrice = (currentOrderType === 'เดลิเวอรี่') ? deliveryPrice : normalPrice;
         let imageUrl = row[8] || ""; 
-        let safeName = name.toString().replace(/'/g, "\\'").replace(/"/g, '&quot;');
+let safeName = (name || "").toString().replace(/'/g, "\\'").replace(/"/g, '&quot;');
         let imageDisplay = imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-xl border border-gray-100 shadow-sm" onerror="this.outerHTML='<div class=\\'bg-red-50 w-full h-full rounded-xl flex items-center justify-center text-xs text-red-400\\'>รูปเสีย</div>'">` : `<div class="bg-rose-50 w-full h-full rounded-xl flex items-center justify-center text-4xl shadow-sm border border-rose-100">📦</div>`;
 
         html += `
@@ -2879,20 +3126,19 @@ function updateStoreUI(settings) {
 
   toggleCustomReceiptType();
 }
-
 function showView(viewName) {
     // 1. รวบรวมหน้าจอหลักทั้งหมดให้ครบ
     let views = [
         'salesView', 'settingsView', 'historyView', 'productManagementView', 
         'dashboardView', 'inventoryView', 'stockAdjustView', 'membershipView', 
-        'employeeView', 'shiftView', 'branchManagementView', 'tableManagementView', 'tablePlanView'
+        'employeeView', 'shiftView', 'branchManagementView', 'tableManagementView','buffetManagementView'
     ];
     views.forEach(v => {
         let el = document.getElementById(v);
         if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
     });
-
-    // 2. ซ่อนหน้ารายละเอียดตั้งค่าชั้นในทั้งหมด
+    
+    // 2. ซ่อนหน้ารายละเอียดตั้งค่าชั้นในทั้งหมด (เพิ่มเดลิเวอรี่และโต๊ะเข้าไปในแก๊งนี้ด้วย)
     let settingsViews = [
         'storeInfoView', 'paymentSettingsView', 'receiptSettingsView', 
         'taxServiceSettingsView', 'employeeSettingsView', 'barcodeSettingsView',
@@ -2900,10 +3146,11 @@ function showView(viewName) {
     ];
     settingsViews.forEach(id => { let el = document.getElementById(id); if (el) el.classList.add('hidden'); });
 
-    // 3. จัดการสไตล์ไฮไลต์ของเมนูด้านซ้าย
+    // 3. จัดการสไตล์ไฮไลต์ของเมนูด้านซ้าย (Sidebar)
     let inactiveClass = "flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 font-semibold cursor-pointer transition";
     let activeClass = "flex items-center gap-3 text-rose-700 bg-rose-50 p-3 rounded-xl font-semibold cursor-pointer transition";
-    let navIds = ['nav-sales', 'nav-history', 'nav-settings', 'nav-products', 'nav-dashboard', 'nav-inventory', 'nav-stock_adjust', 'nav-membership', 'nav-shift', 'nav-table-plan'];
+
+    let navIds = ['nav-sales', 'nav-history', 'nav-settings', 'nav-products', 'nav-dashboard', 'nav-inventory', 'nav-stock_adjust', 'nav-membership', 'nav-shift'];
     navIds.forEach(id => {
         let el = document.getElementById(id);
         if(el) el.className = inactiveClass;
@@ -2911,20 +3158,12 @@ function showView(viewName) {
 
     // 4. แสดงหน้าจอเดี่ยวตามที่สั่ง
     if (viewName === 'sales') {
-        let el = document.getElementById('salesView');
-        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('salesView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-sales'); if(nav) nav.className = activeClass;
         if(typeof loadProducts === 'function') loadProducts();
     } 
-    else if (viewName === 'tablePlan') { // 👈 เพิ่มเงื่อนไขหน้าผังโต๊ะ
-        let el = document.getElementById('tablePlanView');
-        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
-        let nav = document.getElementById('nav-table-plan'); if(nav) nav.className = activeClass;
-        if(typeof loadTablePlanDashboard === 'function') loadTablePlanDashboard();
-    }
     else if (viewName === 'history') {
-        let el = document.getElementById('historyView');
-        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('historyView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-history'); if(nav) nav.className = activeClass;
         let today = new Date();
         today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
@@ -2936,32 +3175,27 @@ function showView(viewName) {
         let nav = document.getElementById('nav-settings'); if(nav) nav.className = activeClass;
     }
     else if (viewName === 'products') {
-        let el = document.getElementById('productManagementView');
-        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('productManagementView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-products'); if(nav) nav.className = activeClass;
         if(typeof loadAdminProducts === 'function') loadAdminProducts();
     }
     else if (viewName === 'dashboard') {
-        let el = document.getElementById('dashboardView');
-        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('dashboardView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-dashboard'); if(nav) nav.className = activeClass;
         if(typeof initDashboard === 'function') initDashboard();
     }
     else if (viewName === 'inventory') {
-        let el = document.getElementById('inventoryView');
-        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('inventoryView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-inventory'); if(nav) nav.className = activeClass;
         if(typeof renderStockList === 'function') renderStockList(); 
     }
     else if (viewName === 'membership') {
-        let el = document.getElementById('membershipView');
-        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('membershipView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-membership'); if(nav) nav.className = activeClass;
         if(typeof loadMembers === 'function') loadMembers();
     }
     else if (viewName === 'employee') {
-        let el = document.getElementById('employeeView');
-        if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
+        let el = document.getElementById('employeeView'); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); }
         let nav = document.getElementById('nav-settings'); if(nav) nav.className = activeClass;
         if(typeof loadEmployees === 'function') loadEmployees();
     }
@@ -2981,9 +3215,15 @@ function showView(viewName) {
     else if (viewName === 'table') {
         let tableView = document.getElementById('tableManagementView');
         if (tableView) { tableView.classList.remove('hidden'); tableView.classList.add('flex'); }
-        let navSettings = document.getElementById('nav-settings');
+        let navSettings = document.getElementById('nav-settings'); 
         if(navSettings) navSettings.className = activeClass;
         if(typeof loadTablesData === 'function') loadTablesData();
+    }
+else if (viewName === 'buffetManagement') {
+        // หน้าจอบุฟเฟต์เปิดแสดงผลแบบเดี่ยวๆ ไม่ซ้อนใคร
+        let el = document.getElementById('buffetManagementView');
+        if(el) el.classList.remove('hidden');
+        let nav = document.getElementById('nav-settings'); if(nav) nav.className = activeClass;
     }
 }
     function openStoreInfo() {
@@ -3140,7 +3380,7 @@ function updateCartUI() {
         // 3. เตรียม HTML สำหรับรูปภาพ และ ตัวเลือก
         let imgTag = imgUrl 
             ? `<img src="${imgUrl}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 shrink-0">` 
-            : `<div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl border border-rose-100 shrink-0">📦</div>`;
+            : `<div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl border border-rose-100 shrink-0">🥩</div>`;
         
         let optionsHtml = optionsText 
             ? `<div class="text-xs text-rose-700 font-semibold mt-0.5 leading-tight">${optionsText}</div>` 
@@ -3573,14 +3813,22 @@ function confirmPayment() {
         let elSlipType = document.getElementById('slipOrderTypeDisplay'); if(elSlipType) elSlipType.innerText = finalTypeString;
         let elKitType = document.getElementById('kitchenOrderTypeDisplay'); if(elKitType) elKitType.innerText = finalTypeString;
 
-        let itemsHtml = ""; let kitchenItemsHtml = "";
+let itemsHtml = ""; 
+        let kitchenItemsHtml = "";
+        
         res.cart.forEach(function(item) { 
             let baseName = item.name; let optionsText = "";
             let match = item.name.match(/(.+) \[(.+)\]/);
             if (match) { baseName = match[1].trim(); optionsText = "- " + match[2].trim(); }
-            itemsHtml += `<div class="flex justify-between items-start leading-tight text-sm"><span class="pr-2">${baseName} x${item.qty}</span><span>${item.total.toFixed(2)}</span></div>`;
-            if (optionsText) itemsHtml += `<div class="text-[11px] text-gray-600 mb-1.5">${optionsText}</div>`;
-            else itemsHtml += `<div class="mb-1.5"></div>`;
+            
+            // 🥩 ลอจิกซ่อนเมนูบุฟเฟต์: ถ้าสินค้ารายการนั้นราคารวมเป็น 0 ให้ข้ามไป ไม่ต้องพิมพ์ลงบิลลูกค้า
+            if (item.total > 0) {
+                itemsHtml += `<div class="flex justify-between items-start leading-tight text-sm"><span class="pr-2">${baseName} x${item.qty}</span><span>${item.total.toFixed(2)}</span></div>`;
+                if (optionsText) itemsHtml += `<div class="text-[11px] text-gray-600 mb-1.5">${optionsText}</div>`;
+                else itemsHtml += `<div class="mb-1.5"></div>`;
+            }
+            
+            // 👨‍🍳 แต่สำหรับใบสั่งทำอาหาร (Kitchen Slip) ยังคงต้องพิมพ์ออกมาทุกรายการ เพื่อให้ห้องครัวรู้ว่าต้องทำอะไร
             kitchenItemsHtml += `<div class="flex justify-between items-start border-b border-gray-100 pb-2 mb-2 leading-tight"><div class="flex-1 pr-2"><div class="text-base font-bold text-gray-900">${baseName}</div>${optionsText ? `<div class="text-xs text-gray-600 mt-0.5">${optionsText}</div>` : ''}</div><div class="text-2xl font-bold text-gray-800 shrink-0">x${item.qty}</div></div>`;
         });
 
@@ -3654,30 +3902,89 @@ function confirmPayment() {
 
 // ล้างค่าอินพุตรูปแบบบริการเมื่อจบหนึ่งบิล (ให้กลับไปเป็นสีเทาทั้งหมด)
 function finishRealTime() {
+
+  // 🪑 เก็บหมายเลขโต๊ะก่อนล้างค่า
+  const tableNo = document.getElementById('inputTableNo')?.value || '';
+
+  // 🪑 คืนสถานะโต๊ะเป็น "ว่าง"
+  if (tableNo) {
+    google.script.run
+      .withSuccessHandler(function(updatedTables) {
+        if (updatedTables) {
+          globalSalesTableList = updatedTables;
+          globalTablesList = updatedTables;
+
+          if (
+            typeof loadTablesData === 'function' &&
+            document.getElementById('tableManagementView') &&
+            !document.getElementById('tableManagementView').classList.contains('hidden')
+          ) {
+            loadTablesData();
+          }
+        }
+      })
+      .updateTableStatusGS(tableNo, "ว่าง");
+  }
+
   document.getElementById('receiptModal').classList.add('hidden');
-  cart = []; updateCartUI(); currentCash = "0";
-  document.getElementById('manualServiceInput').value = ""; 
-  document.getElementById('cashInput').innerText = "0"; 
+
+  cart = [];
+  updateCartUI();
+
+  currentCash = "0";
+
+  document.getElementById('manualServiceInput').value = "";
+  document.getElementById('cashInput').innerText = "0";
   document.getElementById('discountInput').value = "0";
   document.getElementById('customerPhone').value = "";
 
-  if (typeof setPaymentType === 'function') setPaymentType('เงินสด');
-  
-  // 🧼🧹 ล้างข้อมูลระบบโต๊ะและข้อมูลแอปเดลิเวอรี่ให้กลับเป็นว่างเปล่า
+  if (typeof setPaymentType === 'function') {
+    setPaymentType('เงินสด');
+  }
+
+  // 🧼 ล้างข้อมูลระบบโต๊ะและเดลิเวอรี่
   currentOrderType = 'ยังไม่ระบุ';
-  let inputTable = document.getElementById('inputTableNo'); if(inputTable) inputTable.value = '';
-  let displayTable = document.getElementById('displaySelectedTable'); if(displayTable) displayTable.innerText = '-';
-  let inputDelOrderId = document.getElementById('inputDeliveryOrderId'); if(inputDelOrderId) inputDelOrderId.value = '';
-  
+
+  let inputTable = document.getElementById('inputTableNo');
+  if (inputTable) inputTable.value = '';
+
+  let displayTable = document.getElementById('displaySelectedTable');
+  if (displayTable) displayTable.innerText = '-';
+
+  let inputDelOrderId = document.getElementById('inputDeliveryOrderId');
+  if (inputDelOrderId) inputDelOrderId.value = '';
+
+  // ล้างประเภทเดลิเวอรี่
+  let deliveryApp = document.getElementById('selectDeliveryApp');
+  if (deliveryApp) deliveryApp.value = 'lineman';
+
+  let deliveryText = document.getElementById('deliveryAppSelectedText');
+  if (deliveryText) deliveryText.innerText = '🛵 LineMan (GP 30%)';
+
+  // รีเซ็ตปุ่มรูปแบบบริการ
   let buttons = document.querySelectorAll('.order-type-btn');
-  buttons.forEach(btn => btn.className = "order-type-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500");
-  
+  buttons.forEach(btn => {
+    btn.className =
+      "order-type-btn py-2 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500";
+  });
+
+  // ซ่อนกล่องโต๊ะและเดลิเวอรี่
   let tableBox = document.getElementById('tableSelectedDisplayContainer');
   let deliveryBox = document.getElementById('deliveryInfoContainer');
-  if(tableBox) { tableBox.classList.add('hidden'); tableBox.classList.remove('flex'); }
-  if(deliveryBox) deliveryBox.classList.add('hidden');
-  
-  clearInterval(qrTimerInterval); calculateChange(); 
+
+  if (tableBox) {
+    tableBox.classList.add('hidden');
+    tableBox.classList.remove('flex');
+  }
+
+  if (deliveryBox) {
+    deliveryBox.classList.add('hidden');
+  }
+
+  clearInterval(qrTimerInterval);
+
+  calculateChange();
+
   syncCustomerDisplay('idle');
 }
 
@@ -4038,47 +4345,70 @@ function openRecallModal() {
 
 function recallOrder(index) {
     if (cart.length > 0) {
-        showConfirmModal("ตะกร้าปัจจุบันมีสินค้าอยู่ หากดึงบิลกลับมาจะลบทิ้งของปัจจุบัน ต้องการดำเนินการต่อหรือไม่?", function() { processRecall(index); });
-    } else { processRecall(index); }
+        showConfirmModal(
+            "ตะกร้าปัจจุบันมีสินค้าอยู่ หากเรียกบิลจะทับตะกร้าปัจจุบัน ต้องการดำเนินการต่อหรือไม่?",
+            function () {
+                processRecall(index);
+            }
+        );
+    } else {
+        processRecall(index);
+    }
 }
 
 function processRecall(index) {
-    let order = heldOrders[index];
-    cart = JSON.parse(JSON.stringify(order.cart)); 
-    
-    // 🧠 ระบบอัจฉริยะ: ดึงสถานะปุ่มกด, โต๊ะ, แอป กลับคืนมาให้หมด!
-    let oType = order.orderType || 'ยังไม่ระบุ';
-    let btnDineIn = document.getElementById('btnOrderDineIn');
-    let btnTakeAway = document.getElementById('btnOrderTakeAway');
-    let btnDelivery = document.getElementById('btnOrderDelivery');
-    
-    if (oType === 'ทานที่ร้าน' && btnDineIn) {
-        // ของใหม่: เติม , true เพื่อกระซิบส่งสัญญาณบอกระบบให้ปิดป๊อปอัปเลือกโต๊ะ
-        setOrderType('DineIn', btnDineIn, true); 
-        if (order.tableNo && order.tableNo !== "") {
-            document.getElementById('inputTableNo').value = order.tableNo;
-            let display = document.getElementById('displaySelectedTable');
-            if(display) display.innerText = order.tableNo;
-        }
-    } else if (oType === 'กลับบ้าน' && btnTakeAway) {
-        setOrderType('TakeAway', btnTakeAway);
-    } else if (oType === 'เดลิเวอรี่' && btnDelivery) {
-        setOrderType('Delivery', btnDelivery);
-        if(order.deliveryApp) document.getElementById('selectDeliveryApp').value = order.deliveryApp;
-        if(order.deliveryId) document.getElementById('inputDeliveryOrderId').value = order.deliveryId;
+    if (!heldOrders[index]) {
+        showToast("ไม่พบบิลที่พักไว้", "error");
+        return;
     }
-    
-    heldOrders.splice(index, 1); 
-    updateCartUI(); 
-    
-    // 👉 ปรับเพิ่ม Safety Check ตรงนี้เพื่อความปลอดภัย ป้องกันแอปค้างครับ ✨
-    if (typeof updateHeldCount === 'function') {
-        updateHeldCount();
-    }
-    
+
+    cart = JSON.parse(JSON.stringify(heldOrders[index].cart));
+
+    heldOrders.splice(index, 1);
+
+    updateCartUI();
+    updateHeldCount();
+
     document.getElementById('recallModal').classList.add('hidden');
+
     showToast("ดึงข้อมูลบิลสำเร็จ", "success");
 }
+
+// ฟังก์ชันลบบิลที่พักไว้ (และคืนสถานะโต๊ะให้กลับมาว่าง)
+function deleteHeldOrder(index) {
+    let order = heldOrders[index];
+    
+    // แจ้งเตือนยืนยันก่อนลบ
+    showConfirmModal(`⚠️ ยืนยันการลบบิลพัก "${order.name}" ใช่หรือไม่?`, function() {
+        
+        // 1. ถ้าบิลนี้ผูกกับโต๊ะไว้ ให้คืนสถานะโต๊ะกลับเป็น "ว่าง" ทันที
+        if (order.tableNo && order.tableNo !== "") {
+            google.script.run.withSuccessHandler(function() {
+                if(typeof loadTablesData === 'function') loadTablesData(true); // รีเฟรชผังโต๊ะ
+            }).updateTableStatusGS(order.tableNo, "ว่าง");
+        }
+
+        // 2. ลบบิลออกจากระบบความจำ
+        heldOrders.splice(index, 1);
+        localStorage.setItem('famepos_held_orders', JSON.stringify(heldOrders)); // อัปเดตเซฟลงเครื่อง
+
+        // 3. อัปเดตตัวเลขแจ้งเตือนปุ่มพักบิล
+        if (typeof updateHeldCount === 'function') {
+            updateHeldCount();
+        }
+
+        // 4. รีเฟรชหน้าต่างรายการ หรือ ปิดหน้าต่างถ้าไม่มีบิลเหลือแล้ว
+        if (heldOrders.length > 0) {
+            openRecallModal(); 
+        } else {
+            document.getElementById('recallModal').classList.add('hidden');
+        }
+
+        showToast("ลบบิลพักเรียบร้อยแล้ว", "success");
+    });
+}
+
+
 
 
 
@@ -4248,9 +4578,9 @@ function loadAdminProducts() {
                     <td class="p-3 font-bold text-rose-600">฿${parseFloat(p.price).toFixed(2)}</td>
                     <td class="p-3 font-bold text-rose-600">${displayRemaining}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="openRecipeManager('${safeName}', ${p.price})" class="px-3 py-2 bg-amber-50 text-amber-600 rounded-xl font-bold mr-1 hover:bg-amber-100 transition">🍳 ผูกสูตร</button>
-                        <button onclick="openProductModal(${index})" class="px-3 py-2 bg-rose-50 text-rose-500 rounded-xl font-bold mr-1">แก้ไข</button>
-                        <button onclick="deleteProduct(${p.rowIdx}, '${safeName}')" class="px-3 py-2 bg-red-50 text-red-500 rounded-xl font-bold">ลบ</button>
+       <button onclick="openRecipeManager('${safeName}', ${p.price})" class="px-3 py-2 bg-pink-100 text-pink-600 rounded-xl font-bold mr-1 hover:bg-pink-200 transition">🍳 ผูกสูตร</button>
+<button onclick="openProductModal(${index})" class="px-3 py-2 bg-orange-100 text-orange-600 rounded-xl font-bold mr-1 hover:bg-orange-200 transition">แก้ไข</button>
+<button onclick="deleteProduct(${p.rowIdx}, '${safeName}')" class="px-3 py-2 bg-red-100 text-red-600 rounded-xl font-bold hover:bg-red-200 transition">ลบ</button>
                     </td>
                 </tr>`;
             });
@@ -4495,6 +4825,7 @@ document.getElementById('btnConfirmDelete').onclick = function() {
 let chartHourly = null;
 let chartDaily = null;
 let chartPayment = null;
+
 // 4. หน้าแดชบอร์ดรายงานยอดขาย (กราฟและตัวเลขจะคงอยู่ และขยับเปลี่ยนเมื่อโหลดเสร็จ)
 function loadDashboardData() {
     let today = new Date();
@@ -4537,20 +4868,25 @@ function loadDashboardData() {
         if(chartDaily) chartDaily.destroy();
         if(chartPayment) chartPayment.destroy();
 
-        let colorMain = '#10b981', colorLight = '#a7f3d0', colorBg = 'rgba(16, 185, 129, 0.1)';
+        // 🎨 1. เปลี่ยนตัวแปรสีจากตระกูล Emerald เป็นโทน Rose ของ Tailwind
+        let colorMain = '#f43f5e', colorLight = '#fda4af', colorBg = 'rgba(244, 63, 94, 0.1)';
+        
         chartHourly = new Chart(document.getElementById('hourlyChart').getContext('2d'), {
             type: 'bar',
             data: { labels: Array.from({length: 24}, (_, i) => i + ":00"), datasets: [{ data: data.hourly, backgroundColor: colorLight, hoverBackgroundColor: colorMain }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
+        
         chartDaily = new Chart(document.getElementById('dailyChart').getContext('2d'), {
             type: 'line',
             data: { labels: Object.keys(data.daily).sort(), datasets: [{ data: Object.values(data.daily), borderColor: colorMain, backgroundColor: colorBg, fill: true, tension: 0.4 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
+        
         chartPayment = new Chart(document.getElementById('paymentChart').getContext('2d'), {
             type: 'doughnut',
-            data: { labels: Object.keys(data.payment), datasets: [{ data: Object.values(data.payment), backgroundColor: [colorMain, '#34d399', '#6ee7b7'] }] },
+            // 🎨 2. ปรับชุดสีไล่ระดับของกราฟโดนัทให้เป็นโทน Rose-500, Rose-400, Rose-300
+            data: { labels: Object.keys(data.payment), datasets: [{ data: Object.values(data.payment), backgroundColor: [colorMain, '#fb7185', '#fda4af'] }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
         });
     }).getAdvancedDashboardData(startDate, endDate);
@@ -4574,15 +4910,15 @@ function selectReport(type, text, element) {
   document.getElementById('reportSelectedText').innerHTML = text;
   document.getElementById('reportDropdownMenu').classList.add('hidden');
   
-  // ล้างสีสถานะเดิมทั้งหมดให้เป็นสีเทา
+  // ล้างสีสถานะเดิมทั้งหมดให้เป็นสีเทา (และเอาสีเขียว/ชมพูออกให้หมดจด)
   let items = document.querySelectorAll('.report-item');
   items.forEach(item => {
-    item.classList.remove('bg-rose-600', 'text-white');
+    item.classList.remove('bg-rose-600', 'text-white', 'bg-green-600'); 
     item.classList.add('text-gray-700', 'hover:bg-rose-50');
   });
   
-  // ใส่สีสถานะที่ถูกเลือก (สีน้ำเงินตัวหนังสือขาวตามตัวอย่าง)
-  element.classList.remove('text-gray-700', 'hover:bg-rose-50');
+  // ใส่สีสถานะที่ถูกเลือกเป็นสีชมพู (Rose) ให้เข้ากับธีมร้าน
+  element.classList.remove('text-gray-700', 'hover:bg-rose-50', 'hover:bg-green-50');
   element.classList.add('bg-rose-600', 'text-white');
 }
 
@@ -5715,7 +6051,7 @@ function closeMembershipView() {
 // ============================================
 // ระบบข้อมูลสมาชิก (Membership & Points)
 // ============================================
-window.pointConfig = { earnBaht: 100, earnPoint: 1, redeemPoint: 10, redeemBaht: 1 };
+window.pointConfig = { earnBaht: 100, earnPoint: 1, redeemPoint: 100, redeemBaht: 1 };
 window.allMembersData = [];
 
 // 5. ระบบโหลดรายชื่อสมาชิก (ไม่ต้องสลับเป็นหน้าต่างโหลด)
@@ -5732,39 +6068,73 @@ function loadMembers() {
     }).getMembersData();
 }
 
-// 👇 นี่คือฟังก์ชันที่หายไป เอากลับมาให้ครบแล้วครับ
+// 👇 ฟังก์ชันวาดตารางสมาชิก (เวอร์ชันแก้ไขคีย์แมตช์หลังบ้าน 100% ยอดสะสมไม่ขึ้น 0)
 function renderMembersList(data) {
     let tbody = document.getElementById('memberTableBody');
+    
     if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-400 font-bold">ยังไม่มีข้อมูลสมาชิก 📭</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-400 font-bold">ยังไม่มีข้อมูลสมาชิก 📭</td></tr>';
         return;
     }
     
-    tbody.innerHTML = data.map(m => {
-        let phoneDisplay = m.phone.startsWith("'") ? m.phone.substring(1) : m.phone;
-        let points = parseInt(m.points) || 0;
-        let spent = parseFloat(m.spent) || 0;
-        let lastVisit = m.lastVisit ? new Date(m.lastVisit).toLocaleDateString('th-TH') : '-';
+    let displayData = data;
+    if (Array.isArray(data[0]) && data[0][0] === "Phone") {
+        displayData = data.slice(1);
+    }
+
+    tbody.innerHTML = displayData.map(cus => {
+        // ดึงค่าตามชื่อคีย์ที่ getMembersData() หลังบ้านส่งมาให้
+        let phone = cus.phone || cus[0] || '';
+        let type = cus.type || cus[1] || 'ลูกค้าทั่วไป';
+        let points = (cus.points !== undefined) ? cus.points : (cus[2] !== undefined ? cus[2] : 0);
         
+        // 🔥 แก้ไขจุดบั๊ก: เปลี่ยนมาใช้ .spent ให้ตรงกับหลังบ้านของคุณเรียบร้อยแล้วครับ
+        let total = (cus.spent !== undefined) ? cus.spent : (cus[3] !== undefined ? cus[3] : '');
+        let lastDate = cus.lastVisit || cus[4] || '-';
+
+        // 🛠️ การจัดการแสดงผลยอดซื้อสะสม (ถ้าว่างหรือเป็น 0 จะไม่แสดงเลข 0 ให้รกตา)
+        let totalDisplay = '';
+        if (total !== undefined && total !== null && total !== '') {
+            let num = parseFloat(total);
+            if (!isNaN(num) && num > 0) {
+                totalDisplay = '฿' + num.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            }
+        }
+
         return `
-        <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-            <td class="p-4 font-bold text-gray-800">📱 ${phoneDisplay}</td>
-            <td class="p-4"><span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-lg text-xs font-bold">${m.type || 'ลูกค้าทั่วไป'}</span></td>
-            <td class="p-4 font-bold text-rose-600 text-center text-xl">${points.toLocaleString()}</td>
-            <td class="p-4 font-bold text-rose-600 text-right">฿${spent.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
-            <td class="p-4 text-center text-gray-500 text-sm">${lastVisit}</td>
-        </tr>`;
+        <tr id="row-${phone}" class="hover:bg-rose-50/30 transition">
+            <td class="p-4 font-bold text-gray-900">📱 ${phone}</td>
+            <td class="p-4">
+                <span id="badge-type-${phone}" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-100 text-rose-700">${type}</span>
+            </td>
+            <td id="cell-points-${phone}" class="p-4 text-center font-black text-rose-600 text-lg">${points}</td>
+            <td class="p-4 text-right font-bold text-rose-700">${totalDisplay}</td>
+            <td id="cell-date-${phone}" class="p-4 text-center text-sm text-gray-500">${lastDate}</td>
+            
+            <td class="p-4 text-center flex items-center justify-center gap-1">
+                <button onclick="openEditCustomerModal('${phone}', '', '${type}', ${points})" class="px-3 py-1.5 bg-orange-100 text-orange-600 rounded-xl font-bold hover:bg-orange-200 transition text-xs shadow-sm">
+                   ✏️ แก้ไข
+                </button>
+                <button onclick="deleteCustomer('${phone}')" class="px-3 py-1.5 bg-red-100 text-red-600 rounded-xl font-bold hover:bg-red-200 transition text-xs shadow-sm">
+                   🗑️ ลบ
+                </button>
+            </td>
+        </tr>
+        `;
     }).join('');
 }
 
-// 👇 ฟังก์ชันค้นหาสมาชิกที่ต้องใช้คู่กัน
+// 👇 ฟังก์ชันค้นหาสมาชิกเวอร์ชันปลอดภัย (ไม่ค้างแน่นอน)
 function filterMembers() {
     let searchText = document.getElementById('memberSearchInput').value.trim();
     if(searchText === "") {
         renderMembersList(window.allMembersData);
         return;
     }
-    let filtered = window.allMembersData.filter(m => m.phone.includes(searchText));
+    let filtered = window.allMembersData.filter(m => {
+        let p = m.phone || m.Phone || (Array.isArray(m) ? m[0] : '');
+        return p.toString().includes(searchText);
+    });
     renderMembersList(filtered);
 }
 
@@ -5786,30 +6156,31 @@ function savePointConfig() {
     }).savePointConfigGS(eB, eP, rP, rB);
 }
 
+// 👇 ฟังก์ชันตรวจสอบแต้มเวอร์ชันปลอดภัย
 function checkMemberPoints() {
     let phone = document.getElementById('customerPhone').value.trim();
     let section = document.getElementById('memberPointSection');
     let input = document.getElementById('usePointsInput');
     
     if(phone.length >= 9) {
-        let member = window.allMembersData.find(m => m.phone.includes(phone));
+        let member = window.allMembersData.find(m => {
+            let p = m.phone || m.Phone || (Array.isArray(m) ? m[0] : '');
+            return p.toString().includes(phone);
+        });
         section.classList.remove('hidden');
         if(member) {
-            // โชว์แต้มที่มีอยู่
-            document.getElementById('currentMemberPoints').innerText = member.points;
+            let pts = member.points !== undefined ? member.points : (member.Points || 0);
+            document.getElementById('currentMemberPoints').innerText = pts;
             
-            // คำนวณมูลค่าสูงสุดที่ลดได้ (ดึงจากคอนฟิกปัจจุบัน)
             let maxBaht = 0;
             let cnf = window.pointConfig;
             if (cnf && cnf.redeemPoint > 0) {
-                maxBaht = (member.points / cnf.redeemPoint) * cnf.redeemBaht;
+                maxBaht = (pts / cnf.redeemPoint) * cnf.redeemBaht;
             }
             
-            // อัปเดตตัวเลขลดสูงสุดบนหน้าจอ
             document.getElementById('maxPointDiscount').innerText = maxBaht.toFixed(2);
-            input.max = member.points;
+            input.max = pts;
         } else { 
-            // กรณีเป็นลูกค้าใหม่ที่ยังไม่มีแต้ม
             document.getElementById('currentMemberPoints').innerText = "0";
             document.getElementById('maxPointDiscount').innerText = "0.00";
             input.max = 0; input.value = "";
@@ -5819,7 +6190,6 @@ function checkMemberPoints() {
         input.value = "";
     }
     
-    // อัปเดตยอดเงินทอน/ยอดสุทธิ
     if (typeof calculateChange === 'function') calculateChange();
 }
 
@@ -6645,16 +7015,26 @@ function openBranchManagement() {
         loadBranchesData();
     }
 }
-
-// ✅ ฟังก์ชันปุ่มกดย้อนกลับจากหน้าจอชั้นใน
+// ✅ ฟังก์ชันปุ่มกดย้อนกลับจากหน้าจอชั้นใน (อัปเดตเพิ่มหน้าบุฟเฟต์แล้ว)
 function backToSettings() {
-    let viewsToHide = ['employeeSettingsView', 'barcodeSettingsView', 'branchManagementView', 'deliverySettingsView', 'tableManagementView'];
+    let viewsToHide = [
+        'employeeSettingsView', 
+        'barcodeSettingsView', 
+        'branchManagementView', 
+        'deliverySettingsView', 
+        'tableManagementView',
+        'buffetManagementView' // 👈 จุดสำคัญ: เพิ่มบรรทัดนี้เข้าไปเพื่อให้ระบบซ่อนหน้าจอบุฟเฟต์
+    ];
+    
     viewsToHide.forEach(id => {
         let el = document.getElementById(id);
         if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
     });
-    let settingsGrid = document.getElementById('settingsView'); if (settingsGrid) { settingsGrid.classList.remove('hidden'); }
+    
+    let settingsGrid = document.getElementById('settingsView'); 
+    if (settingsGrid) { settingsGrid.classList.remove('hidden'); }
 }
+
 function triggerFactoryReset() {
     showConfirmModal("🛑 คำเตือนวิกฤต: คุณต้องการล้างข้อมูลสินค้า ยอดขาย และการตั้งค่าทั้งหมดกลับเป็นค่าเริ่มต้นโรงงานใช่หรือไม่? ข้อมูลทั้งหมดจะหายถาวร!", function() {
         let btn = document.getElementById('btnFactoryReset');
@@ -7221,7 +7601,7 @@ function loadRawMaterialsData() {
                 <td class="p-4 font-bold text-rose-600 text-center text-base">${rm.remaining} ${rm.unit}</td>
                 <td class="p-4 text-center whitespace-nowrap">
                     <button onclick="openRawMaterialForm(${index})" class="px-3 py-1.5 bg-rose-50 text-rose-600 font-bold rounded-lg mr-1 text-xs hover:bg-rose-100 transition">แก้ไข</button>
-                    <button onclick="deleteRawMaterial(${rm.rowIdx}, '${rm.name}')" class="px-3 py-1.5 bg-red-50 text-red-500 font-bold rounded-lg text-xs hover:bg-red-100 transition">ลบ</button>
+                    <button onclick="deleteRawMaterial(${rm.rowIdx}, '${rm.name}')" class="px-3 py-1.5 bg-red-600 text-red-50 font-bold rounded-lg text-xs hover:bg-red-100 transition">ลบ</button>
                 </td>
             </tr>`;
         });
@@ -7514,7 +7894,7 @@ function addModifierItemRow(name = '', price = 0, matId = '', deductAmt = 0) {
     let html = `
     <div class="p-4 bg-gray-50 rounded-2xl border border-gray-200 mod-item-row space-y-3 mb-3 shadow-sm">
         <div class="flex gap-2 items-center">
-            <input type="text" value="${name}" class="mod-item-name flex-1 p-2.5 border border-gray-300 rounded-xl text-sm font-semibold focus:border-amber-400 outline-none bg-white shadow-inner" placeholder="ชื่อท็อปปิ้ง เช่น เพิ่มไข่มุก">
+            <input type="text" value="${name}" class="mod-item-name flex-1 p-2.5 border border-gray-300 rounded-xl text-sm font-semibold focus:border-rose-400 outline-none bg-white shadow-inner" placeholder="ชื่อท็อปปิ้ง เช่น เพิ่มไข่มุก">
             
             <div class="flex items-center gap-1 bg-white border border-gray-300 rounded-xl px-2.5 shadow-sm w-28">
                 <span class="text-xs text-gray-400 font-bold">+฿</span>
@@ -7526,19 +7906,19 @@ function addModifierItemRow(name = '', price = 0, matId = '', deductAmt = 0) {
         
         <div class="pt-2 border-t border-gray-200/60">
             <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-600 text-sm select-none">
-                <input type="checkbox" ${isChecked} onchange="toggleRowStockConfig(this)" class="mod-item-toggle-stock w-4 h-4 accent-amber-500 rounded cursor-pointer"> 
+                <input type="checkbox" ${isChecked} onchange="toggleRowStockConfig(this)" class="mod-item-toggle-stock w-4 h-4 accent-rose-500 rounded cursor-pointer"> 
                 <span>เปิดระบบตัดสต็อกวัตถุดิบ</span>
             </label>
         </div>
         
         <div class="mod-stock-config-fields grid grid-cols-3 gap-2 ${hiddenClass} pt-1">
             <div class="col-span-2">
-                <select class="mod-item-mat-id w-full p-2.5 border border-amber-200 rounded-xl bg-white font-semibold text-gray-700 outline-none focus:border-amber-500 text-sm shadow-sm cursor-pointer">
+                <select class="mod-item-mat-id w-full p-2.5 border border-rose-200 rounded-xl bg-white font-semibold text-gray-700 outline-none focus:border-rose-500 text-sm shadow-sm cursor-pointer">
                     ${rmOptions}
                 </select>
             </div>
             <div>
-                <div class="flex items-center bg-white border border-amber-200 rounded-xl px-2 shadow-sm">
+                <div class="flex items-center bg-white border border-rose-200 rounded-xl px-2 shadow-sm">
                     <input type="number" step="any" value="${safeDeductAmt > 0 ? safeDeductAmt : ''}" class="mod-item-deduct-amt w-full p-2.5 text-center font-bold text-gray-800 outline-none text-sm" placeholder="ปริมาณ">
                 </div>
             </div>
@@ -8143,37 +8523,61 @@ function openTableManagement() {
     if (typeof showView === 'function') { showView('table'); }
 }
 
-function loadTablesData() {
+function loadTablesData(isQuiet = false) {
     let tbody = document.getElementById('branchTableBodyTable');
-    if (globalTablesList.length === 0 && tbody) {
+    if (!tbody) return;
+    
+    // ถ้าไม่ใช่โหมดเงียบ (เช่น รีเฟรชหน้าเว็บครั้งแรก) ค่อยโชว์ตัวโหลด
+    if (!isQuiet) {
         tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูลโต๊ะ... ⏳</td></tr>';
     }
-    google.script.run.withSuccessHandler(function(data) {
-        globalTablesList = data; globalSalesTableList = data; 
-        let html = '';
-        if (!data || data.length === 0) {
-            if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-400 font-bold">ยังไม่มีข้อมูลโต๊ะในระบบ</td></tr>';
-        } else {
-            data.forEach(function(table, index) {
-                // 📱 เปลี่ยนปลายทาง QR Code ให้วิ่งเข้าแอปสั่งอาหารบน GitHub
-let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html";
-let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(table.name);
-let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrTargetUrl);
-                
-                // 🎨 สลับสีสถานะ ว่าง(เขียว) ไม่ว่าง(แดง)
-                let statusClass = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "bg-rose-100 text-rose-700" : "bg-red-100 text-red-700";
-                let statusText = table.status === "ว่าง" || table.status === "🟢 ว่าง" ? "🟢 ว่าง" : "🔴 ไม่ว่าง";
 
-                html += '<tr class="border-b hover:bg-rose-50/40 transition">';
-                html += '<td class="p-4 font-bold text-gray-800">🪑 ' + table.name + '</td>';
-                html += '<td class="p-4 text-center"><span class="' + statusClass + ' px-3 py-1 text-xs rounded-full font-bold">' + statusText + '</span></td>';
-                html += '<td class="p-4 text-center"><a href="' + qrGeneratorApi + '" target="_blank" class="px-3 py-1.5 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl font-bold text-xs inline-flex items-center gap-1 transition shadow-sm">🖨️ ดูคิวอาร์ (Print QR)</a></td>';
-                html += '<td class="p-4 text-center whitespace-nowrap"><button onclick="editTable(' + index + ')" class="text-rose-500 hover:text-rose-700 font-bold text-xs mr-3">แก้ไข</button><button onclick="deleteTable(' + table.rowIdx + ', \'' + table.name + '\')" class="text-red-500 hover:text-red-700 font-bold text-xs">ลบ</button></td>';
-                html += '</tr>';
-            });
-            if (tbody) tbody.innerHTML = html;
+    google.script.run.withSuccessHandler(function(tables) {
+        window.globalTablesList = tables;
+        window.globalSalesTableList = tables; // คืนค่าตัวแปรให้หน้าจอขาย
+
+        if (!tables || tables.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-500">ยังไม่มีข้อมูลโต๊ะในระบบ</td></tr>';
+            return;
         }
-        buildSalesTableGrid(); 
+
+        let html = "";
+        tables.forEach(t => {
+            // ป้องกัน Error พังทลาย หากค่าข้างหลังส่งมาเป็น undefined
+            let safeName = (t.name || "").toString().replace(/'/g, "\\'");
+            let safeZone = (t.zone || "หน้าร้าน").toString().replace(/'/g, "\\'");
+            let shapeDisplay = t.shape === 'round' ? 'วงกลม' : 'สี่เหลี่ยม';
+            
+            let statusHtml = (t.status === "ว่าง" || t.status === "🟢 ว่าง") 
+                ? `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-xs font-bold">🟢 ว่าง</span>`
+                : `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-xs font-bold">🔴 ไม่ว่าง</span>`;
+
+            // ดึงลิงก์สร้าง QR Code ลูกค้า
+            let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html";
+            let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(t.name);
+            let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrTargetUrl);
+
+            html += `
+            <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                <td class="p-4">
+                    <div class="font-bold text-gray-800 text-lg">${t.name}</div>
+                    <div class="text-xs font-bold text-rose-500 mt-1">โซน: ${t.zone || 'หน้าร้าน'} | ${shapeDisplay} (${t.capacity || 4} ที่นั่ง)</div>
+                </td>
+                <td class="p-4 text-center">${statusHtml}</td>
+                <td class="p-4 text-center">
+                    <a href="${qrGeneratorApi}" target="_blank" class="px-3 py-1.5 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl font-bold text-xs inline-flex items-center gap-1 transition shadow-sm">🖨️ ดูคิวอาร์ (Print QR)</a>
+                </td>
+                <td class="p-4 text-center whitespace-nowrap">
+                    <button onclick="openAddTableModal('${t.rowIdx}', '${safeName}', '${safeZone}', '${t.shape}', ${t.capacity || 4}, '${t.status}')" class="text-rose-500 bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-xl font-bold mr-2 text-sm transition">แก้ไข</button>
+                    <button onclick="deleteTableData('${t.rowIdx}', '${safeName}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl font-bold text-sm transition">ลบ</button>
+                </td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+        
+        // วาดปุ่มโต๊ะในหน้าจอขายสินค้าใหม่ด้วย
+        if(typeof buildSalesTableGrid === 'function') buildSalesTableGrid();
+
     }).getTablesData();
 }
 
@@ -8260,23 +8664,7 @@ function closeAddTableModal() {
     document.getElementById('addTableModal').classList.add('hidden');
 }
 
-function saveTableData() {
-    let name = document.getElementById('newTableName').value.trim();
-    let rowIdx = document.getElementById('tableRowIdx').value;
-    let status = document.getElementById('tableStatus').value;
-    if (!name) return showToast("กรุณาระบุชื่อโต๊ะ/หมายเลขโต๊ะ", "error");
-    
-    let data = { rowIdx: rowIdx, name: name, status: status };
-    google.script.run.withSuccessHandler(function(res) {
-        if (res === "Success") {
-            showToast("บันทึกข้อมูลโต๊ะสำเร็จ!", "success");
-            closeAddTableModal();
-            loadTablesData();
-        } else {
-            showToast(res, "error");
-        }
-    }).saveTableGS(data);
-}
+
 
 function deleteTable(rowIdx, name) {
     showConfirmModal("⚠️ ต้องการลบ '" + name + "' ใช่หรือไม่? (QR Code ของโต๊ะนี้จะใช้งานไม่ได้ทันที)", function() {
@@ -8302,132 +8690,222 @@ function syncTableListUI() {
 }
 window.addEventListener('load', syncTableListUI);
 
-// 1. ฟังก์ชันวาดปุ่มโต๊ะ
+// ====================================================
+// 🪑 อัปเกรดป๊อปอัปเลือกโต๊ะ (เชื่อมต่อกับปุ่ม "ทานที่ร้าน")
+// ====================================================
+
 function buildSalesTableGrid() {
   let container = document.getElementById('modalTableGridContainer');
   if (!container) return;
-  
   if (!globalSalesTableList || globalSalesTableList.length === 0) {
     container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-400 py-6 font-medium">ยังไม่มีข้อมูลโต๊ะในระบบ<br>กรุณาเพิ่มโต๊ะที่เมนูตั้งค่า</div>';
     return;
   }
 
-  let html = '';
+  // 1. จัดกลุ่มโต๊ะตามโซน
+  let zones = {};
   globalSalesTableList.forEach(function(t) {
-    html += '<button type="button" data-tablename="' + t.name + '" onclick="selectSalesTable(\'' + t.name + '\')" class="table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 transition shadow-sm">' + t.name + '</button>';
+      let zName = t.zone || "หน้าร้าน";
+      if (!zones[zName]) zones[zName] = [];
+      zones[zName].push(t);
   });
-  
+
+  let html = '';
+  let currentSelected = document.getElementById('inputTableNo').value;
+
+  // 2. วนลูปวาดปุ่มโต๊ะแยกตามโซน
+  for (let z in zones) {
+      // หัวข้อโซน
+      html += `<div class="col-span-full mt-3 mb-1 border-b-2 border-rose-100 pb-1 flex items-center gap-2">
+                  <span class="text-xl">📍</span> 
+                  <span class="font-bold text-rose-800 text-lg">โซน ${z}</span>
+               </div>`;
+      
+      // โต๊ะในโซนนั้น
+      zones[z].forEach(function(t) {
+          let isOccupied = (t.status !== "ว่าง" && t.status !== "🟢 ว่าง");
+          
+          // เช็คว่ามีบิลพักค้างอยู่ไหม (เพื่อความชัวร์ 100%)
+          if (typeof heldOrders !== 'undefined') {
+              let activeOrderIndex = heldOrders.findIndex(o => o.tableNo === t.name);
+              if (activeOrderIndex !== -1) isOccupied = true; 
+          }
+
+          let isCurrent = (t.name === currentSelected);
+          let bgClass = '';
+          let onClick = '';
+          let opacityClass = '';
+
+          if (isCurrent) {
+              // โต๊ะที่กำลังถูกเลือกอยู่ในตะกร้า (สีชมพูเข้ม)
+              bgClass = 'bg-rose-500 border-rose-500 text-white shadow-md ring-2 ring-rose-300 ring-offset-1 transform scale-95';
+              onClick = `selectSalesTable('${t.name}')`;
+          } else if (isOccupied) {
+              // โต๊ะที่มีลูกค้าอยู่แล้ว (สีแดงทึบๆ กดเลือกซ้อนไม่ได้)
+              bgClass = 'bg-red-50 border-red-200 text-red-700';
+              opacityClass = 'opacity-60 cursor-not-allowed';
+              onClick = `showToast('โต๊ะนี้มีลูกค้าอยู่แล้วครับ', 'warning')`;
+          } else {
+              // โต๊ะว่างพร้อมใช้งาน (สีปกติ)
+              bgClass = 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 cursor-pointer shadow-sm';
+              onClick = `selectSalesTable('${t.name}')`;
+          }
+
+          let shapeIcon = t.shape === 'round' ? '⭕' : '🔲';
+
+          html += `
+          <div onclick="${onClick}" class="table-btn-item flex flex-col items-center justify-center py-3 px-1 rounded-2xl border-2 transition ${bgClass} ${opacityClass}">
+              <span class="text-base font-bold mb-1 line-clamp-1">${t.name}</span>
+              <span class="text-[10px] flex items-center gap-1 font-medium bg-black/5 px-2 py-0.5 rounded-md">${shapeIcon} ${t.capacity} ที่</span>
+          </div>`;
+      });
+  }
   container.innerHTML = html;
 }
 
-// 2. ฟังก์ชันเปิดป๊อปอัปและอัปเดตสีปุ่ม
+// ฟังก์ชันเปิดป๊อปอัปเลือกโต๊ะหน้าขาย (ดึงข้อมูลสดใหม่จาก Cloud ทุกครั้งที่กด)
 function openSalesTableModal() {
-  let currentSelected = document.getElementById('inputTableNo').value;
-  let buttons = document.querySelectorAll('.table-btn-item');
-  buttons.forEach(function(btn) {
-    let tName = btn.getAttribute('data-tablename');
-    if (tName === currentSelected && currentSelected !== "") {
-      btn.className = "table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-rose-500 border-rose-500 text-white shadow-md transition transform scale-95 ring-2 ring-rose-300 ring-offset-1";
-    } else {
-      btn.className = "table-btn-item py-4 px-3 text-sm font-bold rounded-2xl border-2 bg-gray-50 border-gray-200 text-gray-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 transition shadow-sm";
-    }
-  });
-  document.getElementById('salesTableModal').classList.remove('hidden');
+    // 1. เปิดกล่องป๊อปอัปขึ้นมาแสดงก่อน
+    document.getElementById('salesTableModal').classList.remove('hidden');
+    
+    let container = document.getElementById('modalTableGridContainer');
+    // 2. แสดงสถานะกำลังโหลดระหว่างรอข้อมูลจาก Google Sheets
+    container.innerHTML = '<div class="col-span-full text-center py-6 text-rose-500 font-bold animate-pulse">⏳ กำลังซิงค์สถานะโต๊ะเรียลไทม์...</div>';
+    
+    // 3. ยิงคำสั่งไปดึงข้อมูลโต๊ะล่าสุดจากฐานข้อมูลหลังบ้านทันที
+    google.script.run.withSuccessHandler(function(tables) {
+        if (!tables || tables.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center py-6 text-gray-400 font-bold">ยังไม่มีข้อมูลโต๊ะในระบบ 📭</div>';
+            return;
+        }
+        // 4. ส่งข้อมูลไปวาดปุ่มโต๊ะอาหาร
+        renderSalesTableGrid(tables);
+        console.log("⚡ ระบบ Sync ข้อมูลโต๊ะไปยังหน้าขาย เรียบร้อย");
+    }).getTablesData();
 }
 
-// ฟังก์ชันจิ้มเลือกโต๊ะ (อัปเดตสถานะหลังบ้านเป็น "ไม่ว่าง" อัตโนมัติ)
-function selectSalesTable(tableName) {
-  let prevTable = document.getElementById('inputTableNo').value;
-  
-  document.getElementById('inputTableNo').value = tableName;
-  let display = document.getElementById('displaySelectedTable');
-  if(display) display.innerText = tableName;
-  
-  document.getElementById('salesTableModal').classList.add('hidden');
-  
-  // ⚡ 1. ถ้ามีโต๊ะเก่าที่เลือกไว้ค้างอยู่ คืนสถานะให้เป็น "ว่าง"
-  if (prevTable !== "" && prevTable !== tableName) {
-     google.script.run.updateTableStatusGS(prevTable, "ว่าง");
-  }
-  
-  // ⚡ 2. ล็อกโต๊ะใหม่ที่เพิ่งจิ้มให้เป็น "ไม่ว่าง" ทันที
-  google.script.run.withSuccessHandler(function(data) {
-     if(data) { 
-         globalSalesTableList = data; 
-         globalTablesList = data; 
-         if(typeof loadTablesData === 'function' && !document.getElementById('tableManagementView').classList.contains('hidden')) {
-             loadTablesData(); // รีเฟรชหน้าตั้งค่าถ้าเราเปิดหน้านั้นดูอยู่
-         }
-     }
-  }).updateTableStatusGS(tableName, "ไม่ว่าง");
+// ฟังก์ชันวาดปุ่มหมายเลขโต๊ะในหน้าจอขายสินค้า
+function renderSalesTableGrid(tables) {
+    let container = document.getElementById('modalTableGridContainer');
+    container.innerHTML = '';
+    
+    // เรียงลำดับคัดกรองจัดกลุ่มแยกตามโซนพื้นที่ (Zone) ให้สวยงามเหมือนหน้ารายการหลัก
+    let zones = [...new Set(tables.map(t => t.zone || "ทั่วไป"))];
+    
+    let html = '';
+    zones.forEach(zone => {
+        html += `<div class="col-span-full text-left font-bold text-rose-800 text-sm mt-2 mb-1 border-b pb-1 border-rose-100">📍 โซน ${zone}</div>`;
+        
+        let zoneTables = tables.filter(t => (t.zone || "ทั่วไป") === zone);
+        zoneTables.forEach(t => {
+            let isAvailable = (t.status === 'ว่าง' || t.status === '🟢 ว่าง');
+            let statusColor = isAvailable ? 'bg-emerald-500' : 'bg-red-500';
+            
+            // ดักจับระบบเปิดโต๊ะ: ถ้าโต๊ะว่างให้กดเปิดระบุบุฟเฟต์/สั่งแยกได้ ถ้าโต๊ะไม่ว่างให้ดึงบิลเดิมมาขายต่อ
+            let clickAction = '';
+            if (typeof promptOpenTable === 'function') {
+                clickAction = `onclick="promptOpenTable('${t.name}')"`;
+            } else {
+                clickAction = `onclick="selectSalesTable('${t.name}')"`;
+            }
+
+            html += `
+            <button type="button" ${clickAction} class="modern-card p-3 border-2 border-gray-100 rounded-2xl bg-white hover:bg-rose-50 hover:border-rose-300 transition text-center shadow-sm flex flex-col items-center justify-center gap-1">
+                <span class="font-black text-gray-800 text-sm">${t.name}</span>
+                <span class="text-[10px] font-bold text-gray-400">${t.capacity || 4} ที่นั่ง</span>
+                <span class="flex items-center gap-1 text-[11px] font-bold ${isAvailable ? 'text-emerald-600' : 'text-red-500'}">
+                    <span class="w-2 h-2 rounded-full ${statusColor}"></span>
+                    ${isAvailable ? 'ว่าง' : 'มีลูกค้า'}
+                </span>
+            </button>`;
+        });
+    });
+    
+    container.innerHTML = html;
 }
-window.addEventListener('load', syncDeliveryDropdownUI);
+
+// ฟังก์ชันปลายทางเมื่อคลิกเลือกโต๊ะสำเร็จ
+function selectSalesTable(tableName) {
+    document.getElementById('inputTableNo').value = tableName;
+    document.getElementById('displaySelectedTable').innerText = tableName;
+    document.getElementById('salesTableModal').classList.add('hidden');
+    showToast("เลือก " + tableName + " เรียบร้อย", "success");
+}
 
 // ==========================================
 // 🔔 ระบบดึงออเดอร์ QR Code เข้า POS อัตโนมัติ (Auto-Sync)
 // ==========================================
+    // 🔔 ระบบดึงออเดอร์ QR สแกนจากลูกค้าเข้าครัวอัตโนมัติ (กรองราคา 0 บาท)
+    function checkForNewQROrders() {
+        google.script.run.withSuccessHandler(function(newOrders) {
+            if (!newOrders || newOrders.length === 0) return;
+            let orderCount = 0;
+            
+            newOrders.forEach(order => {
+                let existingHoldIndex = heldOrders.findIndex(h => h.name === order.table);
+                
+                // 🥩 เช็คว่าเป็นโต๊ะบุฟเฟต์หรือไม่
+                let currentTableMode = "A_la_carte";
+                if (existingHoldIndex !== -1) {
+                    currentTableMode = heldOrders[existingHoldIndex].orderMode;
+                } else {
+                    let tableMatch = globalSalesTableList.find(t => t.name === order.table);
+                    currentTableMode = tableMatch ? tableMatch.orderMode : "A_la_carte";
+                }
 
-// ฟังก์ชันดึงออเดอร์ที่สั่งผ่าน QR Code (ที่ยังไม่ได้คิดเงิน)
-function checkForNewQROrders() {
-    google.script.run.withSuccessHandler(function(newOrders) {
-        if (!newOrders || newOrders.length === 0) return; // ไม่มีออเดอร์ใหม่
-        
-        let orderCount = 0;
-        
-        newOrders.forEach(order => {
-            // order.table = "โต๊ะ 1", order.items = [{name:"ข้าวผัด", qty:1, price:50}], order.id = "QR123"
-            
-            // 1. หาว่าโต๊ะนี้มี "บิลพัก" อยู่แล้วหรือเปล่า?
-            let existingHoldIndex = heldOrders.findIndex(h => h.name === order.table);
-            
-            if (existingHoldIndex !== -1) {
-                // ถ้ามีบิลพักอยู่แล้ว -> เอาของใหม่ไปต่อท้ายตะกร้าเดิม
+                // กรองสินค้าราคา 0 บาท (ยกเว้น Premium/Extra)
                 order.items.forEach(newItem => {
-                    let foundItem = heldOrders[existingHoldIndex].cart.find(c => c.name === newItem.name);
-                    if (foundItem) {
-                        foundItem.qty += newItem.qty;
-                    } else {
-                        heldOrders[existingHoldIndex].cart.push(newItem);
+                    if (currentTableMode === 'Buffet') {
+                        let baseName = newItem.name.split(' [')[0];
+                        let prodMatch = allSalesProducts.find(p => p[1] === baseName);
+                        let cat = prodMatch ? prodMatch[2] : ""; 
+                        
+                        if (cat !== "Premium" && cat !== "Extra" && cat !== "เครื่องดื่มแอลกอฮอล์") {
+                            newItem.price = 0; // รวมในบุฟเฟต์แล้ว ไม่คิดเงินเพิ่ม
+                        }
                     }
                 });
-                // คำนวณยอดเงินรวมใหม่
-                heldOrders[existingHoldIndex].total = heldOrders[existingHoldIndex].cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            } else {
-                // ถ้ายังไม่มีบิลพักเลย -> สร้างบิลพักใบใหม่ให้โต๊ะนี้ทันที
-                let newTotal = order.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                heldOrders.push({
-                    id: order.id, 
-                    name: order.table, 
-                    cart: order.items, 
-                    total: newTotal, 
-                    time: new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}),
-                    orderType: 'ทานที่ร้าน',
-                    tableNo: order.table
-                });
-            }
-            
-            // ส่งคำสั่งไปบอกหลังบ้านว่า "รับออเดอร์นี้แล้วนะ เลิกเตือนได้"
-            google.script.run.markQROrderAsReceivedGS(order.id);
-            
-            // สั่งเปลี่ยนสถานะโต๊ะนั้นๆ ให้กลายเป็น "ไม่ว่าง" ทันทีที่มีออเดอร์คิวอาร์เข้าระบบ
-            if (order.table && order.table !== "") {
-                google.script.run.updateTableStatusGS(order.table, "ไม่ว่าง");
-            }
-            
-            orderCount++;
-        });
+                
+                // ยัดของลงบิลพัก
+                if (existingHoldIndex !== -1) {
+                    order.items.forEach(newItem => {
+                        let foundItem = heldOrders[existingHoldIndex].cart.find(c => c.name === newItem.name);
+                        if (foundItem) { foundItem.qty += newItem.qty; } 
+                        else { heldOrders[existingHoldIndex].cart.push(newItem); }
+                    });
+                    heldOrders[existingHoldIndex].total = heldOrders[existingHoldIndex].cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                } else {
+                    let newTotal = order.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                    heldOrders.push({
+                        id: order.id, name: order.table, cart: order.items, total: newTotal, 
+                        time: new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}),
+                        orderType: 'ทานที่ร้าน', tableNo: order.table, orderMode: currentTableMode,
+                        deliveryApp: "", deliveryId: ""
+                    });
+                }
+                
+                google.script.run.markQROrderAsReceivedGS(order.id);
+              // 🔥 ส่งเข้า KDS อัตโนมัติ เฉพาะออเดอร์จาก QR โต๊ะอาหาร
+if (order.table && order.table !== "") {
 
-        // อัปเดตตัวเลขแจ้งเตือนบนปุ่ม "เรียกบิล" และส่งเสียงเตือน
-        if (orderCount > 0) {
-            if (typeof updateHeldCount === 'function') {
-                updateHeldCount();
-            }
-            if(!document.getElementById('recallModal').classList.contains('hidden')) openRecallModal(); // ถ้าระบบเปิดหน้าเรียกบิลอยู่ ให้รีเฟรชโชว์ของใหม่ด้วย
-            showToast(`🔔 มีออเดอร์ใหม่จากลูกค้า (สแกน QR) เข้ามา ${orderCount} โต๊ะ!`, "success");
-        }
+    google.script.run.createKitchenOrderGS({
+        orderId: order.id,
+        tableNo: order.table,
+        orderType: "ทานที่ร้าน",
+        items: order.items
+    });
 
-    }).getNewQROrdersGS(); // ไปเรียกฟังก์ชันหลังบ้าน
 }
+                orderCount++;
+            });
+
+            if (orderCount > 0) {
+                if (typeof updateHeldCount === 'function') updateHeldCount();
+                if(!document.getElementById('recallModal').classList.contains('hidden')) openRecallModal();
+                showToast(`🔔 มีออเดอร์ใหม่จากลูกค้า (สแกน QR) เข้ามา ${orderCount} โต๊ะ!`, "success");
+            }
+        }).getNewQROrdersGS();
+    }
 
 // ⏰ สั่งให้ POS คอยเช็คออเดอร์ใหม่ทุกๆ 15 วินาที
 setInterval(checkForNewQROrders, 15000);
@@ -8508,7 +8986,7 @@ function syncCustomerDisplay(overrideStatus = null) {
         
         // 🌟 [แก้ตรงนี้] ดักจับรูปร้านค้า ป้องกันรูปแตกเวลาไม่ได้อัปโหลดโลโก้ร้าน
         let logoEl = document.getElementById('sidebarLogo');
-        let storeLogo = (logoEl && logoEl.getAttribute('src')) ? logoEl.src : "https://i.postimg.cc/tTdwcG69/83fe4691-1f1a-45ee-8e1c-5e24882dd667.png";
+        let storeLogo = (logoEl && logoEl.getAttribute('src')) ? logoEl.src : "https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png";
         
         let storeName = document.getElementById('sidebarStoreName') ? document.getElementById('sidebarStoreName').innerText : "FamePOS";
 
@@ -8562,97 +9040,632 @@ function syncCustomerDisplay(overrideStatus = null) {
     }
 }
 
-// ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
-window.addEventListener('load', function() { loadModifiersData(); });
-
 // ============================================
-// 🍽️ ระบบผังโต๊ะอัจฉริยะ (Table Plan Dashboard)
+// 🪑 ระบบจัดการข้อมูลโต๊ะและรูปทรง
 // ============================================
 
-// 1. ดึงข้อมูลโต๊ะมาวาดลงหน้าจอ
-function loadTablePlanDashboard() {
-    let grid = document.getElementById('tablePlanGrid');
-    if (!grid) return;
+function setTableShape(shape) {
+    document.getElementById('newTableShape').value = shape;
+    if(shape === 'square') {
+        document.getElementById('btnShapeSquare').className = "flex-1 py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition shadow-sm";
+        document.getElementById('btnShapeRound').className = "flex-1 py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm";
+    } else {
+        document.getElementById('btnShapeSquare').className = "flex-1 py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm";
+        document.getElementById('btnShapeRound').className = "flex-1 py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition shadow-sm";
+    }
+}
+
+function openAddTableModal(rowIdx = "", name = "", zone = "หน้าร้าน", shape = "square", capacity = 4, status = "ว่าง") {
+    document.getElementById('tableRowIdx').value = rowIdx;
+    document.getElementById('newTableName').value = name;
     
-    grid.innerHTML = '<div class="col-span-full text-center text-rose-500 py-12 font-bold text-xl animate-pulse">⏳ กำลังโหลดผังโต๊ะ...</div>';
+    // อัปเดตโซนลงใน Dropdown
+    document.getElementById('newTableZone').value = zone || "หน้าร้าน";
+    document.getElementById('tableZoneText').innerText = zone || "หน้าร้าน";
     
-    // วิ่งไปขอข้อมูลโต๊ะจากฐานข้อมูลหลังบ้าน
-    google.script.run.withSuccessHandler(function(tables) {
-        window.globalTablesList = tables; 
+    document.getElementById('newTableCapacity').value = capacity;
+    setTableShape(shape);
+    
+    let statusText = status === "ว่าง" ? "🟢 ว่าง" : "🔴 ไม่ว่าง (มีลูกค้า)";
+    document.getElementById('tableStatusText').innerText = statusText;
+    document.getElementById('tableStatus').value = status;
+    
+    document.getElementById('tableFormTitle').innerText = rowIdx ? "✏️ แก้ไขข้อมูลโต๊ะ" : "➕ เพิ่มโต๊ะใหม่";
+    document.getElementById('addTableModal').classList.remove('hidden');
+}
+
+function closeAddTableModal() {
+    document.getElementById('addTableModal').classList.add('hidden');
+}
+
+function saveTableData() {
+    let name = document.getElementById('newTableName').value.trim();
+    if (!name) return showToast("กรุณาระบุชื่อโต๊ะ", "error");
+    
+    let btn = event.target;
+    btn.innerText = "กำลังบันทึก..."; btn.disabled = true;
+
+    let data = {
+        rowIdx: document.getElementById('tableRowIdx').value,
+        name: name,
+        zone: document.getElementById('newTableZone').value.trim() || "หน้าร้าน",
+        shape: document.getElementById('newTableShape').value,
+        capacity: parseInt(document.getElementById('newTableCapacity').value) || 4,
+        status: document.getElementById('tableStatus').value
+    };
+
+// ในส่วนของ saveTableData
+google.script.run.withSuccessHandler(function(res) {
+    btn.innerText = "💾 บันทึก"; btn.disabled = false;
+    if (res === "Success") {
+        showToast("บันทึกข้อมูลโต๊ะสำเร็จ", "success");
+        closeAddTableModal();
         
+        // 1. อัปเดตตารางหน้าจัดการโต๊ะ (แบบเงียบ)
+        loadTablesData(true); 
+        
+        // 2. 🟢 สั่งให้หน้าขาย Sync ข้อมูลตามทันที
+        refreshSalesGrid(); 
+        
+    } else {
+        showToast("Error: " + res, "error");
+    }
+}).saveTableGS(data);
+}
+
+function deleteTableData(rowIdx, name) {
+    showConfirmModal(`ยืนยันลบโต๊ะ "${name}" ใช่หรือไม่?`, function() {
+        // ในส่วนของ deleteTableData
+google.script.run.withSuccessHandler(function(res) {
+    if(res === "Success") {
+        showToast("ลบโต๊ะสำเร็จ", "success");
+        
+        // 1. อัปเดตตารางหน้าจัดการโต๊ะ (แบบเงียบ)
+        loadTablesData(true); 
+        
+        // 2. 🟢 สั่งให้หน้าขาย Sync ข้อมูลตามทันที
+        refreshSalesGrid(); 
+    }
+}).deleteTableGS(rowIdx);
+    });
+}
+
+function loadTablesData(isQuiet = false) {
+    let tbody = document.getElementById('branchTableBodyTable');
+    if (!tbody) return;
+    
+    // 🟢 1. ถ้าไม่ใช่ quiet (เช่น เปิดหน้าเว็บครั้งแรกสุด) ให้โชว์ตัวโหลดตามปกติ
+    if (!isQuiet) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูลโต๊ะ... ⏳</td></tr>';
+    }
+
+    google.script.run.withSuccessHandler(function(tables) {
+        window.globalTablesList = tables;
+        window.globalSalesTableList = tables; 
+
         if (!tables || tables.length === 0) {
-            grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-12 font-bold text-xl">ยังไม่มีข้อมูลโต๊ะ ไปเพิ่มโต๊ะที่เมนูตั้งค่าได้เลยครับ 🪑</div>';
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-500">ยังไม่มีข้อมูลโต๊ะในระบบ</td></tr>';
             return;
         }
 
-        let html = '';
-        tables.forEach(table => {
-            let tableName = table.name || table[1]; // รองรับข้อมูลทั้งจาก Object และ Array
+        let html = "";
+        tables.forEach(t => {
+            let safeName = (t.name || "").toString().replace(/'/g, "\\'");
+            let safeZone = (t.zone || "หน้าร้าน").toString().replace(/'/g, "\\'");
+            let shapeDisplay = t.shape === 'round' ? 'วงกลม' : 'สี่เหลี่ยม';
             
-            // เช็คว่าโต๊ะนี้มี "บิลพัก" ค้างอยู่ไหม
-            let activeOrderIndex = heldOrders.findIndex(o => o.tableNo === tableName);
-            let hasOrder = activeOrderIndex !== -1;
-            
-            // ถ้ามีบิลพัก ถือว่าโต๊ะไม่ว่าง (สีแดง) ถ้าไม่มีคือโต๊ะว่าง (สีเขียว)
-            let isOccupied = hasOrder; 
-            
-            let bgClass = isOccupied ? 'bg-rose-50 border-rose-200' : 'bg-emerald-50 border-emerald-200';
-            let textClass = isOccupied ? 'text-rose-800' : 'text-emerald-800';
-            let icon = isOccupied ? '🍽️' : '🟢';
-            let statusText = isOccupied ? 'มีออเดอร์ค้าง' : 'โต๊ะว่าง';
-            
-            let orderAmountHtml = '';
-            if (hasOrder) {
-                let orderTotal = heldOrders[activeOrderIndex].total;
-                orderAmountHtml = `<div class="text-sm font-bold text-rose-500 mt-1 bg-white px-2 py-0.5 rounded-lg border border-rose-100 shadow-sm">บิล: ฿${orderTotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</div>`;
-            }
+            let statusHtml = (t.status === "ว่าง" || t.status === "🟢 ว่าง") 
+                ? `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-xs font-bold">🟢 ว่าง</span>`
+                : `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-xs font-bold">🔴 ไม่ว่าง</span>`;
 
-            // ตั้งค่าคำสั่งเวลากดโต๊ะ
-            let actionCall = isOccupied ? `openTableOrder('${tableName}', ${activeOrderIndex})` : `openNewTable('${tableName}')`;
+            let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html";
+            let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(t.name);
+            let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrTargetUrl);
 
             html += `
-            <div onclick="${actionCall}" class="flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 ${bgClass} cursor-pointer hover:-translate-y-1 transition transform shadow-sm">
-                <div class="text-4xl mb-2">${icon}</div>
-                <h3 class="text-xl font-bold ${textClass} text-center leading-tight line-clamp-2">${tableName}</h3>
-                <p class="text-xs font-bold ${isOccupied ? 'text-rose-400' : 'text-emerald-500'} mt-1">${statusText}</p>
-                ${orderAmountHtml}
-            </div>`;
+            <tr class="border-b border-gray-100 hover:bg-gray-50 transition" id="table-row-${t.rowIdx}">
+                <td class="p-4">
+                    <div class="font-bold text-gray-800 text-lg">${t.name}</div>
+                    <div class="text-xs font-bold text-rose-500 mt-1">โซน: ${t.zone || 'หน้าร้าน'} | ${shapeDisplay} (${t.capacity || 4} ที่นั่ง)</div>
+                </td>
+                <td class="p-4 text-center">${statusHtml}</td>
+                <td class="p-4 text-center">
+                    <a href="${qrGeneratorApi}" target="_blank" class="px-3 py-1.5 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl font-bold text-xs inline-flex items-center gap-1 transition shadow-sm">🖨️ ดูคิวอาร์ (Print QR)</a>
+                </td>
+                <td class="p-4 text-center whitespace-nowrap">
+                    <button onclick="openAddTableModal('${t.rowIdx}', '${safeName}', '${safeZone}', '${t.shape}', ${t.capacity || 4}, '${t.status}')" class="text-rose-500 bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-xl font-bold mr-2 text-sm transition">แก้ไข</button>
+                    <button onclick="deleteTableData('${t.rowIdx}', '${safeName}')" class="text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl font-bold text-sm transition">ลบ</button>
+                </td>
+            </tr>`;
         });
-        grid.innerHTML = html;
+
+        // 🟢 2. สลับข้อมูลเก่าเป็นข้อมูลใหม่ในพริบตาเดียว โดยไม่มีอาการหน้าจอขาวหรือกระพริบเลย
+        tbody.innerHTML = html;
+        
+        if(typeof buildSalesTableGrid === 'function') buildSalesTableGrid();
+
     }).getTablesData();
 }
 
-// 2. เวลากดโต๊ะที่ว่าง (สีเขียว)
-function openNewTable(tableName) {
-    if (cart.length > 0) {
-        showToast("ตะกร้าปัจจุบันมีสินค้าอยู่ กรุณาชำระเงินหรือพักบิลปัจจุบันก่อนเปิดโต๊ะใหม่ครับ", "error");
-        return;
-    }
-    
-    showView('sales'); // เด้งไปหน้าขาย
-    
-    // ตั้งค่าเป็นโหมด "ทานที่ร้าน" และใส่ชื่อโต๊ะให้อัตโนมัติ
-    let btnDineIn = document.getElementById('btnOrderDineIn');
-    setOrderType('DineIn', btnDineIn, true); 
-    document.getElementById('inputTableNo').value = tableName;
-    let display = document.getElementById('displaySelectedTable');
-    if(display) display.innerText = tableName;
-    
-    showToast(`เปิดโต๊ะ ${tableName} เรียบร้อย สั่งอาหารได้เลยครับ!`, "success");
+function refreshSalesGrid() {
+    // ดึงข้อมูลใหม่จาก Server
+    google.script.run.withSuccessHandler(function(tables) {
+        // อัปเดตตัวแปรกลางที่หน้าขายใช้แสดงผล
+        window.globalSalesTableList = tables; 
+        
+        // สั่งวาดปุ่มโต๊ะใหม่ในหน้าขาย
+        if (typeof buildSalesTableGrid === 'function') {
+            buildSalesTableGrid();
+        }
+        console.log("ระบบ Sync ข้อมูลโต๊ะไปยังหน้าขายเรียบร้อย");
+    }).getTablesData();
 }
 
-// 3. เวลากดโต๊ะที่มีลูกค้าอยู่แล้ว (สีแดง)
-function openTableOrder(tableName, orderIndex) {
-    if (cart.length > 0) {
-        showToast("ตะกร้ามีสินค้าอยู่ กรุณาเคลียร์ตะกร้าหรือพักบิลปัจจุบันก่อนเรียกบิลโต๊ะนี้ครับ", "error");
-        return;
-    }
+// ฟังก์ชันเมื่อกดเลือกโซนใน Dropdown
+function selectTableZone(zoneName, element) {
+    document.getElementById('tableZoneText').innerText = zoneName;
+    document.getElementById('newTableZone').value = zoneName;
+    document.getElementById('tableZoneMenu').classList.add('hidden');
     
-    // ดึงบิลของโต๊ะนั้นกลับมาหน้าขาย
-    processRecall(orderIndex);
-    showView('sales');
-    showToast(`ดึงรายการอาหารของโต๊ะ ${tableName} เรียบร้อยแล้ว`, "success");
+    // จัดการสีไฮไลต์เวลาเลือก
+    let items = document.querySelectorAll('.table-zone-item');
+    items.forEach(item => {
+        item.classList.remove('text-rose-700', 'bg-rose-50');
+        item.classList.add('text-gray-700');
+    });
+    if(element) {
+        element.classList.remove('text-gray-700');
+        element.classList.add('text-rose-700', 'bg-rose-50');
+    }
 }
+
+let targetTableToOpen = "";
+let systemBuffetPackages = []; // เก็บแคชแพ็กเกจ
+
+// ================= อัปเดตฟังก์ชันหลักในการเปิดโต๊ะ =================
+    function promptOpenTable(tableName) {
+        targetTableToOpen = tableName;
+        document.getElementById('openTableNameDisplay').innerText = tableName;
+        document.getElementById('inputHeadCount').value = 1;
+        setTableMode('Buffet');
+        setPaymentWorkflow(false);
+
+        google.script.run.withSuccessHandler(function(packages) {
+            systemBuffetPackages = packages;
+            let menu = document.getElementById('buffetPackageMenu');
+            
+            if(!packages || packages.length === 0) {
+                menu.innerHTML = `<div onclick="selectBuffetPackageItem('บุฟเฟต์มาตรฐาน', 299, 90, this)" class="buffet-pkg-item p-3.5 hover:bg-rose-50 hover:text-rose-600 text-rose-700 bg-rose-50 font-bold cursor-pointer transition-colors text-sm">🥩 บุฟเฟต์มาตรฐาน (฿299 / 90นาที)</div>`;
+                selectBuffetPackageItem('บุฟเฟต์มาตรฐาน', 299, 90, menu.firstChild);
+            } else {
+                menu.innerHTML = packages.map((p, index) => {
+                    let activeClass = index === 0 ? 'bg-rose-50 text-rose-700' : 'text-gray-700';
+                    return `<div onclick="selectBuffetPackageItem('${p.name}', ${p.price}, ${p.timeLimit}, this)" class="buffet-pkg-item p-3.5 hover:bg-rose-50 hover:text-rose-600 ${activeClass} font-bold cursor-pointer transition-colors text-sm border-b border-rose-50">🥩 ${p.name} (฿${p.price} / ${p.timeLimit}นาที)</div>`;
+                }).join('');
+                
+                // สั่งเลือกแพ็กเกจอันแรกเป็นค่าเริ่มต้น
+                selectBuffetPackageItem(packages[0].name, packages[0].price, packages[0].timeLimit, menu.firstChild);
+            }
+            document.getElementById('openTableModeModal').classList.remove('hidden');
+        }).getBuffetPackagesGS();
+    }
+
+   function setTableMode(mode) {
+        document.getElementById('selectedTableMode').value = mode;
+        let btnB = document.getElementById('btnModeBuffet');
+        let btnA = document.getElementById('btnModeAlacarte');
+        let pkgBox = document.getElementById('buffetPackageContainer');
+        let timeBox = document.getElementById('timeLimitContainer');
+
+        if (mode === 'Buffet') {
+            btnB.className = "py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition shadow-sm text-sm";
+            btnA.className = "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm text-sm";
+            pkgBox.classList.remove('hidden');
+            timeBox.classList.remove('hidden');
+        } else {
+            btnB.className = "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm text-sm";
+            btnA.className = "py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition shadow-sm text-sm";
+            pkgBox.classList.add('hidden');
+            timeBox.classList.add('hidden');
+        }
+    }
+
+function setPaymentWorkflow(isPrepaid) {
+        document.getElementById('isPrepaidWorkflow').value = isPrepaid;
+        let btnLater = document.getElementById('btnPayLater');
+        let btnNow = document.getElementById('btnPayNow');
+        if(!isPrepaid) {
+            btnLater.className = "py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition text-xs shadow-sm";
+            btnNow.className = "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
+        } else {
+            btnLater.className = "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
+            btnNow.className = "py-3 border-2 border-rose-500 bg-rose-50 text-rose-700 rounded-xl font-bold transition text-xs shadow-sm";
+        }
+    }
+
+    function adjustHeadCount(val) {
+        let input = document.getElementById('inputHeadCount');
+        let v = (parseInt(input.value) || 1) + val;
+        if(v >= 1) input.value = v;
+    }
+
+    function adjustTimeLimit(val) {
+        let input = document.getElementById('inputTimeLimit');
+        let v = (parseInt(input.value) || 90) + val;
+        if(v >= 1) input.value = v;
+    }
+
+// 🖨️ ฟังก์ชันคำนวณและสั่งพิมพ์คิวอาร์สลิปออเดอร์สำหรับส่งให้ลูกค้าสแกน
+    function printTableQRReceipt(tableName, mode, pkgName, headCount, timeLimit) {
+        let githubMenuUrl = "https://famepos.github.io/Coffee/menu.html"; // 💡 แก้ไข URL เมนูตามจริง
+        let qrTargetUrl = githubMenuUrl + "?table=" + encodeURIComponent(tableName);
+        
+        // 🚀 เปลี่ยนกลับมาใช้ API ของ qrserver พร้อมแนบเวลาปัจจุบันกันระบบ Cache
+        let qrGeneratorApi = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(qrTargetUrl);
+        
+        let storeNameEl = document.getElementById('printSlipStoreName');
+        if(storeNameEl) storeNameEl.innerText = globalStoreSettings.storeName || "FamePOS Buffet";
+        
+        document.getElementById('printSlipTable').innerText = tableName;
+        document.getElementById('printSlipMode').innerText = mode === 'Buffet' ? 'บุฟเฟต์' : 'สั่งแยกตามเมนู';
+        document.getElementById('printSlipPkg').innerText = pkgName;
+        document.getElementById('printSlipHead').innerText = headCount;
+        
+        // ⏰ คำนวณเวลาเริ่ม - เวลาสิ้นสุด
+        let now = new Date();
+        let startTimeStr = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + " น.";
+        let endTimeStr = "-";
+        
+        if (mode === 'Buffet' && timeLimit > 0) {
+            let endDate = new Date(now.getTime() + (timeLimit * 60000)); 
+            endTimeStr = endDate.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + " น.";
+        } else if (mode === 'Buffet' && timeLimit <= 0) {
+            endTimeStr = "ไม่จำกัดเวลา";
+        }
+        
+        document.getElementById('printSlipStartTime').innerText = startTimeStr;
+        document.getElementById('printSlipEndTime').innerText = endTimeStr;
+
+        let qrImgElement = document.getElementById('printSlipQRImage');
+        
+        // ฟังก์ชันสั่งพิมพ์ (แยกไว้เพื่อให้เรียกใช้ได้ชัวร์ๆ)
+        const triggerPrint = () => {
+            let printArea = document.getElementById('tableQRPrintContainer');
+            let activeModal = document.getElementById('salesTableModal');
+            
+            if (activeModal) activeModal.classList.add('no-print');
+            if (printArea) {
+                printArea.classList.remove('hidden');
+                printArea.classList.add('print-active-view');
+                
+                setTimeout(() => {
+                    window.print();
+                    printArea.classList.remove('print-active-view');
+                    printArea.classList.add('hidden');
+                    if (activeModal) activeModal.classList.remove('no-print');
+                }, 500);
+            }
+        };
+
+        // ถ้ารูปคิวอาร์โหลดเสร็จสมบูรณ์ ให้สั่งปริ้นท์
+        qrImgElement.onload = function() {
+            triggerPrint();
+        };
+
+        // 🛡️ ระบบป้องกัน: ถ้าโหลดรูปไม่ขึ้น (เน็ตหลุด/โดนบล็อก) ให้บังคับปริ้นท์สลิปออกมาก่อน แล้วแจ้งเตือน
+        qrImgElement.onerror = function() {
+            triggerPrint(); 
+            showToast("พบปัญหาการโหลด QR Code แต่ระบบพิมพ์สลิปเปิดโต๊ะให้แล้ว", "error");
+        };
+
+        // เริ่มโหลดรูป
+        qrImgElement.src = qrGeneratorApi + "&t=" + new Date().getTime();
+    }
+
+function toggleBuffetDropdown() {
+        document.getElementById('buffetPackageMenu').classList.toggle('hidden');
+    }
+
+    function selectBuffetPackageItem(name, price, time, element) {
+        document.getElementById('selectBuffetPackage').value = name;
+        document.getElementById('selectBuffetPackagePrice').value = price;
+        document.getElementById('selectBuffetPackageTime').value = time;
+        document.getElementById('buffetPackageSelectedText').innerText = `🥩 ${name} (฿${price} / ${time}นาที)`;
+        
+        // อัปเดตช่อง "เวลา" อัตโนมัติเวลาจิ้มเปลี่ยนแพ็กเกจ
+        document.getElementById('inputTimeLimit').value = time;
+        document.getElementById('buffetPackageMenu').classList.add('hidden');
+        
+        // ล้างสีเทา และทำสีไฮไลต์ชมพูที่ตัวเลือกปัจจุบัน
+        let items = document.querySelectorAll('.buffet-pkg-item');
+        items.forEach(item => {
+            item.classList.remove('bg-rose-50', 'text-rose-700');
+            item.classList.add('text-gray-700');
+        });
+        if (element) {
+            element.classList.remove('text-gray-700');
+            element.classList.add('bg-rose-50', 'text-rose-700');
+        }
+    }
+
+    // ปิดเมนูกล่องบุฟเฟต์เวลาจิ้มที่อื่น
+    document.addEventListener('click', function(event) {
+        const bpContainer = document.getElementById('buffetPackageContainer');
+        const bpMenu = document.getElementById('buffetPackageMenu');
+        if (bpContainer && !bpContainer.contains(event.target) && bpMenu && !bpMenu.classList.contains('hidden')) {
+            bpMenu.classList.add('hidden');
+        }
+    });
+
+   // 🚀 ฟังก์ชันหลักเมื่อกดยืนยันเปิดโต๊ะ
+    function confirmOpenTable() {
+        let mode = document.getElementById('selectedTableMode').value;
+        let headCount = parseInt(document.getElementById('inputHeadCount').value) || 1;
+        
+        let pkgName = mode === 'Buffet' ? document.getElementById('selectBuffetPackage').value : 'A la carte';
+        let pkgPrice = mode === 'Buffet' ? parseFloat(document.getElementById('selectBuffetPackagePrice').value) : 0;
+        
+        let timeInput = document.getElementById('inputTimeLimit');
+        let timeLimit = (mode === 'Buffet' && timeInput) ? parseInt(timeInput.value) : 0;
+        
+        let isPrepaidInput = document.getElementById('isPrepaidWorkflow');
+        let isPrepaid = isPrepaidInput ? isPrepaidInput.value === "true" : false;
+
+        let btn = document.getElementById('btnConfirmOpenTable');
+        btn.innerText = "⏳ กำลังบันทึกข้อมูลโต๊ะ...";
+        btn.disabled = true;
+
+        google.script.run.withSuccessHandler(function(res) {
+            btn.innerText = "🚀 ยืนยันเปิดโต๊ะ & พิมพ์คิวอาร์สั่งอาหาร";
+            btn.disabled = false;
+            document.getElementById('openTableModeModal').classList.add('hidden');
+            
+            document.getElementById('inputTableNo').value = targetTableToOpen;
+            if(document.getElementById('displaySelectedTable')) {
+                document.getElementById('displaySelectedTable').innerText = targetTableToOpen;
+            }
+
+            if(isPrepaid && mode === 'Buffet') {
+                cart = [{ name: `${pkgName} (${headCount} ท่าน) [เวลา ${timeLimit} นาที]`, price: pkgPrice, qty: headCount }];
+                updateCartUI();
+                checkout();
+            } else {
+                createInitialTableHold(targetTableToOpen, mode, headCount, pkgName, pkgPrice, timeLimit);
+                showToast("เปิดโต๊ะ " + targetTableToOpen + " สำเร็จ!", "success");
+            }
+            
+            printTableQRReceipt(targetTableToOpen, mode, pkgName, headCount, timeLimit);
+            
+            let tableModal = document.getElementById('salesTableModal');
+            if(tableModal) tableModal.classList.add('hidden');
+
+            if(typeof loadTablesData === 'function') loadTablesData(true);
+
+        }).openTableGS(targetTableToOpen, mode, headCount, pkgName, timeLimit);
+    }
+
+// 📥 สร้างบิลพัก (อัปเดตให้รองรับราคาแพ็กเกจ)
+    function createInitialTableHold(tableName, mode, headCount, pkgName, pkgPrice, timeLimit) {
+        let initialCart = [];
+        let initialTotal = 0;
+        
+        if (mode === 'Buffet') {
+            initialCart.push({ name: `${pkgName} (${headCount} ท่าน) [เวลา ${timeLimit} นาที]`, price: pkgPrice, qty: headCount });
+            initialTotal = pkgPrice * headCount;
+        }
+
+        heldOrders.push({
+            id: Date.now(), 
+            name: tableName, 
+            cart: initialCart, 
+            total: initialTotal, 
+            time: new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}),
+            orderType: 'ทานที่ร้าน',
+            tableNo: tableName,
+            orderMode: mode, // 👈 บังคับจำโหมดโต๊ะว่าเป็น Buffet หรือไม่
+            deliveryApp: "", 
+            deliveryId: ""
+        });
+        
+        if(typeof updateHeldCount === 'function') updateHeldCount();
+        updateCartUI(); // ล้างหน้าจอแล้วโชว์ตะกร้าใหม่
+    }
+
+// Buffet
+
+    let localBuffetPackages = [];
+
+function openBuffetManagementMenu() {
+    showView('buffetManagement'); // เรียกใช้ระบบเคลียร์หน้าจออื่นอัตโนมัติ
+    loadBuffetPackagesTable();
+}
+
+function backToSettingsFromBuffet() {
+    document.getElementById('buffetManagementView').classList.add('hidden');
+    showView('settings'); // เด้งกลับมาหน้าตั้งค่ารวมแบบสะอาดๆ
+}
+
+function loadBuffetPackagesTable() {
+    google.script.run.withSuccessHandler(function(data) {
+
+        localBuffetPackages = data;
+
+        let tbody = document.getElementById('buffetPackageTableBody');
+
+        if (data.length === 0) {
+            tbody.innerHTML =
+                '<tr><td colspan="4" class="text-center p-6 text-gray-400">ยังไม่มีแพ็กเกจราคาในฐานข้อมูล</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map((p, idx) => `
+            <tr class="border-b hover:bg-gray-50 transition">
+                <td class="p-4 font-bold text-gray-700">
+                    🥩 ${p.name}
+                </td>
+
+                <td class="p-4 text-center font-black text-rose-600">
+                    ฿${p.price.toFixed(2)}
+                </td>
+
+                <td class="p-4 text-center font-bold text-gray-600">
+                    ${p.timeLimit} นาที
+                </td>
+
+                <td class="p-4 text-center whitespace-nowrap">
+
+                   <button
+    onclick="openBuffetCategoryModal('${p.name}')"
+    class="text-pink-500 font-bold text-xs mr-3">
+    📂 หมวดหมู่
+</button>
+
+                    <button
+                        onclick="editBuffetPackage(${idx})"
+                        class="text-pink-600 font-bold text-xs mr-3">
+                        แก้ไข
+                    </button>
+
+                    <button
+                        onclick="deleteBuffetPackage('${p.name}')"
+                        class="text-red-700 font-bold text-xs">
+                        ลบ
+                    </button>
+
+                </td>
+            </tr>
+        `).join('');
+
+    }).getBuffetPackagesGS();
+}
+    function openBuffetPackageModal() {
+        document.getElementById('buffetFormTitle').innerText = "➕ เพิ่มราคาแพ็กเกจใหม่";
+        document.getElementById('oldBuffetName').value = "";
+        document.getElementById('buffetNameInput').value = "";
+        document.getElementById('buffetPriceInput').value = "";
+        document.getElementById('buffetTimeInput').value = "90";
+        document.getElementById('buffetFormModal').classList.remove('hidden');
+    }
+    function editBuffetPackage(index) {
+        let p = localBuffetPackages[index];
+        document.getElementById('buffetFormTitle').innerText = "✏️ แก้ไขราคาแพ็กเกจ";
+        document.getElementById('oldBuffetName').value = p.name;
+        document.getElementById('buffetNameInput').value = p.name;
+        document.getElementById('buffetPriceInput').value = p.price;
+        document.getElementById('buffetTimeInput').value = p.timeLimit;
+        document.getElementById('buffetFormModal').classList.remove('hidden');
+    }
+    function saveBuffetPackageData() {
+        let name = document.getElementById('buffetNameInput').value.trim();
+        let oldName = document.getElementById('oldBuffetName').value;
+        let price = parseFloat(document.getElementById('buffetPriceInput').value) || 0;
+        let time = parseInt(document.getElementById('buffetTimeInput').value) || 90;
+        if(!name) return showToast("กรุณากรอกชื่อแพ็กเกจ", "error");
+        google.script.run.withSuccessHandler(function(res) {
+            document.getElementById('buffetFormModal').classList.add('hidden');
+            showToast("บันทึกตารางราคาบุฟเฟต์แล้ว", "success");
+            loadBuffetPackagesTable();
+        }).saveBuffetPackageGS(name, oldName, price, time);
+    }
+function deleteBuffetPackage(name) {
+        // ใช้ระบบแจ้งเตือนแบบป๊อปอัปสวยงามแทนของระบบ
+        showConfirmModal(`ต้องการลบราคาแพ็กเกจ "${name}" ใช่หรือไม่?`, function() {
+            // เมื่อกดตกลง ค่อยสั่งลบข้อมูล
+            google.script.run.withSuccessHandler(function(res) {
+                showToast("ลบแพ็กเกจราคาเรียบร้อย", "success");
+                loadBuffetPackagesTable(); // รีเฟรชตารางหลังลบเสร็จ
+            }).deleteBuffetPackageGS(name);
+        });
+    }
+
+
+// หน้าลุกค้า
+// เปิดหน้าต่างแก้ไขและดึงข้อมูลเดิมมาแสดง
+function openEditCustomerModal(phone, name, type, points) {
+    document.getElementById('editCusPhone').value = phone;
+    document.getElementById('editCusName').value = name && name !== 'undefined' ? name : "";
+    document.getElementById('editCusType').value = type || "ลูกค้าทั่วไป";
+    document.getElementById('editCusPoints').value = points || 0;
+    document.getElementById('editCustomerModal').classList.remove('hidden');
+}
+
+// 👇 ฟังก์ชันบันทึกข้อมูลแก้ไขแบบ เรียวทาม 100%
+function saveEditCustomer() {
+    let phone = document.getElementById('editCusPhone').value;
+    let name = document.getElementById('editCusName').value;
+    let type = document.getElementById('editCusType').value;
+    let points = parseFloat(document.getElementById('editCusPoints').value) || 0;
+
+    let btn = document.getElementById('btnSaveEditCustomer');
+    btn.innerText = "⏳ กำลังบันทึก...";
+    btn.disabled = true;
+
+    google.script.run.withSuccessHandler(function(res) {
+        btn.innerText = "💾 บันทึกการแก้ไข";
+        btn.disabled = false;
+        
+        if (res === "Success") {
+            showToast("อัปเดตข้อมูลลูกค้าสำเร็จ", "success");
+            document.getElementById('editCustomerModal').classList.add('hidden');
+            
+            // 🔥 [REAL-TIME] อัปเดตข้อมูลบนหน้าจอทันที ไม่ต้องรีเฟรชหน้าเว็บ
+            let badgeType = document.getElementById(`badge-type-${phone}`);
+            let cellPoints = document.getElementById(`cell-points-${phone}`);
+            let cellDate = document.getElementById(`cell-date-${phone}`);
+            
+            if (badgeType) badgeType.innerText = type;
+            if (cellPoints) cellPoints.innerText = points;
+            if (cellDate) {
+                let today = new Date();
+                cellDate.innerText = today.toLocaleDateString('th-TH'); // อัปเดตวันที่เป็นวันนี้
+            }
+            
+            // อัปเดตคำสั่งในปุ่มกดแก้ไข เพื่อให้กดแก้ไขรอบถัดไปได้ค่าใหม่ทันที
+            let row = document.getElementById(`row-${phone}`);
+            if (row) {
+                let editBtn = row.querySelector('button[onclick^="openEditCustomerModal"]');
+                if (editBtn) {
+                    editBtn.setAttribute('onclick', `openEditCustomerModal('${phone}', '${name}', '${type}', ${points})`);
+                }
+            }
+            
+        } else {
+            showToast("เกิดข้อผิดพลาด: " + res, "error");
+        }
+    }).updateCustomerDataGS(phone, name, type, points);
+}
+// 👇 ฟังก์ชันลบข้อมูลลูกค้าแบบ เรียวทาม 100%
+function deleteCustomer(phone) {
+    let msg = `⚠️ ยืนยันการลบสมาชิกเบอร์ "${phone}" ใช่หรือไม่?\n(ข้อมูลแต้มและยอดสะสมจะหายไปทั้งหมด)`;
+    
+    showConfirmModal(msg, function() {
+        google.script.run.withSuccessHandler(function(res) {
+            if (res === "Success") {
+                showToast("ลบข้อมูลสมาชิกเรียบร้อย", "success");
+                
+                // 🔥 [REAL-TIME] สั่งลบแถวออกจากตารางบนหน้าจอทันที ไม่ต้องรอโหลดใหม่
+                let row = document.getElementById(`row-${phone}`);
+                if (row) {
+                    row.remove();
+                }
+                
+                // ตรวจสอบเผื่อลบจนหมดตาราง ให้แสดงข้อความว่าตารางว่าง
+                let tbody = document.getElementById('memberTableBody');
+                if (tbody && tbody.children.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-400 font-bold">ยังไม่มีข้อมูลสมาชิก 📭</td></tr>';
+                }
+                
+            } else {
+                showToast("เกิดข้อผิดพลาด: " + res, "error");
+            }
+        }).deleteCustomerGS(phone);
+    });
+}
+
+// ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
+window.addEventListener('load', function() { loadModifiersData(); });
+
+
 
   </script>
 </body>
