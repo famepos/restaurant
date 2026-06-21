@@ -580,19 +580,22 @@ let buffetIncludedCategories = [];
         }
 
 // ==========================================
-// ⏱️ เพิ่มฟังก์ชันนับถอยหลังโชว์บนหน้าจอมือถือลูกค้า
+// ⏱️ ฟังก์ชันนับถอยหลังโชว์บนหน้าจอมือถือลูกค้า
 // ==========================================
 let customerTimerInterval = null;
 function startCustomerCountdown(endTimeStr) {
     if (customerTimerInterval) clearInterval(customerTimerInterval);
+    if (!endTimeStr) return;
     
     const endTime = new Date(endTimeStr).getTime();
+    if (isNaN(endTime)) return; // ป้องกัน Error ถ้าเวลาผิดรูปแบบ
     
     customerTimerInterval = setInterval(() => {
         const now = new Date().getTime();
         const distance = endTime - now;
         
         let tableDisplay = document.getElementById('tableDisplay');
+        if (!tableDisplay) return;
         
         if (distance < 0) {
             tableDisplay.innerHTML = `<div class="text-center leading-tight">โต๊ะ: ${currentTable}<br><span class="text-[11px] text-red-200 font-bold animate-pulse">🚨 หมดเวลาทานบุฟเฟต์</span></div>`;
@@ -607,86 +610,101 @@ function startCustomerCountdown(endTimeStr) {
     }, 1000);
 }
 
-// 🌟 3. อัปเดตตอนเปิดหน้าเว็บ ให้เช็คโหมดโต๊ะและสับข้อมูลหมวดหมู่ให้ถูกต้อง 100%
+// ==========================================
+// 🚀 ฟังก์ชันเริ่มต้นทำงาน (เช็คโต๊ะ -> โหลดหมวดหมู่ -> โหลดเมนู)
+// ==========================================
 function initPage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if(urlParams.has('table')) {
-        currentTable = urlParams.get('table').trim();
-        document.getElementById('tableDisplay').innerHTML = `<div class="text-center leading-tight">โต๊ะ: ${currentTable}</div>`;
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.has('table')) {
+            currentTable = urlParams.get('table').trim();
+            document.getElementById('tableDisplay').innerHTML = `<div class="text-center leading-tight">โต๊ะ: ${currentTable}</div>`;
 
-        // 🔍 โหลดข้อมูลโต๊ะ
-        fetch(API_URL,{
-            method:"POST",
-            headers:{"Content-Type":"text/plain;charset=utf-8"},
-            body:JSON.stringify({ action:"getTablesData" }),
-            redirect:"follow"
-        })
-        .then(res => res.json())
-        .then(tableData => {
-            if(tableData.status === "Success" && Array.isArray(tableData.result)){
-                let myTable = tableData.result.find(t => t && t.name === currentTable);
+            // 🔍 1. โหลดข้อมูลโต๊ะ
+            fetch(API_URL,{
+                method:"POST",
+                headers:{"Content-Type":"text/plain;charset=utf-8"},
+                body:JSON.stringify({ action:"getTablesData" }),
+                redirect:"follow"
+            })
+            .then(res => res.json())
+            .then(tableData => {
+                if(tableData.status === "Success" && Array.isArray(tableData.result)){
+                    let myTable = tableData.result.find(t => t && t.name === currentTable);
+                    
+                    // ===========================
+                    // 🍖 โต๊ะบุฟเฟต์
+                    // ===========================
+                    if(myTable && myTable.orderMode === "Buffet"){
+                        isBuffetMode = true;
+                        
+                        if (myTable.endTime && myTable.endTime !== "") {
+                            startCustomerCountdown(myTable.endTime);
+                        } else {
+                            document.getElementById('tableDisplay').innerHTML = `<div class="text-center leading-tight">โต๊ะ: ${currentTable}<br><span class="text-[11px] text-pink-200 font-normal">(บุฟเฟต์)</span></div>`;
+                        }
+
+                        buffetIncludedCategories = [];
+
+                        // 🔍 2. โหลดหมวดหมู่ของแพ็กเกจ (เพื่อหาราคา 0 บาท)
+                        fetch(API_URL,{
+                            method:"POST",
+                            headers:{"Content-Type":"text/plain;charset=utf-8"},
+                            body:JSON.stringify({
+                                action: "getBuffetCategoriesByPackageGS", 
+                                args: [myTable.packageName || ""]
+                            }),
+                            redirect:"follow"
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.status === "Success"){
+                                let rawCat = data.result || "";
+                                if (typeof rawCat === "string") {
+                                    buffetIncludedCategories = rawCat.split('|').map(s => s.trim());
+                                } else if (Array.isArray(rawCat)) {
+                                    buffetIncludedCategories = rawCat.map(s => s.toString().trim());
+                                }
+                            }
+                            // กันเหนียว ป้องกันบั๊กถ้าหลังบ้านไม่ส่ง Array มา
+                            if (!Array.isArray(buffetIncludedCategories)) buffetIncludedCategories = [];
+                            
+                            // 🔍 3. โหลดเมนู
+                            fetchMenuData(); 
+                        })
+                        .catch(err => {
+                            console.error("Load Buffet Categories Error", err);
+                            fetchMenuData(); // ทะลุไปโหลดเมนูเลยถ้า Error
+                        });
+                        return;
+                    }
+                }
                 
                 // ===========================
-                // 🍖 โต๊ะบุฟเฟต์
+                // 🥗 ไม่ใช่บุฟเฟต์ โหลดเมนูได้เลย
                 // ===========================
-                if(myTable && myTable.orderMode === "Buffet"){
-                    isBuffetMode = true;
-                    
-                    // เริ่มนับถอยหลังโชว์บนมือถือลูกค้าทันที!
-                    if (myTable.endTime && myTable.endTime !== "") {
-                        startCustomerCountdown(myTable.endTime);
-                    } else {
-                        document.getElementById('tableDisplay').innerHTML = `<div class="text-center leading-tight">โต๊ะ: ${currentTable}<br><span class="text-[11px] text-pink-200 font-normal">(บุฟเฟต์)</span></div>`;
-                    }
-
-                    buffetIncludedCategories = [];
-
-                    // โหลดหมวดหมู่ของแพ็กเกจจาก API
-                    fetch(API_URL,{
-                        method:"POST",
-                        headers:{"Content-Type":"text/plain;charset=utf-8"},
-                        body:JSON.stringify({
-                            action: "getBuffetCategoriesByPackageGS", 
-                            args: [myTable.packageName || ""]
-                        }),
-                        redirect:"follow"
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.status === "Success"){
-                            // 🛠️ จุดที่แก้ไข: สับข้อความ "เนื้อ|ผัก" ให้กลายเป็น Array ย่อยๆ ป้องกันบั๊กราคาเต็ม!
-                            let rawCat = data.result || "";
-                            if (typeof rawCat === "string") {
-                                buffetIncludedCategories = rawCat.split('|').map(s => s.trim());
-                            } else if (Array.isArray(rawCat)) {
-                                buffetIncludedCategories = rawCat.map(s => s.toString().trim());
-                            }
-                        }
-                        fetchMenuData(); // โหลดเมนูหลังจากรู้หมวดหมู่ฟรีแล้ว
-                    })
-                    .catch(err => {
-                        console.error("Load Buffet Categories Error", err);
-                        fetchMenuData();
-                    });
-                    return;
-                }
-            }
-            
-            // ===========================
-            // 🥗 ไม่ใช่บุฟเฟต์ (A La Carte) โหลดราคาปกติ
-            // ===========================
-            fetchMenuData();
-        })
-        .catch(err => {
-            console.error(err);
-            fetchMenuData();
-        });
-    } else {
-        document.getElementById('tableDisplay').innerText = "โปรดสแกน QR ใหม่";
-        document.getElementById('loadingOverlay').classList.add('hidden');
-        showAlert("ไม่พบหมายเลขโต๊ะ", "กรุณาสแกน QR Code ที่ตั้งอยู่บนโต๊ะ เพื่อดูเมนูและสั่งอาหารนะครับ", "⚠️", "error");
+                fetchMenuData();
+            })
+            .catch(err => {
+                console.error("Table Data Error", err);
+                fetchMenuData(); // ทะลุไปโหลดเมนูเลยถ้า Error
+            });
+        } else {
+            document.getElementById('tableDisplay').innerText = "โปรดสแกน QR ใหม่";
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            showAlert("ไม่พบหมายเลขโต๊ะ", "กรุณาสแกน QR Code ที่ตั้งอยู่บนโต๊ะ เพื่อดูเมนูและสั่งอาหารนะครับ", "⚠️", "error");
+        }
+    } catch (error) {
+        console.error("initPage Error:", error);
+        fetchMenuData(); 
     }
 }
+
+// 🚨 จุดสำคัญ: คำสั่งสตาร์ทระบบ (ห้ามลบเด็ดขาด)
+initPage();
+
+// 🔄 อัปเดตข้อมูลเมนูเงียบๆ ทุก 5 วินาที
+setInterval(fetchMenuDataSilent, 5000);
     </script>
 </body>
 </html>
