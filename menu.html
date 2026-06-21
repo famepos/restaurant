@@ -233,7 +233,7 @@ function fetchMenuDataSilent() {
     .then(data => { if(data.status === "Success") window.cachedModifiersRaw = data.result; })
     .catch(e => console.log("Silent Sync Modifiers..."));
 
-    // 3. 🧼 ตรวจสอบสถานะโต๊ะเพื่อป้องกัน "ออเดอร์ผี"
+    // 3. 🧼 ตรวจสอบสถานะโต๊ะเพื่อ "ตัดจบเซสชัน" (บล็อกการสั่งอาหาร)
     if (currentTable !== "ไม่ระบุ") {
         fetch(API_URL, {
             method: "POST",
@@ -247,27 +247,38 @@ function fetchMenuDataSilent() {
                 let myTable = tableData.result.find(t => t && t.name === currentTable);
                 
                 if (myTable) {
-                    // ถ้าโต๊ะมีคนนั่ง ให้จำสถานะไว้
+                    // ถ้าโต๊ะมีคนนั่ง ให้จดจำสถานะไว้
                     if (myTable.status === "ไม่ว่าง" || myTable.status === "🔴 ไม่ว่าง") {
                         hasBeenOccupied = true;
                     }
                     
-                    // ถ้าโต๊ะถูก "เช็คบิล" แล้วเปลี่ยนสถานะกลับเป็น "ว่าง"
+                    // 🚨 เมื่อแคชเชียร์กด "เช็คบิล" (โต๊ะเปลี่ยนสถานะกลับเป็น "ว่าง")
                     if(myTable.status === "ว่าง" || myTable.status === "🟢 ว่าง") {
+                        
                         if (!hasOrderedThisSession) {
                             localStorage.removeItem('famepos_menu_history_' + currentTable);
                         }
                         
-                        // 🚨 จุดที่แก้ไข: ลบหน้าจอสีชมพูออก แล้วเปลี่ยนเป็นการล้างค่าแทน
+                        // ถ้าลูกค้าโต๊ะนี้เคยกดสั่งอาหารไปแล้ว -> ต้องตัดจบเซสชัน!
                         if (hasOrderedThisSession && hasBeenOccupied) {
-                            // ล้างประวัติเก่าและตะกร้า
+                            
+                            // 1. ล้างประวัติเก่าและเคลียร์ตะกร้า
                             localStorage.removeItem('famepos_menu_history_' + currentTable);
                             cart = [];
                             hasOrderedThisSession = false;
                             hasBeenOccupied = false;
                             
-                            // โหลดหน้าเว็บใหม่แบบเงียบๆ เพื่อเคลียร์เวลาและราคาให้ลูกค้ารายต่อไป
-                            window.location.reload(); 
+                            // 2. เสกหน้าต่างบล็อกหน้าจอ เพื่อไม่ให้สั่งอาหารผีเข้ามาได้อีก
+                            document.body.innerHTML = `
+                            <div class="fixed inset-0 z-[9999] bg-pink-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+                                <div class="text-7xl mb-4">🙏</div>
+                                <h1 class="text-3xl font-black text-pink-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
+                                <div class="bg-white p-6 rounded-3xl shadow-sm border border-pink-100 mt-4 max-w-sm w-full">
+                                    <p class="text-gray-600 font-medium leading-relaxed">บิลของโต๊ะนี้ถูกชำระเงินเรียบร้อยแล้ว<br>เซสชันการสั่งอาหารของคุณได้สิ้นสุดลง</p>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-8 font-bold">หากต้องการสั่งใหม่ กรุณาสแกน QR Code ที่โต๊ะอีกครั้ง</p>
+                            </div>
+                            `;
                         }
                     }
                 }
