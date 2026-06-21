@@ -210,73 +210,71 @@ let buffetIncludedCategories = [];
         }
 
 // 🔄 ระบบ Real-time: เช็คข้อมูลสินค้า ตัวเลือกเสริม และสถานะโต๊ะ
-        function fetchMenuDataSilent() {
-            // 1. Sync ข้อมูลสินค้าอัปเดตเมนูหลัก
-            fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: "getProducts" }),
-                redirect: "follow"
-            })
-            .then(res => res.json())
-            .then(data => { if(data.status === "Success") processRawProducts(data.result, true); })
-            .catch(e => console.log("Silent Sync Products..."));
+function fetchMenuDataSilent() {
+    // 1. Sync ข้อมูลสินค้าอัปเดตเมนูหลัก
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "getProducts" }),
+        redirect: "follow"
+    })
+    .then(res => res.json())
+    .then(data => { if(data.status === "Success") processRawProducts(data.result, true); })
+    .catch(e => console.log("Silent Sync Products..."));
 
-            // 🌟 เพิ่มใหม่: Sync ข้อมูลตัวเลือกเสริม (ท็อปปิ้ง) ให้เรียลไทม์ด้วย
-            fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: "getModifiersData" }),
-                redirect: "follow"
-            })
-            .then(res => res.json())
-            .then(data => { if(data.status === "Success") window.cachedModifiersRaw = data.result; })
-            .catch(e => console.log("Silent Sync Modifiers..."));
+    // 2. Sync ข้อมูลตัวเลือกเสริม (ท็อปปิ้ง) ให้เรียลไทม์ด้วย
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "getModifiersData" }),
+        redirect: "follow"
+    })
+    .then(res => res.json())
+    .then(data => { if(data.status === "Success") window.cachedModifiersRaw = data.result; })
+    .catch(e => console.log("Silent Sync Modifiers..."));
 
-            // 2. 🧼 ตรวจสอบสถานะโต๊ะเพื่อป้องกัน "ออเดอร์ผี"
-            if (currentTable !== "ไม่ระบุ") {
-                fetch(API_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ action: "getTablesData" }),
-                    redirect: "follow"
-                })
-                .then(res => res.json())
-                .then(tableData => {
-                    if(tableData.status === "Success" && Array.isArray(tableData.result)) {
-                        let myTable = tableData.result.find(t => t && t.name === currentTable);
+    // 3. 🧼 ตรวจสอบสถานะโต๊ะเพื่อป้องกัน "ออเดอร์ผี"
+    if (currentTable !== "ไม่ระบุ") {
+        fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "getTablesData" }),
+            redirect: "follow"
+        })
+        .then(res => res.json())
+        .then(tableData => {
+            if(tableData.status === "Success" && Array.isArray(tableData.result)) {
+                let myTable = tableData.result.find(t => t && t.name === currentTable);
+                
+                if (myTable) {
+                    // ถ้าโต๊ะมีคนนั่ง ให้จำสถานะไว้
+                    if (myTable.status === "ไม่ว่าง" || myTable.status === "🔴 ไม่ว่าง") {
+                        hasBeenOccupied = true;
+                    }
+                    
+                    // ถ้าโต๊ะถูก "เช็คบิล" แล้วเปลี่ยนสถานะกลับเป็น "ว่าง"
+                    if(myTable.status === "ว่าง" || myTable.status === "🟢 ว่าง") {
+                        if (!hasOrderedThisSession) {
+                            localStorage.removeItem('famepos_menu_history_' + currentTable);
+                        }
                         
-                        if (myTable) {
-                            if (myTable.status === "ไม่ว่าง" || myTable.status === "🔴 ไม่ว่าง") {
-                                hasBeenOccupied = true;
-                            }
+                        // 🚨 จุดที่แก้ไข: ลบหน้าจอสีชมพูออก แล้วเปลี่ยนเป็นการล้างค่าแทน
+                        if (hasOrderedThisSession && hasBeenOccupied) {
+                            // ล้างประวัติเก่าและตะกร้า
+                            localStorage.removeItem('famepos_menu_history_' + currentTable);
+                            cart = [];
+                            hasOrderedThisSession = false;
+                            hasBeenOccupied = false;
                             
-                            if(myTable.status === "ว่าง" || myTable.status === "🟢 ว่าง") {
-                                if (!hasOrderedThisSession) {
-                                    localStorage.removeItem('famepos_menu_history_' + currentTable);
-                                }
-                                
-                                if (hasOrderedThisSession && hasBeenOccupied) {
-                                    localStorage.removeItem('famepos_menu_history_' + currentTable);
-                                    cart = []; 
-                                    
-                                document.body.innerHTML = `
-                                    <div class="fixed inset-0 z-[9999] bg-pink-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-                                        <div class="text-7xl mb-4">🙏</div>
-                                        <h1 class="text-3xl font-black text-pink-800 mb-2">ขอบคุณที่ใช้บริการ</h1>
-                                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-pink-100 mt-4 max-w-sm w-full">
-                                            <p class="text-gray-600 font-medium leading-relaxed">บิลของโต๊ะนี้ถูกชำระเงินเรียบร้อยแล้ว<br>เซสชันการสั่งอาหารของคุณได้สิ้นสุดลง</p>
-                                        </div>
-                                        <p class="text-sm text-gray-400 mt-8 font-bold">หากต้องการสั่งใหม่ กรุณาสแกน QR Code ที่โต๊ะอีกครั้ง</p>
-                                    </div>
-                                `;
-                                }
-                            }
+                            // โหลดหน้าเว็บใหม่แบบเงียบๆ เพื่อเคลียร์เวลาและราคาให้ลูกค้ารายต่อไป
+                            window.location.reload(); 
                         }
                     }
-                }).catch(e => console.log("Table status check skipped"));
+                }
             }
-        }
+        }).catch(e => console.log("Table status check skipped"));
+    }
+}
 
 // 🌟 2. อัปเดตการแสดงผลราคาในเมนู
         function processRawProducts(rawArray, isSilent = false) {
