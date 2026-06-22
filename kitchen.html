@@ -243,48 +243,31 @@ function renderKitchenCards() {
     grid.innerHTML = '';
     grid.appendChild(fragment);
 }
-// ฟังก์ชันคุมปุ่มเสิร์ฟอาหาร
+// แก้ไขฟังก์ชัน serveOrder เพิ่มเติมตรงนี้ครับ
 function serveOrder(rowIdx, queueNo, source = "Sales") {
-
   Swal.fire({
-    title: `เสิร์ฟคิว ${queueNo}?`,
-    text: "ยืนยันทำรายการอาหารคิวนี้เสร็จสิ้นพร้อมเสิร์ฟแล้วใช่หรือไม่",
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'ใช่, ทำเสร็จแล้ว',
-    cancelButtonText: 'ยกเลิก',
-    buttonsStyling: false,
-    customClass: {
-      popup: 'rounded-[2.5rem] p-8 max-w-sm bg-white shadow-2xl border border-gray-100 text-center font-bold animate-fade-in',
-      icon: 'mx-auto mb-2 text-rose-500 scale-110',
-      title: 'text-xl font-bold text-slate-800 mt-3 block',
-      htmlContainer: 'text-sm text-slate-400 font-medium my-2 leading-relaxed',
-      actions: 'flex gap-3 w-full mt-4 justify-center items-center',
-      cancelButton: 'flex-1 py-3.5 px-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 active:scale-95 transition-all text-sm order-1',
-      confirmButton: 'flex-1 py-3.5 px-4 bg-rose-500 text-white font-bold rounded-2xl shadow-md hover:bg-rose-600 active:scale-95 transition-all text-sm order-2'
-    }
+    // ... (โค้ดเดิมของคุณ) ...
   }).then((result) => {
-
     if (result.isConfirmed) {
-
       google.script.run
         .withSuccessHandler(function(res) {
-
           if (res === "Success") {
-
+            // 🟢 เพิ่มส่วนนี้: ล้างค่าติ๊กใน LocalStorage ของออเดอร์นั้นๆ
+            // ค้นหาและลบทุก key ที่ขึ้นต้นด้วย item-{orderId}-
+            Object.keys(localStorage).forEach(key => {
+               if(key.includes(`item-${queueNo}`)) { // หรือใช้ OrderID แทนถ้ามี
+                   localStorage.removeItem(key);
+               }
+            });
+            
             showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
             fetchKitchenOrders();
-
           } else {
-
             Swal.fire('ผิดพลาด', res, 'error');
-
           }
-
         })
         .completeKitchenOrderGS(rowIdx, source);
     }
-
   });
 }
 
