@@ -7,9 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <link rel="icon" type="image/png" href="https://i.postimg.cc/t4wsCdqz/fe8393f8-8504-475f-976c-727390b6c790.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/258bYngX/448351cf-d806-4d25-99ce-c92dd34de621.png" sizes="192x192">
 
-<link rel="apple-touch-icon" href="https://i.postimg.cc/t4wsCdqz/fe8393f8-8504-475f-976c-727390b6c790.png">
+<link rel="apple-touch-icon" href="https://i.postimg.cc/258bYngX/448351cf-d806-4d25-99ce-c92dd34de621.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="KDS FamePOS">
@@ -89,6 +89,7 @@
 
     let activeOrdersList = [];
     let previousOrdersCount = 0;
+    let lastRenderedIds = "";
 
     // ระบบแจ้งเตือนเสียง (Beep อัจฉริยะเมื่อมีออเดอร์ใหม่สแกนหรือพักบิลเข้าครัว)
     function playAlertSound() {
@@ -107,153 +108,141 @@
     }
 
     // ฟังก์ชันยิงอ่านค่าข้อมูลคิวอาหาร
-    function fetchKitchenOrders() {
-      google.script.run
-        .withSuccessHandler(function(orders) {
-          activeOrdersList = orders;
-          document.getElementById('orderCount').innerText = `คิวค้างในครัว: ${orders.length} ออเดอร์`;
-          
-          if (orders.length > previousOrdersCount && previousOrdersCount !== 0) {
-            playAlertSound();
-          }
-          previousOrdersCount = orders.length;
-          renderKitchenCards();
-        })
-        .withFailureHandler(function(err) {
-          console.error("Kitchen Fetch Error:", err);
-          document.getElementById('kitchenGrid').innerHTML = `
-            <div class="col-span-full h-96 flex flex-col items-center justify-center text-red-500 font-bold gap-2 text-center">
-              <span class="text-5xl">❌</span>
-              <span class="text-lg">ระบบการเชื่อมต่อคลาวด์ขัดข้อง:<br>
-                <span class="text-xs text-rose-800 font-mono bg-white px-3 py-2 rounded-xl border border-rose-200 mt-2 inline-block shadow-sm">${err}</span>
-              </span>
-            </div>`;
-        })
-        .getKitchenOrdersGS();
-    }
-
-    // ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหารออกมาคุมโทนพาสเทลหวาน
-function renderKitchenCards() {
-  const grid = document.getElementById('kitchenGrid');
-
-  if (activeOrdersList.length === 0) {
-    grid.innerHTML = `
-      <div class="col-span-full h-96 flex flex-col items-center justify-center text-rose-300 font-bold gap-2">
-        <span class="text-6xl">🎉</span>
-        <span class="text-xl text-rose-700">ห้องครัวว่าง! รอรับเดอร์ต่อไป</span>
-      </div>`;
-    return;
+function fetchKitchenOrders() {
+    google.script.run
+      .withSuccessHandler(function(orders) {
+        // เช็คว่ามีรายการเปลี่ยนไปจากเดิมไหม?
+        let currentIds = orders.map(o => o.orderId).join(',');
+        
+        // ถ้าข้อมูลเหมือนเดิมเป๊ะ ไม่ต้องทำอะไรเลย (ป้องกันการกระพริบ)
+        if (currentIds === lastRenderedIds && orders.length > 0) return;
+        
+        lastRenderedIds = currentIds;
+        activeOrdersList = orders;
+        
+        document.getElementById('orderCount').innerText = `คิวค้างในครัว: ${orders.length} ออเดอร์`;
+        
+        if (orders.length > previousOrdersCount && previousOrdersCount !== 0) {
+          playAlertSound();
+        }
+        previousOrdersCount = orders.length;
+        
+        // วาดใหม่เฉพาะเมื่อมีข้อมูลอัปเดตจริงเท่านั้น
+        renderKitchenCards();
+      })
+      .getKitchenOrdersGS();
   }
 
-  let html = '';
+// ============================================
+// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (เวอร์ชันสมบูรณ์)
+// ============================================
+function renderKitchenCards() {
+    const grid = document.getElementById('kitchenGrid');
 
-  activeOrdersList.forEach(order => {
-    const itemsArray = order.items.split(', ');
-    let itemsHtml = '';
+    // 1. เช็คกรณีว่าง
+    if (activeOrdersList.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-full h-96 flex flex-col items-center justify-center text-rose-300 font-bold gap-2">
+                <span class="text-6xl">🎉</span>
+                <span class="text-xl text-rose-700">ห้องครัวว่าง! ไม่มีออเดอร์ค้างแล้วค่ะคุณเฟรม</span>
+            </div>`;
+        return;
+    }
 
-    itemsArray.forEach(itemStr => {
-      let baseName = itemStr;
-      let optionsText = "";
-      let qty = "1";
+    // 2. ใช้ DocumentFragment เพื่อสร้าง DOM เก็บไว้ก่อน แล้วค่อยนำไปแปะที่ grid
+    const fragment = document.createDocumentFragment();
 
-      let qtyMatch = itemStr.match(/\(x(\d+)\)/);
-      if (qtyMatch) {
-        qty = qtyMatch[1];
-        baseName = baseName.replace(/\s*\(x\d+\)/, '');
-      }
+    activeOrdersList.forEach(order => {
+        const itemsArray = order.items.split(', ');
+        let itemsHtml = '';
 
-      let optMatch = baseName.match(/\[(.*?)\]/);
-      if (optMatch) {
-        optionsText = optMatch[1];
-        baseName = baseName.replace(/\s*\[.*?\]/, '');
-      }
+        itemsArray.forEach((itemStr, index) => {
+            let baseName = itemStr;
+            let optionsText = "";
+            let qty = "1";
 
-      itemsHtml += `
-        <div class="py-2.5 border-b border-rose-50 flex justify-between items-start gap-2">
-          <div class="min-w-0 flex-1">
-            <div class="font-bold text-base text-gray-800 leading-tight">${baseName}</div>
-            ${optionsText ? `
-              <div class="text-xs font-bold text-rose-600 mt-1 bg-rose-50/60 px-2 py-0.5 rounded-md inline-block border border-rose-100">
-                🌿 ตัวเลือก: ${optionsText}
-              </div>` : ''}
-          </div>
-          <div class="text-xl font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-xl border border-rose-100 shrink-0">
-            x${qty}
-          </div>
-        </div>`;
+            let qtyMatch = itemStr.match(/\(x(\d+)\)/);
+            if (qtyMatch) {
+                qty = qtyMatch[1];
+                baseName = baseName.replace(/\s*\(x\d+\)/, '');
+            }
+
+            let optMatch = baseName.match(/\[(.*?)\]/);
+            if (optMatch) {
+                optionsText = optMatch[1];
+                baseName = baseName.replace(/\s*\[.*?\]/, '');
+            }
+
+            // 🟢 ระบบติ๊กรายการ (ใช้ orderId + index เพื่อระบุตัวตนเมนู)
+            let itemId = `item-${order.orderId}-${index}`;
+            let isChecked = localStorage.getItem(itemId) === 'true';
+
+            itemsHtml += `
+                <div class="py-2.5 border-b border-rose-50 flex justify-between items-center gap-2 group">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <input type="checkbox" id="${itemId}" ${isChecked ? 'checked' : ''} 
+                            onchange="localStorage.setItem('${itemId}', this.checked)"
+                            class="w-5 h-5 accent-rose-500 cursor-pointer">
+                        <label for="${itemId}" class="flex-1 cursor-pointer">
+                            <div class="font-bold text-base text-gray-800 leading-tight has-[:checked]:line-through has-[:checked]:text-gray-400 transition-all">${baseName}</div>
+                            ${optionsText ? `
+                                <div class="text-xs font-bold text-rose-600 mt-1 bg-rose-50/60 px-2 py-0.5 rounded-md inline-block border border-rose-100 has-[:checked]:opacity-50">
+                                    🌿 ${optionsText}
+                                </div>` : ''}
+                        </label>
+                    </div>
+                    <div class="text-xl font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-xl border border-rose-100 shrink-0 has-[:checked]:text-gray-300">
+                        x${qty}
+                    </div>
+                </div>`;
+        });
+
+        let minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
+        if (minutesElapsed < 0) minutesElapsed = 0;
+
+        let cardColorStyles = "border-rose-200/80 bg-white";
+        let timerColor = "text-gray-400";
+        if (minutesElapsed >= 10) { cardColorStyles = "border-red-300 bg-red-50/40 ring-2 ring-red-200"; timerColor = "text-red-500 font-bold"; } 
+        else if (minutesElapsed >= 5) { cardColorStyles = "border-amber-300 bg-amber-50/30"; timerColor = "text-amber-500 font-bold"; }
+
+        let typeBadge = `🛎️ ${order.orderType}`;
+        let badgeColor = "bg-gray-100 text-gray-600 border border-gray-200";
+        if (order.orderType && order.orderType.includes("ร้าน")) { typeBadge = `🪑 โต๊ะ: ${order.tableNo || '-'}`; badgeColor = "bg-rose-50 text-rose-700 border border-rose-200"; }
+        else if (order.orderType && order.orderType.includes("บ้าน")) { typeBadge = `🛍️ กลับบ้าน`; badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200"; }
+        else if (order.orderType && order.orderType.includes("เดลิ")) { typeBadge = `🛵 ${order.deliveryApp || ''} ${order.deliveryId ? '#' + order.deliveryId : ''}`; badgeColor = "bg-purple-50 text-purple-700 border border-purple-200"; }
+
+        // สร้าง Element
+        let div = document.createElement('div');
+        div.innerHTML = `
+            <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-transform hover:scale-[1.02] duration-200 ${cardColorStyles}">
+                <div class="p-5 flex flex-col overflow-hidden">
+                    <div class="flex justify-between items-start gap-2 mb-3 shrink-0 border-b border-rose-50 pb-2">
+                        <div>
+                            <span class="text-2xl font-black text-rose-800 leading-none">${order.queueNo}</span>
+                            <div class="text-[9px] text-gray-400 font-medium mt-0.5 font-mono">ID: ${order.orderId}</div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs px-2.5 py-1 rounded-xl font-bold ${badgeColor}">${typeBadge}</span>
+                            <div class="text-xs font-semibold mt-2 ${timerColor}">⏳ รอแล้ว ${minutesElapsed} นาที</div>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto space-y-1 mt-1 pr-1">
+                        ${itemsHtml}
+                    </div>
+                </div>
+                <div class="p-4 bg-rose-50/20 border-t border-rose-100/60 shrink-0 rounded-b-[2rem]">
+                    <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-4 rounded-xl text-base shadow-md transition active:scale-95 transform shadow-rose-500/10">
+                        ✔️ เสิร์ฟอาหารสำเร็จ
+                    </button>
+                </div>
+            </div>`;
+        fragment.appendChild(div.firstElementChild);
     });
 
-    let minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
-    if (minutesElapsed < 0) minutesElapsed = 0;
-
-    let cardColorStyles = "border-rose-200/80 bg-white";
-    let timerColor = "text-gray-400";
-
-    if (minutesElapsed >= 10) {
-      cardColorStyles = "border-red-300 bg-red-50/40 ring-2 ring-red-200";
-      timerColor = "text-red-500 font-bold";
-    } else if (minutesElapsed >= 5) {
-      cardColorStyles = "border-amber-300 bg-amber-50/30";
-      timerColor = "text-amber-500 font-bold";
-    }
-
-    let typeBadge = `🛎️ ${order.orderType}`;
-    let badgeColor = "bg-gray-100 text-gray-600 border border-gray-200";
-
-    if (order.orderType && order.orderType.includes("ร้าน")) {
-      typeBadge = `🪑 โต๊ะ: ${order.tableNo || '-'}`;
-      badgeColor = "bg-rose-50 text-rose-700 border border-rose-200";
-    } else if (order.orderType && order.orderType.includes("บ้าน")) {
-      typeBadge = `🛍️ กลับบ้าน`;
-      badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200";
-    } else if (order.orderType && order.orderType.includes("เดลิ")) {
-      typeBadge = `🛵 ${order.deliveryApp || ''} ${order.deliveryId ? '#' + order.deliveryId : ''}`;
-      badgeColor = "bg-purple-50 text-purple-700 border border-purple-200";
-    }
-
-    html += `
-      <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-transform hover:scale-[1.02] duration-200 ${cardColorStyles}">
-        
-        <div class="p-5 flex flex-col overflow-hidden">
-          
-          <div class="flex justify-between items-start gap-2 mb-3 shrink-0 border-b border-rose-50 pb-2">
-            <div>
-              <span class="text-2xl font-black text-rose-800 leading-none">${order.queueNo}</span>
-              <div class="text-[9px] text-gray-400 font-medium mt-0.5 font-mono">
-                ID: ${order.orderId}
-              </div>
-            </div>
-
-            <div class="text-right shrink-0">
-              <span class="text-xs px-2.5 py-1 rounded-xl font-bold ${badgeColor}">
-                ${typeBadge}
-              </span>
-              <div class="text-xs font-semibold mt-2 ${timerColor}">
-                ⏳ รอแล้ว ${minutesElapsed} นาที
-              </div>
-            </div>
-          </div>
-
-          <div class="flex-1 overflow-y-auto space-y-1 mt-1 pr-1">
-            ${itemsHtml}
-          </div>
-
-        </div>
-
-        <div class="p-4 bg-rose-50/20 border-t border-rose-100/60 shrink-0 rounded-b-[2rem]">
-          <button
-            onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')"
-            class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-4 rounded-xl text-base shadow-md transition active:scale-95 transform shadow-rose-500/10">
-            ✔️ เสิร์ฟอาหารสำเร็จ
-          </button>
-        </div>
-
-      </div>`;
-  });
-
-  grid.innerHTML = html;
+    // 3. อัปเดต grid ครั้งเดียวตอนจบ (หน้าจอจะไม่กระพริบ)
+    grid.innerHTML = '';
+    grid.appendChild(fragment);
 }
-
 // ฟังก์ชันคุมปุ่มเสิร์ฟอาหาร
 function serveOrder(rowIdx, queueNo, source = "Sales") {
 
@@ -332,11 +321,16 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
+function toggleItemStatus(id) {
+    let checkbox = document.getElementById(id);
+    localStorage.setItem(id, checkbox.checked); // บันทึกลงใน Browser เลย
+}
+
 // =========================
 // โหลดคิวครัวอัตโนมัติ
 // =========================
 fetchKitchenOrders();
-setInterval(fetchKitchenOrders, 15000);
+setInterval(fetchKitchenOrders, 3000);
 
   </script>
 </body>
