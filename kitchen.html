@@ -6,6 +6,7 @@
   <title>FamePOS Kitchen</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
   <link rel="icon" type="image/png" href="https://i.postimg.cc/258bYngX/448351cf-d806-4d25-99ce-c92dd34de621.png" sizes="192x192">
 
@@ -243,25 +244,28 @@ function renderKitchenCards() {
     grid.innerHTML = '';
     grid.appendChild(fragment);
 }
-// แก้ไขฟังก์ชัน serveOrder เพิ่มเติมตรงนี้ครับ
 function serveOrder(rowIdx, queueNo, source = "Sales") {
   Swal.fire({
-    // ... (โค้ดเดิมของคุณ) ...
+    title: `เสิร์ฟคิว ${queueNo}?`,
+    text: "ยืนยันรายการอาหารนี้เสร็จสิ้นแล้ว",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'ยืนยัน',
+    cancelButtonText: 'ยกเลิก'
   }).then((result) => {
     if (result.isConfirmed) {
+      // ใช้ google.script.run ตรงๆ ไปที่หลังบ้าน
       google.script.run
         .withSuccessHandler(function(res) {
           if (res === "Success") {
-            // 🟢 เพิ่มส่วนนี้: ล้างค่าติ๊กใน LocalStorage ของออเดอร์นั้นๆ
-            // ค้นหาและลบทุก key ที่ขึ้นต้นด้วย item-{orderId}-
+            // ล้างค่า LocalStorage ที่ติ๊กไว้
             Object.keys(localStorage).forEach(key => {
-               if(key.includes(`item-${queueNo}`)) { // หรือใช้ OrderID แทนถ้ามี
+               if(key.includes(`item-${source}`)) { // ปรับ key ให้ตรงกับที่สร้าง
                    localStorage.removeItem(key);
                }
             });
-            
             showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
-            fetchKitchenOrders();
+            fetchKitchenOrders(); // เรียกโหลดใหม่แค่ครั้งเดียว
           } else {
             Swal.fire('ผิดพลาด', res, 'error');
           }
