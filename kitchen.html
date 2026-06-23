@@ -27,27 +27,27 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
-  <header class="bg-white border-b border-rose-100 p-4 flex justify-between items-center shrink-0 shadow-sm">
+  <header class="bg-white border-b border-pink-100 p-4 flex justify-between items-center shrink-0 shadow-sm">
     <div class="flex items-center gap-3">
       <span class="text-3xl">👨‍🍳</span>
       <div>
-        <h1 class="text-xl font-bold text-rose-800 tracking-wide">FamePOS จอห้องครัว</h1>
-        <p class="text-xs text-rose-500/80">ระบบอัปเดตคิวและรายการอาหารอัตโนมัติ Real-time</p>
+        <h1 class="text-xl font-bold text-pink-800 tracking-wide">FamePOS จอห้องครัว</h1>
+        <p class="text-xs text-pink-500/80">ระบบอัปเดตคิวและรายการอาหารอัตโนมัติ Real-time</p>
       </div>
     </div>
     <div class="flex items-center gap-4">
       <div class="text-right">
-        <div id="clockTime" class="text-xl font-black text-rose-600 tracking-wider">00:00:00</div>
-        <div id="orderCount" class="text-xs text-rose-700/60 font-semibold">กำลังเชื่อมโยงคิว...</div>
+        <div id="clockTime" class="text-xl font-black text-pink-600 tracking-wider">00:00:00</div>
+        <div id="orderCount" class="text-xs text-pink-700/60 font-semibold">กำลังเชื่อมโยงคิว...</div>
       </div>
-      <button onclick="fetchKitchenOrders()" class="bg-rose-50 hover:bg-rose-100 border border-rose-200 px-4 py-2 rounded-xl text-sm font-bold text-rose-700 transition flex items-center gap-1.5 shadow-sm active:scale-95 transform">
+      <button onclick="fetchKitchenOrders()" class="bg-pink-50 hover:bg-pink-100 border border-pink-200 px-4 py-2 rounded-xl text-sm font-bold text-pink-700 transition flex items-center gap-1.5 shadow-sm active:scale-95 transform">
         🔄 รีเฟรชคิวอาหาร
       </button>
     </div>
   </header>
 
   <main id="kitchenGrid" class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 overflow-y-auto content-start">
-    <div class="col-span-full h-96 flex flex-col items-center justify-center text-rose-400 font-bold gap-3">
+    <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-400 font-bold gap-3">
       <span class="text-5xl animate-spin">⏳</span>
       <span class="text-lg">กำลังดึงคิวใบสั่งอาหารจากระบบหลังบ้าน...</span>
     </div>
@@ -125,7 +125,7 @@
             <div class="col-span-full h-96 flex flex-col items-center justify-center text-red-500 font-bold gap-2 text-center">
               <span class="text-5xl">❌</span>
               <span class="text-lg">ระบบการเชื่อมต่อคลาวด์ขัดข้อง:<br>
-                <span class="text-xs text-rose-800 font-mono bg-white px-3 py-2 rounded-xl border border-rose-200 mt-2 inline-block shadow-sm">${err}</span>
+                <span class="text-xs text-pink-800 font-mono bg-white px-3 py-2 rounded-xl border border-pink-200 mt-2 inline-block shadow-sm">${err}</span>
               </span>
             </div>`;
         })
@@ -138,9 +138,9 @@ function renderKitchenCards() {
 
   if (activeOrdersList.length === 0) {
     grid.innerHTML = `
-      <div class="col-span-full h-96 flex flex-col items-center justify-center text-rose-300 font-bold gap-2">
+      <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2">
         <span class="text-6xl">🎉</span>
-        <span class="text-xl text-rose-700">ห้องครัวว่าง! ไม่มีออเดอร์ค้างแล้วค่ะคุณเฟรม</span>
+        <span class="text-xl text-pink-700">ห้องครัวว่าง! ไม่มีออเดอร์ค้างแล้วค่ะคุณเฟรม</span>
       </div>`;
     return;
   }
@@ -169,15 +169,15 @@ function renderKitchenCards() {
       }
 
       itemsHtml += `
-        <div class="py-2.5 border-b border-rose-50 flex justify-between items-start gap-2">
+        <div class="py-2.5 border-b border-pink-50 flex justify-between items-start gap-2">
           <div class="min-w-0 flex-1">
             <div class="font-bold text-base text-gray-800 leading-tight">${baseName}</div>
             ${optionsText ? `
-              <div class="text-xs font-bold text-rose-600 mt-1 bg-rose-50/60 px-2 py-0.5 rounded-md inline-block border border-rose-100">
+              <div class="text-xs font-bold text-pink-600 mt-1 bg-pink-50/60 px-2 py-0.5 rounded-md inline-block border border-pink-100">
                 🌿 ตัวเลือก: ${optionsText}
               </div>` : ''}
           </div>
-          <div class="text-xl font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-xl border border-rose-100 shrink-0">
+          <div class="text-xl font-black text-pink-700 bg-pink-50 px-2.5 py-0.5 rounded-xl border border-pink-100 shrink-0">
             x${qty}
           </div>
         </div>`;
@@ -186,7 +186,7 @@ function renderKitchenCards() {
     let minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
     if (minutesElapsed < 0) minutesElapsed = 0;
 
-    let cardColorStyles = "border-rose-200/80 bg-white";
+    let cardColorStyles = "border-pink-200/80 bg-white";
     let timerColor = "text-gray-400";
 
     if (minutesElapsed >= 10) {
@@ -202,7 +202,7 @@ function renderKitchenCards() {
 
     if (order.orderType && order.orderType.includes("ร้าน")) {
       typeBadge = `🪑 โต๊ะ: ${order.tableNo || '-'}`;
-      badgeColor = "bg-rose-50 text-rose-700 border border-rose-200";
+      badgeColor = "bg-pink-50 text-pink-700 border border-pink-200";
     } else if (order.orderType && order.orderType.includes("บ้าน")) {
       typeBadge = `🛍️ กลับบ้าน`;
       badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200";
@@ -216,9 +216,9 @@ function renderKitchenCards() {
         
         <div class="p-5 flex flex-col overflow-hidden">
           
-          <div class="flex justify-between items-start gap-2 mb-3 shrink-0 border-b border-rose-50 pb-2">
+          <div class="flex justify-between items-start gap-2 mb-3 shrink-0 border-b border-pink-50 pb-2">
             <div>
-              <span class="text-2xl font-black text-rose-800 leading-none">${order.queueNo}</span>
+              <span class="text-2xl font-black text-pink-800 leading-none">${order.queueNo}</span>
               <div class="text-[9px] text-gray-400 font-medium mt-0.5 font-mono">
                 ID: ${order.orderId}
               </div>
@@ -240,10 +240,10 @@ function renderKitchenCards() {
 
         </div>
 
-        <div class="p-4 bg-rose-50/20 border-t border-rose-100/60 shrink-0 rounded-b-[2rem]">
+        <div class="p-4 bg-pink-50/20 border-t border-pink-100/60 shrink-0 rounded-b-[2rem]">
           <button
             onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')"
-            class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-4 rounded-xl text-base shadow-md transition active:scale-95 transform shadow-rose-500/10">
+            class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-xl text-base shadow-md transition active:scale-95 transform shadow-pink-500/10">
             ✔️ เสิร์ฟอาหารสำเร็จ
           </button>
         </div>
@@ -267,12 +267,12 @@ function serveOrder(rowIdx, queueNo, source = "Sales") {
     buttonsStyling: false,
     customClass: {
       popup: 'rounded-[2.5rem] p-8 max-w-sm bg-white shadow-2xl border border-gray-100 text-center font-bold animate-fade-in',
-      icon: 'mx-auto mb-2 text-rose-500 scale-110',
+      icon: 'mx-auto mb-2 text-pink-500 scale-110',
       title: 'text-xl font-bold text-slate-800 mt-3 block',
       htmlContainer: 'text-sm text-slate-400 font-medium my-2 leading-relaxed',
       actions: 'flex gap-3 w-full mt-4 justify-center items-center',
       cancelButton: 'flex-1 py-3.5 px-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 active:scale-95 transition-all text-sm order-1',
-      confirmButton: 'flex-1 py-3.5 px-4 bg-rose-500 text-white font-bold rounded-2xl shadow-md hover:bg-rose-600 active:scale-95 transition-all text-sm order-2'
+      confirmButton: 'flex-1 py-3.5 px-4 bg-pink-500 text-white font-bold rounded-2xl shadow-md hover:bg-pink-600 active:scale-95 transition-all text-sm order-2'
     }
   }).then((result) => {
 
