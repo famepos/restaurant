@@ -23,6 +23,14 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #fdecec; }
     ::-webkit-scrollbar-thumb { background: #fad1d1; border-radius: 10px; }
+
+    /* สไตล์สำหรับการคลิกเมนูเสร็จแล้ว */
+    .item-done {
+        text-decoration: line-through;
+        opacity: 0.5;
+        background-color: #fff1f2; /* ชมพูอ่อนๆ เวลาจิ้มเสร็จ */
+    }
+
   </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -168,8 +176,9 @@ function renderKitchenCards() {
         baseName = baseName.replace(/\s*\[.*?\]/, '');
       }
 
+      // 🟢 เพิ่ม onclick และ class cursor-pointer
       itemsHtml += `
-        <div class="py-2.5 border-b border-pink-50 flex justify-between items-start gap-2">
+        <div onclick="toggleItemStatus(this)" class="item-row cursor-pointer py-2.5 border-b border-pink-50 flex justify-between items-start gap-2 hover:bg-pink-50/50 transition-colors">
           <div class="min-w-0 flex-1">
             <div class="font-bold text-base text-gray-800 leading-tight">${baseName}</div>
             ${optionsText ? `
@@ -183,71 +192,41 @@ function renderKitchenCards() {
         </div>`;
     });
 
+    // ... (ส่วนที่เหลือของฟังก์ชัน renderKitchenCards คงเดิม) ...
     let minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
     if (minutesElapsed < 0) minutesElapsed = 0;
 
     let cardColorStyles = "border-pink-200/80 bg-white";
     let timerColor = "text-gray-400";
-
-    if (minutesElapsed >= 10) {
-      cardColorStyles = "border-red-300 bg-red-50/40 ring-2 ring-red-200";
-      timerColor = "text-red-500 font-bold";
-    } else if (minutesElapsed >= 5) {
-      cardColorStyles = "border-amber-300 bg-amber-50/30";
-      timerColor = "text-amber-500 font-bold";
-    }
+    if (minutesElapsed >= 10) { cardColorStyles = "border-red-300 bg-red-50/40 ring-2 ring-red-200"; timerColor = "text-red-500 font-bold"; }
+    else if (minutesElapsed >= 5) { cardColorStyles = "border-amber-300 bg-amber-50/30"; timerColor = "text-amber-500 font-bold"; }
 
     let typeBadge = `🛎️ ${order.orderType}`;
     let badgeColor = "bg-gray-100 text-gray-600 border border-gray-200";
-
-    if (order.orderType && order.orderType.includes("ร้าน")) {
-      typeBadge = `🪑 โต๊ะ: ${order.tableNo || '-'}`;
-      badgeColor = "bg-pink-50 text-pink-700 border border-pink-200";
-    } else if (order.orderType && order.orderType.includes("บ้าน")) {
-      typeBadge = `🛍️ กลับบ้าน`;
-      badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200";
-    } else if (order.orderType && order.orderType.includes("เดลิ")) {
-      typeBadge = `🛵 ${order.deliveryApp || ''} ${order.deliveryId ? '#' + order.deliveryId : ''}`;
-      badgeColor = "bg-purple-50 text-purple-700 border border-purple-200";
-    }
+    if (order.orderType && order.orderType.includes("ร้าน")) { typeBadge = `🪑 โต๊ะ: ${order.tableNo || '-'}`; badgeColor = "bg-pink-50 text-pink-700 border border-pink-200"; }
+    else if (order.orderType && order.orderType.includes("บ้าน")) { typeBadge = `🛍️ กลับบ้าน`; badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200"; }
+    else if (order.orderType && order.orderType.includes("เดลิ")) { typeBadge = `🛵 ${order.deliveryApp || ''} ${order.deliveryId ? '#' + order.deliveryId : ''}`; badgeColor = "bg-purple-50 text-purple-700 border border-purple-200"; }
 
     html += `
       <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-transform hover:scale-[1.02] duration-200 ${cardColorStyles}">
-        
         <div class="p-5 flex flex-col overflow-hidden">
-          
           <div class="flex justify-between items-start gap-2 mb-3 shrink-0 border-b border-pink-50 pb-2">
             <div>
               <span class="text-2xl font-black text-pink-800 leading-none">${order.queueNo}</span>
-              <div class="text-[9px] text-gray-400 font-medium mt-0.5 font-mono">
-                ID: ${order.orderId}
-              </div>
+              <div class="text-[9px] text-gray-400 font-medium mt-0.5 font-mono">ID: ${order.orderId}</div>
             </div>
-
             <div class="text-right shrink-0">
-              <span class="text-xs px-2.5 py-1 rounded-xl font-bold ${badgeColor}">
-                ${typeBadge}
-              </span>
-              <div class="text-xs font-semibold mt-2 ${timerColor}">
-                ⏳ รอแล้ว ${minutesElapsed} นาที
-              </div>
+              <span class="text-xs px-2.5 py-1 rounded-xl font-bold ${badgeColor}">${typeBadge}</span>
+              <div class="text-xs font-semibold mt-2 ${timerColor}">⏳ รอแล้ว ${minutesElapsed} นาที</div>
             </div>
           </div>
-
-          <div class="flex-1 overflow-y-auto space-y-1 mt-1 pr-1">
-            ${itemsHtml}
-          </div>
-
+          <div class="flex-1 overflow-y-auto space-y-1 mt-1 pr-1">${itemsHtml}</div>
         </div>
-
         <div class="p-4 bg-pink-50/20 border-t border-pink-100/60 shrink-0 rounded-b-[2rem]">
-          <button
-            onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')"
-            class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-xl text-base shadow-md transition active:scale-95 transform shadow-pink-500/10">
+          <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-xl text-base shadow-md transition active:scale-95 transform shadow-pink-500/10">
             ✔️ เสิร์ฟอาหารสำเร็จ
           </button>
         </div>
-
       </div>`;
   });
 
@@ -331,6 +310,14 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 1000);
+
+// ฟังก์ชันขีดฆ่าเมนูแบบ Optimistic UI
+function toggleItemStatus(el) {
+    el.classList.toggle('item-done');
+    // เพิ่มเสียงคลิกเบาๆ ถ้าอยากได้ (Option)
+    // new Audio('click.mp3').play(); 
+}
+
 
 // =========================
 // โหลดคิวครัวอัตโนมัติ
