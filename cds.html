@@ -15,7 +15,6 @@
 <meta name="apple-mobile-web-app-title" content="CDS FamePOS">
 
 <meta name="mobile-web-app-capable" content="yes">
-
   <style>
     body { font-family: 'Kanit', sans-serif; background-color: #fff5f5; margin: 0; overflow: hidden; }
     ::-webkit-scrollbar { display: none; }
@@ -23,38 +22,37 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="h-screen w-screen flex flex-col">
-  <!-- 🌟 แผ่นป้ายโฆษณาเต็มจอ (Screensaver) -->
-<div id="fullScreenAdOverlay" class="fixed inset-0 z-[100] bg-white flex flex-col transition-opacity duration-300">
-    <div id="adCarousel" class="w-full h-full relative"></div>
-</div>
+<body class="h-screen w-screen flex flex-col relative">
 
-<header class="bg-rose-600 text-white p-4 shadow-md flex justify-between items-center shrink-0 z-10">
+  <!-- 🌟 แผ่นป้ายโฆษณาเต็มจอ (Screensaver) บังหน้าจอเมื่อไม่มีรายการสินค้า -->
+  <div id="fullScreenAdOverlay" class="fixed inset-0 z-[100] bg-white flex flex-col transition-opacity duration-300">
+      <div id="adCarousel" class="w-full h-full relative"></div>
+  </div>
+
+  <!-- แถบด้านบน -->
+  <header class="bg-rose-600 text-white p-4 shadow-md flex justify-between items-center shrink-0 z-10">
     <div class="flex items-center gap-3">
-        <img id="displayLogo" src="https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png" class="w-12 h-12 object-contain bg-white rounded-xl p-1 shadow-sm" alt="FamePOS Logo">
+        <img id="displayLogo" src="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" class="w-12 h-12 object-contain bg-white rounded-xl p-1 shadow-sm" alt="FamePOS Logo">
         <h1 class="text-3xl font-bold tracking-wide" id="displayStoreName">FamePOS</h1>
     </div>
     <div id="dateTimeDisplay" class="text-lg font-medium opacity-90"></div>
   </header>
 
   <main class="flex-1 flex gap-6 p-6 overflow-hidden">
-    
+    <!-- กล่องรายการสินค้าฝั่งซ้าย -->
     <section class="flex-1 bg-white rounded-[2rem] shadow-xl border border-rose-100 flex flex-col overflow-hidden">
       <div class="bg-rose-50 p-4 border-b border-rose-100">
         <h2 class="text-2xl font-bold text-rose-800">รายการสินค้า (Order Items)</h2>
       </div>
-      
       <div class="flex-1 overflow-y-auto p-4 space-y-3" id="customerCartItems">
-        <div class="h-full flex flex-col items-center justify-center text-rose-200">
-            <span class="text-8xl mb-4">🛒</span>
-            <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับ เชิญสั่งอาหารได้เลยครับ</p>
-        </div>
+        <!-- รายการสินค้าจะถูกเพิ่มตรงนี้ผ่าน JS -->
       </div>
     </section>
 
+    <!-- กล่องสรุปยอดฝั่งขวา -->
     <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
       
-<div class="bg-white rounded-[2rem] shadow-xl border border-rose-100 p-6 flex flex-col gap-4">
+      <div class="bg-white rounded-[2rem] shadow-xl border border-rose-100 p-6 flex flex-col gap-4">
         <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
         <div class="flex justify-between items-center text-xl text-gray-600">
             <span>ยอดรวม:</span>
@@ -83,19 +81,18 @@
         </div>
       </div>
 
- <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-rose-50 to-white text-center">
+      <div class="bg-white rounded-[2rem] shadow-xl border border-rose-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
+         <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-rose-50 to-white text-center">
             <span class="text-6xl mb-4">✨</span>
             <h3 class="text-2xl font-bold text-rose-700 mb-2">ตรวจสอบรายการอาหาร</h3>
             <p class="text-gray-500 font-medium">ด้านซ้ายมือได้เลยครับ</p>
          </div>
 
-     <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4 md:p-6">
+         <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4 md:p-6">
             <h3 class="text-xl xl:text-2xl font-bold text-rose-800 mb-2 xl:mb-4 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
-            
             <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2 xl:mb-4">
                 <img id="qrDisplayImage" src="" class="w-full h-full max-w-[220px] object-contain border-4 border-rose-100 p-2 rounded-2xl shadow-sm">
             </div>
-            
             <p class="text-gray-500 font-medium animate-pulse text-sm xl:text-base shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
          </div>
       </div>
@@ -104,10 +101,10 @@
   </main>
 
 <script>
-    // 🔗 1. เอาลิงก์ Web App ของ Google Script มาใส่ที่นี่ (เพื่อให้จอลูกค้าดึงข้อมูลจาก Cloud ได้)
+    // ⚠️ สำคัญมาก! เปลี่ยนลิงก์ API_URL ด้านล่างนี้ ให้เป็นลิงก์ Web App (Google Apps Script) อันใหม่ล่าสุดของคุณด้วยนะครับ
     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
-    // 🚀 2. ระบบ Magic Proxy สำหรับจอลูกค้า
+    // 🚀 ระบบ Magic Proxy
     const google = {
         script: {
             get run() {
@@ -147,12 +144,12 @@
         if(timeEl) timeEl.innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
     }, 1000);
 
-    // ☁️ 3. ระบบดึงข้อมูลจาก Cloud อัตโนมัติ ทุกๆ 1.5 วินาที
+    // ☁️ ระบบดึงข้อมูลรถเข็นจาก Cloud
     let lastUpdateStr = "";
     let isFetching = false;
 
     function checkCloudData() {
-        if (isFetching) return; // ป้องกันดึงข้อมูลซ้อนกันถ้าเน็ตมือถือช้า
+        if (isFetching) return;
         isFetching = true;
 
         google.script.run
@@ -170,11 +167,10 @@
             .getCDSStateGS();
     }
     
-    // วนลูปดึงข้อมูลทุกๆ 1.5 วินาที (เร็วพอดีๆ และไม่ทำให้ Google ล่ม)
     setInterval(checkCloudData, 1500);
     window.addEventListener('load', checkCloudData);
 
-// 🎨 ฟังก์ชันวาดหน้าจอ
+    // 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า
     function updateCustomerUI(data) {
         if (!data) return;
         
@@ -193,6 +189,7 @@
                 setTimeout(() => adOverlay.classList.add('hidden'), 300);
             }
         }
+
         if (data.logoUrl) { let logoEl = document.getElementById('displayLogo'); if (logoEl) logoEl.src = data.logoUrl; }
         if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
 
@@ -246,9 +243,7 @@
         let grandTotalEl = document.getElementById('displayGrandTotal');
         if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
-// 🌟 3. จัดการระบบแสดงผล "คนละครึ่ง" (คำนวณ 60 / 40)
         const halfHalfBox = document.getElementById('halfHalfContainer');
-        // 👉 เงื่อนไขใหม่: ต้องมีของในตะกร้าด้วย กล่องถึงจะโผล่มา
         if (data.paymentMethod === 'คนละครึ่ง' && data.cart && data.cart.length > 0) {
             let totalVal = parseFloat((data.grandTotal || "0").toString().replace(/[^0-9.-]+/g,"")) || 0;
             let customerPay = totalVal * 0.40;
@@ -296,22 +291,20 @@
     function fetchAdSettings() {
         google.script.run.withSuccessHandler(function(res) {
             if (res) {
-                // 🧠 เช็คว่าข้อมูลเก่ากับข้อมูลใหม่ตรงกันไหม (ถ้ามีเพิ่ม/ลด/แก้ รูปแบบข้อมูลจะไม่เหมือนเดิม)
                 if (JSON.stringify(res) !== JSON.stringify(adSlides)) {
                     adSlides = res;
                     
                     if (adSlides.length > 0) {
-                        startAdCarousel(); // เริ่มสไลด์ใหม่ทันที
+                        startAdCarousel();
                     } else {
-                        // กรณีลบโฆษณาออกหมดเกลี้ยง ให้แสดงหน้าจอเริ่มต้น
                         clearTimeout(adTimer);
                         let container = document.getElementById('adCarousel');
                         if (container) {
                             container.innerHTML = `
                                 <div class="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-rose-50 to-white text-center">
                                     <span class="text-6xl mb-4">✨</span>
-                                    <h3 class="text-2xl font-bold text-rose-700 mb-2">รับสิทธิพิเศษมากมาย</h3>
-                                    <p class="text-gray-500 font-medium">โปรดติดตามโปรโมชั่นเร็วๆ นี้</p>
+                                    <h3 class="text-2xl font-bold text-rose-700 mb-2">โปรโมชั่นพิเศษ</h3>
+                                    <p class="text-gray-500 font-medium">รอการอัปเดตโฆษณาเร็วๆ นี้</p>
                                 </div>
                             `;
                         }
@@ -323,7 +316,7 @@
 
     function startAdCarousel() {
         if (adSlides.length === 0) return;
-        currentAdIndex = 0; // เริ่มต้นที่สไลด์แรกสุดใหม่
+        currentAdIndex = 0;
         showAdSlide(currentAdIndex);
     }
 
@@ -354,11 +347,9 @@
         }, duration);
     }
 
-    // เริ่มทำงานเมื่อเปิดจอ CDS ขึ้นมา
     window.addEventListener('load', fetchAdSettings);
-    
-    // 🚀 ระบบเช็คการเปลี่ยนแปลงแบบเรียลไทม์ (เช็คเงียบๆ ทุกๆ 5 วินาที)
-    setInterval(fetchAdSettings, 5000);
-  </script>
+    setInterval(fetchAdSettings, 5000); 
+
+</script>
 </body>
 </html>
