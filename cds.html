@@ -7,9 +7,9 @@
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<link rel="icon" type="image/png" href="https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png" sizes="192x192">
+<link rel="icon" type="image/png" href="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" sizes="192x192">
 
-<link rel="apple-touch-icon" href="https://i.postimg.cc/8Cwxv2p4/6c30486b-4495-4255-bbc4-48acf5195d23.png">
+<link rel="apple-touch-icon" href="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="CDS FamePOS">
@@ -24,6 +24,10 @@
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col">
+  <!-- 🌟 แผ่นป้ายโฆษณาเต็มจอ (Screensaver) -->
+<div id="fullScreenAdOverlay" class="fixed inset-0 z-[100] bg-white flex flex-col transition-opacity duration-300">
+    <div id="adCarousel" class="w-full h-full relative"></div>
+</div>
 
 <header class="bg-rose-600 text-white p-4 shadow-md flex justify-between items-center shrink-0 z-10">
     <div class="flex items-center gap-3">
@@ -79,14 +83,10 @@
         </div>
       </div>
 
-   <div id="adState" class="fade-in absolute inset-0 bg-white">
-             <div id="adCarousel" class="w-full h-full relative">
-                 <div class="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-rose-50 to-white text-center">
-                    <span class="text-6xl mb-4">✨</span>
-                    <h3 class="text-2xl font-bold text-rose-700 mb-2">รับสิทธิพิเศษมากมาย</h3>
-                    <p class="text-gray-500 font-medium">สมัครสมาชิกเพื่อสะสมแต้มและรับส่วนลด</p>
-                 </div>
-             </div>
+ <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-rose-50 to-white text-center">
+            <span class="text-6xl mb-4">✨</span>
+            <h3 class="text-2xl font-bold text-rose-700 mb-2">ตรวจสอบรายการอาหาร</h3>
+            <p class="text-gray-500 font-medium">ด้านซ้ายมือได้เลยครับ</p>
          </div>
 
      <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4 md:p-6">
@@ -174,9 +174,25 @@
     setInterval(checkCloudData, 1500);
     window.addEventListener('load', checkCloudData);
 
-    // 🎨 ฟังก์ชันวาดหน้าจอ (เหมือนเดิม)
+// 🎨 ฟังก์ชันวาดหน้าจอ
     function updateCustomerUI(data) {
         if (!data) return;
+        
+        // 🛑 ระบบควบคุม Screensaver โฆษณา
+        const adOverlay = document.getElementById('fullScreenAdOverlay');
+        if (adOverlay) {
+            // ถ้าตะกร้าว่าง = เปิดโฆษณาบังจอไว้แบบเต็มตา
+            if (!data.cart || data.cart.length === 0) {
+                adOverlay.classList.remove('hidden');
+                adOverlay.style.opacity = "1";
+                adOverlay.style.pointerEvents = "auto";
+            } else {
+                // ถ้าเริ่มกดสินค้าลงตะกร้า = ซ่อนโฆษณา โชว์รายการราคา
+                adOverlay.style.opacity = "0";
+                adOverlay.style.pointerEvents = "none";
+                setTimeout(() => adOverlay.classList.add('hidden'), 300);
+            }
+        }
         if (data.logoUrl) { let logoEl = document.getElementById('displayLogo'); if (logoEl) logoEl.src = data.logoUrl; }
         if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
 
@@ -272,23 +288,43 @@
         }
     }
 
-    // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel)
+    // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
     let adSlides = [];
     let currentAdIndex = 0;
     let adTimer = null;
 
     function fetchAdSettings() {
         google.script.run.withSuccessHandler(function(res) {
-            if (res && res.length > 0) {
-                adSlides = res;
-                startAdCarousel();
+            if (res) {
+                // 🧠 เช็คว่าข้อมูลเก่ากับข้อมูลใหม่ตรงกันไหม (ถ้ามีเพิ่ม/ลด/แก้ รูปแบบข้อมูลจะไม่เหมือนเดิม)
+                if (JSON.stringify(res) !== JSON.stringify(adSlides)) {
+                    adSlides = res;
+                    
+                    if (adSlides.length > 0) {
+                        startAdCarousel(); // เริ่มสไลด์ใหม่ทันที
+                    } else {
+                        // กรณีลบโฆษณาออกหมดเกลี้ยง ให้แสดงหน้าจอเริ่มต้น
+                        clearTimeout(adTimer);
+                        let container = document.getElementById('adCarousel');
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-rose-50 to-white text-center">
+                                    <span class="text-6xl mb-4">✨</span>
+                                    <h3 class="text-2xl font-bold text-rose-700 mb-2">รับสิทธิพิเศษมากมาย</h3>
+                                    <p class="text-gray-500 font-medium">โปรดติดตามโปรโมชั่นเร็วๆ นี้</p>
+                                </div>
+                            `;
+                        }
+                    }
+                }
             }
         }).getAdSettingsGS();
     }
 
     function startAdCarousel() {
         if (adSlides.length === 0) return;
-        showAdSlide(0);
+        currentAdIndex = 0; // เริ่มต้นที่สไลด์แรกสุดใหม่
+        showAdSlide(currentAdIndex);
     }
 
     function showAdSlide(index) {
@@ -320,8 +356,9 @@
 
     // เริ่มทำงานเมื่อเปิดจอ CDS ขึ้นมา
     window.addEventListener('load', fetchAdSettings);
-    // รีเฟรชข้อมูลโฆษณาเงียบๆ ทุก 5 นาที (เผื่อแอดมินเปลี่ยนโปรโมชั่นใหม่)
-    setInterval(fetchAdSettings, 5 * 60 * 1000);
+    
+    // 🚀 ระบบเช็คการเปลี่ยนแปลงแบบเรียลไทม์ (เช็คเงียบๆ ทุกๆ 5 วินาที)
+    setInterval(fetchAdSettings, 5000);
   </script>
 </body>
 </html>
