@@ -151,47 +151,35 @@ function renderKitchenCards() {
 
   let html = '';
   activeOrdersList.forEach(order => {
-    // 🟢 แก้ไขจุดนี้: ถ้าออเดอร์เก็บมาเป็นก้อน เราต้องจัดการ Array ของ Items ให้แม่นยำ
+    // 1. แยกรายการอาหารทั้งหมด
     const itemsArray = order.items.split(', '); 
     let itemsHtml = '';
 
+    // 2. วนลูปวาดรายการ (ตัวเลือกจะติดกับเมนูเสมอ)
     itemsArray.forEach((itemStr, idx) => {
-      let baseName = itemStr;
-      let optionsText = "";
-      let qty = "1";
-
-      // แยกจำนวน (x1)
+      // ดึงชื่อ, จำนวน, และตัวเลือกด้วย Regex ที่แม่นยำ
       let qtyMatch = itemStr.match(/\(x(\d+)\)/);
-      if (qtyMatch) {
-        qty = qtyMatch[1];
-        baseName = baseName.replace(/\s*\(x\d+\)/, '');
-      }
-
-      // แยกตัวเลือกเสริม [Option]
+      let qty = qtyMatch ? qtyMatch[1] : "1";
+      
+      let baseName = itemStr.replace(/\s*\(x\d+\)/, '');
       let optMatch = baseName.match(/\[(.*?)\]/);
-      if (optMatch) {
-        optionsText = optMatch[1]; // นี่คือ Option ทั้งหมดที่อยู่ใน []
-        baseName = baseName.replace(/\s*\[.*?\]/, '');
-      }
+      let optionsText = optMatch ? optMatch[1] : "";
+      baseName = baseName.replace(/\s*\[.*?\]/, '');
 
-      // 🟢 นำชื่อเมนู + ตัวเลือกเสริมมาต่อกันในบรรทัดเดียว
-      let displayText = baseName;
+      // ยุบรวมชื่อเมนู + ออปชั่น ไว้ในตัวแปร displayText
+      let displayText = `<span class="font-bold text-gray-800">${baseName}</span>`;
       if (optionsText) {
-          // ตัวเลือกจะแสดงต่อท้ายชื่อเมนูในบรรทัดเดียวกัน
-          displayText += ` <span class="text-xs font-normal text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100 italic">(${optionsText})</span>`;
+        displayText += ` <span class="text-xs text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100 italic">(${optionsText})</span>`;
       }
 
       let isDone = localStorage.getItem(`done_${order.orderId}_${idx}`) === 'true' ? 'item-done' : '';
 
+      // 🟢 นำมารวมกันใน DIV เดียว เพื่อให้มันไม่กระโดดออกจากกัน
       itemsHtml += `
         <div onclick="toggleItemStatus(this, '${order.orderId}', ${idx})" 
-             class="item-row ${isDone} cursor-pointer py-2.5 border-b border-pink-50 flex justify-between items-center gap-2 hover:bg-pink-50/50 transition-colors">
-          <div class="min-w-0 flex-1 font-bold text-base text-gray-800 leading-tight">
-             ${displayText}
-          </div>
-          <div class="text-xl font-black text-pink-700 bg-pink-50 px-2.5 py-0.5 rounded-xl border border-pink-100 shrink-0">
-            x${qty}
-          </div>
+             class="item-row ${isDone} cursor-pointer py-2 border-b border-pink-50 flex justify-between items-center gap-2 hover:bg-pink-50/50 transition-colors">
+          <div class="min-w-0 flex-1 leading-tight">${displayText}</div>
+          <div class="text-lg font-black text-pink-700 bg-pink-50 px-2 py-0.5 rounded-xl border border-pink-100 shrink-0">x${qty}</div>
         </div>`;
     });
 
