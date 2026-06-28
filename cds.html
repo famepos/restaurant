@@ -183,15 +183,16 @@
         if (!data) return;
         
         // 🛑 ระบบควบคุม Screensaver โฆษณา
+    // 🛑 ระบบควบคุม Screensaver โฆษณา (รอคำสั่งพักจอ 10 นาทีเท่านั้น)
         const adOverlay = document.getElementById('fullScreenAdOverlay');
         if (adOverlay) {
-            // ถ้าตะกร้าว่าง = เปิดโฆษณาบังจอไว้แบบเต็มตา
-            if (!data.cart || data.cart.length === 0) {
+            // ✅ เปลี่ยนเป็น: ถ้าสถานะเป็น 'idle' (แคชเชียร์ไม่ได้ขยับเมาส์เกิน 10 นาที) ค่อยโชว์โฆษณา
+            if (data.status === 'idle') { 
                 adOverlay.classList.remove('hidden');
                 adOverlay.style.opacity = "1";
                 adOverlay.style.pointerEvents = "auto";
             } else {
-                // ถ้าเริ่มกดสินค้าลงตะกร้า = ซ่อนโฆษณา โชว์รายการราคา
+                // ถ้าระบบปกติ (รวมถึงเพิ่งจ่ายเงินเสร็จ) ให้ซ่อนโฆษณาไว้
                 adOverlay.style.opacity = "0";
                 adOverlay.style.pointerEvents = "none";
                 setTimeout(() => adOverlay.classList.add('hidden'), 300);
