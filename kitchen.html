@@ -151,35 +151,42 @@ function renderKitchenCards() {
 
   let html = '';
   activeOrdersList.forEach(order => {
-    // 1. แยกรายการอาหารทั้งหมด
-    const itemsArray = order.items.split(', '); 
-    let itemsHtml = '';
+    // 1. นำ Items ทั้งหมดมาจัดกลุ่ม (Group) ก่อน
+    const rawItems = order.items.split(', ');
+    const groupedItems = {};
 
-    // 2. วนลูปวาดรายการ (ตัวเลือกจะติดกับเมนูเสมอ)
-    itemsArray.forEach((itemStr, idx) => {
-      // ดึงชื่อ, จำนวน, และตัวเลือกด้วย Regex ที่แม่นยำ
+    rawItems.forEach(itemStr => {
       let qtyMatch = itemStr.match(/\(x(\d+)\)/);
-      let qty = qtyMatch ? qtyMatch[1] : "1";
-      
+      let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
       let baseName = itemStr.replace(/\s*\(x\d+\)/, '');
+      
+      // แยกชื่อเมนูหลัก ออกจาก [ตัวเลือก]
       let optMatch = baseName.match(/\[(.*?)\]/);
-      let optionsText = optMatch ? optMatch[1] : "";
-      baseName = baseName.replace(/\s*\[.*?\]/, '');
+      let option = optMatch ? optMatch[1] : null;
+      let mainName = baseName.replace(/\s*\[.*?\]/, '').trim();
 
-      // ยุบรวมชื่อเมนู + ออปชั่น ไว้ในตัวแปร displayText
-      let displayText = `<span class="font-bold text-gray-800">${baseName}</span>`;
-      if (optionsText) {
-        displayText += ` <span class="text-xs text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100 italic">(${optionsText})</span>`;
+      // สร้าง Key เพื่อรวมกลุ่ม เช่น "หมูสามชั้นสไลด์"
+      let key = mainName;
+      if (!groupedItems[key]) {
+        groupedItems[key] = { name: mainName, qty: 0, options: [] };
       }
+      
+      groupedItems[key].qty += qty;
+      if (option) groupedItems[key].options.push(option);
+    });
 
-      let isDone = localStorage.getItem(`done_${order.orderId}_${idx}`) === 'true' ? 'item-done' : '';
+    // 2. วาดรายการจาก Grouped Data
+    let itemsHtml = '';
+    Object.keys(groupedItems).forEach((key, idx) => {
+      let item = groupedItems[key];
+      let optionDisplay = item.options.length > 0 ? ` <span class="text-xs text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100 italic">[${item.options.join(', ')}]</span>` : '';
+      let isDone = localStorage.getItem(`done_${order.orderId}_${key}`) === 'true' ? 'item-done' : '';
 
-      // 🟢 นำมารวมกันใน DIV เดียว เพื่อให้มันไม่กระโดดออกจากกัน
       itemsHtml += `
-        <div onclick="toggleItemStatus(this, '${order.orderId}', ${idx})" 
-             class="item-row ${isDone} cursor-pointer py-2 border-b border-pink-50 flex justify-between items-center gap-2 hover:bg-pink-50/50 transition-colors">
-          <div class="min-w-0 flex-1 leading-tight">${displayText}</div>
-          <div class="text-lg font-black text-pink-700 bg-pink-50 px-2 py-0.5 rounded-xl border border-pink-100 shrink-0">x${qty}</div>
+        <div onclick="toggleItemStatus(this, '${order.orderId}', '${key}')" 
+             class="item-row ${isDone} cursor-pointer py-2 border-b border-pink-50 flex justify-between items-center gap-2 hover:bg-pink-50/50">
+          <div class="min-w-0 flex-1 font-bold text-gray-800">${item.name}${optionDisplay}</div>
+          <div class="text-lg font-black text-pink-700 bg-pink-50 px-2 py-0.5 rounded-xl border border-pink-100">x${item.qty}</div>
         </div>`;
     });
 
