@@ -141,23 +141,18 @@
         .getKitchenOrdersGS();
     }
 
-// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหารออกมาคุมโทนพาสเทลหวาน
+// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหารออกมา (เวอร์ชันยุบรวม Option)
 function renderKitchenCards() {
   const grid = document.getElementById('kitchenGrid');
-
   if (activeOrdersList.length === 0) {
-    grid.innerHTML = `
-      <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2">
-        <span class="text-6xl">🎉</span>
-        <span class="text-xl text-pink-700">ห้องครัวว่าง! รอรับออเดอร์ต่อไป...</span>
-      </div>`;
+    grid.innerHTML = `<div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2"><span class="text-6xl">🎉</span><span class="text-xl text-pink-700">ห้องครัวว่าง!</span></div>`;
     return;
   }
 
   let html = '';
-
   activeOrdersList.forEach(order => {
-    const itemsArray = order.items.split(', ');
+    // 🟢 แก้ไขจุดนี้: ถ้าออเดอร์เก็บมาเป็นก้อน เราต้องจัดการ Array ของ Items ให้แม่นยำ
+    const itemsArray = order.items.split(', '); 
     let itemsHtml = '';
 
     itemsArray.forEach((itemStr, idx) => {
@@ -165,25 +160,27 @@ function renderKitchenCards() {
       let optionsText = "";
       let qty = "1";
 
+      // แยกจำนวน (x1)
       let qtyMatch = itemStr.match(/\(x(\d+)\)/);
       if (qtyMatch) {
         qty = qtyMatch[1];
         baseName = baseName.replace(/\s*\(x\d+\)/, '');
       }
 
+      // แยกตัวเลือกเสริม [Option]
       let optMatch = baseName.match(/\[(.*?)\]/);
       if (optMatch) {
-        optionsText = optMatch[1];
+        optionsText = optMatch[1]; // นี่คือ Option ทั้งหมดที่อยู่ใน []
         baseName = baseName.replace(/\s*\[.*?\]/, '');
       }
 
-      // ยุบตัวเลือกเสริมไว้บรรทัดเดียวกับเมนู
+      // 🟢 นำชื่อเมนู + ตัวเลือกเสริมมาต่อกันในบรรทัดเดียว
       let displayText = baseName;
       if (optionsText) {
-          displayText += ` <span class="text-xs font-normal text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100">(${optionsText})</span>`;
+          // ตัวเลือกจะแสดงต่อท้ายชื่อเมนูในบรรทัดเดียวกัน
+          displayText += ` <span class="text-xs font-normal text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100 italic">(${optionsText})</span>`;
       }
 
-      // เช็คว่าขีดฆ่าไว้ไหมจาก localStorage
       let isDone = localStorage.getItem(`done_${order.orderId}_${idx}`) === 'true' ? 'item-done' : '';
 
       itemsHtml += `
@@ -212,31 +209,23 @@ function renderKitchenCards() {
     else if (order.orderType && order.orderType.includes("บ้าน")) { typeBadge = `🛍️ กลับบ้าน`; badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200"; }
     else if (order.orderType && order.orderType.includes("เดลิ")) { typeBadge = `🛵 ${order.deliveryApp || ''} ${order.deliveryId ? '#' + order.deliveryId : ''}`; badgeColor = "bg-purple-50 text-purple-700 border border-purple-200"; }
 
-    html += `
-      <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-transform hover:scale-[1.02] duration-200 ${cardColorStyles}">
+html += `
+      <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-transform hover:scale-[1.02] duration-200 bg-white">
         <div class="p-5 flex flex-col overflow-hidden">
-          <div class="flex justify-between items-start gap-2 mb-3 shrink-0 border-b border-pink-50 pb-2">
-            <div>
-              <span class="text-2xl font-black text-pink-800 leading-none">${order.queueNo}</span>
-              <div class="text-[9px] text-gray-400 font-medium mt-0.5 font-mono">ID: ${order.orderId}</div>
-            </div>
-            <div class="text-right shrink-0">
-              <span class="text-xs px-2.5 py-1 rounded-xl font-bold ${badgeColor}">${typeBadge}</span>
-              <div class="text-xs font-semibold mt-2 ${timerColor}">⏳ รอแล้ว ${minutesElapsed} นาที</div>
-            </div>
+          <div class="flex justify-between items-start gap-2 mb-3 border-b border-pink-50 pb-2">
+            <div><span class="text-2xl font-black text-pink-800">${order.queueNo}</span></div>
+            <div class="text-right text-xs font-bold px-2 py-1 rounded-xl bg-pink-50 text-pink-700">${order.orderType}</div>
           </div>
-          <div class="flex-1 overflow-y-auto space-y-1 mt-1 pr-1">${itemsHtml}</div>
+          <div class="flex-1 overflow-y-auto">${itemsHtml}</div>
         </div>
-        <div class="p-4 bg-pink-50/20 border-t border-pink-100/60 shrink-0 rounded-b-[2rem]">
-          <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-xl text-base shadow-md transition active:scale-95 transform shadow-pink-500/10">
-            ✔️ เสิร์ฟอาหารสำเร็จ
-          </button>
+        <div class="p-4 bg-pink-50/20 border-t border-pink-100/60 rounded-b-[2rem]">
+          <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" class="w-full bg-pink-500 text-white font-bold py-3 rounded-xl shadow-md">✔️ เสิร์ฟอาหารสำเร็จ</button>
         </div>
       </div>`;
   });
-
   grid.innerHTML = html;
 }
+
 // ฟังก์ชันคุมปุ่มเสิร์ฟอาหาร (กดแล้วเสิร์ฟทันที ไม่ถามยืนยัน)
 function serveOrder(rowIdx, queueNo, source = "Sales") {
     
