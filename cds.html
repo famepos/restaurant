@@ -202,7 +202,7 @@
         if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
 
         const cartContainer = document.getElementById('customerCartItems');
-        if (!data.cart || data.cart.length === 0) {
+        if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
             cartContainer.innerHTML = `
                 <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
                     <span class="text-8xl mb-4">🛒</span>
