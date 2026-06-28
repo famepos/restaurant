@@ -142,27 +142,23 @@
     }
 
     // ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหารออกมาคุมโทนพาสเทลหวาน
+// 2. ปรับฟังก์ชัน renderKitchenCards (ให้ตอนวาดหน้าจอ มันไปเช็คว่าขีดไว้หรือยัง)
 function renderKitchenCards() {
   const grid = document.getElementById('kitchenGrid');
-
   if (activeOrdersList.length === 0) {
-    grid.innerHTML = `
-      <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2">
-        <span class="text-6xl">🎉</span>
-        <span class="text-xl text-pink-700">ห้องครัวว่าง! รอรับออเดอร์ต่อไป...</span>
-      </div>`;
+    grid.innerHTML = `<div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2">
+      <span class="text-6xl">🎉</span>
+      <span class="text-xl text-pink-700">ห้องครัวว่าง!</span></div>`;
     return;
   }
 
   let html = '';
-
   activeOrdersList.forEach(order => {
     const itemsArray = order.items.split(', ');
     let itemsHtml = '';
 
-    itemsArray.forEach(itemStr => {
+    itemsArray.forEach((itemStr, idx) => { // 🟢 เพิ่ม idx เข้ามา
       let baseName = itemStr;
-      let optionsText = "";
       let qty = "1";
 
       let qtyMatch = itemStr.match(/\(x(\d+)\)/);
@@ -177,15 +173,13 @@ function renderKitchenCards() {
         baseName = baseName.replace(/\s*\[.*?\]/, '');
       }
 
-      // 🟢 เพิ่ม onclick และ class cursor-pointer
+     let isDone = localStorage.getItem(`done_${order.orderId}_${idx}`) === 'true' ? 'item-done' : '';
+
       itemsHtml += `
-        <div onclick="toggleItemStatus(this)" class="item-row cursor-pointer py-2.5 border-b border-pink-50 flex justify-between items-start gap-2 hover:bg-pink-50/50 transition-colors">
+        <div onclick="toggleItemStatus(this, '${order.orderId}', ${idx})" 
+             class="item-row ${isDone} cursor-pointer py-2.5 border-b border-pink-50 flex justify-between items-start gap-2 hover:bg-pink-50/50 transition-colors">
           <div class="min-w-0 flex-1">
             <div class="font-bold text-base text-gray-800 leading-tight">${baseName}</div>
-            ${optionsText ? `
-              <div class="text-xs font-bold text-pink-600 mt-1 bg-pink-50/60 px-2 py-0.5 rounded-md inline-block border border-pink-100">
-                🌿 ตัวเลือก: ${optionsText}
-              </div>` : ''}
           </div>
           <div class="text-xl font-black text-pink-700 bg-pink-50 px-2.5 py-0.5 rounded-xl border border-pink-100 shrink-0">
             x${qty}
@@ -289,11 +283,13 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// ฟังก์ชันขีดฆ่าเมนูแบบ Optimistic UI
-function toggleItemStatus(el) {
+// 1. ฟังก์ชันขีดฆ่า (บันทึกใส่ localStorage)
+function toggleItemStatus(el, orderId, itemIdx) {
     el.classList.toggle('item-done');
-    // เพิ่มเสียงคลิกเบาๆ ถ้าอยากได้ (Option)
-    // new Audio('click.mp3').play(); 
+    let isDone = el.classList.contains('item-done');
+    
+    // บันทึกสถานะลงในเบราว์เซอร์ (Key: orderId_itemIdx)
+    localStorage.setItem(`done_${orderId}_${itemIdx}`, isDone);
 }
 
 
