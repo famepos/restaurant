@@ -141,24 +141,28 @@
         .getKitchenOrdersGS();
     }
 
-    // ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหารออกมาคุมโทนพาสเทลหวาน
-// 2. ปรับฟังก์ชัน renderKitchenCards (ให้ตอนวาดหน้าจอ มันไปเช็คว่าขีดไว้หรือยัง)
+// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหารออกมาคุมโทนพาสเทลหวาน
 function renderKitchenCards() {
   const grid = document.getElementById('kitchenGrid');
+
   if (activeOrdersList.length === 0) {
-    grid.innerHTML = `<div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2">
-      <span class="text-6xl">🎉</span>
-      <span class="text-xl text-pink-700">ห้องครัวว่าง!</span></div>`;
+    grid.innerHTML = `
+      <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2">
+        <span class="text-6xl">🎉</span>
+        <span class="text-xl text-pink-700">ห้องครัวว่าง! รอรับออเดอร์ต่อไป...</span>
+      </div>`;
     return;
   }
 
   let html = '';
+
   activeOrdersList.forEach(order => {
     const itemsArray = order.items.split(', ');
     let itemsHtml = '';
 
-    itemsArray.forEach((itemStr, idx) => { // 🟢 เพิ่ม idx เข้ามา
+    itemsArray.forEach((itemStr, idx) => {
       let baseName = itemStr;
+      let optionsText = "";
       let qty = "1";
 
       let qtyMatch = itemStr.match(/\(x(\d+)\)/);
@@ -173,13 +177,20 @@ function renderKitchenCards() {
         baseName = baseName.replace(/\s*\[.*?\]/, '');
       }
 
-     let isDone = localStorage.getItem(`done_${order.orderId}_${idx}`) === 'true' ? 'item-done' : '';
+      // ยุบตัวเลือกเสริมไว้บรรทัดเดียวกับเมนู
+      let displayText = baseName;
+      if (optionsText) {
+          displayText += ` <span class="text-xs font-normal text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100">(${optionsText})</span>`;
+      }
+
+      // เช็คว่าขีดฆ่าไว้ไหมจาก localStorage
+      let isDone = localStorage.getItem(`done_${order.orderId}_${idx}`) === 'true' ? 'item-done' : '';
 
       itemsHtml += `
         <div onclick="toggleItemStatus(this, '${order.orderId}', ${idx})" 
-             class="item-row ${isDone} cursor-pointer py-2.5 border-b border-pink-50 flex justify-between items-start gap-2 hover:bg-pink-50/50 transition-colors">
-          <div class="min-w-0 flex-1">
-            <div class="font-bold text-base text-gray-800 leading-tight">${baseName}</div>
+             class="item-row ${isDone} cursor-pointer py-2.5 border-b border-pink-50 flex justify-between items-center gap-2 hover:bg-pink-50/50 transition-colors">
+          <div class="min-w-0 flex-1 font-bold text-base text-gray-800 leading-tight">
+             ${displayText}
           </div>
           <div class="text-xl font-black text-pink-700 bg-pink-50 px-2.5 py-0.5 rounded-xl border border-pink-100 shrink-0">
             x${qty}
@@ -187,7 +198,6 @@ function renderKitchenCards() {
         </div>`;
     });
 
-    // ... (ส่วนที่เหลือของฟังก์ชัน renderKitchenCards คงเดิม) ...
     let minutesElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
     if (minutesElapsed < 0) minutesElapsed = 0;
 
@@ -227,7 +237,6 @@ function renderKitchenCards() {
 
   grid.innerHTML = html;
 }
-
 // ฟังก์ชันคุมปุ่มเสิร์ฟอาหาร (กดแล้วเสิร์ฟทันที ไม่ถามยืนยัน)
 function serveOrder(rowIdx, queueNo, source = "Sales") {
     
@@ -283,12 +292,9 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// 1. ฟังก์ชันขีดฆ่า (บันทึกใส่ localStorage)
 function toggleItemStatus(el, orderId, itemIdx) {
     el.classList.toggle('item-done');
     let isDone = el.classList.contains('item-done');
-    
-    // บันทึกสถานะลงในเบราว์เซอร์ (Key: orderId_itemIdx)
     localStorage.setItem(`done_${orderId}_${itemIdx}`, isDone);
 }
 
