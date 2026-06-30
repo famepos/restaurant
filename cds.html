@@ -92,11 +92,16 @@
             </div>
         </div>
 
-        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
-            <span class="font-bold">เงินทอน:</span>
-            <span id="displayChange" class="text-3xl font-bold">฿0.00</span>
-        </div>
-      </div>
+    <div class="flex flex-col gap-2 text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden shadow-sm" id="changeContainer">
+    <div class="flex justify-between items-center border-b border-emerald-200 pb-2">
+        <span class="font-bold text-emerald-700">รับเงิน:</span>
+        <span id="displayReceive" class="text-2xl font-bold text-emerald-700">฿0.00</span>
+    </div>
+    <div class="flex justify-between items-center pt-1">
+        <span class="font-bold">เงินทอน:</span>
+        <span id="displayChange" class="text-4xl font-bold text-emerald-600">฿0.00</span>
+    </div>
+</div>
 
       <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
          <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
@@ -243,27 +248,30 @@
                 if (optionIndex !== -1) {
                     baseName = item.name.substring(0, optionIndex).trim();
                     let match = item.name.match(/\[(.*?)\]/);
-                    if (match && match[1]) {
+                  if (match && match[1]) {
                         let opts = match[1].split(',');
-                        optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
-                            opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
+                        // ปรับขนาดป้ายตัวเลือก (Options) ให้เล็กลง
+                        optionsHtml = `<div class="flex flex-wrap gap-1 mt-1">` + 
+                            opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-1.5 py-0.5 rounded-md text-xs font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
                         `</div>`;
                     }
                 }
 
+                // 🟢 1. ปรับขนาดรูปภาพให้เล็กลงเป็น w-10 h-10
                 let imgTag = item.image 
-                    ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
-                    : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
+                    ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-pink-100 shadow-sm shrink-0">` 
+                    : `<div class="w-10 h-10 rounded-lg bg-pink-50 text-pink-400 flex items-center justify-center text-lg border border-pink-100 shadow-sm shrink-0">📦</div>`;
 
+                // 🟢 2. ปรับขนาดกล่อง (Padding/Margin) และตัวหนังสือให้กะทัดรัดขึ้น
                 html += `
-                <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
+                <div class="flex justify-between items-center bg-white px-3 py-2.5 rounded-xl border border-gray-100 shadow-sm fade-in mb-2 gap-3">
                     ${imgTag}
-                    <div class="flex-1 min-w-0 py-1">
-                        <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-gray-800 text-base truncate leading-tight">${baseName}</div>
                         ${optionsHtml}
                     </div>
-                    <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
-                    <div class="font-bold text-pink-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
+                    <div class="font-bold text-gray-400 text-base w-10 text-center shrink-0">x${item.qty}</div>
+                    <div class="font-bold text-pink-600 text-lg w-20 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
                 </div>`;
             });
             cartContainer.innerHTML = html;
@@ -313,13 +321,28 @@
             }
         }
 
+        // ==========================================
+        // 🟢 ระบบแสดง รับเงิน / เงินทอน
         const changeBox = document.getElementById('changeContainer');
         if (data.change && parseFloat(data.change) > 0) {
-            document.getElementById('displayChange').innerText = "฿" + data.change;
+            
+            // 💡 ทริค: ให้ระบบคำนวณยอดรับเงินอัตโนมัติ (ยอดสุทธิ + เงินทอน)
+            let totalVal = parseFloat((data.grandTotal || "0").toString().replace(/[^0-9.-]+/g,"")) || 0;
+            let changeVal = parseFloat(data.change.toString().replace(/[^0-9.-]+/g,"")) || 0;
+            let receiveVal = data.receive ? parseFloat(data.receive) : (totalVal + changeVal);
+
+            let displayReceiveEl = document.getElementById('displayReceive');
+            if(displayReceiveEl) {
+                displayReceiveEl.innerText = "฿" + receiveVal.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            }
+            
+            document.getElementById('displayChange').innerText = "฿" + changeVal.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            
             if(changeBox) changeBox.classList.remove('hidden');
         } else {
             if(changeBox) changeBox.classList.add('hidden');
         }
+        // ==========================================
 
         const adState = document.getElementById('adState');
         const qrState = document.getElementById('qrState');
