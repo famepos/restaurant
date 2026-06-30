@@ -210,7 +210,9 @@
 
     // 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า
     function updateCustomerUI(data) {
+      console.log("CDS DATA =", data);
         if (!data) return;
+        
         
         // 🛑 ระบบควบคุม Screensaver โฆษณา (รอคำสั่งพักจอ 10 นาทีเท่านั้น)
         const adOverlay = document.getElementById('fullScreenAdOverlay');
