@@ -265,31 +265,30 @@ function updateCustomerUI(data) {
     // ... (ส่วนที่เหลือของโค้ดเดิมเรื่องคนละครึ่ง/เงินทอน/QR ให้คงไว้ที่เดิม) ...
 
     // ✅ ปรับปรุงระบบเรียกคิวให้ทำงานอย่างถูกต้องและไม่เล่นเสียงซ้ำ
-    if (data.calledQueue && data.calledQueue !== "") {
-        const queueDisplay = document.getElementById('queueCallDisplay');
-        const queueNumber = document.getElementById('calledQueueNumber');
+// ในฟังก์ชัน updateCustomerUI(data) ที่ cds.txt
+if (data.calledQueue && data.calledQueue !== "") {
+    const queueDisplay = document.getElementById('queueCallDisplay');
+    const queueNumber = document.getElementById('calledQueueNumber');
+    
+    // เช็ค Timestamp ป้องกันการแสดงซ้ำเมื่อหน้าจอ refresh
+    const lastQueueTime = localStorage.getItem('lastQueueTime') || 0;
+    
+    if (queueDisplay && data.queueTimestamp > lastQueueTime) {
+        queueNumber.innerText = data.calledQueue;
+        queueDisplay.classList.remove('hidden'); // แสดงหน้าจอคิว
         
-        // เช็ค timestamp เพื่อป้องกันการเล่นซ้ำเวลาหน้าจอ Refresh
-        const lastQueueTime = localStorage.getItem('lastQueueTime') || 0;
-        const currentQueueTime = data.queueTimestamp || 0;
-
-        if (queueDisplay && currentQueueTime > lastQueueTime) {
-            queueNumber.innerText = data.calledQueue;
-            queueDisplay.classList.remove('hidden');
-            
-            // เล่นเสียงแบบปลอดภัย
-            const audio = new Audio('https://actions.google.com/sounds/v1/notifications/bell_original.ogg');
-            audio.play().catch(e => console.warn("Audio blocked by browser"));
-
-            // อัปเดตเวลาคิวล่าสุดลง localStorage
-            localStorage.setItem('lastQueueTime', currentQueueTime);
-
-            // ซ่อนอัตโนมัติ
-            setTimeout(() => {
-                queueDisplay.classList.add('hidden');
-            }, 7000);
-        }
+        // เล่นเสียงแจ้งเตือน
+        new Audio('https://actions.google.com/sounds/v1/notifications/bell_original.ogg').play().catch(()=>{});
+        
+        // บันทึกเวลาไว้
+        localStorage.setItem('lastQueueTime', data.queueTimestamp);
+        
+        // ซ่อนอัตโนมัติใน 7 วินาที
+        setTimeout(() => {
+            queueDisplay.classList.add('hidden');
+        }, 7000);
     }
+}
 }
 
     // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
