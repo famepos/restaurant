@@ -58,78 +58,77 @@
     </section>
 
     <!-- กล่องสรุปยอดฝั่งขวา -->
-    <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
+<section class="w-1/3 min-w-[400px] flex flex-col gap-4 overflow-hidden">
       
-<div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-5">
-    
-    <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-100 pb-3">สรุปยอดชำระ</h2>
+      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-5 flex flex-col gap-3 overflow-y-auto max-h-[60vh] custom-scrollbar">
+          
+          <h2 class="text-xl font-bold text-gray-800 border-b border-gray-100 pb-2 shrink-0">สรุปยอดชำระ</h2>
 
-    <div class="flex justify-between items-center text-gray-500 font-medium text-lg px-1">
-        <span>จำนวนสินค้า:</span>
-        <span>
-            <span id="cdsItemCount" class="font-bold text-pink-500 text-2xl">0</span> รายการ 
-            <span id="cdsPieceCount" class="font-bold text-pink-500 text-2xl">0</span> ชิ้น
-        </span>
-    </div>
+          <div class="flex justify-between items-center text-gray-500 font-medium text-base px-1 shrink-0">
+              <span>จำนวนสินค้า:</span>
+              <span>
+                  <span id="cdsItemCount" class="font-bold text-pink-500 text-xl">0</span> รายการ 
+                  <span id="cdsPieceCount" class="font-bold text-pink-500 text-xl">0</span> ชิ้น
+              </span>
+          </div>
 
-<div class="flex justify-between items-center text-xl text-gray-600 px-1 pb-1">
-        <span>ยอดรวม:</span>
-        <span id="displaySubTotal" class="font-bold">฿0.00</span>
-    </div>
+          <div class="flex justify-between items-center text-lg text-gray-600 px-1 shrink-0">
+              <span>ยอดรวม:</span>
+              <span id="displaySubTotal" class="font-bold">฿0.00</span>
+          </div>
 
-    <div id="cdsServiceContainer" class="hidden justify-between items-center text-lg text-gray-500 px-1 pb-1">
-        <span>ค่าบริการ:</span>
-        <span id="displayService" class="font-bold text-gray-700">฿0.00</span>
-    </div>
+          <div id="cdsServiceContainer" class="hidden justify-between items-center text-base text-gray-500 px-1 shrink-0">
+              <span>ค่าบริการ:</span>
+              <span id="displayService" class="font-bold text-gray-700">฿0.00</span>
+          </div>
 
-    <div id="cdsTaxContainer" class="hidden justify-between items-center text-lg text-gray-500 px-1 pb-1">
-        <span>ภาษีมูลค่าเพิ่ม:</span>
-        <span id="displayTax" class="font-bold text-gray-700">฿0.00</span>
-    </div>
+          <div id="cdsTaxContainer" class="hidden justify-between items-center text-base text-gray-500 px-1 shrink-0">
+              <span>ภาษีมูลค่าเพิ่ม:</span>
+              <span id="displayTax" class="font-bold text-gray-700">฿0.00</span>
+          </div>
 
-    <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-5 rounded-2xl border border-pink-100 shadow-sm mt-1">
-        <span>ยอดสุทธิ:</span>
-        <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
-    </div>
+          <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-xl border border-pink-100 shadow-sm shrink-0">
+              <span>ยอดสุทธิ:</span>
+              <span id="displayGrandTotal" class="text-3xl">฿0.00</span>
+          </div>
 
-    <div id="halfHalfContainer" class="hidden flex-col gap-2 p-5 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner mt-1">
-        <div class="text-center font-bold text-pink-800 mb-1">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
-        <div class="flex justify-between items-center text-lg text-gray-600">
-            <span>รัฐออกให้ (60%):</span>
-            <span id="displayGovPay" class="font-bold text-pink-500">฿0.00</span>
-        </div>
-        <div class="flex justify-between items-center text-xl text-emerald-700 font-bold border-t border-pink-200 pt-3 mt-1">
-            <span>ลูกค้าจ่ายจริง (40%):</span>
-            <span id="displayCustomerPay" class="text-3xl">฿0.00</span>
-        </div>
-    </div>
+          <div id="halfHalfContainer" class="hidden flex-col gap-1 p-4 rounded-xl bg-pink-50 border border-pink-200 shadow-inner shrink-0">
+              <div class="text-center font-bold text-pink-800 text-sm">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
+              <div class="flex justify-between items-center text-base text-gray-600">
+                  <span>รัฐออกให้ (60%):</span>
+                  <span id="displayGovPay" class="font-bold text-pink-500">฿0.00</span>
+              </div>
+              <div class="flex justify-between items-center text-lg text-emerald-700 font-bold border-t border-pink-200 pt-2 mt-1">
+                  <span>ลูกค้าจ่ายจริง:</span>
+                  <span id="displayCustomerPay" class="text-2xl">฿0.00</span>
+              </div>
+          </div>
 
-    <div class="flex flex-col gap-3 text-lg text-emerald-600 bg-emerald-50 p-5 rounded-2xl border border-emerald-100 hidden shadow-sm mt-1" id="changeContainer">
-        <div class="flex justify-between items-center border-b border-emerald-200/80 pb-3">
-            <span class="font-bold text-emerald-700">รับเงิน:</span>
-            <span id="displayReceive" class="text-2xl font-bold text-emerald-700">฿0.00</span>
-        </div>
-        <div class="flex justify-between items-center pt-1">
-            <span class="font-bold">เงินทอน:</span>
-            <span id="displayChange" class="text-4xl font-bold text-emerald-600">฿0.00</span>
-        </div>
-    </div>
+          <div class="flex flex-col gap-2 text-base text-emerald-600 bg-emerald-50 p-4 rounded-xl border border-emerald-100 hidden shadow-sm shrink-0" id="changeContainer">
+              <div class="flex justify-between items-center border-b border-emerald-200/80 pb-2">
+                  <span class="font-bold text-emerald-700">รับเงิน:</span>
+                  <span id="displayReceive" class="text-xl font-bold text-emerald-700">฿0.00</span>
+              </div>
+              <div class="flex justify-between items-center pt-1">
+                  <span class="font-bold">เงินทอน:</span>
+                  <span id="displayChange" class="text-3xl font-bold text-emerald-600">฿0.00</span>
+              </div>
+          </div>
+      </div>
 
-</div>
-
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
-         <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
-            <span class="text-6xl mb-4">✨</span>
-            <h3 class="text-2xl font-bold text-pink-700 mb-2">ตรวจสอบรายการอาหาร</h3>
-            <p class="text-gray-500 font-medium">ด้านซ้ายมือ</p>
+      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-4 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[150px]">
+         <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-pink-50 to-white text-center">
+            <span class="text-4xl xl:text-5xl mb-2">✨</span>
+            <h3 class="text-xl font-bold text-pink-700 mb-1">ตรวจสอบรายการอาหาร</h3>
+            <p class="text-gray-500 text-sm font-medium">ด้านซ้ายมือ</p>
          </div>
 
-         <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4 md:p-6">
-            <h3 class="text-xl xl:text-2xl font-bold text-pink-800 mb-2 xl:mb-4 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
-            <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2 xl:mb-4">
-                <img id="qrDisplayImage" src="" class="w-full h-full max-w-[220px] object-contain border-4 border-pink-100 p-2 rounded-2xl shadow-sm">
+         <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4">
+            <h3 class="text-lg font-bold text-pink-800 mb-2 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
+            <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2">
+                <img id="qrDisplayImage" src="" class="w-full h-full max-w-[160px] object-contain border-4 border-pink-100 p-2 rounded-2xl shadow-sm">
             </div>
-            <p class="text-gray-500 font-medium animate-pulse text-sm xl:text-base shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
+            <p class="text-gray-500 font-medium animate-pulse text-xs shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
          </div>
       </div>
 
