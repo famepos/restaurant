@@ -108,19 +108,12 @@
     </section>
   </main>
 
-<div id="queueCallOverlay" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-center p-4">
-    <div class="bg-white rounded-3xl p-8 xl:p-12 shadow-2xl border-4 border-pink-500 max-w-xl w-full transform transition-all duration-300">
-        <div class="text-6xl xl:text-7xl mb-4 animate-bounce">📢</div>
-        <h2 class="text-3xl xl:text-4xl font-bold text-gray-800 mb-1">เรียกคิวรับสินค้า</h2>
-        <p class="text-gray-400 font-medium text-lg xl:text-xl mb-6">ขอเชิญหมายเลขคิว</p>
-        
-        <div id="cdsQueueNumber" class="text-8xl xl:text-9xl font-black text-pink-600 tracking-wider mb-6 bg-pink-50 py-5 rounded-2xl border-2 border-pink-200 animate-pulse">
-            Q001
-        </div>
-        
-        <div class="text-xl xl:text-2xl font-bold text-pink-700">
-            ✨ เชิญที่ช่องรับสินค้าค่ะ ✨
-        </div>
+<div id="queueCallDisplay" class="hidden fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
+    <div class="bg-white rounded-[3rem] p-12 shadow-2xl text-center transform scale-110">
+        <div class="text-8xl mb-6">🔔</div>
+        <h2 class="text-4xl font-bold text-pink-600 mb-4">เรียกคิว</h2>
+        <div id="calledQueueNumber" class="text-9xl font-black text-gray-800 tracking-tighter">--</div>
+        <p class="text-2xl text-gray-500 mt-6">กรุณามารับรายการอาหารที่เคาน์เตอร์</p>
     </div>
 </div>
 
@@ -305,7 +298,25 @@
             if(qrState) qrState.classList.add('hidden');
             if(adState) adState.classList.remove('hidden');
         }
-    }
+   // เพิ่มส่วนนี้ไว้ในฟังก์ชัน updateCustomerUI(data)
+if (data.calledQueue && data.calledQueue !== "") {
+    const queueDisplay = document.getElementById('queueCallDisplay');
+    const queueNumber = document.getElementById('calledQueueNumber');
+    
+    // แสดงคิว
+    queueNumber.innerText = data.calledQueue;
+    queueDisplay.classList.remove('hidden');
+    
+    // เล่นเสียงเตือน (เพิ่มบรรทัดนี้หากต้องการเสียง)
+    const audio = new Audio('https://actions.google.com/sounds/v1/notifications/bell_original.ogg');
+    audio.play();
+
+    // ซ่อนอัตโนมัติหลังจาก 7 วินาที
+    setTimeout(() => {
+        queueDisplay.classList.add('hidden');
+    }, 7000);
+}
+}
 
     // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
     let adSlides = [];
@@ -370,55 +381,6 @@
             showAdSlide(currentAdIndex + 1);
         }, duration);
     }
-
-    // ============================================
-// 📢 ระบบรับสัญญาณเรียกคิวจากเครื่องแคชเชียร์ (CDS)
-// ============================================
-window.addEventListener('storage', function(event) {
-    // ดักฟังว่าถ้าเครื่องแคชเชียร์สั่งเรียกคิว
-    if (event.key === 'famepos_current_call' && event.newValue) {
-        try {
-            const data = JSON.parse(event.newValue);
-            if (data && data.queueNo) {
-                showCDSQueuePopup(data.queueNo);
-            }
-        } catch (e) {
-            showCDSQueuePopup(event.newValue);
-        }
-    }
-});
-
-let cdsQueueTimer = null;
-function showCDSQueuePopup(queueNo) {
-    const overlay = document.getElementById('queueCallOverlay');
-    const numDisplay = document.getElementById('cdsQueueNumber');
-    
-    if (!overlay || !numDisplay) return;
-    
-    // จัดฟอร์แมตคิวให้มีตัว Q นำหน้า
-    const formattedQueue = queueNo.startsWith('Q') ? queueNo : 'Q' + queueNo;
-    numDisplay.innerText = formattedQueue;
-    
-    // เปิดการแสดงผล Pop-up
-    overlay.classList.remove('hidden');
-    
-    // 🔊 ออปชันเสริม: เปิดเสียงพูดที่หน้าจอฝั่งลูกค้าด้วย (ถ้าต้องการให้พูดพร้อมกันทั้งสองจอ)
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // ตัดเสียงเก่าที่พูดค้างอยู่
-        let msg = new SpeechSynthesisUtterance(`ขอเชิญคิวหมายเลข ${formattedQueue} ค่ะ`);
-        msg.lang = 'th-TH';
-        msg.rate = 0.9;
-        window.speechSynthesis.speak(msg);
-    }
-    
-    // เคลียร์เวลาเก่าหากมีการกดเรียกซ้ำๆ
-    if (cdsQueueTimer) clearTimeout(cdsQueueTimer);
-    
-    // ตั้งเวลาให้ Pop-up แสดงค้างไว้ 6 วินาที แล้วจึงปิดตัวลงอัตโนมัติ
-    cdsQueueTimer = setTimeout(() => {
-        overlay.classList.add('hidden');
-    }, 6000);
-}
 
     window.addEventListener('load', fetchAdSettings);
     setInterval(fetchAdSettings, 5000); 
