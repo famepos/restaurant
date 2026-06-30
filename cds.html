@@ -49,14 +49,9 @@
   <main class="flex-1 flex gap-6 p-6 overflow-hidden">
     <!-- กล่องรายการสินค้าฝั่งซ้าย -->
     <section class="flex-1 bg-white rounded-[2rem] shadow-xl border border-pink-100 flex flex-col overflow-hidden">
-    <div class="bg-pink-50 p-3 border-b border-pink-100">
-    <h2 class="text-xl font-bold text-pink-800">รายการสินค้า (Order Items)</h2>
-
-    <div id="cartSummary"
-         class="mt-2 text-sm font-bold text-pink-600">
-        🛒 0 รายการ • 0 ชิ้น
-    </div>
-</div>
+      <div class="bg-pink-50 p-4 border-b border-pink-100">
+        <h2 class="text-2xl font-bold text-pink-800">รายการสินค้า (Order Items)</h2>
+      </div>
       <div class="flex-1 overflow-y-auto p-4 space-y-3" id="customerCartItems">
         <!-- รายการสินค้าจะถูกเพิ่มตรงนี้ผ่าน JS -->
       </div>
@@ -71,33 +66,11 @@
             <span>ยอดรวม:</span>
             <span id="displaySubTotal" class="font-bold">฿0.00</span>
         </div>
-
-        <div id="taxRowCustomer" class="hidden flex justify-between py-1">
-    <span class="text-gray-500">ภาษี (VAT)</span>
-    <span id="displayTaxCustomer">฿0.00</span>
-</div>
-
-<div id="serviceRowCustomer" class="hidden flex justify-between py-1">
-    <span class="text-gray-500">ค่าบริการ</span>
-    <span id="displayServiceCustomer">฿0.00</span>
-</div>
-
         <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100">
             <span>ยอดสุทธิ:</span>
             <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
         </div>
-<div id="cashReceiveContainer"
-     class="hidden mt-3 p-4 rounded-2xl bg-blue-50 border border-blue-200">
 
-    <div class="flex justify-between items-center text-lg">
-        <span class="font-semibold text-gray-600">รับเงิน</span>
-        <span id="displayCashReceive"
-              class="text-3xl font-black text-blue-700">
-            ฿0.00
-        </span>
-    </div>
-
-</div>
         <div id="halfHalfContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner">
             <div class="text-center font-bold text-pink-800 mb-1">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
             <div class="flex justify-between items-center text-lg text-gray-600">
@@ -109,9 +82,6 @@
                 <span id="displayCustomerPay" class="text-3xl">฿0.00</span>
             </div>
         </div>
-
-
-
 
         <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
             <span class="font-bold">เงินทอน:</span>
@@ -210,9 +180,7 @@
 
     // 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า
     function updateCustomerUI(data) {
-      console.log("CDS DATA =", data);
         if (!data) return;
-        
         
         // 🛑 ระบบควบคุม Screensaver โฆษณา (รอคำสั่งพักจอ 10 นาทีเท่านั้น)
         const adOverlay = document.getElementById('fullScreenAdOverlay');
@@ -235,45 +203,11 @@
 
         const cartContainer = document.getElementById('customerCartItems');
         if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
-          const summary = document.getElementById("cartSummary");
-if(summary){
-    summary.innerHTML = "🛒 0 รายการ • 0 ชิ้น";
-}
-
-// ===============================
-// รีเซ็ตสรุปยอดทั้งหมดเมื่อไม่มีรายการหรืออยู่สถานะ idle
-// ===============================
-const subTotalEl = document.getElementById("displaySubTotal");
-if (subTotalEl) subTotalEl.innerText = "฿0.00";
-
-const grandTotalEl = document.getElementById("displayGrandTotal");
-if (grandTotalEl) grandTotalEl.innerText = "฿0.00";
-
-const cashReceiveEl = document.getElementById("displayCashReceive");
-if (cashReceiveEl) cashReceiveEl.innerText = "฿0.00";
-
-const changeEl = document.getElementById("displayChange");
-if (changeEl) changeEl.innerText = "฿0.00";
-
-const taxEl = document.getElementById("displayTaxCustomer");
-if (taxEl) taxEl.innerText = "฿0.00";
-
-const serviceEl = document.getElementById("displayServiceCustomer");
-if (serviceEl) serviceEl.innerText = "฿0.00";
-
-// ซ่อนกล่องต่าง ๆ
-document.getElementById("cashReceiveContainer")?.classList.add("hidden");
-document.getElementById("changeContainer")?.classList.add("hidden");
-document.getElementById("taxRowCustomer")?.classList.add("hidden");
-document.getElementById("serviceRowCustomer")?.classList.add("hidden");
-document.getElementById("halfHalfContainer")?.classList.add("hidden");
-
             cartContainer.innerHTML = `
                 <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
                     <span class="text-8xl mb-4">🛒</span>
                     <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับลูกค้าทุกท่าน เชิญสั่งอาหารได้เลย</p>
                 </div>`;
-                return;
         } else {
             let html = '';
             data.cart.forEach(item => {
@@ -287,38 +221,28 @@ document.getElementById("halfHalfContainer")?.classList.add("hidden");
                     if (match && match[1]) {
                         let opts = match[1].split(',');
                         optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
-                            opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
+                            opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
                         `</div>`;
                     }
                 }
 
                 let imgTag = item.image 
-                    ? `<img src="${item.image}" class="w-14 h-14rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
-                    : `<div class="w-14 h-14 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
+                    ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
+                    : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
 
-           html += `
-<div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-gray-100 shadow-sm fade-in mb-2 gap-3">
+                html += `
+                <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
                     ${imgTag}
                     <div class="flex-1 min-w-0 py-1">
-                        <div class="font-bold text-gray-800 text-lg truncate leading-tight">${baseName}</div>
+                        <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
                         ${optionsHtml}
                     </div>
-                    <div class="font-bold text-gray-400 text-lg w-12 text-center shrink-0">${item.qty}</div>
-                    <div class="font-bold text-pink-600 text-xl w-24 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
+                    <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
+                    <div class="font-bold text-pink-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
                 </div>`;
-                
             });
             cartContainer.innerHTML = html;
             cartContainer.scrollTop = cartContainer.scrollHeight;
-            const totalItems = data.cart.length;
-const totalQty = data.cart.reduce((sum,item)=>sum + Number(item.qty || 0),0);
-
-const summary = document.getElementById("cartSummary");
-
-if(summary){
-    summary.innerHTML =
-        `🛒 ${totalItems} รายการ • ${totalQty} ชิ้น`;
-
         }
 
         let subTotalEl = document.getElementById('displaySubTotal');
@@ -326,29 +250,6 @@ if(summary){
         
         let grandTotalEl = document.getElementById('displayGrandTotal');
         if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
-
-        const taxRow = document.getElementById("taxRowCustomer");
-const serviceRow = document.getElementById("serviceRowCustomer");
-
-if (taxRow) {
-    if (data.showTax) {
-        taxRow.classList.remove("hidden");
-        document.getElementById("displayTaxCustomer").innerText =
-            data.tax || "฿0.00";
-    } else {
-        taxRow.classList.add("hidden");
-    }
-}
-
-if (serviceRow) {
-    if (data.showService) {
-        serviceRow.classList.remove("hidden");
-        document.getElementById("displayServiceCustomer").innerText =
-            data.service || "฿0.00";
-    } else {
-        serviceRow.classList.add("hidden");
-    }
-}
 
         const halfHalfBox = document.getElementById('halfHalfContainer');
         if (data.paymentMethod === 'คนละครึ่ง' && data.cart && data.cart.length > 0) {
@@ -378,33 +279,6 @@ if (serviceRow) {
             if(changeBox) changeBox.classList.add('hidden');
         }
 
-        // ===============================
-// รับเงิน
-// ===============================
-const cashBox = document.getElementById("cashReceiveContainer");
-
-if (cashBox) {
-
-    const cash = parseFloat(
-        String(data.cashReceived || "0").replace(/[^0-9.-]/g, "")
-    ) || 0;
-
-    if (cash > 0 && data.paymentMethod === "เงินสด") {
-
-        document.getElementById("displayCashReceive").innerText =
-            "฿" + cash.toLocaleString("th-TH", {
-                minimumFractionDigits: 2
-            });
-
-        cashBox.classList.remove("hidden");
-
-    } else {
-
-        cashBox.classList.add("hidden");
-
-    }
-}
-
         const adState = document.getElementById('adState');
         const qrState = document.getElementById('qrState');
         if (data.status === 'qr_payment' && data.qrImage) {
@@ -415,8 +289,6 @@ if (cashBox) {
             if(qrState) qrState.classList.add('hidden');
             if(adState) adState.classList.remove('hidden');
         }
-    }
-
     }
 
     // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
