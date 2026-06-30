@@ -365,20 +365,19 @@
 // ================= โค้ดระบบรับสัญญาณเรียกคิว =================
     let lastQueueTime = 0;
     
-    function checkQueueCall() {
-        // ใช้ proxy google.script.run ที่คุณทำไว้แล้วในหน้า cds
-        google.script.run
-            .withSuccessHandler(function(res) {
-                if (res && res.queue && res.time) {
-                    // ตรวจจับว่าเวลาถูกอัปเดตใหม่ (แคชเชียร์เพิ่งกดปุ่ม)
-                    if (lastQueueTime !== 0 && res.time > lastQueueTime) {
-                        showQueueCallUI(res.queue);
-                    }
-                    lastQueueTime = res.time;
+// ================= ระบบรับสัญญาณเรียกคิวผ่าน LocalStorage =================
+    
+    // คอยดักจับว่าหน้าแคชเชียร์มีการกดเรียกคิว (มีการอัปเดต famepos_current_call) หรือไม่
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'famepos_current_call') {
+            if (e.newValue) {
+                let data = JSON.parse(e.newValue);
+                if (data.queueNo) {
+                    showQueueCallUI(data.queueNo);
                 }
-            })
-            .getActiveQueueGS(); // ไปเรียกฟังก์ชันหลังบ้าน
-    }
+            }
+        }
+    });
 
     function showQueueCallUI(queueNo) {
         let overlay = document.getElementById('queueCallOverlay');
@@ -388,23 +387,20 @@
             numberDisp.innerText = queueNo;
             overlay.classList.remove('hidden');
             
-            // 🔊 เล่นเสียงพูด
+            // 🔊 เล่นเสียงพูดที่ฝั่งหน้าจอลูกค้า (ถ้าต้องการให้เสียงออกจอฝั่งลูกค้าด้วย)
             if ('speechSynthesis' in window) {
                 let msg = new SpeechSynthesisUtterance("ขอเชิญหมายเลขคิว " + queueNo + " ค่ะ");
                 msg.lang = 'th-TH';
-                msg.rate = 0.8; // พูดช้าลงนิดนึง
+                msg.rate = 0.8; 
                 window.speechSynthesis.speak(msg);
             }
 
-            // แสดงหน้าจอค้าง 5 วินาที แล้วซ่อน
+            // แสดงหน้าจอค้าง 5 วินาที แล้วซ่อนกลับไป
             setTimeout(() => {
                 overlay.classList.add('hidden');
             }, 5000);
         }
     }
-
-    // ให้ดึงข้อมูลเช็คคิวทุกๆ 2 วินาที
-    setInterval(checkQueueCall, 2000);
     // =========================================================
 
     window.addEventListener('load', fetchAdSettings);
