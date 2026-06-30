@@ -238,11 +238,40 @@ if(summary){
     summary.innerHTML = "🛒 0 รายการ • 0 ชิ้น";
 }
 
+// ===============================
+// รีเซ็ตสรุปยอดทั้งหมดเมื่อไม่มีรายการหรืออยู่สถานะ idle
+// ===============================
+const subTotalEl = document.getElementById("displaySubTotal");
+if (subTotalEl) subTotalEl.innerText = "฿0.00";
+
+const grandTotalEl = document.getElementById("displayGrandTotal");
+if (grandTotalEl) grandTotalEl.innerText = "฿0.00";
+
+const cashReceiveEl = document.getElementById("displayCashReceive");
+if (cashReceiveEl) cashReceiveEl.innerText = "฿0.00";
+
+const changeEl = document.getElementById("displayChange");
+if (changeEl) changeEl.innerText = "฿0.00";
+
+const taxEl = document.getElementById("displayTaxCustomer");
+if (taxEl) taxEl.innerText = "฿0.00";
+
+const serviceEl = document.getElementById("displayServiceCustomer");
+if (serviceEl) serviceEl.innerText = "฿0.00";
+
+// ซ่อนกล่องต่าง ๆ
+document.getElementById("cashReceiveContainer")?.classList.add("hidden");
+document.getElementById("changeContainer")?.classList.add("hidden");
+document.getElementById("taxRowCustomer")?.classList.add("hidden");
+document.getElementById("serviceRowCustomer")?.classList.add("hidden");
+document.getElementById("halfHalfContainer")?.classList.add("hidden");
+
             cartContainer.innerHTML = `
                 <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
                     <span class="text-8xl mb-4">🛒</span>
                     <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับลูกค้าทุกท่าน เชิญสั่งอาหารได้เลย</p>
                 </div>`;
+                return;
         } else {
             let html = '';
             data.cart.forEach(item => {
@@ -275,6 +304,7 @@ if(summary){
                     <div class="font-bold text-gray-400 text-lg w-12 text-center shrink-0">${item.qty}</div>
                     <div class="font-bold text-pink-600 text-xl w-24 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
                 </div>`;
+                
             });
             cartContainer.innerHTML = html;
             cartContainer.scrollTop = cartContainer.scrollHeight;
