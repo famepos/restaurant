@@ -71,6 +71,17 @@
             <span>ยอดรวม:</span>
             <span id="displaySubTotal" class="font-bold">฿0.00</span>
         </div>
+
+        <div id="taxRowCustomer" class="hidden flex justify-between py-1">
+    <span class="text-gray-500">ภาษี (VAT)</span>
+    <span id="displayTaxCustomer">฿0.00</span>
+</div>
+
+<div id="serviceRowCustomer" class="hidden flex justify-between py-1">
+    <span class="text-gray-500">ค่าบริการ</span>
+    <span id="displayServiceCustomer">฿0.00</span>
+</div>
+
         <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100">
             <span>ยอดสุทธิ:</span>
             <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
@@ -283,6 +294,29 @@ if(summary){
         
         let grandTotalEl = document.getElementById('displayGrandTotal');
         if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
+
+        const taxRow = document.getElementById("taxRowCustomer");
+const serviceRow = document.getElementById("serviceRowCustomer");
+
+if (taxRow) {
+    if (data.showTax) {
+        taxRow.classList.remove("hidden");
+        document.getElementById("displayTaxCustomer").innerText =
+            data.tax || "฿0.00";
+    } else {
+        taxRow.classList.add("hidden");
+    }
+}
+
+if (serviceRow) {
+    if (data.showService) {
+        serviceRow.classList.remove("hidden");
+        document.getElementById("displayServiceCustomer").innerText =
+            data.service || "฿0.00";
+    } else {
+        serviceRow.classList.add("hidden");
+    }
+}
 
         const halfHalfBox = document.getElementById('halfHalfContainer');
         if (data.paymentMethod === 'คนละครึ่ง' && data.cart && data.cart.length > 0) {
