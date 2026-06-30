@@ -75,7 +75,18 @@
             <span>ยอดสุทธิ:</span>
             <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
         </div>
+<div id="cashReceiveContainer"
+     class="hidden mt-3 p-4 rounded-2xl bg-blue-50 border border-blue-200">
 
+    <div class="flex justify-between items-center text-lg">
+        <span class="font-semibold text-gray-600">รับเงิน</span>
+        <span id="displayCashReceive"
+              class="text-3xl font-black text-blue-700">
+            ฿0.00
+        </span>
+    </div>
+
+</div>
         <div id="halfHalfContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner">
             <div class="text-center font-bold text-pink-800 mb-1">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
             <div class="flex justify-between items-center text-lg text-gray-600">
@@ -87,6 +98,9 @@
                 <span id="displayCustomerPay" class="text-3xl">฿0.00</span>
             </div>
         </div>
+
+
+
 
         <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
             <span class="font-bold">เงินทอน:</span>
@@ -298,6 +312,33 @@ if(summary){
             if(changeBox) changeBox.classList.add('hidden');
         }
 
+        // ===============================
+// รับเงิน
+// ===============================
+const cashBox = document.getElementById("cashReceiveContainer");
+
+if (cashBox) {
+
+    const cash = parseFloat(
+        String(data.cashReceived || "0").replace(/[^0-9.-]/g, "")
+    ) || 0;
+
+    if (cash > 0 && data.paymentMethod === "เงินสด") {
+
+        document.getElementById("displayCashReceive").innerText =
+            "฿" + cash.toLocaleString("th-TH", {
+                minimumFractionDigits: 2
+            });
+
+        cashBox.classList.remove("hidden");
+
+    } else {
+
+        cashBox.classList.add("hidden");
+
+    }
+}
+
         const adState = document.getElementById('adState');
         const qrState = document.getElementById('qrState');
         if (data.status === 'qr_payment' && data.qrImage) {
@@ -309,6 +350,7 @@ if(summary){
             if(adState) adState.classList.remove('hidden');
         }
     }
+
     }
 
     // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
