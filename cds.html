@@ -244,8 +244,36 @@
         if (data.logoUrl) { let logoEl = document.getElementById('displayLogo'); if (logoEl) logoEl.src = data.logoUrl; }
         if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
 
+        // ==========================================
+        // 🛠️ 1. สกัด "ภาษี" และ "ค่าบริการ" ออกจากตะกร้าสินค้า (ป้องกันมันไปโชว์ฝั่งซ้าย)
+        // ==========================================
+        let extractedTax = 0;
+        let extractedService = 0;
+        let actualCart = []; // ตะกร้าของจริงที่ไม่มีภาษี/ค่าบริการ
+
+        if (data.cart && data.cart.length > 0) {
+            data.cart.forEach(item => {
+                let name = item.name || "";
+                // ดักจับคำว่า ภาษี หรือ VAT
+                if (name.includes('ภาษี') || name.toUpperCase().includes('VAT') || name.toUpperCase().includes('TAX')) {
+                    extractedTax += (item.price * item.qty);
+                } 
+                // ดักจับคำว่า ค่าบริการ หรือ Service
+                else if (name.includes('ค่าบริการ') || name.toUpperCase().includes('SERVICE')) {
+                    extractedService += (item.price * item.qty);
+                } 
+                // ถ้าเป็นสินค้าปกติ ให้เก็บไว้โชว์ฝั่งซ้าย
+                else {
+                    actualCart.push(item);
+                }
+            });
+        }
+
+        // ==========================================
+        // 🛠️ 2. วาดรายการสินค้าฝั่งซ้าย (ใช้ actualCart ที่กรองภาษีออกแล้ว)
+        // ==========================================
         const cartContainer = document.getElementById('customerCartItems');
-        if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
+        if (!actualCart || actualCart.length === 0 || data.status === 'idle') {
             cartContainer.innerHTML = `
                 <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
                     <span class="text-8xl mb-4">🛒</span>
@@ -253,7 +281,7 @@
                 </div>`;
         } else {
             let html = '';
-            data.cart.forEach(item => {
+            actualCart.forEach(item => {
                 let baseName = item.name || "สินค้า";
                 let optionsHtml = '';
                 let optionIndex = baseName.search(/ \[| \+/); 
@@ -270,12 +298,12 @@
                     }
                 }
 
-                // 🟢 1. ปรับขนาดรูปภาพให้เล็กลงเป็น w-10 h-10
+                // 🟢 ปรับขนาดรูปภาพให้เล็กลงเป็น w-10 h-10
                 let imgTag = item.image 
                     ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-pink-100 shadow-sm shrink-0">` 
                     : `<div class="w-10 h-10 rounded-lg bg-pink-50 text-pink-400 flex items-center justify-center text-lg border border-pink-100 shadow-sm shrink-0">📦</div>`;
 
-                // 🟢 2. ปรับขนาดกล่อง (Padding/Margin) และตัวหนังสือให้กะทัดรัดขึ้น
+                // 🟢 ปรับขนาดกล่อง (Padding/Margin) และตัวหนังสือให้กะทัดรัดขึ้น
                 html += `
                 <div class="flex justify-between items-center bg-white px-3 py-2.5 rounded-xl border border-gray-100 shadow-sm fade-in mb-2 gap-3">
                     ${imgTag}
@@ -290,14 +318,16 @@
             cartContainer.innerHTML = html;
             cartContainer.scrollTop = cartContainer.scrollHeight;
         }
-// ==========================================
-        // 🟢 คำนวณจำนวนรายการและจำนวนชิ้น สำหรับหน้าจอ CDS
+
+        // ==========================================
+        // 🟢 คำนวณจำนวนรายการและจำนวนชิ้น (นับเฉพาะสินค้าจริง ไม่นับภาษี)
+        // ==========================================
         let totalItemsCount = 0;
         let totalPiecesCount = 0;
         
-        if (data.cart && data.cart.length > 0 && data.status !== 'idle') {
-            totalItemsCount = data.cart.length; // จำนวนบรรทัดรายการ
-            totalPiecesCount = data.cart.reduce((sum, item) => sum + (Number(item.qty) || 1), 0); // จำนวนชิ้นรวม
+        if (actualCart.length > 0 && data.status !== 'idle') {
+            totalItemsCount = actualCart.length; // จำนวนบรรทัดรายการสินค้าจริง
+            totalPiecesCount = actualCart.reduce((sum, item) => sum + (Number(item.qty) || 1), 0); // จำนวนชิ้นรวม
         }
 
         let cdsItemCountEl = document.getElementById('cdsItemCount');
@@ -305,41 +335,46 @@
         
         if (cdsItemCountEl) cdsItemCountEl.innerText = totalItemsCount;
         if (cdsPieceCountEl) cdsPieceCountEl.innerText = totalPiecesCount;
-        // ==========================================
 
-        // (โค้ดเดิมของคุณ)
-let subTotalEl = document.getElementById('displaySubTotal');
+        // ==========================================
+        // 🟢 แสดงยอดรวม และ ยอดสุทธิ
+        // ==========================================
+        let subTotalEl = document.getElementById('displaySubTotal');
         if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
         
         let grandTotalEl = document.getElementById('displayGrandTotal');
         if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
         // ==========================================
-        // 🟢 ระบบเปิด/ปิด การแสดง ค่าบริการ และ ภาษี
+        // 🟢 ระบบเปิด/ปิด การแสดง ค่าบริการ และ ภาษี (โชว์ฝั่งขวา)
+        // ==========================================
         let serviceContainer = document.getElementById('cdsServiceContainer');
         let taxContainer = document.getElementById('cdsTaxContainer');
 
-        // ตรวจสอบค่าบริการ (รองรับตัวแปร serviceCharge หรือ service)
-        let serviceValue = data.serviceCharge || data.service; 
+        // เอาค่าที่สกัดได้จากตะกร้ามาแสดง (ถ้ามี) ถ้าไม่มีค่อยหาจากตัวแปรของระบบ
+        let serviceValue = extractedService > 0 ? extractedService : (data.serviceCharge || data.service || 0); 
         if (serviceValue && parseFloat(serviceValue.toString().replace(/[^0-9.-]+/g,"")) > 0) {
-            document.getElementById('displayService').innerText = serviceValue.toString().includes('฿') ? serviceValue : "฿" + serviceValue;
+            let numericService = parseFloat(serviceValue.toString().replace(/[^0-9.-]+/g,""));
+            document.getElementById('displayService').innerText = "฿" + numericService.toLocaleString('th-TH', {minimumFractionDigits: 2});
             if(serviceContainer) { serviceContainer.classList.remove('hidden'); serviceContainer.classList.add('flex'); }
         } else {
             if(serviceContainer) { serviceContainer.classList.add('hidden'); serviceContainer.classList.remove('flex'); }
         }
 
-        // ตรวจสอบภาษี (รองรับตัวแปร tax หรือ vat)
-        let taxValue = data.tax || data.vat;
+        let taxValue = extractedTax > 0 ? extractedTax : (data.tax || data.vat || 0);
         if (taxValue && parseFloat(taxValue.toString().replace(/[^0-9.-]+/g,"")) > 0) {
-            document.getElementById('displayTax').innerText = taxValue.toString().includes('฿') ? taxValue : "฿" + taxValue;
+            let numericTax = parseFloat(taxValue.toString().replace(/[^0-9.-]+/g,""));
+            document.getElementById('displayTax').innerText = "฿" + numericTax.toLocaleString('th-TH', {minimumFractionDigits: 2});
             if(taxContainer) { taxContainer.classList.remove('hidden'); taxContainer.classList.add('flex'); }
         } else {
             if(taxContainer) { taxContainer.classList.add('hidden'); taxContainer.classList.remove('flex'); }
         }
-        // ==========================================
 
+        // ==========================================
+        // 🟢 ระบบคนละครึ่ง
+        // ==========================================
         const halfHalfBox = document.getElementById('halfHalfContainer');
-        if (data.paymentMethod === 'คนละครึ่ง' && data.cart && data.cart.length > 0) {
+        if (data.paymentMethod === 'คนละครึ่ง' && actualCart.length > 0) {
             let totalVal = parseFloat((data.grandTotal || "0").toString().replace(/[^0-9.-]+/g,"")) || 0;
             let customerPay = totalVal * 0.40;
             let govPay = totalVal * 0.60;
@@ -360,6 +395,7 @@ let subTotalEl = document.getElementById('displaySubTotal');
 
         // ==========================================
         // 🟢 ระบบแสดง รับเงิน / เงินทอน
+        // ==========================================
         const changeBox = document.getElementById('changeContainer');
         if (data.change && parseFloat(data.change) > 0) {
             
@@ -379,8 +415,10 @@ let subTotalEl = document.getElementById('displaySubTotal');
         } else {
             if(changeBox) changeBox.classList.add('hidden');
         }
-        // ==========================================
 
+        // ==========================================
+        // 🟢 ควบคุมหน้าจอระหว่าง โฆษณา vs ชำระเงิน QR
+        // ==========================================
         const adState = document.getElementById('adState');
         const qrState = document.getElementById('qrState');
         if (data.status === 'qr_payment' && data.qrImage) {
