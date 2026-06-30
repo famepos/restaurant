@@ -107,6 +107,7 @@
 
     </section>
   </main>
+
 <div id="queueCallOverlay" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-300">
       <div class="bg-white p-12 rounded-[3rem] shadow-[0_0_50px_rgba(236,72,153,0.5)] flex flex-col items-center text-center transform scale-100 animate-bounce">
           <span class="text-8xl mb-6">📢</span>
@@ -114,7 +115,6 @@
           <div id="displayQueueNumber" class="text-9xl font-black text-pink-600 tracking-tighter">Q000</div>
       </div>
   </div>
-  <script>
 
 <script>
     // ⚠️ สำคัญมาก! เปลี่ยนลิงก์ API_URL ด้านล่างนี้ ให้เป็นลิงก์ Web App (Google Apps Script) อันใหม่ล่าสุดของคุณด้วยนะครับ
@@ -406,7 +406,7 @@
     // ให้ดึงข้อมูลเช็คคิวทุกๆ 2 วินาที
     setInterval(checkQueueCall, 2000);
     // =========================================================
-    
+
     window.addEventListener('load', fetchAdSettings);
     setInterval(fetchAdSettings, 5000); 
 
