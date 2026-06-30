@@ -62,6 +62,15 @@
       
       <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4">
         <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
+
+        <div class="flex justify-between items-center mb-3 text-gray-500 font-medium text-lg">
+    <span>จำนวนสินค้า:</span>
+    <span>
+        <span id="cdsItemCount" class="font-bold text-pink-500 text-2xl">0</span> รายการ 
+        <span id="cdsPieceCount" class="font-bold text-pink-500 text-2xl">0</span> ชิ้น
+    </span>
+</div>
+
         <div class="flex justify-between items-center text-xl text-gray-600">
             <span>ยอดรวม:</span>
             <span id="displaySubTotal" class="font-bold">฿0.00</span>
@@ -107,6 +116,22 @@
 
     </section>
   </main>
+
+  <div id="queueCallOverlay" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-center p-4">
+    <div class="bg-white rounded-3xl p-8 xl:p-12 shadow-2xl border-4 border-pink-500 max-w-xl w-full transform transition-all duration-300">
+        <div class="text-6xl xl:text-7xl mb-4 animate-bounce">📢</div>
+        <h2 class="text-3xl xl:text-4xl font-bold text-gray-800 mb-1">เรียกคิวรับสินค้า</h2>
+        <p class="text-gray-400 font-medium text-lg xl:text-xl mb-6">ขอเชิญหมายเลขคิว</p>
+        
+        <div id="cdsQueueNumber" class="text-8xl xl:text-9xl font-black text-pink-600 tracking-wider mb-6 bg-pink-50 py-5 rounded-2xl border-2 border-pink-200 animate-pulse">
+            Q001
+        </div>
+        
+        <div class="text-xl xl:text-2xl font-bold text-pink-700">
+            ✨ เชิญที่ช่องรับสินค้าค่ะ ✨
+        </div>
+    </div>
+</div>
 
 <script>
     // ⚠️ สำคัญมาก! เปลี่ยนลิงก์ API_URL ด้านล่างนี้ ให้เป็นลิงก์ Web App (Google Apps Script) อันใหม่ล่าสุดของคุณด้วยนะครับ
@@ -244,7 +269,25 @@
             cartContainer.innerHTML = html;
             cartContainer.scrollTop = cartContainer.scrollHeight;
         }
+// ==========================================
+        // 🟢 คำนวณจำนวนรายการและจำนวนชิ้น สำหรับหน้าจอ CDS
+        let totalItemsCount = 0;
+        let totalPiecesCount = 0;
+        
+        if (data.cart && data.cart.length > 0 && data.status !== 'idle') {
+            totalItemsCount = data.cart.length; // จำนวนบรรทัดรายการ
+            totalPiecesCount = data.cart.reduce((sum, item) => sum + (Number(item.qty) || 1), 0); // จำนวนชิ้นรวม
+        }
 
+        let cdsItemCountEl = document.getElementById('cdsItemCount');
+        let cdsPieceCountEl = document.getElementById('cdsPieceCount');
+        
+        if (cdsItemCountEl) cdsItemCountEl.innerText = totalItemsCount;
+        if (cdsPieceCountEl) cdsPieceCountEl.innerText = totalPiecesCount;
+        // ==========================================
+
+        // (โค้ดเดิมของคุณ)
+        let subTotalEl = document.getElementById('displaySubTotal');
         let subTotalEl = document.getElementById('displaySubTotal');
         if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
         
@@ -354,6 +397,54 @@
             showAdSlide(currentAdIndex + 1);
         }, duration);
     }
+// ============================================
+// 📢 ระบบรับสัญญาณเรียกคิวจากเครื่องแคชเชียร์ (CDS)
+// ============================================
+window.addEventListener('storage', function(event) {
+    // ดักฟังว่าถ้าเครื่องแคชเชียร์สั่งเรียกคิว
+    if (event.key === 'famepos_current_call' && event.newValue) {
+        try {
+            const data = JSON.parse(event.newValue);
+            if (data && data.queueNo) {
+                showCDSQueuePopup(data.queueNo);
+            }
+        } catch (e) {
+            showCDSQueuePopup(event.newValue);
+        }
+    }
+});
+
+let cdsQueueTimer = null;
+function showCDSQueuePopup(queueNo) {
+    const overlay = document.getElementById('queueCallOverlay');
+    const numDisplay = document.getElementById('cdsQueueNumber');
+    
+    if (!overlay || !numDisplay) return;
+    
+    // จัดฟอร์แมตคิวให้มีตัว Q นำหน้า
+    const formattedQueue = queueNo.startsWith('Q') ? queueNo : 'Q' + queueNo;
+    numDisplay.innerText = formattedQueue;
+    
+    // เปิดการแสดงผล Pop-up
+    overlay.classList.remove('hidden');
+    
+    // 🔊 ออปชันเสริม: เปิดเสียงพูดที่หน้าจอฝั่งลูกค้าด้วย (ถ้าต้องการให้พูดพร้อมกันทั้งสองจอ)
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // ตัดเสียงเก่าที่พูดค้างอยู่
+        let msg = new SpeechSynthesisUtterance(`ขอเชิญคิวหมายเลข ${formattedQueue} ค่ะ`);
+        msg.lang = 'th-TH';
+        msg.rate = 0.9;
+        window.speechSynthesis.speak(msg);
+    }
+    
+    // เคลียร์เวลาเก่าหากมีการกดเรียกซ้ำๆ
+    if (cdsQueueTimer) clearTimeout(cdsQueueTimer);
+    
+    // ตั้งเวลาให้ Pop-up แสดงค้างไว้ 6 วินาที แล้วจึงปิดตัวลงอัตโนมัติ
+    cdsQueueTimer = setTimeout(() => {
+        overlay.classList.add('hidden');
+    }, 6000);
+}
 
     window.addEventListener('load', fetchAdSettings);
     setInterval(fetchAdSettings, 5000); 
