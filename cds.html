@@ -107,6 +107,14 @@
 
     </section>
   </main>
+<div id="queueCallOverlay" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-300">
+      <div class="bg-white p-12 rounded-[3rem] shadow-[0_0_50px_rgba(236,72,153,0.5)] flex flex-col items-center text-center transform scale-100 animate-bounce">
+          <span class="text-8xl mb-6">📢</span>
+          <h2 class="text-4xl font-bold text-gray-500 mb-2">ขอเชิญหมายเลขคิว</h2>
+          <div id="displayQueueNumber" class="text-9xl font-black text-pink-600 tracking-tighter">Q000</div>
+      </div>
+  </div>
+  <script>
 
 <script>
     // ⚠️ สำคัญมาก! เปลี่ยนลิงก์ API_URL ด้านล่างนี้ ให้เป็นลิงก์ Web App (Google Apps Script) อันใหม่ล่าสุดของคุณด้วยนะครับ
@@ -354,7 +362,51 @@
             showAdSlide(currentAdIndex + 1);
         }, duration);
     }
+// ================= โค้ดระบบรับสัญญาณเรียกคิว =================
+    let lastQueueTime = 0;
+    
+    function checkQueueCall() {
+        // ใช้ proxy google.script.run ที่คุณทำไว้แล้วในหน้า cds
+        google.script.run
+            .withSuccessHandler(function(res) {
+                if (res && res.queue && res.time) {
+                    // ตรวจจับว่าเวลาถูกอัปเดตใหม่ (แคชเชียร์เพิ่งกดปุ่ม)
+                    if (lastQueueTime !== 0 && res.time > lastQueueTime) {
+                        showQueueCallUI(res.queue);
+                    }
+                    lastQueueTime = res.time;
+                }
+            })
+            .getActiveQueueGS(); // ไปเรียกฟังก์ชันหลังบ้าน
+    }
 
+    function showQueueCallUI(queueNo) {
+        let overlay = document.getElementById('queueCallOverlay');
+        let numberDisp = document.getElementById('displayQueueNumber');
+        
+        if(overlay && numberDisp) {
+            numberDisp.innerText = queueNo;
+            overlay.classList.remove('hidden');
+            
+            // 🔊 เล่นเสียงพูด
+            if ('speechSynthesis' in window) {
+                let msg = new SpeechSynthesisUtterance("ขอเชิญหมายเลขคิว " + queueNo + " ค่ะ");
+                msg.lang = 'th-TH';
+                msg.rate = 0.8; // พูดช้าลงนิดนึง
+                window.speechSynthesis.speak(msg);
+            }
+
+            // แสดงหน้าจอค้าง 5 วินาที แล้วซ่อน
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 5000);
+        }
+    }
+
+    // ให้ดึงข้อมูลเช็คคิวทุกๆ 2 วินาที
+    setInterval(checkQueueCall, 2000);
+    // =========================================================
+    
     window.addEventListener('load', fetchAdSettings);
     setInterval(fetchAdSettings, 5000); 
 
