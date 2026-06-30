@@ -58,98 +58,55 @@
     </section>
 
     <!-- กล่องสรุปยอดฝั่งขวา -->
-<section class="w-1/3 min-w-[400px] flex flex-col gap-4 overflow-hidden">
+    <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
       
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-5 flex flex-col gap-3 overflow-y-auto max-h-[60vh] custom-scrollbar">
-          
-          <h2 class="text-xl font-bold text-gray-800 border-b border-gray-100 pb-2 shrink-0">สรุปยอดชำระ</h2>
+      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
+        <div class="flex justify-between items-center text-xl text-gray-600">
+            <span>ยอดรวม:</span>
+            <span id="displaySubTotal" class="font-bold">฿0.00</span>
+        </div>
+        <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100">
+            <span>ยอดสุทธิ:</span>
+            <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
+        </div>
 
-          <div class="flex justify-between items-center text-gray-500 font-medium text-base px-1 shrink-0">
-              <span>จำนวนสินค้า:</span>
-              <span>
-                  <span id="cdsItemCount" class="font-bold text-pink-500 text-xl">0</span> รายการ 
-                  <span id="cdsPieceCount" class="font-bold text-pink-500 text-xl">0</span> ชิ้น
-              </span>
-          </div>
+        <div id="halfHalfContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner">
+            <div class="text-center font-bold text-pink-800 mb-1">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
+            <div class="flex justify-between items-center text-lg text-gray-600">
+                <span>รัฐออกให้ (60%):</span>
+                <span id="displayGovPay" class="font-bold text-pink-500">฿0.00</span>
+            </div>
+            <div class="flex justify-between items-center text-xl text-emerald-700 font-bold border-t border-pink-200 pt-3 mt-1">
+                <span>ลูกค้าจ่ายจริง (40%):</span>
+                <span id="displayCustomerPay" class="text-3xl">฿0.00</span>
+            </div>
+        </div>
 
-          <div class="flex justify-between items-center text-lg text-gray-600 px-1 shrink-0">
-              <span>ยอดรวม:</span>
-              <span id="displaySubTotal" class="font-bold">฿0.00</span>
-          </div>
-
-          <div id="cdsServiceContainer" class="hidden justify-between items-center text-base text-gray-500 px-1 shrink-0">
-              <span>ค่าบริการ:</span>
-              <span id="displayService" class="font-bold text-gray-700">฿0.00</span>
-          </div>
-
-          <div id="cdsTaxContainer" class="hidden justify-between items-center text-base text-gray-500 px-1 shrink-0">
-              <span>ภาษีมูลค่าเพิ่ม:</span>
-              <span id="displayTax" class="font-bold text-gray-700">฿0.00</span>
-          </div>
-
-          <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-xl border border-pink-100 shadow-sm shrink-0">
-              <span>ยอดสุทธิ:</span>
-              <span id="displayGrandTotal" class="text-3xl">฿0.00</span>
-          </div>
-
-          <div id="halfHalfContainer" class="hidden flex-col gap-1 p-4 rounded-xl bg-pink-50 border border-pink-200 shadow-inner shrink-0">
-              <div class="text-center font-bold text-pink-800 text-sm">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
-              <div class="flex justify-between items-center text-base text-gray-600">
-                  <span>รัฐออกให้ (60%):</span>
-                  <span id="displayGovPay" class="font-bold text-pink-500">฿0.00</span>
-              </div>
-              <div class="flex justify-between items-center text-lg text-emerald-700 font-bold border-t border-pink-200 pt-2 mt-1">
-                  <span>ลูกค้าจ่ายจริง:</span>
-                  <span id="displayCustomerPay" class="text-2xl">฿0.00</span>
-              </div>
-          </div>
-
-          <div class="flex flex-col gap-2 text-base text-emerald-600 bg-emerald-50 p-4 rounded-xl border border-emerald-100 hidden shadow-sm shrink-0" id="changeContainer">
-              <div class="flex justify-between items-center border-b border-emerald-200/80 pb-2">
-                  <span class="font-bold text-emerald-700">รับเงิน:</span>
-                  <span id="displayReceive" class="text-xl font-bold text-emerald-700">฿0.00</span>
-              </div>
-              <div class="flex justify-between items-center pt-1">
-                  <span class="font-bold">เงินทอน:</span>
-                  <span id="displayChange" class="text-3xl font-bold text-emerald-600">฿0.00</span>
-              </div>
-          </div>
+        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
+            <span class="font-bold">เงินทอน:</span>
+            <span id="displayChange" class="text-3xl font-bold">฿0.00</span>
+        </div>
       </div>
 
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-4 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[150px]">
-         <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-pink-50 to-white text-center">
-            <span class="text-4xl xl:text-5xl mb-2">✨</span>
-            <h3 class="text-xl font-bold text-pink-700 mb-1">ตรวจสอบรายการอาหาร</h3>
-            <p class="text-gray-500 text-sm font-medium">ด้านซ้ายมือ</p>
+      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
+         <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
+            <span class="text-6xl mb-4">✨</span>
+            <h3 class="text-2xl font-bold text-pink-700 mb-2">ตรวจสอบรายการอาหาร</h3>
+            <p class="text-gray-500 font-medium">ด้านซ้ายมือ</p>
          </div>
 
-         <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4">
-            <h3 class="text-lg font-bold text-pink-800 mb-2 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
-            <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2">
-                <img id="qrDisplayImage" src="" class="w-full h-full max-w-[160px] object-contain border-4 border-pink-100 p-2 rounded-2xl shadow-sm">
+         <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4 md:p-6">
+            <h3 class="text-xl xl:text-2xl font-bold text-pink-800 mb-2 xl:mb-4 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
+            <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2 xl:mb-4">
+                <img id="qrDisplayImage" src="" class="w-full h-full max-w-[220px] object-contain border-4 border-pink-100 p-2 rounded-2xl shadow-sm">
             </div>
-            <p class="text-gray-500 font-medium animate-pulse text-xs shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
+            <p class="text-gray-500 font-medium animate-pulse text-sm xl:text-base shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
          </div>
       </div>
 
     </section>
   </main>
-
-  <div id="queueCallOverlay" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-center p-4">
-    <div class="bg-white rounded-3xl p-8 xl:p-12 shadow-2xl border-4 border-pink-500 max-w-xl w-full transform transition-all duration-300">
-        <div class="text-6xl xl:text-7xl mb-4 animate-bounce">📢</div>
-        <h2 class="text-3xl xl:text-4xl font-bold text-gray-800 mb-1">เรียกคิวรับสินค้า</h2>
-        <p class="text-gray-400 font-medium text-lg xl:text-xl mb-6">ขอเชิญหมายเลขคิว</p>
-        
-        <div id="cdsQueueNumber" class="text-8xl xl:text-9xl font-black text-pink-600 tracking-wider mb-6 bg-pink-50 py-5 rounded-2xl border-2 border-pink-200 animate-pulse">
-            Q001
-        </div>
-        
-        <div class="text-xl xl:text-2xl font-bold text-pink-700">
-            ✨ เชิญที่ช่องรับสินค้าค่ะ ✨
-        </div>
-    </div>
-</div>
 
 <script>
     // ⚠️ สำคัญมาก! เปลี่ยนลิงก์ API_URL ด้านล่างนี้ ให้เป็นลิงก์ Web App (Google Apps Script) อันใหม่ล่าสุดของคุณด้วยนะครับ
@@ -244,36 +201,8 @@
         if (data.logoUrl) { let logoEl = document.getElementById('displayLogo'); if (logoEl) logoEl.src = data.logoUrl; }
         if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
 
-        // ==========================================
-        // 🛠️ 1. สกัด "ภาษี" และ "ค่าบริการ" ออกจากตะกร้าสินค้า (ป้องกันมันไปโชว์ฝั่งซ้าย)
-        // ==========================================
-        let extractedTax = 0;
-        let extractedService = 0;
-        let actualCart = []; // ตะกร้าของจริงที่ไม่มีภาษี/ค่าบริการ
-
-        if (data.cart && data.cart.length > 0) {
-            data.cart.forEach(item => {
-                let name = item.name || "";
-                // ดักจับคำว่า ภาษี หรือ VAT
-                if (name.includes('ภาษี') || name.toUpperCase().includes('VAT') || name.toUpperCase().includes('TAX')) {
-                    extractedTax += (item.price * item.qty);
-                } 
-                // ดักจับคำว่า ค่าบริการ หรือ Service
-                else if (name.includes('ค่าบริการ') || name.toUpperCase().includes('SERVICE')) {
-                    extractedService += (item.price * item.qty);
-                } 
-                // ถ้าเป็นสินค้าปกติ ให้เก็บไว้โชว์ฝั่งซ้าย
-                else {
-                    actualCart.push(item);
-                }
-            });
-        }
-
-        // ==========================================
-        // 🛠️ 2. วาดรายการสินค้าฝั่งซ้าย (ใช้ actualCart ที่กรองภาษีออกแล้ว)
-        // ==========================================
         const cartContainer = document.getElementById('customerCartItems');
-        if (!actualCart || actualCart.length === 0 || data.status === 'idle') {
+        if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
             cartContainer.innerHTML = `
                 <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
                     <span class="text-8xl mb-4">🛒</span>
@@ -281,7 +210,7 @@
                 </div>`;
         } else {
             let html = '';
-            actualCart.forEach(item => {
+            data.cart.forEach(item => {
                 let baseName = item.name || "สินค้า";
                 let optionsHtml = '';
                 let optionIndex = baseName.search(/ \[| \+/); 
@@ -289,92 +218,41 @@
                 if (optionIndex !== -1) {
                     baseName = item.name.substring(0, optionIndex).trim();
                     let match = item.name.match(/\[(.*?)\]/);
-                  if (match && match[1]) {
+                    if (match && match[1]) {
                         let opts = match[1].split(',');
-                        // ปรับขนาดป้ายตัวเลือก (Options) ให้เล็กลง
-                        optionsHtml = `<div class="flex flex-wrap gap-1 mt-1">` + 
-                            opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-1.5 py-0.5 rounded-md text-xs font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
+                        optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
+                            opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
                         `</div>`;
                     }
                 }
 
-                // 🟢 ปรับขนาดรูปภาพให้เล็กลงเป็น w-10 h-10
                 let imgTag = item.image 
-                    ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-pink-100 shadow-sm shrink-0">` 
-                    : `<div class="w-10 h-10 rounded-lg bg-pink-50 text-pink-400 flex items-center justify-center text-lg border border-pink-100 shadow-sm shrink-0">📦</div>`;
+                    ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
+                    : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
 
-                // 🟢 ปรับขนาดกล่อง (Padding/Margin) และตัวหนังสือให้กะทัดรัดขึ้น
                 html += `
-                <div class="flex justify-between items-center bg-white px-3 py-2.5 rounded-xl border border-gray-100 shadow-sm fade-in mb-2 gap-3">
+                <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
                     ${imgTag}
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-gray-800 text-base truncate leading-tight">${baseName}</div>
+                    <div class="flex-1 min-w-0 py-1">
+                        <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
                         ${optionsHtml}
                     </div>
-                    <div class="font-bold text-gray-400 text-base w-10 text-center shrink-0">x${item.qty}</div>
-                    <div class="font-bold text-pink-600 text-lg w-20 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
+                    <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
+                    <div class="font-bold text-pink-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
                 </div>`;
             });
             cartContainer.innerHTML = html;
             cartContainer.scrollTop = cartContainer.scrollHeight;
         }
 
-        // ==========================================
-        // 🟢 คำนวณจำนวนรายการและจำนวนชิ้น (นับเฉพาะสินค้าจริง ไม่นับภาษี)
-        // ==========================================
-        let totalItemsCount = 0;
-        let totalPiecesCount = 0;
-        
-        if (actualCart.length > 0 && data.status !== 'idle') {
-            totalItemsCount = actualCart.length; // จำนวนบรรทัดรายการสินค้าจริง
-            totalPiecesCount = actualCart.reduce((sum, item) => sum + (Number(item.qty) || 1), 0); // จำนวนชิ้นรวม
-        }
-
-        let cdsItemCountEl = document.getElementById('cdsItemCount');
-        let cdsPieceCountEl = document.getElementById('cdsPieceCount');
-        
-        if (cdsItemCountEl) cdsItemCountEl.innerText = totalItemsCount;
-        if (cdsPieceCountEl) cdsPieceCountEl.innerText = totalPiecesCount;
-
-        // ==========================================
-        // 🟢 แสดงยอดรวม และ ยอดสุทธิ
-        // ==========================================
         let subTotalEl = document.getElementById('displaySubTotal');
         if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
         
         let grandTotalEl = document.getElementById('displayGrandTotal');
         if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
-        // ==========================================
-        // 🟢 ระบบเปิด/ปิด การแสดง ค่าบริการ และ ภาษี (โชว์ฝั่งขวา)
-        // ==========================================
-        let serviceContainer = document.getElementById('cdsServiceContainer');
-        let taxContainer = document.getElementById('cdsTaxContainer');
-
-        // เอาค่าที่สกัดได้จากตะกร้ามาแสดง (ถ้ามี) ถ้าไม่มีค่อยหาจากตัวแปรของระบบ
-        let serviceValue = extractedService > 0 ? extractedService : (data.serviceCharge || data.service || 0); 
-        if (serviceValue && parseFloat(serviceValue.toString().replace(/[^0-9.-]+/g,"")) > 0) {
-            let numericService = parseFloat(serviceValue.toString().replace(/[^0-9.-]+/g,""));
-            document.getElementById('displayService').innerText = "฿" + numericService.toLocaleString('th-TH', {minimumFractionDigits: 2});
-            if(serviceContainer) { serviceContainer.classList.remove('hidden'); serviceContainer.classList.add('flex'); }
-        } else {
-            if(serviceContainer) { serviceContainer.classList.add('hidden'); serviceContainer.classList.remove('flex'); }
-        }
-
-        let taxValue = extractedTax > 0 ? extractedTax : (data.tax || data.vat || 0);
-        if (taxValue && parseFloat(taxValue.toString().replace(/[^0-9.-]+/g,"")) > 0) {
-            let numericTax = parseFloat(taxValue.toString().replace(/[^0-9.-]+/g,""));
-            document.getElementById('displayTax').innerText = "฿" + numericTax.toLocaleString('th-TH', {minimumFractionDigits: 2});
-            if(taxContainer) { taxContainer.classList.remove('hidden'); taxContainer.classList.add('flex'); }
-        } else {
-            if(taxContainer) { taxContainer.classList.add('hidden'); taxContainer.classList.remove('flex'); }
-        }
-
-        // ==========================================
-        // 🟢 ระบบคนละครึ่ง
-        // ==========================================
         const halfHalfBox = document.getElementById('halfHalfContainer');
-        if (data.paymentMethod === 'คนละครึ่ง' && actualCart.length > 0) {
+        if (data.paymentMethod === 'คนละครึ่ง' && data.cart && data.cart.length > 0) {
             let totalVal = parseFloat((data.grandTotal || "0").toString().replace(/[^0-9.-]+/g,"")) || 0;
             let customerPay = totalVal * 0.40;
             let govPay = totalVal * 0.60;
@@ -393,32 +271,14 @@
             }
         }
 
-        // ==========================================
-        // 🟢 ระบบแสดง รับเงิน / เงินทอน
-        // ==========================================
         const changeBox = document.getElementById('changeContainer');
         if (data.change && parseFloat(data.change) > 0) {
-            
-            // 💡 ทริค: ให้ระบบคำนวณยอดรับเงินอัตโนมัติ (ยอดสุทธิ + เงินทอน)
-            let totalVal = parseFloat((data.grandTotal || "0").toString().replace(/[^0-9.-]+/g,"")) || 0;
-            let changeVal = parseFloat(data.change.toString().replace(/[^0-9.-]+/g,"")) || 0;
-            let receiveVal = data.receive ? parseFloat(data.receive) : (totalVal + changeVal);
-
-            let displayReceiveEl = document.getElementById('displayReceive');
-            if(displayReceiveEl) {
-                displayReceiveEl.innerText = "฿" + receiveVal.toLocaleString('th-TH', {minimumFractionDigits: 2});
-            }
-            
-            document.getElementById('displayChange').innerText = "฿" + changeVal.toLocaleString('th-TH', {minimumFractionDigits: 2});
-            
+            document.getElementById('displayChange').innerText = "฿" + data.change;
             if(changeBox) changeBox.classList.remove('hidden');
         } else {
             if(changeBox) changeBox.classList.add('hidden');
         }
 
-        // ==========================================
-        // 🟢 ควบคุมหน้าจอระหว่าง โฆษณา vs ชำระเงิน QR
-        // ==========================================
         const adState = document.getElementById('adState');
         const qrState = document.getElementById('qrState');
         if (data.status === 'qr_payment' && data.qrImage) {
@@ -494,54 +354,6 @@
             showAdSlide(currentAdIndex + 1);
         }, duration);
     }
-// ============================================
-// 📢 ระบบรับสัญญาณเรียกคิวจากเครื่องแคชเชียร์ (CDS)
-// ============================================
-window.addEventListener('storage', function(event) {
-    // ดักฟังว่าถ้าเครื่องแคชเชียร์สั่งเรียกคิว
-    if (event.key === 'famepos_current_call' && event.newValue) {
-        try {
-            const data = JSON.parse(event.newValue);
-            if (data && data.queueNo) {
-                showCDSQueuePopup(data.queueNo);
-            }
-        } catch (e) {
-            showCDSQueuePopup(event.newValue);
-        }
-    }
-});
-
-let cdsQueueTimer = null;
-function showCDSQueuePopup(queueNo) {
-    const overlay = document.getElementById('queueCallOverlay');
-    const numDisplay = document.getElementById('cdsQueueNumber');
-    
-    if (!overlay || !numDisplay) return;
-    
-    // จัดฟอร์แมตคิวให้มีตัว Q นำหน้า
-    const formattedQueue = queueNo.startsWith('Q') ? queueNo : 'Q' + queueNo;
-    numDisplay.innerText = formattedQueue;
-    
-    // เปิดการแสดงผล Pop-up
-    overlay.classList.remove('hidden');
-    
-    // 🔊 ออปชันเสริม: เปิดเสียงพูดที่หน้าจอฝั่งลูกค้าด้วย (ถ้าต้องการให้พูดพร้อมกันทั้งสองจอ)
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // ตัดเสียงเก่าที่พูดค้างอยู่
-        let msg = new SpeechSynthesisUtterance(`ขอเชิญคิวหมายเลข ${formattedQueue} ค่ะ`);
-        msg.lang = 'th-TH';
-        msg.rate = 0.9;
-        window.speechSynthesis.speak(msg);
-    }
-    
-    // เคลียร์เวลาเก่าหากมีการกดเรียกซ้ำๆ
-    if (cdsQueueTimer) clearTimeout(cdsQueueTimer);
-    
-    // ตั้งเวลาให้ Pop-up แสดงค้างไว้ 6 วินาที แล้วจึงปิดตัวลงอัตโนมัติ
-    cdsQueueTimer = setTimeout(() => {
-        overlay.classList.add('hidden');
-    }, 6000);
-}
 
     window.addEventListener('load', fetchAdSettings);
     setInterval(fetchAdSettings, 5000); 
