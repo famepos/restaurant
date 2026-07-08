@@ -31,6 +31,8 @@
   </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
+  
+  <div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none w-80"></div>
 
 <header class="bg-white border-b border-pink-100 p-4 flex justify-between items-center shrink-0 shadow-sm">
     <div class="flex items-center gap-3">
@@ -137,7 +139,7 @@
         .getKitchenOrdersGS();
     }
 
-// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (เวอร์ชันรวม Option สมบูรณ์ + โต้ตอบสถานะได้)
+// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (เวอร์ชันซ่อนปุ่ม โชว์ทีละสเตป)
 function renderKitchenCards() {
     const grid = document.getElementById('kitchenGrid');
 
@@ -153,7 +155,7 @@ function renderKitchenCards() {
     let html = '';
 
     activeOrdersList.forEach(order => {
-        // 🟢 เช็คสถานะจาก Server โดยตรง (ถ้า status เป็น "กำลังทำ" ให้แสดงสีเหลือง)
+        // 🟢 เช็คสถานะจาก Server
         const isCooking = (order.status === "กำลังทำ");
         const cardColor = isCooking ? "bg-amber-50 border-amber-400" : "bg-white border-pink-100";
 
@@ -227,6 +229,25 @@ function renderKitchenCards() {
             </div>`;
         });
 
+        // 🟢 ตรรกะสลับปุ่ม (โชว์ปุ่มเดียวตามสถานะ)
+        let actionButtonHtml = "";
+        
+        if (isCooking) {
+            // ถ้าเชฟกดรับออเดอร์แล้ว (สถานะ "กำลังทำ") -> โชว์เฉพาะปุ่ม "เสร็จแล้ว"
+            actionButtonHtml = `
+            <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" 
+                    class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-md text-base hover:bg-emerald-600 transition active:scale-95 transform">
+                ✅ เสร็จแล้ว (พร้อมเสิร์ฟ)
+            </button>`;
+        } else {
+            // ถ้าออเดอร์เข้ามาใหม่ (ยังไม่ได้รับ) -> โชว์เฉพาะปุ่ม "เริ่มทำอาหาร"
+            actionButtonHtml = `
+            <button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" 
+                    class="w-full bg-amber-500 text-white font-bold py-4 rounded-xl shadow-md text-base hover:bg-amber-600 transition active:scale-95 transform animate-pulse">
+                👨‍🍳 เริ่มทำอาหาร
+            </button>`;
+        }
+
         html += `
         <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-all duration-200 hover:scale-[1.02] ${cardColor}">
 
@@ -247,15 +268,9 @@ function renderKitchenCards() {
                 </div>
             </div>
 
-            <div class="p-4 grid grid-cols-2 gap-2 border-t border-pink-100/60 rounded-b-[2rem] bg-pink-50/20">
-                <button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" 
-                        class="bg-amber-500 text-white font-bold py-3 rounded-xl shadow-md text-sm hover:bg-amber-600 transition">
-                    👨‍🍳 กำลังทำ
-                </button>
-                <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" 
-                        class="bg-emerald-500 text-white font-bold py-3 rounded-xl shadow-md text-sm hover:bg-emerald-600 transition">
-                    ✅ เสร็จแล้ว
-                </button>
+            <!-- กล่องแสดงปุ่ม จะแสดงปุ่มเดียวแบบเต็มความกว้าง -->
+            <div class="p-4 border-t border-pink-100/60 rounded-b-[2rem] bg-pink-50/20">
+                ${actionButtonHtml}
             </div>
 
         </div>`;
@@ -335,6 +350,40 @@ function toggleItemStatus(el, orderId, itemIdx) {
     el.classList.toggle('item-done');
     let isDone = el.classList.contains('item-done');
     localStorage.setItem(`done_${orderId}_${itemIdx}`, isDone);
+}
+// 🟢 เปลี่ยนมาใช้ฟังก์ชันแจ้งเตือนแบบเดียวกับระบบหลังบ้านหลัก 100%
+function showToast(message, type = "success") {
+  const container = document.getElementById('toastContainer');
+  if (!container) return; 
+  
+  const toast = document.createElement('div');
+  
+  // กำหนดรูปแบบสีตามประเภท (สำเร็จ, แจ้งข้อมูล, ผิดพลาด)
+  if (type === 'success') {
+    toast.className = 'flex items-center gap-3 bg-pink-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-lg';
+    toast.innerHTML = '<span class="text-xl">✅</span> <span>' + message + '</span>';
+  } else if (type === 'info') {
+    toast.className = 'flex items-center gap-3 bg-blue-500 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-lg';
+    toast.innerHTML = '<span class="text-xl">ℹ️</span> <span>' + message + '</span>';
+  } else {
+    toast.className = 'flex items-center gap-3 bg-red-500 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-lg';
+    toast.innerHTML = '<span class="text-xl">❌</span> <span>' + message + '</span>';
+  }
+  
+  container.appendChild(toast);
+  
+  // อนิเมชันเลื่อนเข้า
+  setTimeout(function() { 
+    toast.classList.remove('translate-x-full', 'opacity-0'); 
+    toast.classList.add('translate-x-0', 'opacity-100'); 
+  }, 50);
+
+  // อนิเมชันเลื่อนออกและลบทิ้ง
+  setTimeout(function() { 
+    toast.classList.remove('translate-x-0', 'opacity-100'); 
+    toast.classList.add('translate-x-full', 'opacity-0'); 
+    setTimeout(function() { toast.remove(); }, 300); 
+  }, 3000);
 }
 
 // =========================
