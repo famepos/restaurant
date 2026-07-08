@@ -75,9 +75,9 @@
               <div class="text-xs font-bold text-amber-500">รับออเดอร์แล้ว</div>
               <div id="countAccepted" class="text-2xl font-black text-amber-600">0</div>
           </div>
-          <div class="flex-1 bg-blue-50 border border-blue-100 rounded-xl p-2 text-center shadow-sm">
-              <div class="text-xs font-bold text-blue-400">กำลังทำ</div>
-              <div id="countCooking" class="text-2xl font-black text-blue-600">0</div>
+          <div class="flex-1 bg-pink-50 border border-pink-100 rounded-xl p-2 text-center shadow-sm">
+              <div class="text-xs font-bold text-pink-400">กำลังทำ</div>
+              <div id="countCooking" class="text-2xl font-black text-pink-600">0</div>
           </div>
           <div class="flex-1 bg-emerald-50 border border-emerald-100 rounded-xl p-2 text-center shadow-sm">
               <div class="text-xs font-bold text-emerald-500">รวมทั้งหมด</div>
@@ -207,19 +207,15 @@ function renderKitchenCards() {
     let html = '';
 
     activeOrdersList.forEach(order => {
-        const isCooking = (order.status === "กำลังทำ");
-        const cardColor = isCooking ? "bg-blue-50 border-blue-400" : (order.status === "รับออเดอร์แล้ว" ? "bg-amber-50 border-amber-400" : "bg-white border-pink-100");
+        let status = order.status || "Pending";
+        
+        // 🎨 สีการ์ดตามธีม FamePOS
+        let cardColor = "bg-white border-pink-100";
+        if (status === "รับออเดอร์แล้ว") cardColor = "bg-amber-50 border-amber-300";
+        else if (status === "กำลังทำ") cardColor = "bg-blue-50 border-blue-300";
+        else if (status === "Pending") cardColor = "bg-red-50 border-red-300 animate-pulse";
 
-        // ===== ตรวจสอบว่าเป็นออเดอร์จาก QR หรือไม่ และดึงชื่อโต๊ะมาแสดง =====
-        // หาก order.tableNo มีค่า ให้แสดงหมายเลขโต๊ะ
-        let tableDisplay = order.tableNo && order.tableNo !== "" ? 
-            `<div class="flex items-center gap-1.5 bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                <span class="text-white/80">🪑 QR:</span> ${order.tableNo}
-             </div>` : "";
-
-        // ===== รวมเมนู =====
-        const groupedItems = {};
-        // ... (โค้ดจัดการ items เหมือนเดิม) ...
+        // Logic แยกชื่อรายการ
         const rawItems = []; let buffer = ""; let bracket = 0;
         for (let ch of order.items) {
             if (ch === "[") bracket++; if (ch === "]") bracket--;
@@ -227,39 +223,52 @@ function renderKitchenCards() {
         }
         if (buffer.trim()) rawItems.push(buffer.trim());
 
+        const groupedItems = {};
         rawItems.forEach(itemStr => {
             let qtyMatch = itemStr.match(/\(x(\d+)\)/);
             let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
             let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
             let mainName = baseName.replace(/\[.*?\]/g, "").trim();
-            if (!groupedItems[mainName]) { groupedItems[mainName] = { name: mainName, qty: 0 }; }
+            if (!groupedItems[mainName]) groupedItems[mainName] = { name: mainName, qty: 0 };
             groupedItems[mainName].qty += qty;
         });
 
         let itemsHtml = "";
         Object.values(groupedItems).forEach(item => {
-            itemsHtml += `<div class="py-2 border-b border-pink-50 flex justify-between items-center font-bold text-gray-800">
-                            <span>${item.name}</span>
-                            <span class="text-pink-600">x${item.qty}</span>
-                          </div>`;
+            itemsHtml += `
+            <div class="py-2 border-b border-pink-100/50 flex justify-between items-center font-bold text-gray-800">
+                <span>${item.name}</span>
+                <span class="text-pink-600 bg-white px-2 py-0.5 rounded-lg border border-pink-100">x${item.qty}</span>
+            </div>`;
         });
 
+        // 🔘 สร้างปุ่มตามสถานะ (ใช้สีธีม FamePOS)
+        let actionButtonHtml = "";
+        if (status === "กำลังทำ") {
+            actionButtonHtml = `<button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-emerald-700 transition active:scale-95 transform">✅ เสร็จแล้ว (พร้อมเสิร์ฟ)</button>`;
+        } else if (status === "รับออเดอร์แล้ว") {
+            actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" class="w-full bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-amber-600 transition active:scale-95 transform">👨‍🍳 เริ่มทำอาหาร</button>`;
+        } else {
+            actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'รับออเดอร์แล้ว')" class="w-full bg-pink-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-pink-700 transition active:scale-95 transform">📥 รับออเดอร์</button>`;
+        }
+
+        // 🪑 แสดงโต๊ะ (ถ้าเป็น QR)
+        let tableBadge = order.tableNo ? `<div class="mt-1 bg-pink-100 text-pink-700 px-2 py-0.5 rounded-lg text-xs font-bold w-fit">🪑 โต๊ะ: ${order.tableNo}</div>` : "";
+
         html += `
-        <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] ${cardColor}">
-            <div class="p-5 flex flex-col h-full">
-                <div class="flex justify-between items-start mb-3">
+        <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-all ${cardColor}">
+            <div class="p-5 flex flex-col overflow-hidden h-full">
+                <div class="flex justify-between items-start mb-3 border-b border-pink-100/50 pb-2">
                     <div>
-                        <div class="text-3xl font-black text-pink-800">${order.queueNo}</div>
-                        ${tableDisplay}
+                        <div class="text-2xl font-black text-pink-800">${order.queueNo}</div>
+                        ${tableBadge}
                     </div>
-                    <div class="text-xs font-bold px-3 py-1 rounded-full bg-white text-pink-700 border border-pink-100">
-                        ${order.orderType}
-                    </div>
+                    <div class="text-xs font-bold px-2 py-1 rounded-xl bg-white border border-pink-100 text-pink-700">${order.orderType}</div>
                 </div>
                 <div class="flex-1 overflow-y-auto">${itemsHtml}</div>
             </div>
-            <div class="p-4 border-t border-pink-100/60 bg-pink-50/20 rounded-b-[2rem]">
-                ${statusButtonLogic(order)}
+            <div class="p-4 border-t border-pink-100/60 bg-white/50 rounded-b-[2rem]">
+                ${actionButtonHtml}
             </div>
         </div>`;
     });
