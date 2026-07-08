@@ -16,25 +16,37 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap');
-    /* 🎨 ปรับโทนสีหลักให้แมตช์ตรงตามไฟล์ระบบหลัก */
-    body { font-family: 'Kanit', sans-serif; background-color: #fdecec; color: #4e0606; margin: 0; }
+   body { font-family: 'Kanit', sans-serif; background-color: var(--bg-app); color: #4e0606; }
+
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #fdecec; }
     ::-webkit-scrollbar-thumb { background: #fad1d1; border-radius: 10px; }
 
-    /* สไตล์สำหรับการคลิกเมนูเสร็จแล้ว */
     .item-done {
         text-decoration: line-through;
         opacity: 0.5;
         background-color: #fff1f2;
     }
+    /* 🎨 ปรับโทนสี FamePOS Kitchen ให้เป็นอันหนึ่งอันเดียวกัน */
+:root {
+    --primary: #db2777; /* ชมพูเข้ม FamePOS */
+    --bg-app: #fdecec;  /* พื้นหลังชมพูอ่อน */
+    --border-app: #fad1d1;
+}
+
+
+/* ปุ่มสถานะตามสีแอป */
+.btn-new { background-color: #f43f5e; color: white; }      /* แดงชมพู (ออเดอร์ใหม่) */
+.btn-cooking { background-color: #d97706; color: white; }  /* ส้มทอง (กำลังทำ) */
+.btn-done { background-color: #059669; color: white; }     /* เขียว (เสร็จแล้ว) */
   </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
   
   <div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none w-80"></div>
 
-<header class="bg-white border-b border-pink-100 p-4 flex justify-between items-center shrink-0 shadow-sm">
+  <!-- ส่วน Header -->
+  <header class="bg-white border-b border-pink-100 p-4 flex justify-between items-center shrink-0 shadow-sm z-10">
     <div class="flex items-center gap-3">
       <img src="https://i.postimg.cc/Znng4wjg/fe8393f8-8504-475f-976c-727390b6c790.png" alt="Kitchen Logo" class="w-12 h-12 object-contain drop-shadow-sm">
       <div>
@@ -45,13 +57,34 @@
     <div class="flex items-center gap-4">
       <div class="text-right">
         <div id="clockTime" class="text-xl font-black text-pink-600 tracking-wider">00:00:00</div>
-        <div id="orderCount" class="text-xs text-pink-700/60 font-semibold">กำลังเชื่อมโยงคิว...</div>
       </div>
       <button onclick="fetchKitchenOrders()" class="bg-pink-50 hover:bg-pink-100 border border-pink-200 px-4 py-2 rounded-xl text-sm font-bold text-pink-700 transition flex items-center gap-1.5 shadow-sm active:scale-95 transform">
         🔄 รีเฟรชคิวอาหาร
       </button>
     </div>
   </header>
+
+  <!-- แถบสรุปสถานะออเดอร์ -->
+  <div class="bg-white border-b border-pink-100 px-6 py-3 shrink-0 flex justify-between items-center shadow-sm">
+      <div class="flex gap-4 w-full">
+          <div class="flex-1 bg-red-50 border border-red-100 rounded-xl p-2 text-center shadow-sm">
+              <div class="text-xs font-bold text-red-400">ออเดอร์ใหม่</div>
+              <div id="countNew" class="text-2xl font-black text-red-600">0</div>
+          </div>
+          <div class="flex-1 bg-amber-50 border border-amber-100 rounded-xl p-2 text-center shadow-sm">
+              <div class="text-xs font-bold text-amber-500">รับออเดอร์แล้ว</div>
+              <div id="countAccepted" class="text-2xl font-black text-amber-600">0</div>
+          </div>
+          <div class="flex-1 bg-blue-50 border border-blue-100 rounded-xl p-2 text-center shadow-sm">
+              <div class="text-xs font-bold text-blue-400">กำลังทำ</div>
+              <div id="countCooking" class="text-2xl font-black text-blue-600">0</div>
+          </div>
+          <div class="flex-1 bg-emerald-50 border border-emerald-100 rounded-xl p-2 text-center shadow-sm">
+              <div class="text-xs font-bold text-emerald-500">รวมทั้งหมด</div>
+              <div id="countTotal" class="text-2xl font-black text-emerald-700">0</div>
+          </div>
+      </div>
+  </div>
 
   <main id="kitchenGrid" class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 overflow-y-auto content-start">
     <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-400 font-bold gap-3">
@@ -61,10 +94,8 @@
   </main>
 
   <script>
-// 🔗 ลิงก์ยิง API ตรงเข้า Google Apps Script หลังบ้านของคุณเฟรม
     const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
 
-    // ================= MAGIC PROXY (V2) CONNECT =================
     const google = {
         script: {
             get run() {
@@ -95,9 +126,8 @@
     };
 
     let activeOrdersList = [];
-    let previousOrdersCount = 0;
+    let previousNewCount = 0; // เปลี่ยนมาจับเฉพาะออเดอร์ "ใหม่" สำหรับเสียงแจ้งเตือน
 
-    // ระบบแจ้งเตือนเสียง (Beep อัจฉริยะเมื่อมีออเดอร์ใหม่สแกนหรือพักบิลเข้าครัว)
     function playAlertSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -106,24 +136,24 @@
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // คีย์เสียงใส สบายหู
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 0.15);
-      } catch(e) { console.log("Audio feedback blocked by screen styling rules."); }
+      } catch(e) { console.log("Audio feedback blocked"); }
     }
 
-    // ฟังก์ชันยิงอ่านค่าข้อมูลคิวอาหาร
     function fetchKitchenOrders() {
       google.script.run
         .withSuccessHandler(function(orders) {
-          activeOrdersList = orders;
-          document.getElementById('orderCount').innerText = `คิวค้างในครัว: ${orders.length} ออเดอร์`;
+          // กรองออเดอร์เฉพาะของ "วันนี้" (00.00 - 23.59)
+          let now = new Date();
+          let startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime();
+          let endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).getTime();
+
+          activeOrdersList = orders.filter(o => o.timestamp >= startOfDay && o.timestamp <= endOfDay);
           
-          if (orders.length > previousOrdersCount && previousOrdersCount !== 0) {
-            playAlertSound();
-          }
-          previousOrdersCount = orders.length;
+          updateSummaryCounts();
           renderKitchenCards();
         })
         .withFailureHandler(function(err) {
@@ -139,7 +169,29 @@
         .getKitchenOrdersGS();
     }
 
-// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (เวอร์ชันซ่อนปุ่ม โชว์ทีละสเตป)
+    function updateSummaryCounts() {
+        let countNew = 0, countAccepted = 0, countCooking = 0;
+        
+        activeOrdersList.forEach(o => {
+            let status = o.status || "Pending";
+            if (status === "Pending") countNew++;
+            else if (status === "รับออเดอร์แล้ว") countAccepted++;
+            else if (status === "กำลังทำ") countCooking++;
+        });
+
+        document.getElementById('countNew').innerText = countNew;
+        document.getElementById('countAccepted').innerText = countAccepted;
+        document.getElementById('countCooking').innerText = countCooking;
+        document.getElementById('countTotal').innerText = activeOrdersList.length;
+
+        // เสียงเตือนจะดังเมื่อ "ออเดอร์ใหม่" มีจำนวนเพิ่มขึ้น
+        if (countNew > previousNewCount && previousNewCount !== 0) {
+            playAlertSound();
+        }
+        previousNewCount = countNew;
+    }
+
+// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (ปรับปรุง: แสดงชื่อโต๊ะจาก QR)
 function renderKitchenCards() {
     const grid = document.getElementById('kitchenGrid');
 
@@ -155,243 +207,141 @@ function renderKitchenCards() {
     let html = '';
 
     activeOrdersList.forEach(order => {
-        // 🟢 เช็คสถานะจาก Server
         const isCooking = (order.status === "กำลังทำ");
-        const cardColor = isCooking ? "bg-amber-50 border-amber-400" : "bg-white border-pink-100";
+        const cardColor = isCooking ? "bg-blue-50 border-blue-400" : (order.status === "รับออเดอร์แล้ว" ? "bg-amber-50 border-amber-400" : "bg-white border-pink-100");
 
-        // ===== แยกรายการโดยไม่ตัด comma ใน [] =====
-        const rawItems = [];
-        let buffer = "";
-        let bracket = 0;
-
-        for (let ch of order.items) {
-            if (ch === "[") bracket++;
-            if (ch === "]") bracket--;
-
-            if (ch === "," && bracket === 0) {
-                rawItems.push(buffer.trim());
-                buffer = "";
-            } else {
-                buffer += ch;
-            }
-        }
-        if (buffer.trim()) rawItems.push(buffer.trim());
+        // ===== ตรวจสอบว่าเป็นออเดอร์จาก QR หรือไม่ และดึงชื่อโต๊ะมาแสดง =====
+        // หาก order.tableNo มีค่า ให้แสดงหมายเลขโต๊ะ
+        let tableDisplay = order.tableNo && order.tableNo !== "" ? 
+            `<div class="flex items-center gap-1.5 bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                <span class="text-white/80">🪑 QR:</span> ${order.tableNo}
+             </div>` : "";
 
         // ===== รวมเมนู =====
         const groupedItems = {};
+        // ... (โค้ดจัดการ items เหมือนเดิม) ...
+        const rawItems = []; let buffer = ""; let bracket = 0;
+        for (let ch of order.items) {
+            if (ch === "[") bracket++; if (ch === "]") bracket--;
+            if (ch === "," && bracket === 0) { rawItems.push(buffer.trim()); buffer = ""; } else { buffer += ch; }
+        }
+        if (buffer.trim()) rawItems.push(buffer.trim());
 
         rawItems.forEach(itemStr => {
             let qtyMatch = itemStr.match(/\(x(\d+)\)/);
             let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
             let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
-            let options = [];
-            let optionMatches = [...baseName.matchAll(/\[(.*?)\]/g)];
-
-            optionMatches.forEach(m => {
-                m[1].split(",").map(x => x.trim()).filter(Boolean).forEach(x => options.push(x));
-            });
-
             let mainName = baseName.replace(/\[.*?\]/g, "").trim();
-
-            if (!groupedItems[mainName]) {
-                groupedItems[mainName] = { name: mainName, qty: 0, options: [] };
-            }
-
+            if (!groupedItems[mainName]) { groupedItems[mainName] = { name: mainName, qty: 0 }; }
             groupedItems[mainName].qty += qty;
-            groupedItems[mainName].options.push(...options);
         });
 
-        // ===== วาดรายการ =====
         let itemsHtml = "";
-
         Object.values(groupedItems).forEach(item => {
-            let uniqueOptions = [...new Set(item.options)];
-            let optionDisplay = "";
-
-            if (uniqueOptions.length) {
-                optionDisplay = `
-                <span class="text-xs text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100 italic">
-                    [${uniqueOptions.join(", ")}]
-                </span>`;
-            }
-
-            let isDone = localStorage.getItem(`done_${order.orderId}_${item.name}`) === "true" ? "item-done" : "";
-
-            itemsHtml += `
-            <div onclick="toggleItemStatus(this,'${order.orderId}','${item.name}')"
-                class="item-row ${isDone} cursor-pointer py-2 border-b border-pink-50 flex justify-between items-center gap-2 hover:bg-pink-50/50">
-                <div class="min-w-0 flex-1 font-bold text-gray-800">
-                    ${item.name} ${optionDisplay}
-                </div>
-                <div class="text-lg font-black text-pink-700 bg-pink-50 px-2 py-0.5 rounded-xl border border-pink-100">
-                    x${item.qty}
-                </div>
-            </div>`;
+            itemsHtml += `<div class="py-2 border-b border-pink-50 flex justify-between items-center font-bold text-gray-800">
+                            <span>${item.name}</span>
+                            <span class="text-pink-600">x${item.qty}</span>
+                          </div>`;
         });
-
-        // 🟢 ตรรกะสลับปุ่ม (โชว์ปุ่มเดียวตามสถานะ)
-        let actionButtonHtml = "";
-        
-        if (isCooking) {
-            // ถ้าเชฟกดรับออเดอร์แล้ว (สถานะ "กำลังทำ") -> โชว์เฉพาะปุ่ม "เสร็จแล้ว"
-            actionButtonHtml = `
-            <button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" 
-                    class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-md text-base hover:bg-emerald-600 transition active:scale-95 transform">
-                ✅ เสร็จแล้ว (พร้อมเสิร์ฟ)
-            </button>`;
-        } else {
-            // ถ้าออเดอร์เข้ามาใหม่ (ยังไม่ได้รับ) -> โชว์เฉพาะปุ่ม "เริ่มทำอาหาร"
-            actionButtonHtml = `
-            <button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" 
-                    class="w-full bg-amber-500 text-white font-bold py-4 rounded-xl shadow-md text-base hover:bg-amber-600 transition active:scale-95 transform animate-pulse">
-                👨‍🍳 เริ่มทำอาหาร
-            </button>`;
-        }
 
         html += `
-        <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-all duration-200 hover:scale-[1.02] ${cardColor}">
-
-            <div class="p-5 flex flex-col overflow-hidden">
-                <div class="flex justify-between items-start gap-2 mb-3 border-b border-pink-50 pb-2">
+        <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] ${cardColor}">
+            <div class="p-5 flex flex-col h-full">
+                <div class="flex justify-between items-start mb-3">
                     <div>
-                        <span class="text-2xl font-black text-pink-800">
-                            ${order.queueNo}
-                        </span>
+                        <div class="text-3xl font-black text-pink-800">${order.queueNo}</div>
+                        ${tableDisplay}
                     </div>
-                    <div class="text-right text-xs font-bold px-2 py-1 rounded-xl bg-pink-50 text-pink-700">
+                    <div class="text-xs font-bold px-3 py-1 rounded-full bg-white text-pink-700 border border-pink-100">
                         ${order.orderType}
                     </div>
                 </div>
-
-                <div class="flex-1 overflow-y-auto">
-                    ${itemsHtml}
-                </div>
+                <div class="flex-1 overflow-y-auto">${itemsHtml}</div>
             </div>
-
-            <!-- กล่องแสดงปุ่ม จะแสดงปุ่มเดียวแบบเต็มความกว้าง -->
-            <div class="p-4 border-t border-pink-100/60 rounded-b-[2rem] bg-pink-50/20">
-                ${actionButtonHtml}
+            <div class="p-4 border-t border-pink-100/60 bg-pink-50/20 rounded-b-[2rem]">
+                ${statusButtonLogic(order)}
             </div>
-
         </div>`;
     });
-
     grid.innerHTML = html;
 }
 
-// 🟢 ฟังก์ชันสำหรับอัปเดตสถานะ "กำลังทำ" ไปยังเซิร์ฟเวอร์
-function updateKitchenStatus(rowIdx, source, status) {
-    showToast("กำลังเริ่มทำรายการ...", "info");
-    google.script.run
-        .withSuccessHandler(function() {
-             showToast("อัปเดตสถานะ 'กำลังทำ' แล้ว!", "success");
-             fetchKitchenOrders();
-        })
-        .withFailureHandler(function(err) {
-             // 🟢 เปลี่ยนบรรทัดนี้ ให้ดึง error จากเซิร์ฟเวอร์มาโชว์
-             Swal.fire('ข้อผิดพลาดระบบ', err || 'ไม่สามารถอัปเดตสถานะได้', 'error');
-        })
-        .updateKitchenStatusGS(rowIdx, source, status);
-}
+    function updateKitchenStatus(rowIdx, source, status) {
+        showToast("กำลังอัปเดตสถานะ...", "info");
+        google.script.run
+            .withSuccessHandler(function() {
+                 showToast(`อัปเดตเป็น '${status}' แล้ว!`, "success");
+                 fetchKitchenOrders();
+            })
+            .withFailureHandler(function(err) {
+                 Swal.fire('ข้อผิดพลาดระบบ', err || 'ไม่สามารถอัปเดตสถานะได้', 'error');
+            })
+            .updateKitchenStatusGS(rowIdx, source, status);
+    }
 
-// 🟢 ฟังก์ชันคุมปุ่มเสิร์ฟอาหาร (กดแล้วเสิร์ฟทันที และยิงคิวเข้า CDS)
-function serveOrder(rowIdx, queueNo, source = "Sales") {
-    // 1. ยิงคำสั่งไปหลังบ้านเพื่อเคลียร์ออเดอร์
-    google.script.run
-        .withSuccessHandler(function(res) {
-            if (res === "Success") {
-                showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
-                
-                // 2. เรียกฟังก์ชันสั่งอัปเดต CDS (หน้าจอลูกค้า) อัตโนมัติ[cite: 2]
-                google.script.run.updateCDSWithQueue({
-                    queueNo: queueNo, 
-                    items: "อาหารพร้อมรับ" 
-                });
-
-                // รีเฟรชหน้าจอ KDS
-                if (typeof fetchKitchenOrders === 'function') {
+    function serveOrder(rowIdx, queueNo, source = "Sales") {
+        google.script.run
+            .withSuccessHandler(function(res) {
+                if (res === "Success") {
+                    showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
+                    google.script.run.updateCDSWithQueue({
+                        queueNo: queueNo, 
+                        items: "อาหารพร้อมรับ" 
+                    });
                     fetchKitchenOrders();
+                } else {
+                    Swal.fire('ผิดพลาด', res, 'error');
                 }
-            } else {
-                Swal.fire('ผิดพลาด', res, 'error');
-            }
-        })
-        .withFailureHandler(function(err) {
-            Swal.fire('ข้อผิดพลาดระบบ', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
-        })
-        .completeKitchenOrderGS(rowIdx, source);
-}
+            })
+            .withFailureHandler(function(err) {
+                Swal.fire('ข้อผิดพลาดระบบ', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
+            })
+            .completeKitchenOrderGS(rowIdx, source);
+    }
 
-function showToast(message, type = "success") {
-  let icon = type === 'success' ? 'success' : (type === 'info' ? 'info' : 'error');
-  Swal.fire({
-    toast: true,
-    position: "top-end",
-    icon: icon,
-    title: message,
-    showConfirmButton: false,
-    timer: 2000
-  });
-}
+    function updateClock() {
+      const clock = document.getElementById('clockTime');
+      if (!clock) return;
+      clock.innerText = new Date().toLocaleTimeString('th-TH', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
 
-// =========================
-// นาฬิกา Real-Time
-// =========================
-function updateClock() {
-  const clock = document.getElementById('clockTime');
-  if (!clock) return;
-  clock.innerText = new Date().toLocaleTimeString('th-TH', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-}
+    updateClock();
+    setInterval(updateClock, 1000);
 
-updateClock();
-setInterval(updateClock, 1000);
+    function toggleItemStatus(el, orderId, itemIdx) {
+        el.classList.toggle('item-done');
+        let isDone = el.classList.contains('item-done');
+        localStorage.setItem(`done_${orderId}_${itemIdx}`, isDone);
+    }
 
-function toggleItemStatus(el, orderId, itemIdx) {
-    el.classList.toggle('item-done');
-    let isDone = el.classList.contains('item-done');
-    localStorage.setItem(`done_${orderId}_${itemIdx}`, isDone);
-}
-// 🟢 เปลี่ยนมาใช้ฟังก์ชันแจ้งเตือนแบบเดียวกับระบบหลังบ้านหลัก 100%
 function showToast(message, type = "success") {
   const container = document.getElementById('toastContainer');
   if (!container) return; 
   
   const toast = document.createElement('div');
   
-  // กำหนดรูปแบบสีตามประเภท (สำเร็จ, แจ้งข้อมูล, ผิดพลาด)
-  if (type === 'success') {
-    toast.className = 'flex items-center gap-3 bg-pink-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-lg';
-    toast.innerHTML = '<span class="text-xl">✅</span> <span>' + message + '</span>';
-  } else if (type === 'info') {
-    toast.className = 'flex items-center gap-3 bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-lg';
-    toast.innerHTML = '<span class="text-xl">ℹ️</span> <span>' + message + '</span>';
-  } else {
-    toast.className = 'flex items-center gap-3 bg-red-500 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-lg';
-    toast.innerHTML = '<span class="text-xl">❌</span> <span>' + message + '</span>';
-  }
+  // ใช้สีชมพูหลักของ FamePOS เท่านั้น
+  const bgColor = type === 'error' ? 'bg-red-500' : 'bg-pink-600';
+  
+  toast.className = `flex items-center gap-3 ${bgColor} text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-lg`;
+  toast.innerHTML = `<span class="text-xl">${type === 'error' ? '❌' : '✅'}</span> <span>${message}</span>`;
   
   container.appendChild(toast);
   
-  // อนิเมชันเลื่อนเข้า
-  setTimeout(function() { 
+  setTimeout(() => { 
     toast.classList.remove('translate-x-full', 'opacity-0'); 
     toast.classList.add('translate-x-0', 'opacity-100'); 
   }, 50);
 
-  // อนิเมชันเลื่อนออกและลบทิ้ง
-  setTimeout(function() { 
+  setTimeout(() => { 
     toast.classList.remove('translate-x-0', 'opacity-100'); 
     toast.classList.add('translate-x-full', 'opacity-0'); 
-    setTimeout(function() { toast.remove(); }, 300); 
+    setTimeout(() => toast.remove(), 300); 
   }, 3000);
 }
 
-// =========================
-// โหลดคิวครัวอัตโนมัติ
-// =========================
-fetchKitchenOrders();
-setInterval(fetchKitchenOrders, 15000);
-
+    fetchKitchenOrders();
+    setInterval(fetchKitchenOrders, 15000); // รีเฟรชทุกๆ 15 วินาที
   </script>
 </body>
 </html>
