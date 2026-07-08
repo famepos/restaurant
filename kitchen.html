@@ -39,6 +39,14 @@
 .btn-new { background-color: #f43f5e; color: white; }      /* แดงชมพู (ออเดอร์ใหม่) */
 .btn-cooking { background-color: #d97706; color: white; }  /* ส้มทอง (กำลังทำ) */
 .btn-done { background-color: #059669; color: white; }     /* เขียว (เสร็จแล้ว) */
+
+.filter-tab {
+    transition: all 0.2s;
+}
+.filter-tab.active-tab {
+    border: 3px solid #db2777 !important; /* สีชมพู FamePOS */
+}
+
   </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -64,27 +72,28 @@
     </div>
   </header>
 
-  <!-- แถบสรุปสถานะออเดอร์ -->
-  <div class="bg-white border-b border-pink-100 px-6 py-3 shrink-0 flex justify-between items-center shadow-sm">
-      <div class="flex gap-4 w-full">
-          <div class="flex-1 bg-red-50 border border-red-100 rounded-xl p-2 text-center shadow-sm">
-              <div class="text-xs font-bold text-red-400">ออเดอร์ใหม่</div>
-              <div id="countNew" class="text-2xl font-black text-red-600">0</div>
-          </div>
-          <div class="flex-1 bg-amber-50 border border-amber-100 rounded-xl p-2 text-center shadow-sm">
-              <div class="text-xs font-bold text-amber-500">รับออเดอร์แล้ว</div>
-              <div id="countAccepted" class="text-2xl font-black text-amber-600">0</div>
-          </div>
-          <div class="flex-1 bg-pink-50 border border-pink-100 rounded-xl p-2 text-center shadow-sm">
-              <div class="text-xs font-bold text-pink-400">กำลังทำ</div>
-              <div id="countCooking" class="text-2xl font-black text-pink-600">0</div>
-          </div>
-          <div class="flex-1 bg-emerald-50 border border-emerald-100 rounded-xl p-2 text-center shadow-sm">
-              <div class="text-xs font-bold text-emerald-500">รวมทั้งหมด</div>
-              <div id="countTotal" class="text-2xl font-black text-emerald-700">0</div>
-          </div>
-      </div>
-  </div>
+<!-- แถบสรุปสถานะออเดอร์ (เพิ่ม onclick เพื่อกดกรองสถานะ) -->
+<div class="bg-white border-b border-pink-100 px-6 py-3 shrink-0 flex justify-between items-center shadow-sm">
+    <div class="flex gap-4 w-full">
+        <div id="tab-Pending" onclick="setFilter('Pending')" class="filter-tab flex-1 bg-red-50 border-2 border-red-100 rounded-xl p-2 text-center shadow-sm cursor-pointer hover:bg-red-100 transition">
+            <div class="text-xs font-bold text-red-400">ออเดอร์ใหม่</div>
+            <div id="countNew" class="text-2xl font-black text-red-600">0</div>
+        </div>
+        <div id="tab-รับออเดอร์แล้ว" onclick="setFilter('รับออเดอร์แล้ว')" class="filter-tab flex-1 bg-amber-50 border-2 border-amber-100 rounded-xl p-2 text-center shadow-sm cursor-pointer hover:bg-amber-100 transition">
+            <div class="text-xs font-bold text-amber-500">รับออเดอร์แล้ว</div>
+            <div id="countAccepted" class="text-2xl font-black text-amber-600">0</div>
+        </div>
+      <!-- ปรับกล่อง กำลังทำ ให้เป็นสีม่วงพาสเทล -->
+<div id="tab-กำลังทำ" onclick="setFilter('กำลังทำ')" class="filter-tab flex-1 bg-purple-50 border-2 border-purple-100 rounded-xl p-2 text-center shadow-sm cursor-pointer hover:bg-purple-100 transition">
+    <div class="text-xs font-bold text-purple-500">กำลังทำ</div>
+    <div id="countCooking" class="text-2xl font-black text-purple-600">0</div>
+</div>
+        <div id="tab-All" onclick="setFilter('All')" class="filter-tab flex-1 bg-emerald-50 border-2 border-emerald-400 rounded-xl p-2 text-center shadow-sm cursor-pointer hover:bg-emerald-100 transition">
+            <div class="text-xs font-bold text-emerald-500">รวมทั้งหมด</div>
+            <div id="countTotal" class="text-2xl font-black text-emerald-700">0</div>
+        </div>
+    </div>
+</div>
 
   <main id="kitchenGrid" class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 overflow-y-auto content-start">
     <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-400 font-bold gap-3">
@@ -191,28 +200,52 @@
         previousNewCount = countNew;
     }
 
-// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (ปรับปรุง: แสดงชื่อโต๊ะจาก QR)
+// 1. เพิ่มตัวแปรสำหรับเก็บสถานะที่เลือก
+let currentStatusFilter = 'All'; 
+
+// 2. ฟังก์ชันกดเลือกสถานะ
+function setFilter(status) {
+    currentStatusFilter = status;
+    
+    // ไฮไลต์ปุ่มที่ถูกเลือก
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('border-pink-500', 'ring-2', 'ring-pink-300');
+        if(tab.id === 'tab-' + status) {
+            tab.classList.add('border-pink-500', 'ring-2', 'ring-pink-300');
+        }
+    });
+    
+    renderKitchenCards(); // สั่งวาดหน้าจอใหม่ด้วยเงื่อนไขใหม่
+}
+
+// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (อัปเดตสีม่วงพาสเทลสำหรับสถานะ "กำลังทำ")
 function renderKitchenCards() {
     const grid = document.getElementById('kitchenGrid');
 
-    if (activeOrdersList.length === 0) {
+    // กรองข้อมูลตามสถานะที่กดเลือก (จากระบบ Tab Filter)
+    let displayOrders = activeOrdersList;
+    if (currentStatusFilter !== 'All') {
+        displayOrders = activeOrdersList.filter(o => (o.status || "Pending") === currentStatusFilter);
+    }
+
+    if (displayOrders.length === 0) {
         grid.innerHTML = `
         <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2">
             <span class="text-6xl">🎉</span>
-            <span class="text-xl text-pink-700">ห้องครัวว่าง!</span>
+            <span class="text-xl text-pink-700">ไม่มีออเดอร์ในสถานะนี้</span>
         </div>`;
         return;
     }
 
     let html = '';
 
-    activeOrdersList.forEach(order => {
+    displayOrders.forEach(order => {
         let status = order.status || "Pending";
         
-        // 🎨 สีการ์ดตามธีม FamePOS
+        // 🎨 สีการ์ดตามธีม FamePOS (เปลี่ยน "กำลังทำ" เป็น ม่วงพาสเทล)
         let cardColor = "bg-white border-pink-100";
         if (status === "รับออเดอร์แล้ว") cardColor = "bg-amber-50 border-amber-300";
-        else if (status === "กำลังทำ") cardColor = "bg-blue-50 border-blue-300";
+        else if (status === "กำลังทำ") cardColor = "bg-purple-50 border-purple-300"; // 🟣 ม่วงพาสเทล
         else if (status === "Pending") cardColor = "bg-red-50 border-red-300 animate-pulse";
 
         // Logic แยกชื่อรายการ
@@ -247,7 +280,7 @@ function renderKitchenCards() {
         if (status === "กำลังทำ") {
             actionButtonHtml = `<button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-emerald-700 transition active:scale-95 transform">✅ เสร็จแล้ว (พร้อมเสิร์ฟ)</button>`;
         } else if (status === "รับออเดอร์แล้ว") {
-            actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" class="w-full bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-amber-600 transition active:scale-95 transform">👨‍🍳 เริ่มทำอาหาร</button>`;
+            actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" class="w-full bg-purple-500 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-purple-600 transition active:scale-95 transform">👨‍🍳 เริ่มทำอาหาร</button>`;
         } else {
             actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'รับออเดอร์แล้ว')" class="w-full bg-pink-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-pink-700 transition active:scale-95 transform">📥 รับออเดอร์</button>`;
         }
