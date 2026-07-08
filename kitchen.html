@@ -59,8 +59,8 @@
   </main>
 
   <script>
-    // 🔗 ลิงก์ยิง API ตรงเข้า Google Apps Script หลังบ้านของคุณเฟรม
-    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+// 🔗 ลิงก์ยิง API ตรงเข้า Google Apps Script หลังบ้านของคุณเฟรม
+    const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
 
     // ================= MAGIC PROXY (V2) CONNECT =================
     const google = {
@@ -273,7 +273,8 @@ function updateKitchenStatus(rowIdx, source, status) {
              fetchKitchenOrders();
         })
         .withFailureHandler(function(err) {
-             Swal.fire('ข้อผิดพลาด', 'ไม่สามารถอัปเดตสถานะได้', 'error');
+             // 🟢 เปลี่ยนบรรทัดนี้ ให้ดึง error จากเซิร์ฟเวอร์มาโชว์
+             Swal.fire('ข้อผิดพลาดระบบ', err || 'ไม่สามารถอัปเดตสถานะได้', 'error');
         })
         .updateKitchenStatusGS(rowIdx, source, status);
 }
