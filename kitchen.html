@@ -141,16 +141,15 @@
         .getKitchenOrdersGS();
     }
 
-// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (เวอร์ชันรวม Option สมบูรณ์)
+// ฟังก์ชันเจนหัวข้อและพ่นการ์ดรายการอาหาร (อัปเกรดสถานะ กำลังทำ)
 function renderKitchenCards() {
-
     const grid = document.getElementById('kitchenGrid');
 
     if (activeOrdersList.length === 0) {
         grid.innerHTML = `
         <div class="col-span-full h-96 flex flex-col items-center justify-center text-pink-300 font-bold gap-2">
             <span class="text-6xl">🎉</span>
-            <span class="text-xl text-pink-700">ห้องครัวว่าง!</span>
+            <span class="text-xl text-pink-700">ห้องครัวว่าง! ไม่มีออเดอร์ค้าง</span>
         </div>`;
         return;
     }
@@ -158,149 +157,118 @@ function renderKitchenCards() {
     let html = '';
 
     activeOrdersList.forEach(order => {
+        // 🟢 เช็กว่าออเดอร์นี้เชฟกดรับไปทำหรือยัง
+        let isCooking = order.status === 'กำลังทำ';
+        let cardBorder = isCooking ? 'border-orange-400 bg-orange-50/30' : 'border-pink-100 bg-white';
+        let textTitle = isCooking ? 'text-orange-700' : 'text-pink-800';
+        let badgeBg = isCooking ? 'bg-orange-100 text-orange-700' : 'bg-pink-50 text-pink-700';
 
-        // ===== แยกรายการโดยไม่ตัด comma ใน [] =====
         const rawItems = [];
         let buffer = "";
         let bracket = 0;
-
         for (let ch of order.items) {
-
             if (ch === "[") bracket++;
             if (ch === "]") bracket--;
-
             if (ch === "," && bracket === 0) {
-                rawItems.push(buffer.trim());
-                buffer = "";
-            } else {
-                buffer += ch;
-            }
+                rawItems.push(buffer.trim()); buffer = "";
+            } else { buffer += ch; }
         }
-
         if (buffer.trim()) rawItems.push(buffer.trim());
 
-        // ===== รวมเมนู =====
         const groupedItems = {};
-
         rawItems.forEach(itemStr => {
-
             let qtyMatch = itemStr.match(/\(x(\d+)\)/);
             let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
-
             let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
-
             let options = [];
-
             let optionMatches = [...baseName.matchAll(/\[(.*?)\]/g)];
-
             optionMatches.forEach(m => {
-
-                m[1]
-                .split(",")
-                .map(x => x.trim())
-                .filter(Boolean)
-                .forEach(x => options.push(x));
-
+                m[1].split(",").map(x => x.trim()).filter(Boolean).forEach(x => options.push(x));
             });
-
             let mainName = baseName.replace(/\[.*?\]/g, "").trim();
-
-            if (!groupedItems[mainName]) {
-                groupedItems[mainName] = {
-                    name: mainName,
-                    qty: 0,
-                    options: []
-                };
-            }
-
+            if (!groupedItems[mainName]) { groupedItems[mainName] = { name: mainName, qty: 0, options: [] }; }
             groupedItems[mainName].qty += qty;
             groupedItems[mainName].options.push(...options);
-
         });
 
-        // ===== วาดรายการ =====
         let itemsHtml = "";
-
         Object.values(groupedItems).forEach(item => {
-
             let uniqueOptions = [...new Set(item.options)];
-
-            let optionDisplay = "";
-
-            if (uniqueOptions.length) {
-
-                optionDisplay = `
-                <span class="text-xs text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100 italic">
-                    [${uniqueOptions.join(", ")}]
-                </span>`;
-
-            }
-
-            let isDone =
-                localStorage.getItem(`done_${order.orderId}_${item.name}`) === "true"
-                ? "item-done"
-                : "";
+            let optionDisplay = uniqueOptions.length ? `<span class="text-xs text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100 italic">[${uniqueOptions.join(", ")}]</span>` : "";
+            let isDone = localStorage.getItem(`done_${order.orderId}_${item.name}`) === "true" ? "item-done" : "";
 
             itemsHtml += `
-            <div
-                onclick="toggleItemStatus(this,'${order.orderId}','${item.name}')"
+            <div onclick="toggleItemStatus(this,'${order.orderId}','${item.name}')"
                 class="item-row ${isDone} cursor-pointer py-2 border-b border-pink-50 flex justify-between items-center gap-2 hover:bg-pink-50/50">
-
-                <div class="min-w-0 flex-1 font-bold text-gray-800">
-                    ${item.name} ${optionDisplay}
-                </div>
-
-                <div class="text-lg font-black text-pink-700 bg-pink-50 px-2 py-0.5 rounded-xl border border-pink-100">
-                    x${item.qty}
-                </div>
-
+                <div class="min-w-0 flex-1 font-bold text-gray-800">${item.name} ${optionDisplay}</div>
+                <div class="text-lg font-black text-pink-700 bg-pink-50 px-2 py-0.5 rounded-xl border border-pink-100">x${item.qty}</div>
             </div>`;
         });
 
         html += `
-        <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-transform hover:scale-[1.02] duration-200 bg-white">
-
+        <div class="rounded-[2rem] border-2 ${cardBorder} flex flex-col justify-between shadow-sm h-[420px] transition-transform hover:scale-[1.02] duration-200">
             <div class="p-5 flex flex-col overflow-hidden">
-
                 <div class="flex justify-between items-start gap-2 mb-3 border-b border-pink-50 pb-2">
                     <div>
-                        <span class="text-2xl font-black text-pink-800">
-                            ${order.queueNo}
-                        </span>
+                        <span class="text-2xl font-black ${textTitle}">${order.queueNo}</span>
+                        ${isCooking ? '<span class="text-xs text-orange-500 font-bold ml-1 animate-pulse">กำลังปรุง...</span>' : ''}
                     </div>
-
-                    <div class="text-right text-xs font-bold px-2 py-1 rounded-xl bg-pink-50 text-pink-700">
-                        ${order.orderType}
-                    </div>
-
+                    <div class="text-right text-xs font-bold px-2 py-1 rounded-xl ${badgeBg}">${order.orderType}</div>
                 </div>
-
-                <div class="flex-1 overflow-y-auto">
-
-                    ${itemsHtml}
-
-                </div>
-
+                <div class="flex-1 overflow-y-auto">${itemsHtml}</div>
             </div>
 
-            <div class="p-4 bg-pink-50/20 border-t border-pink-100/60 rounded-b-[2rem]">
-
-                <button
-                    onclick="serveOrder(${order.rowIdx},'${order.queueNo}','${order.source}')"
-                    class="w-full bg-pink-500 text-white font-bold py-3 rounded-xl shadow-md">
-
-                    ✔️ เสิร์ฟอาหารสำเร็จ
-
-                </button>
-
+            <div class="p-4 border-t border-pink-100/60 rounded-b-[2rem]">
+                ${!isCooking ? 
+                    `<button onclick="changeKDSStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl shadow-md transition">🔥 เริ่มปรุงอาหาร</button>` 
+                    : 
+                    `<button onclick="changeKDSStatus(${order.rowIdx}, '${order.source}', 'เสิร์ฟแล้ว', '${order.queueNo}')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.5)] transition animate-pulse">✅ เสร็จแล้ว (เรียกคิว!)</button>`
+                }
             </div>
-
         </div>`;
     });
 
     grid.innerHTML = html;
 }
 
+// 🟢 ฟังก์ชันเปลี่ยนสถานะ & สั่งเสียงพูดเรียกคิวอัตโนมัติ
+function changeKDSStatus(rowIdx, source, newStatus, queueNo = '') {
+    showToast(newStatus === 'กำลังทำ' ? "กำลังย้ายไปเตาปรุง..." : "กำลังเคลียร์คิว...", "info");
+
+    google.script.run
+        .withSuccessHandler(function(res) {
+            if (res === "Success") {
+                if (newStatus === 'เสิร์ฟแล้ว') {
+                    showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
+                    callQueueVoice(queueNo); // 📢 เรียกเสียงพูดออกลำโพง!
+                }
+                fetchKitchenOrders(); // โหลดข้อมูลมาวาดใหม่
+            } else {
+                Swal.fire('ผิดพลาด', res, 'error');
+            }
+        })
+        .withFailureHandler(function(err) {
+            Swal.fire('ข้อผิดพลาดระบบ', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
+        })
+        .updateKitchenOrderStatusGS(rowIdx, source, newStatus);
+}
+
+// 📢 ฟังก์ชัน AI พูดออกลำโพง (Text-To-Speech)
+function callQueueVoice(queueNo) {
+    if ('speechSynthesis' in window) {
+        let text = "ขอเชิญหมายเลขคิว " + queueNo.replace('Q', '') + " รับอาหารได้เลยค่ะ";
+        
+        // ถ้าระบุว่าสั่งไปที่โต๊ะ ให้เปลี่ยนรูปประโยค
+        if (queueNo.includes('โต๊ะ') || queueNo.includes('บาร์')) {
+            text = "อาหารของ " + queueNo + " พร้อมเสิร์ฟแล้วค่ะ";
+        }
+        
+        let msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'th-TH'; // ภาษาไทย
+        msg.rate = 0.85; // ความเร็วพอดีๆ ฟังชัด
+        window.speechSynthesis.speak(msg);
+    }
+}
 // ฟังก์ชันคุมปุ่มเสิร์ฟอาหาร (กดแล้วเสิร์ฟทันที ไม่ถามยืนยัน)
 function serveOrder(rowIdx, queueNo, source = "Sales") {
     
