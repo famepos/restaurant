@@ -64,7 +64,7 @@
 
   <script>
     // 🔗 ลิงก์ยิง API ตรงเข้า Google Apps Script หลังบ้านของคุณเฟรม
-    const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+      const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
 
     // ================= MAGIC PROXY (V2) CONNECT =================
     const google = {
@@ -248,7 +248,8 @@ function changeKDSStatus(rowIdx, source, newStatus, queueNo = '') {
             }
         })
         .withFailureHandler(function(err) {
-            Swal.fire('ข้อผิดพลาดระบบ', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
+            // 🟢 เปลี่ยนมาโชว์ข้อความ Error จริงๆ จากหลังบ้าน จะได้รู้ว่าผิดตรงไหน
+            Swal.fire('ข้อผิดพลาดระบบ', err.toString(), 'error');
         })
         .updateKitchenOrderStatusGS(rowIdx, source, newStatus);
 }
@@ -256,12 +257,8 @@ function changeKDSStatus(rowIdx, source, newStatus, queueNo = '') {
 // 📢 ฟังก์ชัน AI พูดออกลำโพง (Text-To-Speech)
 function callQueueVoice(queueNo) {
     if ('speechSynthesis' in window) {
-        let text = "ขอเชิญหมายเลขคิว " + queueNo.replace('Q', '') + " รับอาหารได้เลยค่ะ";
-        
-        // ถ้าระบุว่าสั่งไปที่โต๊ะ ให้เปลี่ยนรูปประโยค
-        if (queueNo.includes('โต๊ะ') || queueNo.includes('บาร์')) {
-            text = "อาหารของ " + queueNo + " พร้อมเสิร์ฟแล้วค่ะ";
-        }
+        // 🟢 พูดแค่ประโยคนี้สั้นๆ ไม่ต้องบอกเลขคิวหรือเบอร์โต๊ะ
+        let text = "อาหารพร้อมเสิร์ฟแล้วค่ะ";
         
         let msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'th-TH'; // ภาษาไทย
