@@ -133,6 +133,19 @@
         </div>
     </div>
 
+    <!-- 🟢 ป๊อปอัปยืนยัน (Custom Confirm) สำหรับเรียกเก็บเงิน -->
+    <div id="customConfirmModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white p-6 rounded-[2rem] w-full max-w-sm shadow-2xl flex flex-col items-center text-center transform scale-95 transition-transform duration-300" id="customConfirmBox">
+            <div id="customConfirmIcon" class="text-6xl mb-4 drop-shadow-md">❓</div>
+            <h3 id="customConfirmTitle" class="text-xl font-black text-gray-800 mb-2">ยืนยัน</h3>
+            <p id="customConfirmMessage" class="text-gray-500 mb-6 font-medium leading-relaxed">ข้อความ...</p>
+            <div class="flex w-full gap-3">
+                <button onclick="closeCustomConfirm()" class="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-bold text-lg hover:bg-gray-300 transition shadow-sm active:scale-95">ยกเลิก</button>
+                <button id="customConfirmBtn" class="flex-1 bg-gradient-to-r from-orange-400 to-red-500 text-white py-3.5 rounded-xl font-bold text-lg hover:from-orange-500 hover:to-red-600 transition shadow-lg active:scale-95">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 🚨 ระบบดักจับ Error ป้องกันหน้าขาวค้าง
         window.onerror = function(msg, url, line) {
@@ -155,12 +168,13 @@
         let isBuffetMode = false;
         let buffetIncludedCategories = [];
 
+        // ฟังก์ชันแจ้งเตือนปกติ (มีปุ่มตกลงปุ่มเดียว)
         function showAlert(title, message, icon = '🔔', type = 'info') {
             document.getElementById('customAlertIcon').innerText = icon;
             document.getElementById('customAlertTitle').innerText = title;
             document.getElementById('customAlertMessage').innerText = message;
             let btn = document.getElementById('customAlertBtn');
-            btn.className = type === 'error' ? "w-full bg-pink-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-pink-600 transition shadow-lg" : "w-full bg-pink-500 text-white py-3.5 rounded-2xl font-bold text-lg hover:bg-pink-600 transition shadow-lg";
+            btn.className = type === 'error' ? "w-full bg-pink-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-pink-600 transition shadow-lg active:scale-95" : "w-full bg-pink-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-pink-600 transition shadow-lg active:scale-95";
             let modal = document.getElementById('customAlertModal');
             let box = document.getElementById('customAlertBox');
             modal.classList.remove('hidden');
@@ -174,25 +188,58 @@
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
+        // 🟢 ฟังก์ชันยืนยัน (มีปุ่มตกลง และ ยกเลิก) ใช้โครงเดียวกับแอป
+        let pendingConfirmAction = null;
+
+        function showConfirmAlert(title, message, icon = '❓', confirmText = 'ตกลง', onConfirm) {
+            document.getElementById('customConfirmIcon').innerText = icon;
+            document.getElementById('customConfirmTitle').innerText = title;
+            document.getElementById('customConfirmMessage').innerText = message;
+            document.getElementById('customConfirmBtn').innerText = confirmText;
+            
+            pendingConfirmAction = onConfirm;
+            
+            let modal = document.getElementById('customConfirmModal');
+            let box = document.getElementById('customConfirmBox');
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                modal.classList.remove('opacity-0'); 
+                box.className = box.className.replace('scale-95', 'scale-100'); 
+            }, 10);
+        }
+
+        function closeCustomConfirm() {
+            let modal = document.getElementById('customConfirmModal');
+            let box = document.getElementById('customConfirmBox');
+            modal.classList.add('opacity-0'); 
+            box.className = box.className.replace('scale-100', 'scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            pendingConfirmAction = null;
+        }
+
+        document.getElementById('customConfirmBtn').addEventListener('click', function() {
+            if (typeof pendingConfirmAction === 'function') {
+                pendingConfirmAction();
+            }
+            closeCustomConfirm();
+        });
+
+
         // ==========================================
-        // 🌟 1. ฟังก์ชัน "เรียกเก็บเงิน" (Call Bill)
+        // 🌟 1. ฟังก์ชัน "เรียกเก็บเงิน" (Call Bill) ที่แก้ไขใหม่
         // ==========================================
         function callForBill() {
             if (currentTable === "ไม่ระบุ") {
                 return showAlert("เกิดข้อผิดพลาด", "ไม่ทราบหมายเลขโต๊ะ ไม่สามารถเรียกพนักงานได้ครับ", "❌", "error");
             }
 
-            Swal.fire({
-                title: 'เรียกเก็บเงิน?',
-                text: `ต้องการเรียกพนักงานเพื่อชำระเงิน โต๊ะ: ${currentTable} ใช่หรือไม่?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#f97316', // สีส้ม
-                cancelButtonColor: '#d1d5db',
-                confirmButtonText: '🛎️ ใช่, เรียกเก็บเงิน',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
+            // เรียกใช้ระบบ Popup ที่เราสร้างเองด้านบน
+            showConfirmAlert(
+                'เรียกเก็บเงิน?', 
+                `ต้องการเรียกพนักงานเพื่อชำระเงิน โต๊ะ: ${currentTable} ใช่หรือไม่?`, 
+                '🛎️', 
+                'เรียกเก็บเงิน',
+                () => {
                     let btn = document.getElementById('btnCallBill');
                     let originalText = btn.innerHTML;
                     btn.innerHTML = "⏳ กำลังเรียก...";
@@ -208,12 +255,8 @@
                     .then(res => res.json())
                     .then(data => {
                         if(data.status === "Success" && data.result === "Success") {
-                            Swal.fire({
-                                title: 'ส่งคำขอแล้ว!',
-                                text: 'พนักงานรับทราบแล้ว กำลังเตรียมบิลให้คุณ กรุณารอสักครู่ครับ',
-                                icon: 'success',
-                                confirmButtonColor: '#ec4899'
-                            });
+                            showAlert('ส่งคำขอแล้ว!', 'พนักงานรับทราบแล้ว กำลังเตรียมบิลให้คุณ กรุณารอสักครู่ครับ', '✅', 'success');
+                            
                             // เปลี่ยนปุ่มเป็นสีเขียวเพื่อบอกว่าเรียกสำเร็จ และหน่วงเวลา 30 วิกันกดสแปม
                             btn.innerHTML = "✅ เรียกพนักงานแล้ว";
                             btn.classList.replace('from-orange-400', 'from-emerald-400');
@@ -237,7 +280,7 @@
                         btn.disabled = false;
                     });
                 }
-            });
+            );
         }
 
         function fetchMenuData() {
@@ -505,6 +548,7 @@
             let existing = cart.find(item => item.name === name);
             if(existing) existing.qty++; else cart.push({ name: name, price: price, qty: 1 });
             
+            // ใช้ Toast แบบมาตรฐานที่เรามีสำหรับหยิบใส่ตะกร้าได้ครับ
             Swal.fire({
                 title: "หยิบใส่ตะกร้าแล้ว",
                 toast: true,
