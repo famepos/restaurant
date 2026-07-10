@@ -151,16 +151,22 @@
         oscillator.stop(audioCtx.currentTime + 0.15);
       } catch(e) { console.log("Audio feedback blocked"); }
     }
-
-    function fetchKitchenOrders() {
+function fetchKitchenOrders() {
       google.script.run
         .withSuccessHandler(function(orders) {
-          // กรองออเดอร์เฉพาะของ "วันนี้" (00.00 - 23.59)
+          // กรองออเดอร์เฉพาะของ "วันนี้"
           let now = new Date();
           let startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime();
           let endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).getTime();
 
-          activeOrdersList = orders.filter(o => o.timestamp >= startOfDay && o.timestamp <= endOfDay);
+          let filteredOrders = orders.filter(o => o.timestamp >= startOfDay && o.timestamp <= endOfDay);
+
+          // 🔔 ตรวจสอบว่ามีออเดอร์ใหม่เพิ่มขึ้นมาหรือไม่ (ถ้ามีและไม่ใช่การโหลดครั้งแรก ให้เล่นเสียง)
+          if (filteredOrders.length > activeOrdersList.length && activeOrdersList.length > 0) {
+            playSound('doorbell.mp3');
+          }
+
+          activeOrdersList = filteredOrders;
           
           updateSummaryCounts();
           renderKitchenCards();
@@ -177,7 +183,6 @@
         })
         .getKitchenOrdersGS();
     }
-
     function updateSummaryCounts() {
         let countNew = 0, countAccepted = 0, countCooking = 0;
         
@@ -195,9 +200,10 @@
 
         // เสียงเตือนจะดังเมื่อ "ออเดอร์ใหม่" มีจำนวนเพิ่มขึ้น
         if (countNew > previousNewCount && previousNewCount !== 0) {
-            playAlertSound();
+            triggerAudioEvent('newOrder');
         }
         previousNewCount = countNew;
+        
     }
 
 // 1. เพิ่มตัวแปรสำหรับเก็บสถานะที่เลือก
@@ -277,9 +283,10 @@ function renderKitchenCards() {
 
         // 🔘 สร้างปุ่มตามสถานะ (ใช้สีธีม FamePOS)
         let actionButtonHtml = "";
-        if (status === "กำลังทำ") {
-            actionButtonHtml = `<button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-emerald-700 transition active:scale-95 transform">✅ เสร็จแล้ว (พร้อมเสิร์ฟ)</button>`;
-        } else if (status === "รับออเดอร์แล้ว") {
+      if (status === "กำลังทำ") {
+    // 👇 เพิ่มการส่งค่า order.orderType และ order.tableNo เข้าไปในฟังก์ชัน
+    actionButtonHtml = `<button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}', '${order.orderType}', '${order.tableNo || ''}')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-emerald-700 transition active:scale-95 transform">✅ เสร็จแล้ว (พร้อมเสิร์ฟ)</button>`;
+} else if (status === "รับออเดอร์แล้ว") {
             actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" class="w-full bg-purple-500 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-purple-600 transition active:scale-95 transform">👨‍🍳 เริ่มทำอาหาร</button>`;
         } else {
             actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'รับออเดอร์แล้ว')" class="w-full bg-pink-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-pink-700 transition active:scale-95 transform">📥 รับออเดอร์</button>`;
@@ -321,26 +328,28 @@ function renderKitchenCards() {
             .updateKitchenStatusGS(rowIdx, source, status);
     }
 
-    function serveOrder(rowIdx, queueNo, source = "Sales") {
-        google.script.run
-            .withSuccessHandler(function(res) {
-                if (res === "Success") {
-                    showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
-                    google.script.run.updateCDSWithQueue({
-                        queueNo: queueNo, 
-                        items: "อาหารพร้อมรับ" 
-                    });
-                    fetchKitchenOrders();
-                } else {
-                    Swal.fire('ผิดพลาด', res, 'error');
-                }
-            })
-            .withFailureHandler(function(err) {
-                Swal.fire('ข้อผิดพลาดระบบ', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
-            })
-            .completeKitchenOrderGS(rowIdx, source);
-    }
-
+function serveOrder(rowIdx, queueNo, source = "Sales") {
+    google.script.run
+        .withSuccessHandler(function(res) {
+            if (res === "Success") {
+                // 🌟 แทรกเสียงตรงนี้ครับ!
+                playSound('bellding.mp3');
+                
+                showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
+                google.script.run.updateCDSWithQueue({
+                    queueNo: queueNo, 
+                    items: "อาหารพร้อมรับ" 
+                });
+                fetchKitchenOrders();
+            } else {
+                Swal.fire('ผิดพลาด', res, 'error');
+            }
+        })
+        .withFailureHandler(function(err) {
+            Swal.fire('ข้อผิดพลาดระบบ', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้', 'error');
+        })
+        .completeKitchenOrderGS(rowIdx, source);
+}
     function updateClock() {
       const clock = document.getElementById('clockTime');
       if (!clock) return;
@@ -384,6 +393,63 @@ function showToast(message, type = "success") {
 
     fetchKitchenOrders();
     setInterval(fetchKitchenOrders, 15000); // รีเฟรชทุกๆ 15 วินาที
+    // ==========================================
+// 🔊 ระบบฟังก์ชันเสียง สำหรับหน้าจอครัว
+// ==========================================
+
+// 1. ฟังก์ชันเล่นไฟล์เสียงทั่วไป
+function testPlaySound(url) {
+    if (!url) return;
+    let audio = new Audio(url);
+    audio.play().catch(e => console.log("Audio play blocked: ", e));
+}
+
+// 2. ฟังก์ชันบอทพูดภาษาไทย (Text-to-Speech)
+function speakThai(text) {
+    if (!('speechSynthesis' in window)) return;
+    
+    // หยุดเสียงที่กำลังพูดอยู่ (ถ้ามี) เพื่อไม่ให้พูดซ้อนกัน
+    window.speechSynthesis.cancel();
+    
+    let msg = new SpeechSynthesisUtterance();
+    msg.text = text;
+    msg.lang = 'th-TH'; // บังคับเสียงภาษาไทย
+    msg.rate = 1.0;     // ความเร็วในการพูด (ปรับได้ 0.1 - 2.0)
+    msg.pitch = 1.1;    // ระดับเสียงสูง-ต่ำ
+
+    window.speechSynthesis.speak(msg);
+}
+
+// 3. ศูนย์กลางสั่งการเล่นเสียง (รองรับการตั้งค่าจาก LocalStorage)
+function triggerAudioEvent(event, data = {}) {
+    // โหลดการตั้งค่าเปิด-ปิดเสียง (ถ้าไม่มีค่า ให้ถือว่าเปิดไว้ก่อน)
+    let audioSettings = JSON.parse(localStorage.getItem('famepos_audio_settings')) || { 
+        orderReady: true, 
+        newOrder: true 
+    };
+
+    if (!audioSettings[event]) return; // ถ้าสวิตช์ปิดไว้ ให้ข้ามไปเลย
+
+    switch (event) {
+        case 'newOrder':
+            speakThai("ออเดอร์ใหม่เข้ามาแล้วจ้า");
+            break;
+            
+        case 'orderReady':
+            let orderReadyText = "ออเดอร์พร้อมเสิร์ฟแล้วค่ะ";
+            if (data.type === 'ทานที่ร้าน' && data.table) {
+                orderReadyText = `ออเดอร์ โต๊ะที่ ${data.table} พร้อมเสิร์ฟแล้วค่ะ`;
+            } else if (data.queue) {
+                orderReadyText = `ออเดอร์กลับบ้าน คิวที่ ${data.queue} พร้อมเสิร์ฟแล้วค่ะ`;
+            }
+            speakThai(orderReadyText);
+            break;
+    }
+}
+function playSound(filename) {
+    const audio = new Audio(filename); // เอาคำว่า 'sounds/' ออก
+    audio.play().catch(e => console.warn("Audio blocked:", e));
+}
   </script>
 </body>
 </html>
