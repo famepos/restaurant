@@ -421,7 +421,7 @@ function speakThai(text) {
     let msg = new SpeechSynthesisUtterance();
     msg.text = text;
     msg.lang = 'th-TH'; // บังคับเสียงภาษาไทย
-    msg.rate = 1.0;     // ความเร็วในการพูด (ปรับได้ 0.1 - 2.0)
+    msg.rate = 0.8;     // ความเร็วในการพูด (ปรับได้ 0.1 - 2.0)
     msg.pitch = 1.1;    // ระดับเสียงสูง-ต่ำ
 
     window.speechSynthesis.speak(msg);
