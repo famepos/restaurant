@@ -228,7 +228,6 @@ function setFilter(status) {
 function renderKitchenCards() {
     const grid = document.getElementById('kitchenGrid');
 
-    // กรองข้อมูลตามสถานะที่กดเลือก (จากระบบ Tab Filter)
     let displayOrders = activeOrdersList;
     if (currentStatusFilter !== 'All') {
         displayOrders = activeOrdersList.filter(o => (o.status || "Pending") === currentStatusFilter);
@@ -247,14 +246,12 @@ function renderKitchenCards() {
 
     displayOrders.forEach(order => {
         let status = order.status || "Pending";
-        
-        // 🎨 สีการ์ดตามธีม FamePOS (เปลี่ยน "กำลังทำ" เป็น ม่วงพาสเทล)
         let cardColor = "bg-white border-pink-100";
         if (status === "รับออเดอร์แล้ว") cardColor = "bg-amber-50 border-amber-300";
-        else if (status === "กำลังทำ") cardColor = "bg-purple-50 border-purple-300"; // 🟣 ม่วงพาสเทล
+        else if (status === "กำลังทำ") cardColor = "bg-purple-50 border-purple-300"; 
         else if (status === "Pending") cardColor = "bg-red-50 border-red-300 animate-pulse";
 
-        // Logic แยกชื่อรายการ
+        // แยกรายการสินค้า
         const rawItems = []; let buffer = ""; let bracket = 0;
         for (let ch of order.items) {
             if (ch === "[") bracket++; if (ch === "]") bracket--;
@@ -281,27 +278,24 @@ function renderKitchenCards() {
             </div>`;
         });
 
-        // 🔘 สร้างปุ่มตามสถานะ (ใช้สีธีม FamePOS)
+        // 🔘 ปุ่มกด
         let actionButtonHtml = "";
-      if (status === "กำลังทำ") {
-    // 👇 เพิ่มการส่งค่า order.orderType และ order.tableNo เข้าไปในฟังก์ชัน
-    actionButtonHtml = `<button onclick="serveOrder(${order.rowIdx}, '${order.queueNo}', '${order.source}', '${order.orderType}', '${order.tableNo || ''}')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-emerald-700 transition active:scale-95 transform">✅ เสร็จแล้ว (พร้อมเสิร์ฟ)</button>`;
-} else if (status === "รับออเดอร์แล้ว") {
+        if (status === "กำลังทำ") {
+            actionButtonHtml = `<button onclick="serveOrder(${order.rowIdx}, '${order.orderId}', '${order.source}')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-emerald-700 transition active:scale-95 transform">✅ เสร็จแล้ว</button>`;
+        } else if (status === "รับออเดอร์แล้ว") {
             actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'กำลังทำ')" class="w-full bg-purple-500 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-purple-600 transition active:scale-95 transform">👨‍🍳 เริ่มทำอาหาร</button>`;
         } else {
             actionButtonHtml = `<button onclick="updateKitchenStatus(${order.rowIdx}, '${order.source}', 'รับออเดอร์แล้ว')" class="w-full bg-pink-600 text-white font-bold py-3.5 rounded-xl shadow-md text-base hover:bg-pink-700 transition active:scale-95 transform">📥 รับออเดอร์</button>`;
         }
 
-        // 🪑 แสดงโต๊ะ (ถ้าเป็น QR)
-        let tableBadge = order.tableNo ? `<div class="mt-1 bg-pink-100 text-pink-700 px-2 py-0.5 rounded-lg text-xs font-bold w-fit">🪑 โต๊ะ: ${order.tableNo}</div>` : "";
-
+        // 🌟 แก้ไขจุดแสดงผลตรงนี้ (ดึง queueNo และ queueSubInfo มาแสดง)
         html += `
         <div class="rounded-[2rem] border-2 flex flex-col justify-between shadow-sm h-[420px] transition-all ${cardColor}">
             <div class="p-5 flex flex-col overflow-hidden h-full">
                 <div class="flex justify-between items-start mb-3 border-b border-pink-100/50 pb-2">
                     <div>
                         <div class="text-2xl font-black text-pink-800">${order.queueNo}</div>
-                        ${tableBadge}
+                        <div class="text-xs font-bold text-pink-600 mt-1">${order.queueSubInfo || ''}</div>
                     </div>
                     <div class="text-xs font-bold px-2 py-1 rounded-xl bg-white border border-pink-100 text-pink-700">${order.orderType}</div>
                 </div>
