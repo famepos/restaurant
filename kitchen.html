@@ -327,14 +327,21 @@ function renderKitchenCards() {
             })
             .updateKitchenStatusGS(rowIdx, source, status);
     }
-
 function serveOrder(rowIdx, queueNo, source = "Sales") {
+    // 1. หาข้อมูลออเดอร์นั้นๆ จากรายการเพื่อเอาชื่อโต๊ะ/คิว
+    let order = activeOrdersList.find(o => o.rowIdx == rowIdx && o.source == source);
+
     google.script.run
         .withSuccessHandler(function(res) {
             if (res === "Success") {
-                // 🌟 แทรกเสียงตรงนี้ครับ!
-                playSound('bellding.mp3');
+                // 🔊 เล่นเสียงกริ่ง
+                playSound('bellding.mp3'); 
                 
+                // 🎙️ ต่อด้วยเสียงพูด (ถ้าเจอข้อมูลออเดอร์)
+                if (order) {
+                    setTimeout(() => speakOrderReady(order), 1000); // ดีเลย์ 1 วิให้เสียงกริ่งจบก่อน
+                }
+
                 showToast(`เคลียร์คิว ${queueNo} เรียบร้อยแล้ว`, "success");
                 google.script.run.updateCDSWithQueue({
                     queueNo: queueNo, 
@@ -454,6 +461,29 @@ function playSound(filename) {
     const audio = new Audio(baseUrl + filename);
     audio.play().catch(e => console.warn("Audio blocked or file not found:", e));
 }
+
+function speakOrderReady(order) {
+    let text = "";
+    
+    // จัดรูปแบบข้อความตามเงื่อนไขที่คุณต้องการ
+    if (order.orderType === "ทานที่ร้าน") {
+        text = `ออเดอร์ โต๊ะที่ ${order.tableNo} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
+    } 
+    else if (order.orderType === "กลับบ้าน") {
+        text = `ออเดอร์ กลับบ้าน คิวที่ ${order.queueNo} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
+    } 
+    else { // กรณี ส่งของ / เดลิเวอรี่
+        let appName = order.deliveryApp || "เดลิเวอรี่";
+        let deliveryId = order.deliveryId || "";
+        text = `ออเดอร์ ${appName} ${deliveryId} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'th-TH'; // ตั้งค่าเป็นภาษาไทย
+    utterance.rate = 1.0;      // ความเร็วเสียง (ปรับเพิ่มได้)
+    window.speechSynthesis.speak(utterance);
+}
+
   </script>
 </body>
 </html>
