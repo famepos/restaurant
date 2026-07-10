@@ -447,8 +447,12 @@ function triggerAudioEvent(event, data = {}) {
     }
 }
 function playSound(filename) {
-    const audio = new Audio(filename); // เอาคำว่า 'sounds/' ออก
-    audio.play().catch(e => console.warn("Audio blocked:", e));
+    // 💡 เปลี่ยนตรงนี้: ใส่ URL ที่ GitHub Pages ของคุณใช้งานอยู่
+    // สมมติว่า URL เว็บของคุณคือ https://famepos.github.io/restaurant/
+    const baseUrl = "https://famepos.github.io/restaurant/"; 
+    
+    const audio = new Audio(baseUrl + filename);
+    audio.play().catch(e => console.warn("Audio blocked or file not found:", e));
 }
   </script>
 </body>
