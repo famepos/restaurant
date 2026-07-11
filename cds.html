@@ -59,47 +59,48 @@
         </div>
     </div>
 
- <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
-  <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4">
-    <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
-    
-    <!-- โชว์ช่องทางการรับสินค้า (รูปแบบบริการ) -->
-    <div class="flex justify-between items-center text-lg text-gray-600">
-        <span>รูปแบบบริการ:</span>
-        <span id="displayOrderType" class="font-bold text-pink-600">-</span>
-    </div>
-
-    <!-- โชว์วิธีชำระเงิน -->
-    <div class="flex justify-between items-center text-lg text-gray-600">
-        <span>วิธีชำระเงิน:</span>
-        <span id="displayPaymentMethod" class="font-bold text-blue-600">-</span>
-    </div>
-
-    <!-- ยอดรวมสินค้า -->
-    <div class="flex justify-between items-center text-xl text-gray-600 border-t border-dashed border-gray-200 pt-2 mt-1">
-        <span>ยอดรวม:</span>
-        <span id="displaySubTotal" class="font-bold">฿0.00</span>
-    </div>
-
-    <!-- ยอดสุทธิ (อยู่ตรงกลางเด่นๆ) -->
-    <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100 mt-1">
-        <span>ยอดสุทธิ:</span>
-        <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
-    </div>
-
-    <!-- 🟢 [ย้ายมาไว้ด้านล่าง] โชว์ VAT และ Service Charge -->
-    <div id="taxServiceContainer" class="hidden flex-col gap-2 mt-1 p-4 rounded-2xl bg-gray-50 border border-gray-100 shadow-inner">
-        <div class="flex justify-between items-center text-base text-gray-500">
-            <span id="labelVat">ภาษี (VAT):</span>
-            <span id="displayVat" class="font-bold text-gray-700">฿0.00</span>
+ <section class="w-1/3 min-w-[400px] flex flex-col gap-6 overflow-y-auto no-scrollbar pb-2">
+      <!-- 🟢 เพิ่ม shrink-0 เพื่อล็อคไม่ให้กล่องสรุปยอดโดนบีบ -->
+      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4 shrink-0">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
+        
+        <!-- โชว์ช่องทางการรับสินค้า (รูปแบบบริการ) -->
+        <div class="flex justify-between items-center text-lg text-gray-600">
+            <span>รูปแบบบริการ:</span>
+            <span id="displayOrderType" class="font-bold text-pink-600">-</span>
         </div>
-        <div class="flex justify-between items-center text-base text-gray-500 border-t border-dashed border-gray-200 pt-2 mt-1">
-            <span id="labelService">ค่าบริการ:</span>
-            <span id="displayServiceCharge" class="font-bold text-gray-700">฿0.00</span>
+
+        <!-- โชว์วิธีชำระเงิน -->
+        <div id="paymentMethodRow" class="hidden justify-between items-center text-lg text-gray-600">
+            <span>วิธีชำระเงิน:</span>
+            <span id="displayPaymentMethod" class="font-bold text-blue-600">-</span>
         </div>
-    </div>
 
+        <!-- ยอดรวมสินค้า -->
+        <div class="flex justify-between items-center text-xl text-gray-600 border-t border-dashed border-gray-200 pt-2 mt-1">
+            <span>ยอดรวม:</span>
+            <span id="displaySubTotal" class="font-bold">฿0.00</span>
+        </div>
 
+        <!-- ยอดสุทธิ (อยู่ตรงกลางเด่นๆ) -->
+        <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100 mt-1">
+            <span>ยอดสุทธิ:</span>
+            <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
+        </div>
+
+        <!-- โชว์ VAT และ Service Charge -->
+        <div id="taxServiceContainer" class="hidden flex-col gap-2 mt-1 p-4 rounded-2xl bg-gray-50 border border-gray-100 shadow-inner">
+            <div class="flex justify-between items-center text-base text-gray-500">
+                <span id="labelVat">ภาษี (VAT):</span>
+                <span id="displayVat" class="font-bold text-gray-700">฿0.00</span>
+            </div>
+            <div class="flex justify-between items-center text-base text-gray-500 border-t border-dashed border-gray-200 pt-2 mt-1">
+                <span id="labelService">ค่าบริการ:</span>
+                <span id="displayServiceCharge" class="font-bold text-gray-700">฿0.00</span>
+            </div>
+        </div>
+
+        <!-- กล่องแสดงคนละครึ่ง -->
         <div id="halfHalfContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner">
             <div class="text-center font-bold text-pink-800 mb-1">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
             <div class="flex justify-between items-center text-lg text-gray-600">
@@ -112,8 +113,7 @@
             </div>
         </div>
 
-        <!-- 🟢 [เพิ่มใหม่] กล่องแสดงรายละเอียดแบ่งจ่าย -->
- <!-- 🟢 กล่องแสดงรายละเอียดแบ่งจ่าย -->
+        <!-- กล่องแสดงรายละเอียดแบ่งจ่าย -->
         <div id="splitPaymentContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-blue-50 border border-blue-200 shadow-inner">
             <div class="text-center font-bold text-blue-800 mb-1 border-b border-blue-200 pb-2" id="splitTitleDisplay">แบ่งจ่าย (เงินสด + โอนเงิน)</div>
             
@@ -142,7 +142,15 @@
             </div>
         </div>
 
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <!-- เงินทอน -->
+        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
+            <span class="font-bold">เงินทอน:</span>
+            <span id="displayChange" class="text-3xl font-bold">฿0.00</span>
+        </div>
+      </div>
+
+      <!-- 🟢 ล็อคความสูงขั้นต่ำ min-h-[350px] และเพิ่ม shrink-0 เพื่อไม่ให้ QR Code โดนบีบ -->
+      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex-1 min-h-[350px] shrink-0 flex flex-col items-center justify-center text-center relative overflow-hidden">
          <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
             <span class="text-6xl mb-4">✨</span>
             <h3 class="text-2xl font-bold text-pink-700 mb-2">ตรวจสอบรายการอาหาร</h3>
@@ -367,25 +375,39 @@ function updateCustomerUI(data) {
     let grandTotalEl = document.getElementById('displayGrandTotal');
     if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
-    // ==========================================
+// ==========================================
     // ⚙️ 3. จัดการ UI ช่องทางชำระเงิน (เงินทอน, QR, แบ่งจ่าย, คนละครึ่ง)
     // ==========================================
-    let paymentType = data.paymentType || data.paymentMethod || "-";
+    let paymentType = data.paymentMethod || "-";
     let paymentMethodEl = document.getElementById('displayPaymentMethod');
-    if (paymentMethodEl) paymentMethodEl.innerText = paymentType;
+    let paymentMethodRow = document.getElementById('paymentMethodRow');
 
+    // 🟢 ถ้าแคชเชียร์ยังไม่เปิดหน้าชำระเงิน ให้ซ่อนบรรทัด "วิธีชำระเงิน" ทิ้งไปเลย
+    if (paymentType === "-" || paymentType === "กำลังเลือก...") {
+        if (paymentMethodRow) { paymentMethodRow.classList.add('hidden'); paymentMethodRow.classList.remove('flex'); }
+    } else {
+        if (paymentMethodEl) paymentMethodEl.innerText = paymentType;
+        if (paymentMethodRow) { paymentMethodRow.classList.remove('hidden'); paymentMethodRow.classList.add('flex'); }
+    }
+
+    // เตรียม Elements
     let splitContainer = document.getElementById('splitPaymentContainer');
     let halfHalfContainer = document.getElementById('halfHalfContainer');
     let changeContainer = document.getElementById('changeContainer');
     let qrState = document.getElementById('qrState');
     let adState = document.getElementById('adState');
 
-    // ซ่อนทุกกล่องก่อน เพื่อรีเซ็ต
+    // ซ่อนกล่องชำระเงินทั้งหมดไว้ก่อน เพื่อรีเซ็ต
     if(splitContainer) { splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex'); }
     if(halfHalfContainer) { halfHalfContainer.classList.add('hidden'); halfHalfContainer.classList.remove('flex'); }
     if(changeContainer) { changeContainer.classList.add('hidden'); changeContainer.classList.remove('flex'); }
+    if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
+    if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
 
-// 🔴 3.1 กรณี: แบ่งจ่าย
+    // 🛑 🛑 ถ้าไม่ได้อยู่ในโหมดชำระเงิน (paymentType เป็น "-") ให้จบการทำงานตรงนี้เลย ไม่ต้องโชว์อะไรต่อ
+    if (paymentType === "-") return;
+
+    // 🔴 3.1 กรณี: แบ่งจ่าย
     if (paymentType === 'แบ่งจ่าย' && splitContainer) {
         splitContainer.classList.remove('hidden'); splitContainer.classList.add('flex');
         
@@ -393,31 +415,27 @@ function updateCustomerUI(data) {
         let mixDisplay = document.getElementById('splitMixDisplay');
         let equalDisplay = document.getElementById('splitEqualDisplay');
 
-        // ถ้าเป็นโหมดหารบิลเท่ากัน
         if (data.splitMode === 'equal') {
             if(splitTitle) splitTitle.innerText = "✂️ แบ่งจ่าย (หารบิลเท่ากัน)";
             if(mixDisplay) { mixDisplay.classList.add('hidden'); mixDisplay.classList.remove('flex'); }
             if(equalDisplay) { equalDisplay.classList.remove('hidden'); equalDisplay.classList.add('flex'); }
-            
             let perPersonEl = document.getElementById('displaySplitPerPerson');
             if(perPersonEl) perPersonEl.innerText = "฿" + parseFloat(data.splitPerPerson || 0).toFixed(2);
             let curPersonEl = document.getElementById('displaySplitCurrentPerson');
             if(curPersonEl) curPersonEl.innerText = data.splitCurrentPerson || "1";
             let totPersonEl = document.getElementById('displaySplitTotalPeople');
             if(totPersonEl) totPersonEl.innerText = data.splitTotalPeople || "2";
-
         } else {
-            // ถ้าเป็นโหมด เงินสด + โอนเงิน
             if(splitTitle) splitTitle.innerText = "💵 แบ่งจ่าย (เงินสด + โอนเงิน)";
             if(equalDisplay) { equalDisplay.classList.add('hidden'); equalDisplay.classList.remove('flex'); }
             if(mixDisplay) { mixDisplay.classList.remove('hidden'); mixDisplay.classList.add('flex'); }
-            
             let splitCashEl = document.getElementById('displaySplitCash');
             let splitTransferEl = document.getElementById('displaySplitTransfer');
             if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
             if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
         }
     }
+    
     // 🔴 3.2 กรณี: คนละครึ่ง
     else if (paymentType === 'คนละครึ่ง' && halfHalfContainer) {
         halfHalfContainer.classList.remove('hidden'); halfHalfContainer.classList.add('flex');
@@ -426,6 +444,7 @@ function updateCustomerUI(data) {
         if (govPayEl) govPayEl.innerText = "฿" + (grandTotalNum * 0.6).toFixed(2);
         if (cusPayEl) cusPayEl.innerText = "฿" + (grandTotalNum * 0.4).toFixed(2);
     }
+    
     // 🔴 3.3 กรณี: เงินสด (โชว์เงินทอน)
     else if (paymentType === 'เงินสด' && changeContainer) {
         changeContainer.classList.remove('hidden'); changeContainer.classList.add('flex');
@@ -433,7 +452,7 @@ function updateCustomerUI(data) {
         if (changeEl) changeEl.innerText = "฿" + parseFloat(data.change || 0).toFixed(2);
     }
 
-    // 🔴 3.4 โชว์ QR Code (ครอบคลุมทั้งโอนเงิน และ สแกนแบ่งจ่าย)
+    // 🔴 3.4 โชว์ QR Code
     if (data.qrImage && data.qrImage !== "") {
         if(adState) { adState.classList.add('hidden'); adState.classList.remove('flex'); }
         if(qrState) {
@@ -442,7 +461,6 @@ function updateCustomerUI(data) {
             if (qrImgEl) qrImgEl.src = data.qrImage;
         }
     } else {
-        // ถ้าไม่มีรูป QR ให้กลับไปโชว์หน้าตรวจอาหาร
         if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
         if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
     }
