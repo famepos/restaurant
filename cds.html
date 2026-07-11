@@ -329,9 +329,9 @@ function updateCustomerUI(data) {
     let subTotalEl = document.getElementById('displaySubTotal');
     if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
 
-    // 🟢 แสดงผลรูปแบบบริการ (ดักจับ เดลิเวอรี่)
-  let orderTypeEl = document.getElementById('displayOrderType');
+    // 🟢 ประกาศ paymentType แค่รอบเดียวตรงนี้
     let paymentType = data.paymentMethod || "-";
+    let orderTypeEl = document.getElementById('displayOrderType');
 
     // 🟢 จัดการรูปแบบบริการ (เช็คการแสดงผลเดลิเวอรี่)
     if (orderTypeEl) {
@@ -387,7 +387,6 @@ function updateCustomerUI(data) {
     // ==========================================
     // ⚙️ จัดการ UI ช่องทางชำระเงิน
     // ==========================================
-    let paymentType = data.paymentMethod || "-";
     let paymentMethodEl = document.getElementById('displayPaymentMethod');
     let paymentMethodRow = document.getElementById('paymentMethodRow');
 
@@ -433,7 +432,7 @@ function updateCustomerUI(data) {
             // 🟢 อัปเดตเงินสดที่รับมา ในโหมดหารเท่ากัน
             let eqCashEl = document.getElementById('displaySplitEqCash');
             if(eqCashEl) eqCashEl.innerText = (data.splitCash && parseFloat(data.splitCash) > 0) ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
-  } else {
+        } else {
             // โหมดเงินสด + โอนเงิน
             if(splitTitle) splitTitle.innerText = "💵 แบ่งจ่าย (เงินสด + โอนเงิน)";
             if(equalDisplay) { equalDisplay.classList.add('hidden'); equalDisplay.classList.remove('flex'); }
@@ -456,6 +455,7 @@ function updateCustomerUI(data) {
                 if (splitChangeRow) { splitChangeRow.classList.add('hidden'); splitChangeRow.classList.remove('flex'); }
             }
         }
+    } // <-- ปีกกาที่หายไปถูกเติมกลับมาตรงนี้แล้วครับ
     else if (paymentType === 'คนละครึ่ง' && halfHalfContainer) {
         halfHalfContainer.classList.remove('hidden'); halfHalfContainer.classList.add('flex');
         let govPayEl = document.getElementById('displayGovPay');
