@@ -1,356 +1,190 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FamePOS Customer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
-
-  <link rel="icon" type="image/png" href="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" sizes="192x192">
-  <link rel="apple-touch-icon" href="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Custome FamePOS">
-  <meta name="mobile-web-app-capable" content="yes">
-  
-  <style>
-    body { font-family: 'Kanit', sans-serif; background-color: #fff5f5; margin: 0; overflow: hidden; }
-    ::-webkit-scrollbar { display: none; }
-    .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าจอลูกค้า | FamePOS</title>
+    <!-- เพิ่มโลโก้แอปที่แท็บของเบราว์เซอร์ -->
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png">
+    
+    <!-- นำเข้า Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #fdf2f8; color: #831843; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .slide-up { animation: slideUp 0.5s ease-out forwards; }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
 </head>
-<body class="h-screen w-screen flex flex-col relative">
+<body class="h-screen w-screen overflow-hidden flex">
 
-  <div id="fullScreenAdOverlay" class="hidden fixed inset-0 z-[100] bg-white flex flex-col transition-opacity duration-300" style="opacity: 0; pointer-events: none;">
-      <div id="adCarousel" class="w-full h-full relative"></div>
-  </div>
-
-  <header class="bg-white border-b border-pink-600 p-4 flex justify-between items-center shrink-0 shadow-sm z-10">
-    <div class="flex items-center gap-3">
-      <img src="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" alt="CSD Logo" class="w-12 h-12 object-contain drop-shadow-sm">
-      <h1 class="text-3xl font-bold tracking-wide text-pink-800" id="displayStoreName">FamePOS</h1>
-    </div>
-    <div class="flex items-center gap-4">
-      <div class="text-right">
-        <div id="dateTimeDisplay" class="text-xl font-black text-pink-600 tracking-wider">00:00:00</div>
-      </div>
-    </div> 
-  </header>
-
-  <main class="flex-1 flex gap-6 p-6 overflow-hidden">
-    <section class="flex-1 bg-white rounded-[2rem] shadow-xl border border-pink-100 flex flex-col overflow-hidden">
-      <div class="bg-pink-50 p-4 border-b border-pink-100">
-        <h2 class="text-2xl font-bold text-pink-800">รายการสินค้า (Order Items)</h2>
-      </div>
-      <div class="flex-1 overflow-y-auto p-4 space-y-3" id="customerCartItems">
+    <!-- 🛒 ฝั่งซ้าย: รายการสินค้าในตะกร้า -->
+    <div class="w-1/2 h-full bg-white flex flex-col shadow-2xl z-10">
+        <!-- หัวตาราง -->
+        <div class="bg-pink-600 text-white p-6 shadow-md shrink-0 flex justify-between items-center">
+            <h1 class="text-3xl font-bold flex items-center gap-3">
+                <span class="text-4xl">🛒</span> รายการสินค้าของคุณ
+            </h1>
         </div>
-    </section>
 
-    <div id="queueCallDisplay" class="hidden fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
-        <div class="bg-white rounded-[3rem] p-12 shadow-2xl text-center transform scale-110">
-            <div class="text-8xl mb-6">🔔</div>
-            <h2 class="text-4xl font-bold text-pink-600 mb-4">เรียกคิว</h2>
-            <div id="calledQueueNumber" class="text-9xl font-black text-gray-800 tracking-tighter">--</div>
-            <p class="text-2xl text-gray-500 mt-6">กรุณามารับรายการอาหารที่เคาน์เตอร์</p>
+        <!-- รายการสินค้า (เลื่อนได้) -->
+        <div id="cdsCartItems" class="flex-1 overflow-y-auto no-scrollbar p-6 space-y-4 bg-gray-50">
+            <div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-50">
+                <span class="text-7xl mb-4">🛍️</span>
+                <span class="text-2xl font-bold">ยินดีต้อนรับสู่ FamePOS</span>
+            </div>
+        </div>
+
+        <!-- สรุปยอดรวม -->
+        <div class="bg-white p-6 border-t-4 border-pink-100 shrink-0">
+            <div class="flex justify-between items-center text-gray-500 mb-2">
+                <span class="text-xl font-bold">จำนวนสินค้า</span>
+                <span id="cdsTotalItems" class="text-xl font-bold">0 รายการ</span>
+            </div>
+            <div class="flex justify-between items-center text-pink-700">
+                <span class="text-4xl font-black">ยอดรวมทั้งสิ้น</span>
+                <span id="cdsGrandTotal" class="text-5xl font-black text-pink-600">฿0.00</span>
+            </div>
         </div>
     </div>
 
-    <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4">
-        <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
-        <div class="flex justify-between items-center text-xl text-gray-600">
-            <span>ยอดรวม:</span>
-            <span id="displaySubTotal" class="font-bold">฿0.00</span>
-        </div>
-        <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100">
-            <span>ยอดสุทธิ:</span>
-            <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
-        </div>
-
-        <div id="halfHalfContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner">
-            <div class="text-center font-bold text-pink-800 mb-1">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
-            <div class="flex justify-between items-center text-lg text-gray-600">
-                <span>รัฐออกให้ (60%):</span>
-                <span id="displayGovPay" class="font-bold text-pink-500">฿0.00</span>
-            </div>
-            <div class="flex justify-between items-center text-xl text-emerald-700 font-bold border-t border-pink-200 pt-3 mt-1">
-                <span>ลูกค้าจ่ายจริง (40%):</span>
-                <span id="displayCustomerPay" class="text-3xl">฿0.00</span>
-            </div>
-        </div>
-
-        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
-            <span class="font-bold">เงินทอน:</span>
-            <span id="displayChange" class="text-3xl font-bold">฿0.00</span>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
-         <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
-            <span class="text-6xl mb-4">✨</span>
-            <h3 class="text-2xl font-bold text-pink-700 mb-2">ตรวจสอบรายการอาหาร</h3>
-            <p class="text-gray-500 font-medium">ด้านซ้ายมือ</p>
-         </div>
-
-         <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4 md:p-6">
-            <h3 class="text-xl xl:text-2xl font-bold text-pink-800 mb-2 xl:mb-4 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
-            <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2 xl:mb-4">
-                <img id="qrDisplayImage" src="" class="w-full h-full max-w-[220px] object-contain border-4 border-pink-100 p-2 rounded-2xl shadow-sm">
-            </div>
-            <p class="text-gray-500 font-medium animate-pulse text-sm xl:text-base shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
-         </div>
-      </div>
-    </section>
-  </main>
-
-<script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
-
-    // 🚀 ระบบ Magic Proxy
-    const google = {
-        script: {
-            get run() {
-                let successCb = null;
-                let failureCb = null;
-                const proxy = new Proxy({}, {
-                    get: function(target, prop) {
-                        if (prop === 'withSuccessHandler') { return function(cb) { successCb = cb; return proxy; }; }
-                        if (prop === 'withFailureHandler') { return function(cb) { failureCb = cb; return proxy; }; }
-                        return function(...args) {
-                            fetch(API_URL, {
-                                method: "POST",
-                                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                                body: JSON.stringify({ action: prop, args: args }),
-                                redirect: "follow"
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if(data.status === "Success" && successCb) successCb(data.result);
-                                else if (data.status !== "Success" && failureCb) failureCb(data.message);
-                            }).catch(err => {
-                                if(failureCb) failureCb(err);
-                                else console.error("Fetch Error:", err);
-                            });
-                        };
-                    }
-                });
-                return proxy;
-            }
-        }
-    };
-
-    // ⏱️ นาฬิกา
-    setInterval(() => {
-        const now = new Date();
-        let timeEl = document.getElementById('dateTimeDisplay');
-        if(timeEl) timeEl.innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' }) + ' ' + now.toLocaleTimeString('th-TH');
-    }, 1000);
-
-    // ☁️ ระบบดึงข้อมูลรถเข็นจาก Cloud
-    let lastUpdateStr = "";
-    let isFetching = false;
-
-    function checkCloudData() {
-        if (isFetching) return;
-        isFetching = true;
-
-        google.script.run
-            .withSuccessHandler(function(currentStr) {
-                isFetching = false;
-                if (currentStr && currentStr !== lastUpdateStr) {
-                    lastUpdateStr = currentStr;
-                    updateCustomerUI(JSON.parse(currentStr));
-                }
-            })
-            .withFailureHandler(function(err) {
-                isFetching = false;
-                console.error("Cloud Sync Error:", err);
-            })
-            .getCDSStateGS();
-    }
-    
-    setInterval(checkCloudData, 1500);
-    window.addEventListener('load', checkCloudData);
-
-// ⏱️ ตัวแปรควบคุมการจับเวลาความเคลื่อนไหว (Inactivity Timer)
-let lastActivityTime = Date.now();
-
-// 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า
-function updateCustomerUI(data) {
-    if (!data) return;
-
-    // 🔄 ตรวจสอบความเคลื่อนไหว: ถ้าสถานะไม่ใช่ idle หรือมีสินค้าในตะกร้า ให้รีเซ็ตเวลานับถอยหลังใหม่
-    if (data.status !== 'idle' || (data.cart && data.cart.length > 0)) {
-        lastActivityTime = Date.now();
-    }
-
-    // 🛑 ระบบควบคุม Screensaver โฆษณา พร้อมระบบตรวจสอบเวลาถอยหลังอัจฉริยะ
-    const adOverlay = document.getElementById('fullScreenAdOverlay');
-    if (adOverlay) {
-        // ดึงค่าตั้งเวลาจากแคชเชียร์ (เช่น data.screensaverTimeout ในหน่วยนาที) ถ้าไม่มีค่าส่งมาจะตั้งเป็น 5 นาทีเป็นหลัก
-        const configMinutes = data.screensaverTimeout ? parseInt(data.screensaverTimeout) : 5;
-        const timeoutMs = configMinutes * 60 * 1000;
-        const idleDuration = Date.now() - lastActivityTime;
-
-        // จะแสดงโฆษณาเมื่อสถานะเป็น idle และไม่มีความเคลื่อนไหวเกินเวลาที่กำหนดไว้
-        if (data.status === 'idle' && idleDuration >= timeoutMs) {
-            adOverlay.classList.remove('hidden');
-            adOverlay.style.opacity = "1";
-            adOverlay.style.pointerEvents = "auto";
-        } else {
-            adOverlay.style.opacity = "0";
-            adOverlay.style.pointerEvents = "none";
-            if (!adOverlay.classList.contains('hidden')) {
-                setTimeout(() => {
-                    if (adOverlay.style.opacity === "0") {
-                        adOverlay.classList.add('hidden');
-                    }
-                }, 300);
-            }
-        }
-    }
-
-    if (data.logoUrl) { let logoEl = document.getElementById('displayLogo'); if (logoEl) logoEl.src = data.logoUrl; }
-    if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
-
-    const cartContainer = document.getElementById('customerCartItems');
-    if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
-        cartContainer.innerHTML = `
-            <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
-                <span class="text-8xl mb-4">🛒</span>
-                <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับลูกค้าทุกท่าน เชิญสั่งอาหารได้เลย</p>
-            </div>`;
-    } else {
-        let html = '';
-        data.cart.forEach(item => {
-            let baseName = item.name || "สินค้า";
-            let optionsHtml = '';
-            let optionIndex = baseName.search(/ \[| \+/);
-            
-            if (optionIndex !== -1) {
-                baseName = item.name.substring(0, optionIndex).trim();
-                let match = item.name.match(/\[(.*?)\]/);
-                if (match && match[1]) {
-                    let opts = match[1].split(',');
-                    optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
-                        opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
-                        `</div>`;
-                }
-            }
-
-            let imgTag = item.image 
-                ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
-                : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
-
-            html += `
-            <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
-                ${imgTag}
-                <div class="flex-1 min-w-0 py-1">
-                    <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
-                    ${optionsHtml}
+    <!-- 💳 ฝั่งขวา: แสดงการชำระเงิน หรือ โฆษณา -->
+    <div class="w-1/2 h-full bg-pink-50 relative flex flex-col justify-center items-center p-10 overflow-hidden">
+        
+        <!-- โหมดที่ 1: สแตนด์บาย (โชว์โลโก้ หรือ รูปโฆษณา) -->
+        <div id="cdsIdleMode" class="absolute inset-0 flex flex-col items-center justify-center p-10 transition-opacity duration-500">
+            <div class="bg-white p-12 rounded-[3rem] shadow-2xl flex flex-col items-center text-center w-full max-w-lg border-2 border-pink-100">
+                <!-- 🌟 เปลี่ยนมาใช้โลโก้แอปที่คุณส่งมาตรงนี้ 🌟 -->
+                <img src="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" class="w-40 h-40 object-contain mb-6 drop-shadow-md rounded-3xl" alt="FamePOS Logo">
+                
+                <h2 class="text-4xl font-black text-pink-700 mb-2">FamePOS</h2>
+                <p class="text-xl text-pink-500 font-bold">ระบบจัดการร้านค้าอัจฉริยะ</p>
+                <div class="mt-8 px-6 py-3 bg-pink-100 text-pink-600 rounded-full font-bold animate-pulse">
+                    ยินดีให้บริการครับ/ค่ะ 💖
                 </div>
-                <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
-                <div class="font-bold text-pink-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
-            </div>`;
-        });
-        cartContainer.innerHTML = html;
-        cartContainer.scrollTop = cartContainer.scrollHeight;
-    }
+            </div>
+        </div>
 
-    // --- ส่วนสรุปยอดและอื่นๆ ---
-    let subTotalEl = document.getElementById('displaySubTotal');
-    if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
-    
-    let grandTotalEl = document.getElementById('displayGrandTotal');
-    if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
+        <!-- โหมดที่ 2: ชำระเงินด้วย QR Code -->
+        <div id="cdsQRMode" class="absolute inset-0 flex flex-col items-center justify-center p-10 bg-white opacity-0 pointer-events-none transition-opacity duration-500">
+            <h2 class="text-4xl font-bold text-pink-700 mb-2">📱 สแกนเพื่อชำระเงิน</h2>
+            <p class="text-xl text-gray-500 mb-8">รองรับทุกธนาคาร (PromptPay)</p>
+            
+            <div class="bg-white p-6 rounded-3xl shadow-2xl border-4 border-pink-200 mb-8 slide-up">
+                <img id="cdsQRImage" src="" class="w-80 h-80 object-contain mx-auto" alt="PromptPay QR">
+            </div>
+            
+            <div class="text-center slide-up" style="animation-delay: 0.1s;">
+                <div class="text-2xl text-gray-500 font-bold mb-2">ยอดที่ต้องชำระ</div>
+                <div id="cdsQRAmount" class="text-6xl font-black text-pink-600">฿0.00</div>
+            </div>
+        </div>
 
-    // ✅ ระบบเรียกคิว
-    if (data.calledQueue && data.calledQueue !== "") {
-        const queueDisplay = document.getElementById('queueCallDisplay');
-        const queueNumber = document.getElementById('calledQueueNumber');
-        const lastQueueTime = localStorage.getItem('lastQueueTime') || 0;
-        
-        if (queueDisplay && data.queueTimestamp > lastQueueTime) {
-            queueNumber.innerText = data.calledQueue;
-            queueDisplay.classList.remove('hidden');
-            new Audio('https://actions.google.com/sounds/v1/notifications/bell_original.ogg').play().catch(()=>{});
-            localStorage.setItem('lastQueueTime', data.queueTimestamp);
-            setTimeout(() => { queueDisplay.classList.add('hidden'); }, 7000);
-        }
-    }
-}
+        <!-- โหมดที่ 3: ชำระเงินสด (โชว์เงินทอน) -->
+        <div id="cdsCashMode" class="absolute inset-0 flex flex-col items-center justify-center p-10 bg-gradient-to-br from-pink-500 to-pink-700 opacity-0 pointer-events-none transition-opacity duration-500 text-white">
+            <div class="text-8xl mb-6 slide-up">💵</div>
+            <h2 class="text-5xl font-black mb-10 slide-up">รับชำระเงินสด</h2>
+            
+            <div class="w-full max-w-md bg-white/20 backdrop-blur-md rounded-3xl p-8 slide-up text-center border border-white/30" style="animation-delay: 0.1s;">
+                <div class="text-xl font-bold opacity-90 mb-1">เงินทอนของคุณ</div>
+                <div id="cdsChangeAmount" class="text-7xl font-black text-yellow-300 drop-shadow-md">฿0.00</div>
+            </div>
+            
+            <p class="text-2xl font-bold mt-10 opacity-90 slide-up" style="animation-delay: 0.2s;">ขอบคุณที่ใช้บริการครับ/ค่ะ 🙏</p>
+        </div>
 
-    // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
-    let adSlides = [];
-    let currentAdIndex = 0;
-    let adTimer = null;
+    </div>
 
-    function fetchAdSettings() {
-        google.script.run.withSuccessHandler(function(res) {
-            if (res) {
-                if (JSON.stringify(res) !== JSON.stringify(adSlides)) {
-                    adSlides = res;
-                    if (adSlides.length > 0) {
-                        startAdCarousel();
-                    } else {
-                        clearTimeout(adTimer);
-                        let container = document.getElementById('adCarousel');
-                        if (container) {
-                            container.innerHTML = `
-                                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
-                                    <span class="text-6xl mb-4">✨</span>
-                                    <h3 class="text-2xl font-bold text-pink-700 mb-2">โปรโมชั่นพิเศษ</h3>
-                                    <p class="text-gray-500 font-medium">รอการอัปเดตโฆษณาเร็วๆ นี้</p>
-                                </div>`;
-                        }
-                    }
+    <!-- Script สำหรับดึงข้อมูลจาก Backend -->
+    <script>
+        // 🔗 ระบุ API URL จาก Google Apps Script ของคุณที่นี่
+        const API_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+
+        // ฟังก์ชันดึงข้อมูลแบบ Polling
+        async function fetchCDSState() {
+            try {
+                // ส่ง Request ไปถาม Backend (ฟังก์ชัน getCDSStateGS)
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ action: "getCDSStateGS", args: [] }),
+                    redirect: "follow"
+                });
+                const data = await response.json();
+                
+                if (data.status === "Success" && data.result) {
+                    const state = JSON.parse(data.result);
+                    updateUI(state);
                 }
+            } catch (error) {
+                console.error("CDS Sync Error:", error);
             }
-        }).getAdSettingsGS();
-    }
-
-    function startAdCarousel() {
-        if (adSlides.length === 0) return;
-        currentAdIndex = 0;
-        showAdSlide(currentAdIndex);
-    }
-
-    function showAdSlide(index) {
-        if (adSlides.length === 0) return;
-        currentAdIndex = index % adSlides.length;
-        let slide = adSlides[currentAdIndex];
-        
-        let container = document.getElementById('adCarousel');
-        if (container) {
-            container.innerHTML = `
-                <div class="absolute inset-0 flex flex-col w-full h-full animate-fade-in bg-white">
-                    <div class="flex-1 w-full bg-pink-50 flex items-center justify-center overflow-hidden relative">
-                       <img src="${slide.existingUrl}" class="w-full h-full object-cover absolute shadow-sm">
-                    </div>
-                    ${slide.text ? `
-                    <div class="p-6 bg-gradient-to-br from-pink-50 to-white flex items-center justify-center border-t border-pink-100 shrink-0 min-h-[120px] shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] z-10">
-                        <h3 class="text-2xl xl:text-3xl font-bold text-pink-800 text-center leading-relaxed">${slide.text}</h3>
-                    </div>` : ''}
-                </div>`;
         }
-        
-        clearTimeout(adTimer);
-        let duration = slide.duration ? parseInt(slide.duration) * 1000 : 5000;
-        adTimer = setTimeout(() => { showAdSlide(currentAdIndex + 1); }, duration);
-    }
 
-    setInterval(function() {
-        google.script.run.withSuccessHandler(function(data) {
-            if(data) { updateCustomerUI(JSON.parse(data)); }
-        }).getCDSStateGS();
-    }, 1500);
-    
-    window.addEventListener('load', fetchAdSettings);
-    setInterval(fetchAdSettings, 5000); 
-</script>
+        // ฟังก์ชันอัปเดตหน้าจอ
+        function updateUI(state) {
+            // 1. อัปเดตตะกร้าสินค้า
+            const cartContainer = document.getElementById('cdsCartItems');
+            if (state.cart && state.cart.length > 0) {
+                let html = '';
+                let totalItems = 0;
+                state.cart.forEach(item => {
+                    totalItems += item.qty;
+                    let totalLine = parseFloat(item.price * item.qty || item.total || 0).toFixed(2);
+                    html += `
+                    <div class="flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-gray-100 slide-up">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center font-bold text-xl">${item.qty}x</div>
+                            <div class="text-2xl font-bold text-gray-800">${item.name}</div>
+                        </div>
+                        <div class="text-2xl font-bold text-pink-600">฿${totalLine}</div>
+                    </div>`;
+                });
+                cartContainer.innerHTML = html;
+                document.getElementById('cdsTotalItems').innerText = `${totalItems} รายการ`;
+                document.getElementById('cdsGrandTotal').innerText = `฿${parseFloat(state.grandTotal).toFixed(2)}`;
+            } else {
+                cartContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-50">
+                        <span class="text-7xl mb-4">🛍️</span>
+                        <span class="text-2xl font-bold">ยังไม่มีสินค้าในตะกร้า</span>
+                    </div>`;
+                document.getElementById('cdsTotalItems').innerText = `0 รายการ`;
+                document.getElementById('cdsGrandTotal').innerText = `฿0.00`;
+            }
+
+            // 2. สลับโหมดการแสดงผลฝั่งขวา
+            const idleMode = document.getElementById('cdsIdleMode');
+            const qrMode = document.getElementById('cdsQRMode');
+            const cashMode = document.getElementById('cdsCashMode');
+
+            // รีเซ็ตการแสดงผล
+            idleMode.style.opacity = '0'; idleMode.style.pointerEvents = 'none';
+            qrMode.style.opacity = '0'; qrMode.style.pointerEvents = 'none';
+            cashMode.style.opacity = '0'; cashMode.style.pointerEvents = 'none';
+
+            if (state.status === "qr_payment") {
+                document.getElementById('cdsQRImage').src = state.qrUrl || "";
+                document.getElementById('cdsQRAmount').innerText = `฿${parseFloat(state.grandTotal).toFixed(2)}`;
+                qrMode.style.opacity = '1'; qrMode.style.pointerEvents = 'auto';
+            } 
+            else if (state.status === "cash_payment") {
+                document.getElementById('cdsChangeAmount').innerText = `฿${parseFloat(state.changeAmount).toFixed(2)}`;
+                cashMode.style.opacity = '1'; cashMode.style.pointerEvents = 'auto';
+            } 
+            else {
+                idleMode.style.opacity = '1'; idleMode.style.pointerEvents = 'auto';
+            }
+        }
+
+        // เรียกใช้งานดึงข้อมูลอัตโนมัติทุกๆ 1.5 วินาที (Polling)
+        setInterval(fetchCDSState, 1500);
+        fetchCDSState(); // โหลดครั้งแรกทันที
+    </script>
 </body>
 </html>
