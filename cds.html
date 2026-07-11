@@ -352,7 +352,6 @@ function updateCustomerUI(data) {
         else { taxServiceContainer.classList.add('hidden'); taxServiceContainer.classList.remove('flex'); }
     }
 
-    // แปลงยอดสุทธิเป็นตัวเลขเพื่อใช้คำนวณ
     let grandTotalNum = parseFloat(data.grandTotal.replace(/[^0-9.-]+/g, "")) || 0;
     let grandTotalEl = document.getElementById('displayGrandTotal');
     if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
@@ -364,7 +363,6 @@ function updateCustomerUI(data) {
     let paymentMethodEl = document.getElementById('displayPaymentMethod');
     if (paymentMethodEl) paymentMethodEl.innerText = paymentType;
 
-    // เตรียม Elements
     let splitContainer = document.getElementById('splitPaymentContainer');
     let halfHalfContainer = document.getElementById('halfHalfContainer');
     let changeContainer = document.getElementById('changeContainer');
@@ -375,8 +373,6 @@ function updateCustomerUI(data) {
     if(splitContainer) { splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex'); }
     if(halfHalfContainer) { halfHalfContainer.classList.add('hidden'); halfHalfContainer.classList.remove('flex'); }
     if(changeContainer) { changeContainer.classList.add('hidden'); changeContainer.classList.remove('flex'); }
-    if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
-    if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
 
     // 🔴 3.1 กรณี: แบ่งจ่าย
     if (paymentType === 'แบ่งจ่าย' && splitContainer) {
@@ -386,17 +382,14 @@ function updateCustomerUI(data) {
         if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
         if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
     }
-    
     // 🔴 3.2 กรณี: คนละครึ่ง
     else if (paymentType === 'คนละครึ่ง' && halfHalfContainer) {
         halfHalfContainer.classList.remove('hidden'); halfHalfContainer.classList.add('flex');
         let govPayEl = document.getElementById('displayGovPay');
         let cusPayEl = document.getElementById('displayCustomerPay');
-        // คำนวณ รัฐ 60% / ลูกค้า 40% (อ้างอิงตาม HTML ที่ทำไว้)
         if (govPayEl) govPayEl.innerText = "฿" + (grandTotalNum * 0.6).toFixed(2);
         if (cusPayEl) cusPayEl.innerText = "฿" + (grandTotalNum * 0.4).toFixed(2);
     }
-    
     // 🔴 3.3 กรณี: เงินสด (โชว์เงินทอน)
     else if (paymentType === 'เงินสด' && changeContainer) {
         changeContainer.classList.remove('hidden'); changeContainer.classList.add('flex');
@@ -404,14 +397,18 @@ function updateCustomerUI(data) {
         if (changeEl) changeEl.innerText = "฿" + parseFloat(data.change || 0).toFixed(2);
     }
 
-    // 🔴 3.4 กรณี: โอนเงิน (สลับหน้าจอขวาเป็น QR Code)
-    if (data.status === 'qr_payment' && data.qrImage && data.qrImage !== "") {
+    // 🔴 3.4 โชว์ QR Code (ครอบคลุมทั้งโอนเงิน และ สแกนแบ่งจ่าย)
+    if (data.qrImage && data.qrImage !== "") {
         if(adState) { adState.classList.add('hidden'); adState.classList.remove('flex'); }
         if(qrState) {
             qrState.classList.remove('hidden'); qrState.classList.add('flex');
             let qrImgEl = document.getElementById('qrDisplayImage');
             if (qrImgEl) qrImgEl.src = data.qrImage;
         }
+    } else {
+        // ถ้าไม่มีรูป QR ให้กลับไปโชว์หน้าตรวจอาหาร
+        if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
+        if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
     }
 
     // ✅ ระบบเรียกคิว
