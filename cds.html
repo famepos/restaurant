@@ -137,16 +137,26 @@
     </div>
 </div>
 
-            <!-- โหมดหารเท่ากัน -->
-            <div id="splitEqualDisplay" class="hidden flex-col w-full gap-2">
-                <div class="flex justify-between items-center text-lg text-gray-600">
-                    <span>จำนวนคิวชำระ:</span>
-                    <span class="font-bold text-blue-600">คนที่ <span id="displaySplitCurrentPerson" class="text-xl">1</span> / <span id="displaySplitTotalPeople">2</span></span>
-                </div>
-                <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
-                    <span>ยอดสแกนต่อคน:</span>
-                    <span id="displaySplitPerPerson" class="text-4xl">฿0.00</span>
-                </div>
+  <!-- โหมดหารเท่ากัน -->
+        <div id="splitEqualDisplay" class="hidden flex-col w-full gap-2">
+            <div class="flex justify-between items-center text-lg text-gray-600">
+                <span>จำนวนคิวชำระ:</span>
+                <span class="font-bold text-blue-600">คนที่ <span id="displaySplitCurrentPerson" class="text-xl">1</span> / <span id="displaySplitTotalPeople">2</span></span>
+            </div>
+
+            <!-- เพิ่ม 2 บรรทัดนี้สำหรับโหมดหารเท่ากัน -->
+            <div id="splitEqualReceivedRow" class="flex justify-between items-center text-lg text-gray-600 hidden">
+                <span>รับเงินสดมา:</span>
+                <span id="displaySplitEqualReceived" class="font-bold text-gray-800">฿0.00</span>
+            </div>
+            <div id="splitEqualChangeRow" class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
+                <span class="font-bold">เงินทอน:</span>
+                <span id="displaySplitEqualChange" class="font-bold text-xl">฿0.00</span>
+            </div>
+
+            <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
+                <span>ยอดสแกนต่อคน:</span>
+                <span id="displaySplitPerPerson" class="text-4xl">฿0.00</span>
             </div>
         </div>
 
@@ -422,12 +432,35 @@ function updateCustomerUI(data) {
             if(splitTitle) splitTitle.innerText = "✂️ แบ่งจ่าย (หารบิลเท่ากัน)";
             if(mixDisplay) { mixDisplay.classList.add('hidden'); mixDisplay.classList.remove('flex'); }
             if(equalDisplay) { equalDisplay.classList.remove('hidden'); equalDisplay.classList.add('flex'); }
+            
             let perPersonEl = document.getElementById('displaySplitPerPerson');
             if(perPersonEl) perPersonEl.innerText = "฿" + parseFloat(data.splitPerPerson || 0).toFixed(2);
             let curPersonEl = document.getElementById('displaySplitCurrentPerson');
             if(curPersonEl) curPersonEl.innerText = data.splitCurrentPerson || "1";
             let totPersonEl = document.getElementById('displaySplitTotalPeople');
             if(totPersonEl) totPersonEl.innerText = data.splitTotalPeople || "2";
+
+            // 🟢 แสดงเงินสดที่รับมาและเงินทอน (โหมดหารเท่ากัน)
+            let eqRecRow = document.getElementById('splitEqualReceivedRow');
+            let eqRecEl = document.getElementById('displaySplitEqualReceived');
+            let eqChgRow = document.getElementById('splitEqualChangeRow');
+            let eqChgEl = document.getElementById('displaySplitEqualChange');
+
+            if (data.splitCashReceived && parseFloat(data.splitCashReceived) > 0) {
+                if (eqRecRow) { eqRecRow.classList.remove('hidden'); eqRecRow.classList.add('flex'); }
+                if (eqRecEl) eqRecEl.innerText = "฿" + parseFloat(data.splitCashReceived).toFixed(2);
+                
+                if (data.splitChange && parseFloat(data.splitChange) > 0) {
+                    if (eqChgRow) { eqChgRow.classList.remove('hidden'); eqChgRow.classList.add('flex'); }
+                    if (eqChgEl) eqChgEl.innerText = "฿" + parseFloat(data.splitChange).toFixed(2);
+                } else {
+                    if (eqChgRow) { eqChgRow.classList.add('hidden'); eqChgRow.classList.remove('flex'); }
+                }
+            } else {
+                if (eqRecRow) { eqRecRow.classList.add('hidden'); eqRecRow.classList.remove('flex'); }
+                if (eqChgRow) { eqChgRow.classList.add('hidden'); eqChgRow.classList.remove('flex'); }
+            }
+
         } else {
             if(splitTitle) splitTitle.innerText = "💵 แบ่งจ่าย (เงินสด + โอนเงิน)";
             if(equalDisplay) { equalDisplay.classList.add('hidden'); equalDisplay.classList.remove('flex'); }
@@ -438,18 +471,24 @@ function updateCustomerUI(data) {
             if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
             if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
             
-            // 🟢 แสดงเงินสดที่รับมาและเงินทอน
+            // 🟢 แสดงเงินสดที่รับมาและเงินทอน (โหมดผสม)
             let splitReceivedRow = document.getElementById('splitMixReceivedRow');
             let splitReceivedEl = document.getElementById('displaySplitReceived');
             let splitChangeRow = document.getElementById('splitMixChangeRow');
             let splitChangeEl = document.getElementById('displaySplitChange');
 
-            if (data.splitCashReceived && parseFloat(data.splitCashReceived) > parseFloat(data.splitCash || 0)) {
+            // แก้ไขเงื่อนไขให้โชว์ถ้ารับเงินสดมา > 0
+            if (data.splitCashReceived && parseFloat(data.splitCashReceived) > 0) {
                 if (splitReceivedRow) { splitReceivedRow.classList.remove('hidden'); splitReceivedRow.classList.add('flex'); }
                 if (splitReceivedEl) splitReceivedEl.innerText = "฿" + parseFloat(data.splitCashReceived).toFixed(2);
                 
-                if (splitChangeRow) { splitChangeRow.classList.remove('hidden'); splitChangeRow.classList.add('flex'); }
-                if (splitChangeEl) splitChangeEl.innerText = "฿" + parseFloat(data.splitChange).toFixed(2);
+                // โชว์เงินทอนเฉพาะตอนที่มีทอน
+                if (data.splitChange && parseFloat(data.splitChange) > 0) {
+                    if (splitChangeRow) { splitChangeRow.classList.remove('hidden'); splitChangeRow.classList.add('flex'); }
+                    if (splitChangeEl) splitChangeEl.innerText = "฿" + parseFloat(data.splitChange).toFixed(2);
+                } else {
+                    if (splitChangeRow) { splitChangeRow.classList.add('hidden'); splitChangeRow.classList.remove('flex'); }
+                }
             } else {
                 if (splitReceivedRow) { splitReceivedRow.classList.add('hidden'); splitReceivedRow.classList.remove('flex'); }
                 if (splitChangeRow) { splitChangeRow.classList.add('hidden'); splitChangeRow.classList.remove('flex'); }
