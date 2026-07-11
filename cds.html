@@ -129,18 +129,22 @@
                 </div>
             </div>
 
-            <!-- โหมดหารเท่ากัน -->
+    <!-- โหมดหารเท่ากัน -->
             <div id="splitEqualDisplay" class="hidden flex-col w-full gap-2">
                 <div class="flex justify-between items-center text-lg text-gray-600">
                     <span>จำนวนคิวชำระ:</span>
                     <span class="font-bold text-blue-600">คนที่ <span id="displaySplitCurrentPerson" class="text-xl">1</span> / <span id="displaySplitTotalPeople">2</span></span>
                 </div>
-                <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
+                <!-- 🟢 เพิ่มช่องแสดงเงินสดรับมา (สำหรับโหมดหารเท่ากัน) -->
+                <div class="flex justify-between items-center text-lg text-gray-600 border-t border-blue-200 pt-2 mt-1">
+                    <span>ชำระเงินสด:</span>
+                    <span id="displaySplitEqCash" class="font-bold text-emerald-600">฿0.00</span>
+                </div>
+                <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-2 mt-1">
                     <span>ยอดสแกนต่อคน:</span>
                     <span id="displaySplitPerPerson" class="text-4xl">฿0.00</span>
                 </div>
             </div>
-        </div>
 
         <!-- เงินทอน -->
         <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
@@ -244,9 +248,7 @@ let lastActivityTime = Date.now();
 function updateCustomerUI(data) {
     if (!data) return;
 
-    if (data.status !== 'idle' || (data.cart && data.cart.length > 0)) {
-        lastActivityTime = Date.now();
-    }
+    if (data.status !== 'idle' || (data.cart && data.cart.length > 0)) { lastActivityTime = Date.now(); }
 
     const adOverlay = document.getElementById('fullScreenAdOverlay');
     if (adOverlay) {
@@ -269,9 +271,7 @@ function updateCustomerUI(data) {
 
     const cartContainer = document.getElementById('customerCartItems');
     
-    // ==========================================
-    // 🛑 1. กรณี: ตะกร้าว่างเปล่า หรือ ชำระเงินเสร็จแล้ว (บังคับล้างค่าเป็น 0 และซ่อนกล่องทั้งหมด)
-    // ==========================================
+    // 🛑 ตะกร้าว่าง หรือ ชำระเงินเสร็จ
     if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
         cartContainer.innerHTML = `
             <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
@@ -284,21 +284,17 @@ function updateCustomerUI(data) {
         let otEl = document.getElementById('displayOrderType'); if(otEl) otEl.innerText = "-";
         let pmEl = document.getElementById('displayPaymentMethod'); if(pmEl) pmEl.innerText = "-";
         
-        // ซ่อนกล่องชำระเงินทุกประเภท
         if (document.getElementById('taxServiceContainer')) { document.getElementById('taxServiceContainer').classList.add('hidden'); document.getElementById('taxServiceContainer').classList.remove('flex'); }
         if (document.getElementById('splitPaymentContainer')) { document.getElementById('splitPaymentContainer').classList.add('hidden'); document.getElementById('splitPaymentContainer').classList.remove('flex'); }
         if (document.getElementById('halfHalfContainer')) { document.getElementById('halfHalfContainer').classList.add('hidden'); document.getElementById('halfHalfContainer').classList.remove('flex'); }
         if (document.getElementById('changeContainer')) { document.getElementById('changeContainer').classList.add('hidden'); document.getElementById('changeContainer').classList.remove('flex'); }
-        
-        // คืนค่าหน้าจอด้านขวากลับไปเป็นสถานะตรวจรายการ
         if (document.getElementById('qrState')) { document.getElementById('qrState').classList.add('hidden'); document.getElementById('qrState').classList.remove('flex'); }
         if (document.getElementById('adState')) { document.getElementById('adState').classList.remove('hidden'); document.getElementById('adState').classList.add('flex'); }
+        if (document.getElementById('paymentMethodRow')) { document.getElementById('paymentMethodRow').classList.add('hidden'); document.getElementById('paymentMethodRow').classList.remove('flex'); }
         return; 
     }
 
-    // ==========================================
-    // 🟢 2. กรณี: มีการคลิกสั่งอาหาร (แสดงสินค้าและยอดเงิน)
-    // ==========================================
+    // 🟢 แสดงสินค้า
     let html = '';
     data.cart.forEach(item => {
         let baseName = item.name || "สินค้า";
@@ -309,23 +305,14 @@ function updateCustomerUI(data) {
             let match = item.name.match(/\[(.*?)\]/);
             if (match && match[1]) {
                 let opts = match[1].split(',');
-                optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
-                    opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
-                    `</div>`;
+                optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + `</div>`;
             }
         }
-
-        let imgTag = item.image 
-            ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
-            : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
-
+        let imgTag = item.image ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
         html += `
         <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
             ${imgTag}
-            <div class="flex-1 min-w-0 py-1">
-                <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
-                ${optionsHtml}
-            </div>
+            <div class="flex-1 min-w-0 py-1"><div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>${optionsHtml}</div>
             <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
             <div class="font-bold text-pink-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
         </div>`;
@@ -337,8 +324,16 @@ function updateCustomerUI(data) {
     let subTotalEl = document.getElementById('displaySubTotal');
     if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
 
+    // 🟢 แสดงผลรูปแบบบริการ (ดักจับ เดลิเวอรี่)
     let orderTypeEl = document.getElementById('displayOrderType');
-    if(orderTypeEl) orderTypeEl.innerText = data.orderType || "-";
+    if(orderTypeEl) {
+        if (data.orderType === 'เดลิเวอรี่') {
+            // โชว์รูปแบบตามที่คุณต้องการ
+            orderTypeEl.innerHTML = `<span class="text-orange-600">${data.deliveryApp || '🛵 เดลิเวอรี่'} 🆔 ออเดอร์: ${data.deliveryOrderId || '-'} <br><span class="text-sm">รอรับอาหารได้เลยค่ะ</span></span>`;
+        } else {
+            orderTypeEl.innerHTML = `<span class="text-pink-600">${data.orderType || "-"}</span>`;
+        }
+    }
 
     // ประมวลผลภาษี (VAT) และ ค่าบริการ
     let vatEl = document.getElementById('displayVat');
@@ -353,18 +348,14 @@ function updateCustomerUI(data) {
         if (vatEl) { vatEl.innerText = "฿" + vatVal.toFixed(2); vatEl.parentElement.style.display = 'flex'; }
         if (labelVat) labelVat.innerText = (data.taxType === 'percent' && data.taxAmount > 0) ? `ภาษี (VAT ${data.taxAmount}%):` : `ภาษี (VAT):`;
         showTaxServiceBlock = true;
-    } else {
-        if (vatEl) vatEl.parentElement.style.display = 'none'; 
-    }
+    } else { if (vatEl) vatEl.parentElement.style.display = 'none'; }
 
     let serviceVal = parseFloat(data.serviceCharge);
     if (!isNaN(serviceVal) && serviceVal > 0) {
         if (serviceEl) { serviceEl.innerText = "฿" + serviceVal.toFixed(2); serviceEl.parentElement.style.display = 'flex'; }
         if (labelService) labelService.innerText = (data.serviceType === 'fixed' && data.serviceValue > 0) ? `ค่าบริการ (฿${data.serviceValue}):` : `ค่าบริการ:`;
         showTaxServiceBlock = true;
-    } else {
-        if (serviceEl) serviceEl.parentElement.style.display = 'none'; 
-    }
+    } else { if (serviceEl) serviceEl.parentElement.style.display = 'none'; }
 
     if (taxServiceContainer) {
         if (showTaxServiceBlock) { taxServiceContainer.classList.remove('hidden'); taxServiceContainer.classList.add('flex'); } 
@@ -375,14 +366,13 @@ function updateCustomerUI(data) {
     let grandTotalEl = document.getElementById('displayGrandTotal');
     if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
-// ==========================================
-    // ⚙️ 3. จัดการ UI ช่องทางชำระเงิน (เงินทอน, QR, แบ่งจ่าย, คนละครึ่ง)
+    // ==========================================
+    // ⚙️ จัดการ UI ช่องทางชำระเงิน
     // ==========================================
     let paymentType = data.paymentMethod || "-";
     let paymentMethodEl = document.getElementById('displayPaymentMethod');
     let paymentMethodRow = document.getElementById('paymentMethodRow');
 
-    // 🟢 ถ้าแคชเชียร์ยังไม่เปิดหน้าชำระเงิน ให้ซ่อนบรรทัด "วิธีชำระเงิน" ทิ้งไปเลย
     if (paymentType === "-" || paymentType === "กำลังเลือก...") {
         if (paymentMethodRow) { paymentMethodRow.classList.add('hidden'); paymentMethodRow.classList.remove('flex'); }
     } else {
@@ -390,24 +380,20 @@ function updateCustomerUI(data) {
         if (paymentMethodRow) { paymentMethodRow.classList.remove('hidden'); paymentMethodRow.classList.add('flex'); }
     }
 
-    // เตรียม Elements
     let splitContainer = document.getElementById('splitPaymentContainer');
     let halfHalfContainer = document.getElementById('halfHalfContainer');
     let changeContainer = document.getElementById('changeContainer');
     let qrState = document.getElementById('qrState');
     let adState = document.getElementById('adState');
 
-    // ซ่อนกล่องชำระเงินทั้งหมดไว้ก่อน เพื่อรีเซ็ต
     if(splitContainer) { splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex'); }
     if(halfHalfContainer) { halfHalfContainer.classList.add('hidden'); halfHalfContainer.classList.remove('flex'); }
     if(changeContainer) { changeContainer.classList.add('hidden'); changeContainer.classList.remove('flex'); }
     if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
     if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
 
-    // 🛑 🛑 ถ้าไม่ได้อยู่ในโหมดชำระเงิน (paymentType เป็น "-") ให้จบการทำงานตรงนี้เลย ไม่ต้องโชว์อะไรต่อ
     if (paymentType === "-") return;
 
-    // 🔴 3.1 กรณี: แบ่งจ่าย
     if (paymentType === 'แบ่งจ่าย' && splitContainer) {
         splitContainer.classList.remove('hidden'); splitContainer.classList.add('flex');
         
@@ -425,6 +411,10 @@ function updateCustomerUI(data) {
             if(curPersonEl) curPersonEl.innerText = data.splitCurrentPerson || "1";
             let totPersonEl = document.getElementById('displaySplitTotalPeople');
             if(totPersonEl) totPersonEl.innerText = data.splitTotalPeople || "2";
+            
+            // 🟢 อัปเดตเงินสดที่รับมา ในโหมดหารเท่ากัน
+            let eqCashEl = document.getElementById('displaySplitEqCash');
+            if(eqCashEl) eqCashEl.innerText = (data.splitCash && parseFloat(data.splitCash) > 0) ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
         } else {
             if(splitTitle) splitTitle.innerText = "💵 แบ่งจ่าย (เงินสด + โอนเงิน)";
             if(equalDisplay) { equalDisplay.classList.add('hidden'); equalDisplay.classList.remove('flex'); }
@@ -435,8 +425,6 @@ function updateCustomerUI(data) {
             if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
         }
     }
-    
-    // 🔴 3.2 กรณี: คนละครึ่ง
     else if (paymentType === 'คนละครึ่ง' && halfHalfContainer) {
         halfHalfContainer.classList.remove('hidden'); halfHalfContainer.classList.add('flex');
         let govPayEl = document.getElementById('displayGovPay');
@@ -444,15 +432,12 @@ function updateCustomerUI(data) {
         if (govPayEl) govPayEl.innerText = "฿" + (grandTotalNum * 0.6).toFixed(2);
         if (cusPayEl) cusPayEl.innerText = "฿" + (grandTotalNum * 0.4).toFixed(2);
     }
-    
-    // 🔴 3.3 กรณี: เงินสด (โชว์เงินทอน)
     else if (paymentType === 'เงินสด' && changeContainer) {
         changeContainer.classList.remove('hidden'); changeContainer.classList.add('flex');
         let changeEl = document.getElementById('displayChange');
         if (changeEl) changeEl.innerText = "฿" + parseFloat(data.change || 0).toFixed(2);
     }
 
-    // 🔴 3.4 โชว์ QR Code
     if (data.qrImage && data.qrImage !== "") {
         if(adState) { adState.classList.add('hidden'); adState.classList.remove('flex'); }
         if(qrState) {
@@ -465,7 +450,6 @@ function updateCustomerUI(data) {
         if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
     }
 
-    // ✅ ระบบเรียกคิว
     if (data.calledQueue && data.calledQueue !== "") {
         const queueDisplay = document.getElementById('queueCallDisplay');
         const queueNumber = document.getElementById('calledQueueNumber');
