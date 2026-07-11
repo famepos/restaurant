@@ -59,43 +59,46 @@
         </div>
     </div>
 
-   <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4">
-        <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
-        
-        <!-- โชว์ช่องทางการรับสินค้า (รูปแบบบริการ) -->
-        <div class="flex justify-between items-center text-lg text-gray-600">
-            <span>รูปแบบบริการ:</span>
-            <span id="displayOrderType" class="font-bold text-pink-600">-</span>
-        </div>
+ <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
+  <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4">
+    <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
+    
+    <!-- โชว์ช่องทางการรับสินค้า (รูปแบบบริการ) -->
+    <div class="flex justify-between items-center text-lg text-gray-600">
+        <span>รูปแบบบริการ:</span>
+        <span id="displayOrderType" class="font-bold text-pink-600">-</span>
+    </div>
 
-        <!-- 🟢 [เพิ่มใหม่] โชว์วิธีชำระเงิน -->
-        <div class="flex justify-between items-center text-lg text-gray-600">
-            <span>วิธีชำระเงิน:</span>
-            <span id="displayPaymentMethod" class="font-bold text-blue-600">กำลังเลือก...</span>
-        </div>
+    <!-- โชว์วิธีชำระเงิน -->
+    <div class="flex justify-between items-center text-lg text-gray-600">
+        <span>วิธีชำระเงิน:</span>
+        <span id="displayPaymentMethod" class="font-bold text-blue-600">-</span>
+    </div>
 
-        <div class="flex justify-between items-center text-xl text-gray-600 border-t border-dashed border-gray-200 pt-2 mt-1">
-            <span>ยอดรวม:</span>
-            <span id="displaySubTotal" class="font-bold">฿0.00</span>
-        </div>
+    <!-- ยอดรวมสินค้า -->
+    <div class="flex justify-between items-center text-xl text-gray-600 border-t border-dashed border-gray-200 pt-2 mt-1">
+        <span>ยอดรวม:</span>
+        <span id="displaySubTotal" class="font-bold">฿0.00</span>
+    </div>
 
-        <!-- โชว์ VAT และ Service Charge -->
-        <div id="taxServiceContainer" class="hidden flex-col gap-2 border-t border-dashed border-gray-200 pt-2 mt-1">
-            <div class="flex justify-between items-center text-lg text-gray-500">
-                <span>ภาษี (VAT):</span>
-                <span id="displayVat" class="font-bold">฿0.00</span>
-            </div>
-            <div class="flex justify-between items-center text-lg text-gray-500">
-                <span>ค่าบริการ:</span>
-                <span id="displayServiceCharge" class="font-bold">฿0.00</span>
-            </div>
-        </div>
+    <!-- ยอดสุทธิ (อยู่ตรงกลางเด่นๆ) -->
+    <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100 mt-1">
+        <span>ยอดสุทธิ:</span>
+        <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
+    </div>
 
-        <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100 mt-1">
-            <span>ยอดสุทธิ:</span>
-            <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
+    <!-- 🟢 [ย้ายมาไว้ด้านล่าง] โชว์ VAT และ Service Charge -->
+    <div id="taxServiceContainer" class="hidden flex-col gap-2 mt-1 p-4 rounded-2xl bg-gray-50 border border-gray-100 shadow-inner">
+        <div class="flex justify-between items-center text-base text-gray-500">
+            <span id="labelVat">ภาษี (VAT):</span>
+            <span id="displayVat" class="font-bold text-gray-700">฿0.00</span>
         </div>
+        <div class="flex justify-between items-center text-base text-gray-500 border-t border-dashed border-gray-200 pt-2 mt-1">
+            <span id="labelService">ค่าบริการ:</span>
+            <span id="displayServiceCharge" class="font-bold text-gray-700">฿0.00</span>
+        </div>
+    </div>
+
 
         <div id="halfHalfContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner">
             <div class="text-center font-bold text-pink-800 mb-1">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
@@ -254,72 +257,87 @@ function updateCustomerUI(data) {
     if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
 
     const cartContainer = document.getElementById('customerCartItems');
+   // ==========================================
+    // 🛑 1. กรณี: ลูกค้ายืนเฉยๆ / ยังไม่ได้สั่งอาหาร
+    // ==========================================
     if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
         cartContainer.innerHTML = `
             <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
                 <span class="text-8xl mb-4">🛒</span>
                 <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับลูกค้าทุกท่าน เชิญสั่งอาหารได้เลย</p>
             </div>`;
-    } else {
-        let html = '';
-        data.cart.forEach(item => {
-            let baseName = item.name || "สินค้า";
-            let optionsHtml = '';
-            let optionIndex = baseName.search(/ \[| \+/);
             
-            if (optionIndex !== -1) {
-                baseName = item.name.substring(0, optionIndex).trim();
-                let match = item.name.match(/\[(.*?)\]/);
-                if (match && match[1]) {
-                    let opts = match[1].split(',');
-                    optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
-                        opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
-                        `</div>`;
-                }
+        // 🚨 บังคับรีเซ็ตทุกค่าให้เป็น 0.00 ป้องกันค่าบริการค้าง
+        let stEl = document.getElementById('displaySubTotal'); if(stEl) stEl.innerText = "฿0.00";
+        let gtEl = document.getElementById('displayGrandTotal'); if(gtEl) gtEl.innerText = "฿0.00";
+        let otEl = document.getElementById('displayOrderType'); if(otEl) otEl.innerText = "-";
+        let pmEl = document.getElementById('displayPaymentMethod'); if(pmEl) pmEl.innerText = "-";
+        
+        let tsContainer = document.getElementById('taxServiceContainer');
+        if (tsContainer) {
+            tsContainer.classList.add('hidden');
+            tsContainer.classList.remove('flex');
+        }
+        return; // จบการทำงานตรงนี้เลย จะได้ไม่ไปประมวลผลตัวเลขด้านล่าง
+    } 
+
+    // ==========================================
+    // 🟢 2. กรณี: มีการคลิกสั่งอาหาร (แสดงสินค้าและยอดเงิน)
+    // ==========================================
+    let html = '';
+    data.cart.forEach(item => {
+        let baseName = item.name || "สินค้า";
+        let optionsHtml = '';
+        let optionIndex = baseName.search(/ \[| \+/);
+        
+        if (optionIndex !== -1) {
+            baseName = item.name.substring(0, optionIndex).trim();
+            let match = item.name.match(/\[(.*?)\]/);
+            if (match && match[1]) {
+                let opts = match[1].split(',');
+                optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
+                    opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
+                    `</div>`;
             }
+        }
 
-            let imgTag = item.image 
-                ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
-                : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
+        let imgTag = item.image 
+            ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
+            : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
 
-            html += `
-            <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
-                ${imgTag}
-                <div class="flex-1 min-w-0 py-1">
-                    <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
-                    ${optionsHtml}
-                </div>
-                <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
-                <div class="font-bold text-pink-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
-            </div>`;
-        });
-        cartContainer.innerHTML = html;
-        cartContainer.scrollTop = cartContainer.scrollHeight;
-    }
+        html += `
+        <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
+            ${imgTag}
+            <div class="flex-1 min-w-0 py-1">
+                <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
+                ${optionsHtml}
+            </div>
+            <div class="font-bold text-gray-400 text-xl w-12 text-center shrink-0">x${item.qty}</div>
+            <div class="font-bold text-pink-600 text-2xl w-28 text-right shrink-0">฿${(item.price * item.qty).toFixed(2)}</div>
+        </div>`;
+    });
+    cartContainer.innerHTML = html;
+    cartContainer.scrollTop = cartContainer.scrollHeight;
 
     // --- ส่วนสรุปยอด ---
     let subTotalEl = document.getElementById('displaySubTotal');
     if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
 
-    // 1. ดึงข้อมูลรูปแบบบริการ / ช่องทางการรับ
+    // อัปเดต รูปแบบบริการ และ วิธีชำระเงิน
     let orderTypeEl = document.getElementById('displayOrderType');
-    if(orderTypeEl) orderTypeEl.innerText = data.orderType || "-";
+    if(orderTypeEl) orderTypeEl.innerText = data.orderType || "ทานที่ร้าน";
 
-    // 🟢 2. [ใหม่] ดึงข้อมูลช่องทางการชำระเงิน และการแบ่งจ่าย
     let paymentMethodEl = document.getElementById('displayPaymentMethod');
-    let splitContainer = document.getElementById('splitPaymentContainer');
-
     let paymentType = data.paymentType || data.paymentMethod || "กำลังเลือก...";
     if (paymentMethodEl) paymentMethodEl.innerText = paymentType;
 
-    // ตรวจสอบและแสดงผลกล่องแบ่งจ่าย (Split Payment)
+    // ดึงข้อมูลการแบ่งจ่าย
+    let splitContainer = document.getElementById('splitPaymentContainer');
     if (paymentType === 'แบ่งจ่าย' && splitContainer) {
         splitContainer.classList.remove('hidden');
         splitContainer.classList.add('flex');
-        
         let splitCashEl = document.getElementById('displaySplitCash');
         let splitTransferEl = document.getElementById('displaySplitTransfer');
-        
         if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
         if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
     } else if (splitContainer) {
@@ -327,27 +345,43 @@ function updateCustomerUI(data) {
         splitContainer.classList.remove('flex');
     }
 
-    // 3. ดึงข้อมูล VAT และ Service Charge
+    // --- ตรวจสอบการแสดงผล ภาษี (VAT) และ ค่าบริการ ---
     let vatEl = document.getElementById('displayVat');
     let serviceEl = document.getElementById('displayServiceCharge');
+    let labelVat = document.getElementById('labelVat');
+    let labelService = document.getElementById('labelService');
     let taxServiceContainer = document.getElementById('taxServiceContainer');
-
     let showTaxServiceBlock = false;
 
-    if (data.vat && data.vat !== "฿0.00" && data.vat !== 0) {
-        if (vatEl) vatEl.innerText = (typeof data.vat === 'number') ? "฿" + data.vat.toFixed(2) : data.vat;
+    // ประมวลผลภาษี VAT
+    let vatVal = (typeof data.vat === 'string') ? parseFloat(data.vat.replace(/[^0-9.-]+/g,"")) : parseFloat(data.vat);
+    if (!isNaN(vatVal) && vatVal > 0) {
+        if (vatEl) vatEl.innerText = "฿" + vatVal.toFixed(2);
+        // แสดงประเภทและเรทตามค่าที่ตั้งไว้จากหลังบ้าน (ถ้ามีส่งมา)
+        if (labelVat) {
+             let taxLabel = (data.taxType === 'percent' && data.taxAmount) ? `ภาษี (VAT ${data.taxAmount}%):` : `ภาษี (VAT):`;
+             labelVat.innerText = taxLabel;
+        }
         showTaxServiceBlock = true;
     } else {
         if (vatEl) vatEl.innerText = "฿0.00";
     }
 
-    if (data.serviceCharge && data.serviceCharge !== "฿0.00" && data.serviceCharge !== 0) {
-        if (serviceEl) serviceEl.innerText = (typeof data.serviceCharge === 'number') ? "฿" + data.serviceCharge.toFixed(2) : data.serviceCharge;
+    // ประมวลผลค่าบริการ
+    let serviceVal = (typeof data.serviceCharge === 'string') ? parseFloat(data.serviceCharge.replace(/[^0-9.-]+/g,"")) : parseFloat(data.serviceCharge);
+    if (!isNaN(serviceVal) && serviceVal > 0) {
+        if (serviceEl) serviceEl.innerText = "฿" + serviceVal.toFixed(2);
+        // แสดงประเภทและเรทค่าบริการ (ถ้ามีส่งมา)
+        if (labelService) {
+             let serviceLabel = (data.serviceType === 'fixed' && data.serviceValue) ? `ค่าบริการ (฿${data.serviceValue}):` : `ค่าบริการ:`;
+             labelService.innerText = serviceLabel;
+        }
         showTaxServiceBlock = true;
     } else {
         if (serviceEl) serviceEl.innerText = "฿0.00";
     }
 
+    // ถ้ามียอดภาษี หรือ ค่าบริการ ให้โชว์กล่อง
     if (taxServiceContainer) {
         if (showTaxServiceBlock) {
             taxServiceContainer.classList.remove('hidden');
@@ -358,7 +392,7 @@ function updateCustomerUI(data) {
         }
     }
     
-    // 4. ยอดสุทธิ
+    // อัปเดตยอดสุทธิ
     let grandTotalEl = document.getElementById('displayGrandTotal');
     if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
