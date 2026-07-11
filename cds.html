@@ -122,14 +122,16 @@
                     <span>ตัดชำระเงินสด:</span>
                     <span id="displaySplitCash" class="font-bold text-blue-600">฿0.00</span>
                 </div>
-                <div id="splitMixReceivedRow" class="flex justify-between items-center text-base text-gray-600 hidden">
-                    <span>รับเงินสดมา:</span>
-                    <span id="displaySplitReceived" class="font-bold text-gray-800">฿0.00</span>
-                </div>
-                <div id="splitMixChangeRow" class="flex justify-between items-center text-base text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
-                    <span class="font-bold">เงินทอน:</span>
-                    <span id="displaySplitChange" class="font-bold text-xl">฿0.00</span>
-                </div>
+                <!-- 🟢 กล่องแสดงรับเงินสดมา (เพิ่มใหม่) -->
+        <div class="flex justify-between items-center text-lg text-gray-700 bg-gray-100 p-4 rounded-2xl border border-gray-200 hidden shrink-0 mt-1" id="cashReceivedContainer">
+            <span class="font-bold">รับเงินสดมา:</span>
+            <span id="displayCashReceived" class="text-3xl font-bold">฿0.00</span>
+        </div>
+
+        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden shrink-0 mt-1" id="changeContainer">
+            <span class="font-bold">เงินทอน:</span>
+            <span id="displayChange" class="text-3xl font-bold">฿0.00</span>
+        </div>
                 <div class="flex justify-between items-center text-lg text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
                     <span>ยอดสแกนโอน:</span>
                     <span id="displaySplitTransfer" class="text-2xl">฿0.00</span>
@@ -417,6 +419,8 @@ function updateCustomerUI(data) {
     if(changeContainer) { changeContainer.classList.add('hidden'); changeContainer.classList.remove('flex'); }
     if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
     if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
+    let cashReceivedContainer = document.getElementById('cashReceivedContainer');
+    if(cashReceivedContainer) { cashReceivedContainer.classList.add('hidden'); cashReceivedContainer.classList.remove('flex'); }
 
     if (paymentType === "-") return;
 
@@ -505,11 +509,27 @@ function updateCustomerUI(data) {
         if (cusPayEl) cusPayEl.innerText = "฿" + (grandTotalNum * 0.4).toFixed(2);
     }
     
-    // 🔴 3.3 กรณี: เงินสด (โชว์เงินทอน)
-    else if (paymentType === 'เงินสด' && changeContainer) {
-        changeContainer.classList.remove('hidden'); changeContainer.classList.add('flex');
-        let changeEl = document.getElementById('displayChange');
-        if (changeEl) changeEl.innerText = "฿" + parseFloat(data.change || 0).toFixed(2);
+// 🔴 3.3 กรณี: เงินสด (โชว์เงินรับมา และ เงินทอน)
+    else if (paymentType === 'เงินสด') {
+        // 1. โชว์รับเงินสดมา
+        if (cashReceivedContainer) {
+            cashReceivedContainer.classList.remove('hidden'); 
+            cashReceivedContainer.classList.add('flex');
+            let receivedEl = document.getElementById('displayCashReceived');
+            if (receivedEl) {
+                // สูตรคำนวณ: รับเงินมา = ยอดสุทธิ + เงินทอน
+                let calcReceived = grandTotalNum + parseFloat(data.change || 0);
+                receivedEl.innerText = "฿" + calcReceived.toFixed(2);
+            }
+        }
+
+        // 2. โชว์เงินทอน
+        if (changeContainer) {
+            changeContainer.classList.remove('hidden'); 
+            changeContainer.classList.add('flex');
+            let changeEl = document.getElementById('displayChange');
+            if (changeEl) changeEl.innerText = "฿" + parseFloat(data.change || 0).toFixed(2);
+        }
     }
 
     // 🔴 3.4 โชว์ QR Code
