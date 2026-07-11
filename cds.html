@@ -329,26 +329,21 @@ function updateCustomerUI(data) {
     let subTotalEl = document.getElementById('displaySubTotal');
     if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
 
-    // 🟢 ประกาศ paymentType แค่รอบเดียวตรงนี้
-    let paymentType = data.paymentMethod || "-";
+    // 🟢 ประกาศตัวแปร paymentType แค่ที่บรรทัดนี้บรรทัดเดียว
     let orderTypeEl = document.getElementById('displayOrderType');
+    let paymentType = data.paymentMethod || "-";
 
-    // 🟢 จัดการรูปแบบบริการ (เช็คการแสดงผลเดลิเวอรี่)
+    // 🟢 จัดการรูปแบบบริการ
     if (orderTypeEl) {
         if (data.orderType === 'เดลิเวอรี่') {
             let appName = data.deliveryApp || "Delivery";
             let orderId = data.deliveryOrderId || "";
-            
-            // เช็คว่าแคชเชียร์กดชำระเงินแล้วหรือยัง
             if (paymentType !== "-" && paymentType !== "กำลังเลือก...") {
-                // กดชำระเงินแล้ว โชว์ 2 บรรทัดพร้อมข้อความรอรับอาหาร
                 orderTypeEl.innerHTML = `<div class="leading-tight mt-1">${appName} ออเดอร์: ${orderId}<br><span class="text-sm text-emerald-500 font-bold">รอรับอาหารได้เลยค่ะ</span></div>`;
             } else {
-                // เพิ่งสั่งอาหาร ยังไม่กดจ่าย โชว์แบบปกติ
                 orderTypeEl.innerHTML = `<span class="mt-1 block">${appName} ${orderId}</span>`;
             }
         } else {
-            // โหมดอื่นๆ เช่น ทานที่ร้าน, กลับบ้าน
             orderTypeEl.innerHTML = `<span class="mt-1 block">${data.orderType || "-"}</span>`;
         }
     }
@@ -384,10 +379,7 @@ function updateCustomerUI(data) {
     let grandTotalEl = document.getElementById('displayGrandTotal');
     if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
-    // ==========================================
-    // ⚙️ 3. จัดการ UI ช่องทางชำระเงิน (เงินทอน, QR, แบ่งจ่าย, คนละครึ่ง)
-    // ==========================================
-    let paymentType = data.paymentMethod || "-";
+    // ⚙️ จัดการ UI ช่องทางชำระเงิน
     let paymentMethodEl = document.getElementById('displayPaymentMethod');
     let paymentMethodRow = document.getElementById('paymentMethodRow');
 
@@ -398,28 +390,21 @@ function updateCustomerUI(data) {
         if (paymentMethodRow) { paymentMethodRow.classList.remove('hidden'); paymentMethodRow.classList.add('flex'); }
     }
 
-    // เตรียม Elements
+    // รีเซ็ตสถานะหน้าจอ
     let splitContainer = document.getElementById('splitPaymentContainer');
     let halfHalfContainer = document.getElementById('halfHalfContainer');
     let changeContainer = document.getElementById('changeContainer');
     let qrState = document.getElementById('qrState');
     let adState = document.getElementById('adState');
 
-    // ซ่อนทุกกล่องก่อน เพื่อรีเซ็ตหน้าจอใหม่
     if(splitContainer) { splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex'); }
     if(halfHalfContainer) { halfHalfContainer.classList.add('hidden'); halfHalfContainer.classList.remove('flex'); }
     if(changeContainer) { changeContainer.classList.add('hidden'); changeContainer.classList.remove('flex'); }
     if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
     if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
 
-    // ถ้าไม่มีการเลือกวิธีชำระเงิน ให้จบการทำงานตรงนี้
-    if (paymentType === "-") {
-         // ตรวจสอบคิวปกติก่อนจบฟังก์ชัน
-         if (data.calledQueue && data.calledQueue !== "") handleQueueCall(data);
-         return;
-    }
+    if (paymentType === "-") return;
 
-    // 🔴 เช็คแต่ละโหมดแบบแยกกัน (Flat structure ปลอดภัยที่สุด)
     if (paymentType === 'แบ่งจ่าย' && splitContainer) {
         splitContainer.classList.remove('hidden'); splitContainer.classList.add('flex');
         
@@ -431,16 +416,8 @@ function updateCustomerUI(data) {
             if(splitTitle) splitTitle.innerText = "✂️ แบ่งจ่าย (หารบิลเท่ากัน)";
             if(mixDisplay) { mixDisplay.classList.add('hidden'); mixDisplay.classList.remove('flex'); }
             if(equalDisplay) { equalDisplay.classList.remove('hidden'); equalDisplay.classList.add('flex'); }
-            
             if(document.getElementById('displaySplitPerPerson')) document.getElementById('displaySplitPerPerson').innerText = "฿" + parseFloat(data.splitPerPerson || 0).toFixed(2);
-            if(document.getElementById('displaySplitCurrentPerson')) document.getElementById('displaySplitCurrentPerson').innerText = data.splitCurrentPerson || "1";
-            if(document.getElementById('displaySplitTotalPeople')) document.getElementById('displaySplitTotalPeople').innerText = data.splitTotalPeople || "2";
-            
-            // โชว์เงินสดในโหมดหารเท่า (ถ้ามี)
-            let eqCashEl = document.getElementById('displaySplitEqCash');
-            if(eqCashEl) eqCashEl.innerText = (data.splitCash && parseFloat(data.splitCash) > 0) ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
         } else {
-            // โหมดเงินสด + โอนเงิน
             if(splitTitle) splitTitle.innerText = "💵 แบ่งจ่าย (เงินสด + โอนเงิน)";
             if(equalDisplay) { equalDisplay.classList.add('hidden'); equalDisplay.classList.remove('flex'); }
             if(mixDisplay) { mixDisplay.classList.remove('hidden'); mixDisplay.classList.add('flex'); }
@@ -450,10 +427,10 @@ function updateCustomerUI(data) {
             if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
             if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
 
-            // โชว์เงินทอน
             let splitChangeRow = document.getElementById('displaySplitChangeRow');
             let splitChangeEl = document.getElementById('displaySplitChangeAmount');
             let spChangeNum = parseFloat((data.splitChange || "0").replace(/[^0-9.-]+/g, ""));
+            
             if (spChangeNum > 0) {
                 if (splitChangeEl) splitChangeEl.innerText = data.splitChange;
                 if (splitChangeRow) { splitChangeRow.classList.remove('hidden'); splitChangeRow.classList.add('flex'); }
@@ -475,7 +452,6 @@ function updateCustomerUI(data) {
         if (changeEl) changeEl.innerText = "฿" + parseFloat(data.change || 0).toFixed(2);
     }
 
-    // 🔴 โชว์ QR Code (ไม่ว่าจะเป็นโอนปกติ หรือ แบ่งจ่าย)
     if (data.qrImage && data.qrImage !== "") {
         if(adState) { adState.classList.add('hidden'); adState.classList.remove('flex'); }
         if(qrState) {
@@ -488,23 +464,18 @@ function updateCustomerUI(data) {
         if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
     }
 
-    // ✅ ระบบเรียกคิว
     if (data.calledQueue && data.calledQueue !== "") {
-        handleQueueCall(data);
-    }
-}
-
-// แยกฟังก์ชันเรียกคิวออกมาเพื่อให้โค้ดอ่านง่าย
-function handleQueueCall(data) {
-    const queueDisplay = document.getElementById('queueCallDisplay');
-    const queueNumber = document.getElementById('calledQueueNumber');
-    const lastQueueTime = localStorage.getItem('lastQueueTime') || 0;
-    if (queueDisplay && data.queueTimestamp > lastQueueTime) {
-        queueNumber.innerText = data.calledQueue;
-        queueDisplay.classList.remove('hidden');
-        new Audio('https://actions.google.com/sounds/v1/notifications/bell_original.ogg').play().catch(()=>{});
-        localStorage.setItem('lastQueueTime', data.queueTimestamp);
-        setTimeout(() => { queueDisplay.classList.add('hidden'); }, 7000);
+        const queueDisplay = document.getElementById('queueCallDisplay');
+        const queueNumber = document.getElementById('calledQueueNumber');
+        const lastQueueTime = localStorage.getItem('lastQueueTime') || 0;
+        
+        if (queueDisplay && data.queueTimestamp > lastQueueTime) {
+            queueNumber.innerText = data.calledQueue;
+            queueDisplay.classList.remove('hidden');
+            new Audio('https://actions.google.com/sounds/v1/notifications/bell_original.ogg').play().catch(()=>{});
+            localStorage.setItem('lastQueueTime', data.queueTimestamp);
+            setTimeout(() => { queueDisplay.classList.add('hidden'); }, 7000);
+        }
     }
 }
 // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
