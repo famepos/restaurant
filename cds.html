@@ -530,33 +530,6 @@ function fetchAdSettings() {
     }).getAdSettingsGS();
 }
 
-    // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
-
-    let adTimer = null;
-
-    function fetchAdSettings() {
-        google.script.run.withSuccessHandler(function(res) {
-            if (res) {
-                if (JSON.stringify(res) !== JSON.stringify(adSlides)) {
-                    adSlides = res;
-                    if (adSlides.length > 0) {
-                        startAdCarousel();
-                    } else {
-                        clearTimeout(adTimer);
-                        let container = document.getElementById('adCarousel');
-                        if (container) {
-                            container.innerHTML = `
-                                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
-                                    <span class="text-6xl mb-4">✨</span>
-                                    <h3 class="text-2xl font-bold text-pink-700 mb-2">โปรโมชั่นพิเศษ</h3>
-                                    <p class="text-gray-500 font-medium">รอการอัปเดตโฆษณาเร็วๆ นี้</p>
-                                </div>`;
-                        }
-                    }
-                }
-            }
-        }).getAdSettingsGS();
-    }
 
     function startAdCarousel() {
         if (adSlides.length === 0) return;
