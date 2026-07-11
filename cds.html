@@ -244,9 +244,7 @@ function updateCustomerUI(data) {
             adOverlay.style.pointerEvents = "none";
             if (!adOverlay.classList.contains('hidden')) {
                 setTimeout(() => {
-                    if (adOverlay.style.opacity === "0") {
-                        adOverlay.classList.add('hidden');
-                    }
+                    if (adOverlay.style.opacity === "0") { adOverlay.classList.add('hidden'); }
                 }, 300);
             }
         }
@@ -258,7 +256,7 @@ function updateCustomerUI(data) {
     const cartContainer = document.getElementById('customerCartItems');
     
     // ==========================================
-    // 🛑 1. กรณี: ลูกค้ายืนเฉยๆ / ยังไม่ได้สั่งอาหาร หรือ ชำระเงินเสร็จแล้ว
+    // 🛑 1. กรณี: ตะกร้าว่างเปล่า หรือ ชำระเงินเสร็จแล้ว (บังคับล้างค่าเป็น 0 ทันที)
     // ==========================================
     if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
         cartContainer.innerHTML = `
@@ -267,23 +265,17 @@ function updateCustomerUI(data) {
                 <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับลูกค้าทุกท่าน เชิญสั่งอาหารได้เลย</p>
             </div>`;
             
-        // 🚨 บังคับรีเซ็ตทุกค่าให้เป็น 0.00 ป้องกันค่าบริการค้าง และล้างข้อมูลหลังชำระเงิน
+        // 🚨 บังคับรีเซ็ตทุกค่าให้เป็น 0.00 และ "-"
         let stEl = document.getElementById('displaySubTotal'); if(stEl) stEl.innerText = "฿0.00";
         let gtEl = document.getElementById('displayGrandTotal'); if(gtEl) gtEl.innerText = "฿0.00";
         let otEl = document.getElementById('displayOrderType'); if(otEl) otEl.innerText = "-";
         let pmEl = document.getElementById('displayPaymentMethod'); if(pmEl) pmEl.innerText = "-";
         
         let tsContainer = document.getElementById('taxServiceContainer');
-        if (tsContainer) {
-            tsContainer.classList.add('hidden');
-            tsContainer.classList.remove('flex');
-        }
+        if (tsContainer) { tsContainer.classList.add('hidden'); tsContainer.classList.remove('flex'); }
         let splitContainer = document.getElementById('splitPaymentContainer');
-        if (splitContainer) {
-            splitContainer.classList.add('hidden');
-            splitContainer.classList.remove('flex');
-        }
-        return; // ⛔ จบการทำงานตรงนี้เลย (สำคัญมาก เพื่อเคลียร์จอ)
+        if (splitContainer) { splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex'); }
+        return; // ⛔ ออกจากฟังก์ชันเลย ไม่ไปทำตัวเลขข้างล่างต่อ
     }
 
     // ==========================================
@@ -335,21 +327,18 @@ function updateCustomerUI(data) {
     let paymentType = data.paymentType || data.paymentMethod || "กำลังเลือก...";
     if (paymentMethodEl) paymentMethodEl.innerText = paymentType;
 
-    // ตรวจสอบกล่องแบ่งจ่าย
     let splitContainer = document.getElementById('splitPaymentContainer');
     if (paymentType === 'แบ่งจ่าย' && splitContainer) {
-        splitContainer.classList.remove('hidden');
-        splitContainer.classList.add('flex');
+        splitContainer.classList.remove('hidden'); splitContainer.classList.add('flex');
         let splitCashEl = document.getElementById('displaySplitCash');
         let splitTransferEl = document.getElementById('displaySplitTransfer');
         if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
         if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
     } else if (splitContainer) {
-        splitContainer.classList.add('hidden');
-        splitContainer.classList.remove('flex');
+        splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex');
     }
 
-    // --- ประมวลผลภาษี (VAT) และ ค่าบริการ ---
+    // --- ประมวลผลภาษี (VAT) และ ค่าบริการ ให้อ่านง่าย ---
     let vatEl = document.getElementById('displayVat');
     let serviceEl = document.getElementById('displayServiceCharge');
     let labelVat = document.getElementById('labelVat');
@@ -357,41 +346,48 @@ function updateCustomerUI(data) {
     let taxServiceContainer = document.getElementById('taxServiceContainer');
     let showTaxServiceBlock = false;
 
+    // ประมวลผลภาษี VAT
     let vatVal = parseFloat(data.vat);
     if (!isNaN(vatVal) && vatVal > 0) {
-        if (vatEl) vatEl.innerText = "฿" + vatVal.toFixed(2);
+        if (vatEl) {
+            vatEl.innerText = "฿" + vatVal.toFixed(2);
+            vatEl.parentElement.style.display = 'flex'; // แสดงบรรทัด VAT
+        }
         if (labelVat) {
-             let taxLabel = (data.taxType === 'percent' && data.taxAmount) ? `ภาษี (VAT ${data.taxAmount}%):` : `ภาษี (VAT):`;
+             let taxLabel = (data.taxType === 'percent' && data.taxAmount > 0) ? `ภาษี (VAT ${data.taxAmount}%):` : `ภาษี (VAT):`;
              labelVat.innerText = taxLabel;
         }
         showTaxServiceBlock = true;
     } else {
-        if (vatEl) vatEl.innerText = "฿0.00";
+        if (vatEl) vatEl.parentElement.style.display = 'none'; // ซ่อนบรรทัด VAT ถ้าไม่มีค่า
     }
 
+    // ประมวลผลค่าบริการ
     let serviceVal = parseFloat(data.serviceCharge);
     if (!isNaN(serviceVal) && serviceVal > 0) {
-        if (serviceEl) serviceEl.innerText = "฿" + serviceVal.toFixed(2);
+        if (serviceEl) {
+            serviceEl.innerText = "฿" + serviceVal.toFixed(2);
+            serviceEl.parentElement.style.display = 'flex'; // แสดงบรรทัดค่าบริการ
+        }
         if (labelService) {
-             let serviceLabel = (data.serviceType === 'fixed' && data.serviceValue) ? `ค่าบริการ (฿${data.serviceValue}):` : `ค่าบริการ:`;
+             let serviceLabel = (data.serviceType === 'fixed' && data.serviceValue > 0) ? `ค่าบริการ (฿${data.serviceValue}):` : `ค่าบริการ:`;
              labelService.innerText = serviceLabel;
         }
         showTaxServiceBlock = true;
     } else {
-        if (serviceEl) serviceEl.innerText = "฿0.00";
+        if (serviceEl) serviceEl.parentElement.style.display = 'none'; // ซ่อนบรรทัดค่าบริการ ถ้าไม่มีค่า
     }
 
-    // โชว์หรือซ่อนกล่องภาษี
+    // โชว์หรือซ่อนกล่องภาษีทั้งกล่อง
     if (taxServiceContainer) {
         if (showTaxServiceBlock) {
-            taxServiceContainer.classList.remove('hidden');
-            taxServiceContainer.classList.add('flex');
+            taxServiceContainer.classList.remove('hidden'); taxServiceContainer.classList.add('flex');
         } else {
-            taxServiceContainer.classList.add('hidden');
-            taxServiceContainer.classList.remove('flex');
+            taxServiceContainer.classList.add('hidden'); taxServiceContainer.classList.remove('flex');
         }
     }
     
+    // อัปเดตยอดสุทธิ
     let grandTotalEl = document.getElementById('displayGrandTotal');
     if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
 
@@ -410,7 +406,6 @@ function updateCustomerUI(data) {
         }
     }
 }
-
 // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
 let adSlides = [];
 let currentAdIndex = 0;
