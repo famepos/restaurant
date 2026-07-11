@@ -109,17 +109,27 @@
             </div>
         </div>
 
-        <!-- 🟢 [เพิ่มใหม่] กล่องแสดงรายละเอียดแบ่งจ่าย -->
-<!-- 🟢 กล่องแสดงรายละเอียดแบ่งจ่าย -->
+        <!-- 🟢 กล่องแสดงรายละเอียดแบ่งจ่าย -->
         <div id="splitPaymentContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-blue-50 border border-blue-200 shadow-inner">
             <div class="text-center font-bold text-blue-800 mb-1 border-b border-blue-200 pb-2" id="splitTitleDisplay">แบ่งจ่าย (เงินสด + โอนเงิน)</div>
             
-            <!-- โหมดผสม (เงินสด+โอน) -->
+            <!-- โหมดผสม (เงินสด+โอน) แบบมีเงินทอน -->
             <div id="splitMixDisplay" class="flex flex-col w-full gap-2">
                 <div class="flex justify-between items-center text-lg text-gray-600">
-                    <span>ชำระเงินสด:</span>
+                    <span>ตัดชำระเงินสด:</span>
                     <span id="displaySplitCash" class="font-bold text-blue-600">฿0.00</span>
                 </div>
+                
+                <!-- เพิ่ม 2 บรรทัดสำหรับเงินรับมาและเงินทอน -->
+                <div id="splitMixReceivedRow" class="flex justify-between items-center text-lg text-gray-600 hidden">
+                    <span>รับเงินสดมา:</span>
+                    <span id="displaySplitReceived" class="font-bold text-gray-800">฿0.00</span>
+                </div>
+                <div id="splitMixChangeRow" class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
+                    <span class="font-bold">เงินทอน:</span>
+                    <span id="displaySplitChange" class="font-bold text-xl">฿0.00</span>
+                </div>
+
                 <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
                     <span>ยอดสแกนโอน:</span>
                     <span id="displaySplitTransfer" class="text-3xl">฿0.00</span>
@@ -265,7 +275,7 @@ function updateCustomerUI(data) {
     const cartContainer = document.getElementById('customerCartItems');
     
     // ==========================================
-    // 🛑 1. กรณี: ตะกร้าว่างเปล่า หรือ ชำระเงินเสร็จแล้ว (บังคับล้างค่าเป็น 0 และซ่อนกล่องทั้งหมด)
+    // 🛑 1. กรณี: ตะกร้าว่างเปล่า หรือ ชำระเงินเสร็จแล้ว
     // ==========================================
     if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
         cartContainer.innerHTML = `
@@ -377,7 +387,6 @@ function updateCustomerUI(data) {
     let paymentMethodEl = document.getElementById('displayPaymentMethod');
     let paymentMethodRow = document.getElementById('paymentMethodRow');
 
-    // 🟢 ถ้าแคชเชียร์ยังไม่เปิดหน้าชำระเงิน ให้ซ่อนบรรทัด "วิธีชำระเงิน" ทิ้งไปเลย
     if (paymentType === "-" || paymentType === "กำลังเลือก...") {
         if (paymentMethodRow) { paymentMethodRow.classList.add('hidden'); paymentMethodRow.classList.remove('flex'); }
     } else {
@@ -392,14 +401,12 @@ function updateCustomerUI(data) {
     let qrState = document.getElementById('qrState');
     let adState = document.getElementById('adState');
 
-    // ซ่อนกล่องชำระเงินทั้งหมดไว้ก่อน เพื่อรีเซ็ต
     if(splitContainer) { splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex'); }
     if(halfHalfContainer) { halfHalfContainer.classList.add('hidden'); halfHalfContainer.classList.remove('flex'); }
     if(changeContainer) { changeContainer.classList.add('hidden'); changeContainer.classList.remove('flex'); }
     if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
     if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
 
-    // 🛑 🛑 ถ้าไม่ได้อยู่ในโหมดชำระเงิน (paymentType เป็น "-") ให้จบการทำงานตรงนี้เลย ไม่ต้องโชว์อะไรต่อ
     if (paymentType === "-") return;
 
     // 🔴 3.1 กรณี: แบ่งจ่าย
@@ -424,10 +431,28 @@ function updateCustomerUI(data) {
             if(splitTitle) splitTitle.innerText = "💵 แบ่งจ่าย (เงินสด + โอนเงิน)";
             if(equalDisplay) { equalDisplay.classList.add('hidden'); equalDisplay.classList.remove('flex'); }
             if(mixDisplay) { mixDisplay.classList.remove('hidden'); mixDisplay.classList.add('flex'); }
+            
             let splitCashEl = document.getElementById('displaySplitCash');
             let splitTransferEl = document.getElementById('displaySplitTransfer');
             if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
             if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
+            
+            // 🟢 แสดงเงินสดที่รับมาและเงินทอน
+            let splitReceivedRow = document.getElementById('splitMixReceivedRow');
+            let splitReceivedEl = document.getElementById('displaySplitReceived');
+            let splitChangeRow = document.getElementById('splitMixChangeRow');
+            let splitChangeEl = document.getElementById('displaySplitChange');
+
+            if (data.splitCashReceived && parseFloat(data.splitCashReceived) > parseFloat(data.splitCash || 0)) {
+                if (splitReceivedRow) { splitReceivedRow.classList.remove('hidden'); splitReceivedRow.classList.add('flex'); }
+                if (splitReceivedEl) splitReceivedEl.innerText = "฿" + parseFloat(data.splitCashReceived).toFixed(2);
+                
+                if (splitChangeRow) { splitChangeRow.classList.remove('hidden'); splitChangeRow.classList.add('flex'); }
+                if (splitChangeEl) splitChangeEl.innerText = "฿" + parseFloat(data.splitChange).toFixed(2);
+            } else {
+                if (splitReceivedRow) { splitReceivedRow.classList.add('hidden'); splitReceivedRow.classList.remove('flex'); }
+                if (splitChangeRow) { splitChangeRow.classList.add('hidden'); splitChangeRow.classList.remove('flex'); }
+            }
         }
     }
     
@@ -504,8 +529,6 @@ function fetchAdSettings() {
         }
     }).getAdSettingsGS();
 }
-
-  
 
     function startAdCarousel() {
         if (adSlides.length === 0) return;
