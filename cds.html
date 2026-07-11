@@ -236,16 +236,11 @@ function updateCustomerUI(data) {
         const idleDuration = Date.now() - lastActivityTime;
 
         if (data.status === 'idle' && idleDuration >= timeoutMs) {
-            adOverlay.classList.remove('hidden');
-            adOverlay.style.opacity = "1";
-            adOverlay.style.pointerEvents = "auto";
+            adOverlay.classList.remove('hidden'); adOverlay.style.opacity = "1"; adOverlay.style.pointerEvents = "auto";
         } else {
-            adOverlay.style.opacity = "0";
-            adOverlay.style.pointerEvents = "none";
+            adOverlay.style.opacity = "0"; adOverlay.style.pointerEvents = "none";
             if (!adOverlay.classList.contains('hidden')) {
-                setTimeout(() => {
-                    if (adOverlay.style.opacity === "0") { adOverlay.classList.add('hidden'); }
-                }, 300);
+                setTimeout(() => { if (adOverlay.style.opacity === "0") adOverlay.classList.add('hidden'); }, 300);
             }
         }
     }
@@ -256,7 +251,7 @@ function updateCustomerUI(data) {
     const cartContainer = document.getElementById('customerCartItems');
     
     // ==========================================
-    // 🛑 1. กรณี: ตะกร้าว่างเปล่า หรือ ชำระเงินเสร็จแล้ว (บังคับล้างค่าเป็น 0 ทันที)
+    // 🛑 1. กรณี: ตะกร้าว่างเปล่า หรือ ชำระเงินเสร็จแล้ว (บังคับล้างค่าเป็น 0 และซ่อนกล่องทั้งหมด)
     // ==========================================
     if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
         cartContainer.innerHTML = `
@@ -265,17 +260,21 @@ function updateCustomerUI(data) {
                 <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับลูกค้าทุกท่าน เชิญสั่งอาหารได้เลย</p>
             </div>`;
             
-        // 🚨 บังคับรีเซ็ตทุกค่าให้เป็น 0.00 และ "-"
         let stEl = document.getElementById('displaySubTotal'); if(stEl) stEl.innerText = "฿0.00";
         let gtEl = document.getElementById('displayGrandTotal'); if(gtEl) gtEl.innerText = "฿0.00";
         let otEl = document.getElementById('displayOrderType'); if(otEl) otEl.innerText = "-";
         let pmEl = document.getElementById('displayPaymentMethod'); if(pmEl) pmEl.innerText = "-";
         
-        let tsContainer = document.getElementById('taxServiceContainer');
-        if (tsContainer) { tsContainer.classList.add('hidden'); tsContainer.classList.remove('flex'); }
-        let splitContainer = document.getElementById('splitPaymentContainer');
-        if (splitContainer) { splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex'); }
-        return; // ⛔ ออกจากฟังก์ชันเลย ไม่ไปทำตัวเลขข้างล่างต่อ
+        // ซ่อนกล่องชำระเงินทุกประเภท
+        if (document.getElementById('taxServiceContainer')) { document.getElementById('taxServiceContainer').classList.add('hidden'); document.getElementById('taxServiceContainer').classList.remove('flex'); }
+        if (document.getElementById('splitPaymentContainer')) { document.getElementById('splitPaymentContainer').classList.add('hidden'); document.getElementById('splitPaymentContainer').classList.remove('flex'); }
+        if (document.getElementById('halfHalfContainer')) { document.getElementById('halfHalfContainer').classList.add('hidden'); document.getElementById('halfHalfContainer').classList.remove('flex'); }
+        if (document.getElementById('changeContainer')) { document.getElementById('changeContainer').classList.add('hidden'); document.getElementById('changeContainer').classList.remove('flex'); }
+        
+        // คืนค่าหน้าจอด้านขวากลับไปเป็นสถานะตรวจรายการ
+        if (document.getElementById('qrState')) { document.getElementById('qrState').classList.add('hidden'); document.getElementById('qrState').classList.remove('flex'); }
+        if (document.getElementById('adState')) { document.getElementById('adState').classList.remove('hidden'); document.getElementById('adState').classList.add('flex'); }
+        return; 
     }
 
     // ==========================================
@@ -286,7 +285,6 @@ function updateCustomerUI(data) {
         let baseName = item.name || "สินค้า";
         let optionsHtml = '';
         let optionIndex = baseName.search(/ \[| \+/);
-        
         if (optionIndex !== -1) {
             baseName = item.name.substring(0, optionIndex).trim();
             let match = item.name.match(/\[(.*?)\]/);
@@ -323,22 +321,7 @@ function updateCustomerUI(data) {
     let orderTypeEl = document.getElementById('displayOrderType');
     if(orderTypeEl) orderTypeEl.innerText = data.orderType || "-";
 
-    let paymentMethodEl = document.getElementById('displayPaymentMethod');
-    let paymentType = data.paymentType || data.paymentMethod || "กำลังเลือก...";
-    if (paymentMethodEl) paymentMethodEl.innerText = paymentType;
-
-    let splitContainer = document.getElementById('splitPaymentContainer');
-    if (paymentType === 'แบ่งจ่าย' && splitContainer) {
-        splitContainer.classList.remove('hidden'); splitContainer.classList.add('flex');
-        let splitCashEl = document.getElementById('displaySplitCash');
-        let splitTransferEl = document.getElementById('displaySplitTransfer');
-        if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
-        if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
-    } else if (splitContainer) {
-        splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex');
-    }
-
-    // --- ประมวลผลภาษี (VAT) และ ค่าบริการ ให้อ่านง่าย ---
+    // ประมวลผลภาษี (VAT) และ ค่าบริการ
     let vatEl = document.getElementById('displayVat');
     let serviceEl = document.getElementById('displayServiceCharge');
     let labelVat = document.getElementById('labelVat');
@@ -346,50 +329,90 @@ function updateCustomerUI(data) {
     let taxServiceContainer = document.getElementById('taxServiceContainer');
     let showTaxServiceBlock = false;
 
-    // ประมวลผลภาษี VAT
     let vatVal = parseFloat(data.vat);
     if (!isNaN(vatVal) && vatVal > 0) {
-        if (vatEl) {
-            vatEl.innerText = "฿" + vatVal.toFixed(2);
-            vatEl.parentElement.style.display = 'flex'; // แสดงบรรทัด VAT
-        }
-        if (labelVat) {
-             let taxLabel = (data.taxType === 'percent' && data.taxAmount > 0) ? `ภาษี (VAT ${data.taxAmount}%):` : `ภาษี (VAT):`;
-             labelVat.innerText = taxLabel;
-        }
+        if (vatEl) { vatEl.innerText = "฿" + vatVal.toFixed(2); vatEl.parentElement.style.display = 'flex'; }
+        if (labelVat) labelVat.innerText = (data.taxType === 'percent' && data.taxAmount > 0) ? `ภาษี (VAT ${data.taxAmount}%):` : `ภาษี (VAT):`;
         showTaxServiceBlock = true;
     } else {
-        if (vatEl) vatEl.parentElement.style.display = 'none'; // ซ่อนบรรทัด VAT ถ้าไม่มีค่า
+        if (vatEl) vatEl.parentElement.style.display = 'none'; 
     }
 
-    // ประมวลผลค่าบริการ
     let serviceVal = parseFloat(data.serviceCharge);
     if (!isNaN(serviceVal) && serviceVal > 0) {
-        if (serviceEl) {
-            serviceEl.innerText = "฿" + serviceVal.toFixed(2);
-            serviceEl.parentElement.style.display = 'flex'; // แสดงบรรทัดค่าบริการ
-        }
-        if (labelService) {
-             let serviceLabel = (data.serviceType === 'fixed' && data.serviceValue > 0) ? `ค่าบริการ (฿${data.serviceValue}):` : `ค่าบริการ:`;
-             labelService.innerText = serviceLabel;
-        }
+        if (serviceEl) { serviceEl.innerText = "฿" + serviceVal.toFixed(2); serviceEl.parentElement.style.display = 'flex'; }
+        if (labelService) labelService.innerText = (data.serviceType === 'fixed' && data.serviceValue > 0) ? `ค่าบริการ (฿${data.serviceValue}):` : `ค่าบริการ:`;
         showTaxServiceBlock = true;
     } else {
-        if (serviceEl) serviceEl.parentElement.style.display = 'none'; // ซ่อนบรรทัดค่าบริการ ถ้าไม่มีค่า
+        if (serviceEl) serviceEl.parentElement.style.display = 'none'; 
     }
 
-    // โชว์หรือซ่อนกล่องภาษีทั้งกล่อง
     if (taxServiceContainer) {
-        if (showTaxServiceBlock) {
-            taxServiceContainer.classList.remove('hidden'); taxServiceContainer.classList.add('flex');
-        } else {
-            taxServiceContainer.classList.add('hidden'); taxServiceContainer.classList.remove('flex');
-        }
+        if (showTaxServiceBlock) { taxServiceContainer.classList.remove('hidden'); taxServiceContainer.classList.add('flex'); } 
+        else { taxServiceContainer.classList.add('hidden'); taxServiceContainer.classList.remove('flex'); }
     }
-    
-    // อัปเดตยอดสุทธิ
+
+    // แปลงยอดสุทธิเป็นตัวเลขเพื่อใช้คำนวณ
+    let grandTotalNum = parseFloat(data.grandTotal.replace(/[^0-9.-]+/g, "")) || 0;
     let grandTotalEl = document.getElementById('displayGrandTotal');
     if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
+
+    // ==========================================
+    // ⚙️ 3. จัดการ UI ช่องทางชำระเงิน (เงินทอน, QR, แบ่งจ่าย, คนละครึ่ง)
+    // ==========================================
+    let paymentType = data.paymentType || data.paymentMethod || "-";
+    let paymentMethodEl = document.getElementById('displayPaymentMethod');
+    if (paymentMethodEl) paymentMethodEl.innerText = paymentType;
+
+    // เตรียม Elements
+    let splitContainer = document.getElementById('splitPaymentContainer');
+    let halfHalfContainer = document.getElementById('halfHalfContainer');
+    let changeContainer = document.getElementById('changeContainer');
+    let qrState = document.getElementById('qrState');
+    let adState = document.getElementById('adState');
+
+    // ซ่อนทุกกล่องก่อน เพื่อรีเซ็ต
+    if(splitContainer) { splitContainer.classList.add('hidden'); splitContainer.classList.remove('flex'); }
+    if(halfHalfContainer) { halfHalfContainer.classList.add('hidden'); halfHalfContainer.classList.remove('flex'); }
+    if(changeContainer) { changeContainer.classList.add('hidden'); changeContainer.classList.remove('flex'); }
+    if(qrState) { qrState.classList.add('hidden'); qrState.classList.remove('flex'); }
+    if(adState) { adState.classList.remove('hidden'); adState.classList.add('flex'); }
+
+    // 🔴 3.1 กรณี: แบ่งจ่าย
+    if (paymentType === 'แบ่งจ่าย' && splitContainer) {
+        splitContainer.classList.remove('hidden'); splitContainer.classList.add('flex');
+        let splitCashEl = document.getElementById('displaySplitCash');
+        let splitTransferEl = document.getElementById('displaySplitTransfer');
+        if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
+        if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
+    }
+    
+    // 🔴 3.2 กรณี: คนละครึ่ง
+    else if (paymentType === 'คนละครึ่ง' && halfHalfContainer) {
+        halfHalfContainer.classList.remove('hidden'); halfHalfContainer.classList.add('flex');
+        let govPayEl = document.getElementById('displayGovPay');
+        let cusPayEl = document.getElementById('displayCustomerPay');
+        // คำนวณ รัฐ 60% / ลูกค้า 40% (อ้างอิงตาม HTML ที่ทำไว้)
+        if (govPayEl) govPayEl.innerText = "฿" + (grandTotalNum * 0.6).toFixed(2);
+        if (cusPayEl) cusPayEl.innerText = "฿" + (grandTotalNum * 0.4).toFixed(2);
+    }
+    
+    // 🔴 3.3 กรณี: เงินสด (โชว์เงินทอน)
+    else if (paymentType === 'เงินสด' && changeContainer) {
+        changeContainer.classList.remove('hidden'); changeContainer.classList.add('flex');
+        let changeEl = document.getElementById('displayChange');
+        if (changeEl) changeEl.innerText = "฿" + parseFloat(data.change || 0).toFixed(2);
+    }
+
+    // 🔴 3.4 กรณี: โอนเงิน (สลับหน้าจอขวาเป็น QR Code)
+    if (data.status === 'qr_payment' && data.qrImage && data.qrImage !== "") {
+        if(adState) { adState.classList.add('hidden'); adState.classList.remove('flex'); }
+        if(qrState) {
+            qrState.classList.remove('hidden'); qrState.classList.add('flex');
+            let qrImgEl = document.getElementById('qrDisplayImage');
+            if (qrImgEl) qrImgEl.src = data.qrImage;
+        }
+    }
 
     // ✅ ระบบเรียกคิว
     if (data.calledQueue && data.calledQueue !== "") {
