@@ -109,32 +109,33 @@
             </div>
         </div>
 
-        <!-- 🟢 กล่องแสดงรายละเอียดแบ่งจ่าย -->
+        <!-- 🟢 [เพิ่มใหม่] กล่องแสดงรายละเอียดแบ่งจ่าย -->
+<!-- 🟢 กล่องแสดงรายละเอียดแบ่งจ่าย -->
         <div id="splitPaymentContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-blue-50 border border-blue-200 shadow-inner">
             <div class="text-center font-bold text-blue-800 mb-1 border-b border-blue-200 pb-2" id="splitTitleDisplay">แบ่งจ่าย (เงินสด + โอนเงิน)</div>
             
-            <!-- โหมดผสม (เงินสด+โอน) แบบมีเงินทอน -->
-            <div id="splitMixDisplay" class="flex flex-col w-full gap-2">
-                <div class="flex justify-between items-center text-lg text-gray-600">
-                    <span>ตัดชำระเงินสด:</span>
-                    <span id="displaySplitCash" class="font-bold text-blue-600">฿0.00</span>
-                </div>
-                
-                <!-- เพิ่ม 2 บรรทัดสำหรับเงินรับมาและเงินทอน -->
-                <div id="splitMixReceivedRow" class="flex justify-between items-center text-lg text-gray-600 hidden">
-                    <span>รับเงินสดมา:</span>
-                    <span id="displaySplitReceived" class="font-bold text-gray-800">฿0.00</span>
-                </div>
-                <div id="splitMixChangeRow" class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
-                    <span class="font-bold">เงินทอน:</span>
-                    <span id="displaySplitChange" class="font-bold text-xl">฿0.00</span>
-                </div>
+            <!-- โหมดผสม (เงินสด+โอน) -->
+        <div id="splitMixDisplay" class="flex flex-col w-full gap-2">
+    <div class="flex justify-between items-center text-lg text-gray-600">
+        <span>ตัดชำระเงินสด:</span>
+        <span id="displaySplitCash" class="font-bold text-blue-600">฿0.00</span>
+    </div>
+    
+    <!-- เพิ่ม 2 บรรทัดนี้ -->
+    <div id="splitMixReceivedRow" class="flex justify-between items-center text-lg text-gray-600 hidden">
+        <span>รับเงินสดมา:</span>
+        <span id="displaySplitReceived" class="font-bold text-gray-800">฿0.00</span>
+    </div>
+    <div id="splitMixChangeRow" class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
+        <span class="font-bold">เงินทอน:</span>
+        <span id="displaySplitChange" class="font-bold text-xl">฿0.00</span>
+    </div>
 
-                <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
-                    <span>ยอดสแกนโอน:</span>
-                    <span id="displaySplitTransfer" class="text-3xl">฿0.00</span>
-                </div>
-            </div>
+    <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
+        <span>ยอดสแกนโอน:</span>
+        <span id="displaySplitTransfer" class="text-3xl">฿0.00</span>
+    </div>
+</div>
 
             <!-- โหมดหารเท่ากัน -->
             <div id="splitEqualDisplay" class="hidden flex-col w-full gap-2">
@@ -500,7 +501,6 @@ function updateCustomerUI(data) {
         }
     }
 }
-
 // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
 let adSlides = [];
 let currentAdIndex = 0;
@@ -529,6 +529,35 @@ function fetchAdSettings() {
         }
     }).getAdSettingsGS();
 }
+
+    // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
+  
+    let currentAdIndex = 0;
+    let adTimer = null;
+
+    function fetchAdSettings() {
+        google.script.run.withSuccessHandler(function(res) {
+            if (res) {
+                if (JSON.stringify(res) !== JSON.stringify(adSlides)) {
+                    adSlides = res;
+                    if (adSlides.length > 0) {
+                        startAdCarousel();
+                    } else {
+                        clearTimeout(adTimer);
+                        let container = document.getElementById('adCarousel');
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
+                                    <span class="text-6xl mb-4">✨</span>
+                                    <h3 class="text-2xl font-bold text-pink-700 mb-2">โปรโมชั่นพิเศษ</h3>
+                                    <p class="text-gray-500 font-medium">รอการอัปเดตโฆษณาเร็วๆ นี้</p>
+                                </div>`;
+                        }
+                    }
+                }
+            }
+        }).getAdSettingsGS();
+    }
 
     function startAdCarousel() {
         if (adSlides.length === 0) return;
