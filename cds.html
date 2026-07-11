@@ -59,114 +59,113 @@
         </div>
     </div>
 
-   <section class="w-1/3 min-w-[400px] flex flex-col gap-6">
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4">
-        <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
+   <!-- 🌟 ปรับระยะห่างระหว่างกล่อง (gap) ให้แคบลงเล็กน้อย -->
+   <section class="w-1/3 min-w-[380px] lg:min-w-[400px] flex flex-col gap-4 h-full pb-2">
+      
+      <!-- 🌟 1. กล่องสรุปยอด (ใส่ min-h-0 และ overflow-y-auto เพื่อให้เลื่อนดูด้านในได้ถ้าจอมันแคบ) -->
+      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-5 flex flex-col gap-3 overflow-y-auto no-scrollbar min-h-0 shrink">
+        <h2 class="text-xl font-bold text-gray-800 mb-1 border-b pb-2 shrink-0">สรุปยอดชำระ</h2>
         
         <!-- โชว์ช่องทางการรับสินค้า (รูปแบบบริการ) -->
-        <div class="flex justify-between items-center text-lg text-gray-600">
+        <div class="flex justify-between items-center text-base text-gray-600">
             <span>รูปแบบบริการ:</span>
             <span id="displayOrderType" class="font-bold text-pink-600">-</span>
         </div>
 
-      <!-- โชว์วิธีชำระเงิน (ซ่อนไว้ก่อนถ้ายังไม่เข้าหน้าชำระเงิน) -->
-    <div id="paymentMethodRow" class="hidden justify-between items-center text-lg text-gray-600">
+      <!-- โชว์วิธีชำระเงิน -->
+    <div id="paymentMethodRow" class="hidden justify-between items-center text-base text-gray-600">
         <span>วิธีชำระเงิน:</span>
         <span id="displayPaymentMethod" class="font-bold text-blue-600">-</span>
     </div>
 
-        <div class="flex justify-between items-center text-xl text-gray-600 border-t border-dashed border-gray-200 pt-2 mt-1">
+        <div class="flex justify-between items-center text-lg text-gray-600 border-t border-dashed border-gray-200 pt-2 mt-1">
             <span>ยอดรวม:</span>
             <span id="displaySubTotal" class="font-bold">฿0.00</span>
         </div>
 
         <!-- โชว์ VAT และ Service Charge -->
         <div id="taxServiceContainer" class="hidden flex-col gap-2 border-t border-dashed border-gray-200 pt-2 mt-1">
-            <div class="flex justify-between items-center text-lg text-gray-500">
+            <div class="flex justify-between items-center text-base text-gray-500">
                 <span>ภาษี (VAT):</span>
                 <span id="displayVat" class="font-bold">฿0.00</span>
             </div>
-            <div class="flex justify-between items-center text-lg text-gray-500">
+            <div class="flex justify-between items-center text-base text-gray-500">
                 <span>ค่าบริการ:</span>
                 <span id="displayServiceCharge" class="font-bold">฿0.00</span>
             </div>
         </div>
 
-        <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100 mt-1">
+        <div class="flex justify-between items-center text-xl text-pink-600 font-bold bg-pink-50 p-4 rounded-2xl border border-pink-100 mt-1 shrink-0">
             <span>ยอดสุทธิ:</span>
-            <span id="displayGrandTotal" class="text-4xl">฿0.00</span>
+            <span id="displayGrandTotal" class="text-3xl">฿0.00</span>
         </div>
 
-        <div id="halfHalfContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner">
+        <div id="halfHalfContainer" class="hidden flex-col gap-2 mt-1 p-4 rounded-2xl bg-pink-50 border border-pink-200 shadow-inner shrink-0">
             <div class="text-center font-bold text-pink-800 mb-1">โครงการคนละครึ่ง (รัฐ 60% / ลูกค้า 40%)</div>
-            <div class="flex justify-between items-center text-lg text-gray-600">
+            <div class="flex justify-between items-center text-base text-gray-600">
                 <span>รัฐออกให้ (60%):</span>
                 <span id="displayGovPay" class="font-bold text-pink-500">฿0.00</span>
             </div>
-            <div class="flex justify-between items-center text-xl text-emerald-700 font-bold border-t border-pink-200 pt-3 mt-1">
+            <div class="flex justify-between items-center text-lg text-emerald-700 font-bold border-t border-pink-200 pt-3 mt-1">
                 <span>ลูกค้าจ่ายจริง (40%):</span>
-                <span id="displayCustomerPay" class="text-3xl">฿0.00</span>
+                <span id="displayCustomerPay" class="text-2xl">฿0.00</span>
             </div>
         </div>
 
-        <!-- 🟢 [เพิ่มใหม่] กล่องแสดงรายละเอียดแบ่งจ่าย -->
-<!-- 🟢 กล่องแสดงรายละเอียดแบ่งจ่าย -->
-        <div id="splitPaymentContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-blue-50 border border-blue-200 shadow-inner">
+        <!-- 🟢 กล่องแสดงรายละเอียดแบ่งจ่าย -->
+        <div id="splitPaymentContainer" class="hidden flex-col gap-2 mt-1 p-4 rounded-2xl bg-blue-50 border border-blue-200 shadow-inner shrink-0">
             <div class="text-center font-bold text-blue-800 mb-1 border-b border-blue-200 pb-2" id="splitTitleDisplay">แบ่งจ่าย (เงินสด + โอนเงิน)</div>
             
             <!-- โหมดผสม (เงินสด+โอน) -->
-        <div id="splitMixDisplay" class="flex flex-col w-full gap-2">
-    <div class="flex justify-between items-center text-lg text-gray-600">
-        <span>ตัดชำระเงินสด:</span>
-        <span id="displaySplitCash" class="font-bold text-blue-600">฿0.00</span>
-    </div>
-    
-    <!-- เพิ่ม 2 บรรทัดนี้ -->
-    <div id="splitMixReceivedRow" class="flex justify-between items-center text-lg text-gray-600 hidden">
-        <span>รับเงินสดมา:</span>
-        <span id="displaySplitReceived" class="font-bold text-gray-800">฿0.00</span>
-    </div>
-    <div id="splitMixChangeRow" class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
-        <span class="font-bold">เงินทอน:</span>
-        <span id="displaySplitChange" class="font-bold text-xl">฿0.00</span>
-    </div>
-
-    <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
-        <span>ยอดสแกนโอน:</span>
-        <span id="displaySplitTransfer" class="text-3xl">฿0.00</span>
-    </div>
-</div>
-
-  <!-- โหมดหารเท่ากัน -->
-        <div id="splitEqualDisplay" class="hidden flex-col w-full gap-2">
-            <div class="flex justify-between items-center text-lg text-gray-600">
-                <span>จำนวนคิวชำระ:</span>
-                <span class="font-bold text-blue-600">คนที่ <span id="displaySplitCurrentPerson" class="text-xl">1</span> / <span id="displaySplitTotalPeople">2</span></span>
+            <div id="splitMixDisplay" class="flex flex-col w-full gap-2">
+                <div class="flex justify-between items-center text-base text-gray-600">
+                    <span>ตัดชำระเงินสด:</span>
+                    <span id="displaySplitCash" class="font-bold text-blue-600">฿0.00</span>
+                </div>
+                <div id="splitMixReceivedRow" class="flex justify-between items-center text-base text-gray-600 hidden">
+                    <span>รับเงินสดมา:</span>
+                    <span id="displaySplitReceived" class="font-bold text-gray-800">฿0.00</span>
+                </div>
+                <div id="splitMixChangeRow" class="flex justify-between items-center text-base text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
+                    <span class="font-bold">เงินทอน:</span>
+                    <span id="displaySplitChange" class="font-bold text-xl">฿0.00</span>
+                </div>
+                <div class="flex justify-between items-center text-lg text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
+                    <span>ยอดสแกนโอน:</span>
+                    <span id="displaySplitTransfer" class="text-2xl">฿0.00</span>
+                </div>
             </div>
 
-            <!-- เพิ่ม 2 บรรทัดนี้สำหรับโหมดหารเท่ากัน -->
-            <div id="splitEqualReceivedRow" class="flex justify-between items-center text-lg text-gray-600 hidden">
-                <span>รับเงินสดมา:</span>
-                <span id="displaySplitEqualReceived" class="font-bold text-gray-800">฿0.00</span>
-            </div>
-            <div id="splitEqualChangeRow" class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
-                <span class="font-bold">เงินทอน:</span>
-                <span id="displaySplitEqualChange" class="font-bold text-xl">฿0.00</span>
-            </div>
+            <!-- โหมดหารเท่ากัน -->
+            <div id="splitEqualDisplay" class="hidden flex-col w-full gap-2">
+                <div class="flex justify-between items-center text-base text-gray-600">
+                    <span>จำนวนคิวชำระ:</span>
+                    <span class="font-bold text-blue-600">คนที่ <span id="displaySplitCurrentPerson" class="text-xl">1</span> / <span id="displaySplitTotalPeople">2</span></span>
+                </div>
+                <div id="splitEqualReceivedRow" class="flex justify-between items-center text-base text-gray-600 hidden">
+                    <span>รับเงินสดมา:</span>
+                    <span id="displaySplitEqualReceived" class="font-bold text-gray-800">฿0.00</span>
+                </div>
+                <div id="splitEqualChangeRow" class="flex justify-between items-center text-base text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 hidden mt-1">
+                    <span class="font-bold">เงินทอน:</span>
+                    <span id="displaySplitEqualChange" class="font-bold text-xl">฿0.00</span>
+                </div>
 
-            <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
-                <span>ยอดสแกนต่อคน:</span>
-                <span id="displaySplitPerPerson" class="text-4xl">฿0.00</span>
+                <div class="flex justify-between items-center text-lg text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
+                    <span>ยอดสแกนต่อคน:</span>
+                    <span id="displaySplitPerPerson" class="text-3xl">฿0.00</span>
+                </div>
             </div>
         </div>
 
-        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
+        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden shrink-0" id="changeContainer">
             <span class="font-bold">เงินทอน:</span>
             <span id="displayChange" class="text-3xl font-bold">฿0.00</span>
         </div>
       </div>
 
-      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
+      <!-- 🌟 2. กล่อง QR Code (ใส่ min-h-[280px] และ shrink-0 ป้องกันโดนกล่องบนเบียดแบน) -->
+      <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-4 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[280px] shrink-0">
          <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
             <span class="text-6xl mb-4">✨</span>
             <h3 class="text-2xl font-bold text-pink-700 mb-2">ตรวจสอบรายการอาหาร</h3>
@@ -174,14 +173,15 @@
          </div>
 
          <div id="qrState" class="hidden fade-in absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-4 md:p-6">
-            <h3 class="text-xl xl:text-2xl font-bold text-pink-800 mb-2 xl:mb-4 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
-            <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2 xl:mb-4">
-                <img id="qrDisplayImage" src="" class="w-full h-full max-w-[220px] object-contain border-4 border-pink-100 p-2 rounded-2xl shadow-sm">
+            <h3 class="text-xl font-bold text-pink-800 mb-2 shrink-0">📱 สแกน QR เพื่อชำระเงิน</h3>
+            <div class="flex-1 w-full min-h-0 flex items-center justify-center mb-2">
+                <!-- ขยับ max-w เล็กน้อยเพื่อพื้นที่ที่สวยงาม -->
+                <img id="qrDisplayImage" src="" class="w-full h-full max-w-[200px] object-contain border-4 border-pink-100 p-2 rounded-2xl shadow-sm">
             </div>
-            <p class="text-gray-500 font-medium animate-pulse text-sm xl:text-base shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
+            <p class="text-gray-500 font-medium animate-pulse text-sm shrink-0">กรุณาสแกนผ่านแอปธนาคาร</p>
          </div>
       </div>
-    </section>
+   </section>
   </main>
 
 <script>
