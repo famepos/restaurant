@@ -64,11 +64,11 @@
       <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex flex-col gap-4 shrink-0">
         <h2 class="text-2xl font-bold text-gray-800 mb-2 border-b pb-2">สรุปยอดชำระ</h2>
         
-        <!-- โชว์ช่องทางการรับสินค้า (รูปแบบบริการ) -->
-        <div class="flex justify-between items-center text-lg text-gray-600">
-            <span>รูปแบบบริการ:</span>
-            <span id="displayOrderType" class="font-bold text-pink-600">-</span>
-        </div>
+    <!-- โชว์ช่องทางการรับสินค้า (รูปแบบบริการ) -->
+    <div class="flex justify-between items-start text-lg text-gray-600">
+        <span class="shrink-0 mt-1">รูปแบบบริการ:</span>
+        <span id="displayOrderType" class="font-bold text-pink-600 text-right">-</span>
+    </div>
 
         <!-- โชว์วิธีชำระเงิน -->
         <div id="paymentMethodRow" class="hidden justify-between items-center text-lg text-gray-600">
@@ -117,7 +117,7 @@
         <div id="splitPaymentContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-blue-50 border border-blue-200 shadow-inner">
             <div class="text-center font-bold text-blue-800 mb-1 border-b border-blue-200 pb-2" id="splitTitleDisplay">แบ่งจ่าย (เงินสด + โอนเงิน)</div>
             
-            <!-- โหมดผสม (เงินสด+โอน) -->
+      <!-- โหมดผสม (เงินสด+โอน) -->
             <div id="splitMixDisplay" class="flex flex-col w-full gap-2">
                 <div class="flex justify-between items-center text-lg text-gray-600">
                     <span>ชำระเงินสด:</span>
@@ -126,6 +126,11 @@
                 <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
                     <span>ยอดสแกนโอน:</span>
                     <span id="displaySplitTransfer" class="text-3xl">฿0.00</span>
+                </div>
+                <!-- 🟢 บรรทัดเงินทอนสำหรับแบ่งจ่าย -->
+                <div id="displaySplitChangeRow" class="hidden justify-between items-center text-xl text-emerald-600 font-bold border-t border-blue-200 pt-3 mt-1">
+                    <span>เงินทอน:</span>
+                    <span id="displaySplitChangeAmount" class="text-3xl">฿0.00</span>
                 </div>
             </div>
 
@@ -325,13 +330,26 @@ function updateCustomerUI(data) {
     if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
 
     // 🟢 แสดงผลรูปแบบบริการ (ดักจับ เดลิเวอรี่)
-    let orderTypeEl = document.getElementById('displayOrderType');
-    if(orderTypeEl) {
+  let orderTypeEl = document.getElementById('displayOrderType');
+    let paymentType = data.paymentMethod || "-";
+
+    // 🟢 จัดการรูปแบบบริการ (เช็คการแสดงผลเดลิเวอรี่)
+    if (orderTypeEl) {
         if (data.orderType === 'เดลิเวอรี่') {
-            // โชว์รูปแบบตามที่คุณต้องการ
-            orderTypeEl.innerHTML = `<span class="text-orange-600">${data.deliveryApp || '🛵 เดลิเวอรี่'} 🆔 ออเดอร์: ${data.deliveryOrderId || '-'} <br><span class="text-sm">รอรับอาหารได้เลยค่ะ</span></span>`;
+            let appName = data.deliveryApp || "Delivery";
+            let orderId = data.deliveryOrderId || "";
+            
+            // เช็คว่าแคชเชียร์กดชำระเงินแล้วหรือยัง
+            if (paymentType !== "-" && paymentType !== "กำลังเลือก...") {
+                // กดชำระเงินแล้ว โชว์ 2 บรรทัดพร้อมข้อความรอรับอาหาร
+                orderTypeEl.innerHTML = `<div class="leading-tight mt-1">${appName} ออเดอร์: ${orderId}<br><span class="text-sm text-emerald-500 font-bold">รอรับอาหารได้เลยค่ะ</span></div>`;
+            } else {
+                // เพิ่งสั่งอาหาร ยังไม่กดจ่าย โชว์แบบปกติ
+                orderTypeEl.innerHTML = `<span class="mt-1 block">${appName} ${orderId}</span>`;
+            }
         } else {
-            orderTypeEl.innerHTML = `<span class="text-pink-600">${data.orderType || "-"}</span>`;
+            // โหมดอื่นๆ เช่น ทานที่ร้าน, กลับบ้าน
+            orderTypeEl.innerHTML = `<span class="mt-1 block">${data.orderType || "-"}</span>`;
         }
     }
 
@@ -415,16 +433,29 @@ function updateCustomerUI(data) {
             // 🟢 อัปเดตเงินสดที่รับมา ในโหมดหารเท่ากัน
             let eqCashEl = document.getElementById('displaySplitEqCash');
             if(eqCashEl) eqCashEl.innerText = (data.splitCash && parseFloat(data.splitCash) > 0) ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
-        } else {
+  } else {
+            // โหมดเงินสด + โอนเงิน
             if(splitTitle) splitTitle.innerText = "💵 แบ่งจ่าย (เงินสด + โอนเงิน)";
             if(equalDisplay) { equalDisplay.classList.add('hidden'); equalDisplay.classList.remove('flex'); }
             if(mixDisplay) { mixDisplay.classList.remove('hidden'); mixDisplay.classList.add('flex'); }
+            
             let splitCashEl = document.getElementById('displaySplitCash');
             let splitTransferEl = document.getElementById('displaySplitTransfer');
             if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
             if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
+
+            // 🟢 โชว์บรรทัดเงินทอนแบ่งจ่าย
+            let splitChangeRow = document.getElementById('displaySplitChangeRow');
+            let splitChangeEl = document.getElementById('displaySplitChangeAmount');
+            let spChangeNum = parseFloat((data.splitChange || "0").replace(/[^0-9.-]+/g, ""));
+            
+            if (spChangeNum > 0) {
+                if (splitChangeEl) splitChangeEl.innerText = data.splitChange;
+                if (splitChangeRow) { splitChangeRow.classList.remove('hidden'); splitChangeRow.classList.add('flex'); }
+            } else {
+                if (splitChangeRow) { splitChangeRow.classList.add('hidden'); splitChangeRow.classList.remove('flex'); }
+            }
         }
-    }
     else if (paymentType === 'คนละครึ่ง' && halfHalfContainer) {
         halfHalfContainer.classList.remove('hidden'); halfHalfContainer.classList.add('flex');
         let govPayEl = document.getElementById('displayGovPay');
