@@ -330,26 +330,13 @@ function updateCustomerUI(data) {
     if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
 
     // 🟢 แสดงผลรูปแบบบริการ (ดักจับ เดลิเวอรี่)
-  let orderTypeEl = document.getElementById('displayOrderType');
-    let paymentType = data.paymentMethod || "-";
-
-    // 🟢 จัดการรูปแบบบริการ (เช็คการแสดงผลเดลิเวอรี่)
-    if (orderTypeEl) {
+    let orderTypeEl = document.getElementById('displayOrderType');
+    if(orderTypeEl) {
         if (data.orderType === 'เดลิเวอรี่') {
-            let appName = data.deliveryApp || "Delivery";
-            let orderId = data.deliveryOrderId || "";
-            
-            // เช็คว่าแคชเชียร์กดชำระเงินแล้วหรือยัง
-            if (paymentType !== "-" && paymentType !== "กำลังเลือก...") {
-                // กดชำระเงินแล้ว โชว์ 2 บรรทัดพร้อมข้อความรอรับอาหาร
-                orderTypeEl.innerHTML = `<div class="leading-tight mt-1">${appName} ออเดอร์: ${orderId}<br><span class="text-sm text-emerald-500 font-bold">รอรับอาหารได้เลยค่ะ</span></div>`;
-            } else {
-                // เพิ่งสั่งอาหาร ยังไม่กดจ่าย โชว์แบบปกติ
-                orderTypeEl.innerHTML = `<span class="mt-1 block">${appName} ${orderId}</span>`;
-            }
+            // โชว์รูปแบบตามที่คุณต้องการ
+            orderTypeEl.innerHTML = `<span class="text-orange-600">${data.deliveryApp || '🛵 เดลิเวอรี่'} 🆔 ออเดอร์: ${data.deliveryOrderId || '-'} <br><span class="text-sm">รอรับอาหารได้เลยค่ะ</span></span>`;
         } else {
-            // โหมดอื่นๆ เช่น ทานที่ร้าน, กลับบ้าน
-            orderTypeEl.innerHTML = `<span class="mt-1 block">${data.orderType || "-"}</span>`;
+            orderTypeEl.innerHTML = `<span class="text-pink-600">${data.orderType || "-"}</span>`;
         }
     }
 
