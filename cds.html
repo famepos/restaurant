@@ -113,23 +113,34 @@
         </div>
 
         <!-- 🟢 [เพิ่มใหม่] กล่องแสดงรายละเอียดแบ่งจ่าย -->
+ <!-- 🟢 กล่องแสดงรายละเอียดแบ่งจ่าย -->
         <div id="splitPaymentContainer" class="hidden flex-col gap-2 mt-2 p-4 rounded-2xl bg-blue-50 border border-blue-200 shadow-inner">
-            <div class="text-center font-bold text-blue-800 mb-1">แบ่งจ่าย (เงินสด + โอนเงิน)</div>
-            <div class="flex justify-between items-center text-lg text-gray-600">
-                <span>ชำระเงินสด:</span>
-                <span id="displaySplitCash" class="font-bold text-blue-600">฿0.00</span>
+            <div class="text-center font-bold text-blue-800 mb-1 border-b border-blue-200 pb-2" id="splitTitleDisplay">แบ่งจ่าย (เงินสด + โอนเงิน)</div>
+            
+            <!-- โหมดผสม (เงินสด+โอน) -->
+            <div id="splitMixDisplay" class="flex flex-col w-full gap-2">
+                <div class="flex justify-between items-center text-lg text-gray-600">
+                    <span>ชำระเงินสด:</span>
+                    <span id="displaySplitCash" class="font-bold text-blue-600">฿0.00</span>
+                </div>
+                <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
+                    <span>ยอดสแกนโอน:</span>
+                    <span id="displaySplitTransfer" class="text-3xl">฿0.00</span>
+                </div>
             </div>
-            <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
-                <span>ยอดสแกนโอน:</span>
-                <span id="displaySplitTransfer" class="text-3xl">฿0.00</span>
-            </div>
-        </div>
 
-        <div class="flex justify-between items-center text-lg text-emerald-600 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 hidden" id="changeContainer">
-            <span class="font-bold">เงินทอน:</span>
-            <span id="displayChange" class="text-3xl font-bold">฿0.00</span>
+            <!-- โหมดหารเท่ากัน -->
+            <div id="splitEqualDisplay" class="hidden flex-col w-full gap-2">
+                <div class="flex justify-between items-center text-lg text-gray-600">
+                    <span>จำนวนคิวชำระ:</span>
+                    <span class="font-bold text-blue-600">คนที่ <span id="displaySplitCurrentPerson" class="text-xl">1</span> / <span id="displaySplitTotalPeople">2</span></span>
+                </div>
+                <div class="flex justify-between items-center text-xl text-orange-600 font-bold border-t border-blue-200 pt-3 mt-1">
+                    <span>ยอดสแกนต่อคน:</span>
+                    <span id="displaySplitPerPerson" class="text-4xl">฿0.00</span>
+                </div>
+            </div>
         </div>
-      </div>
 
       <div class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
          <div id="adState" class="fade-in absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-white text-center">
@@ -374,13 +385,38 @@ function updateCustomerUI(data) {
     if(halfHalfContainer) { halfHalfContainer.classList.add('hidden'); halfHalfContainer.classList.remove('flex'); }
     if(changeContainer) { changeContainer.classList.add('hidden'); changeContainer.classList.remove('flex'); }
 
-    // 🔴 3.1 กรณี: แบ่งจ่าย
+// 🔴 3.1 กรณี: แบ่งจ่าย
     if (paymentType === 'แบ่งจ่าย' && splitContainer) {
         splitContainer.classList.remove('hidden'); splitContainer.classList.add('flex');
-        let splitCashEl = document.getElementById('displaySplitCash');
-        let splitTransferEl = document.getElementById('displaySplitTransfer');
-        if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
-        if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
+        
+        let splitTitle = document.getElementById('splitTitleDisplay');
+        let mixDisplay = document.getElementById('splitMixDisplay');
+        let equalDisplay = document.getElementById('splitEqualDisplay');
+
+        // ถ้าเป็นโหมดหารบิลเท่ากัน
+        if (data.splitMode === 'equal') {
+            if(splitTitle) splitTitle.innerText = "✂️ แบ่งจ่าย (หารบิลเท่ากัน)";
+            if(mixDisplay) { mixDisplay.classList.add('hidden'); mixDisplay.classList.remove('flex'); }
+            if(equalDisplay) { equalDisplay.classList.remove('hidden'); equalDisplay.classList.add('flex'); }
+            
+            let perPersonEl = document.getElementById('displaySplitPerPerson');
+            if(perPersonEl) perPersonEl.innerText = "฿" + parseFloat(data.splitPerPerson || 0).toFixed(2);
+            let curPersonEl = document.getElementById('displaySplitCurrentPerson');
+            if(curPersonEl) curPersonEl.innerText = data.splitCurrentPerson || "1";
+            let totPersonEl = document.getElementById('displaySplitTotalPeople');
+            if(totPersonEl) totPersonEl.innerText = data.splitTotalPeople || "2";
+
+        } else {
+            // ถ้าเป็นโหมด เงินสด + โอนเงิน
+            if(splitTitle) splitTitle.innerText = "💵 แบ่งจ่าย (เงินสด + โอนเงิน)";
+            if(equalDisplay) { equalDisplay.classList.add('hidden'); equalDisplay.classList.remove('flex'); }
+            if(mixDisplay) { mixDisplay.classList.remove('hidden'); mixDisplay.classList.add('flex'); }
+            
+            let splitCashEl = document.getElementById('displaySplitCash');
+            let splitTransferEl = document.getElementById('displaySplitTransfer');
+            if (splitCashEl) splitCashEl.innerText = data.splitCash ? "฿" + parseFloat(data.splitCash).toFixed(2) : "฿0.00";
+            if (splitTransferEl) splitTransferEl.innerText = data.splitTransfer ? "฿" + parseFloat(data.splitTransfer).toFixed(2) : "฿0.00";
+        }
     }
     // 🔴 3.2 กรณี: คนละครึ่ง
     else if (paymentType === 'คนละครึ่ง' && halfHalfContainer) {
