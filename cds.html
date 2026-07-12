@@ -1,137 +1,727 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>Customer Display | FamePOS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; padding: 10px; height: 100vh; overflow: hidden; box-sizing: border-box; }
-        .main-container { display: flex; gap: 10px; height: 100%; width: 100%; }
-        .white-card { background: white; border-radius: 2rem; border: 3px solid #fecdd3; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .ad-image { width: 100%; height: 100%; object-fit: cover; border-radius: 1.5rem; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FamePOS Custome</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Kanit',sans-serif;
+}
+
+body{
+    background:#fff7fb;
+    overflow:hidden;
+    color:#374151;
+}
+
+::-webkit-scrollbar{
+    display:none;
+}
+
+:root{
+    --primary:#ec4899;
+    --primary-dark:#db2777;
+    --primary-light:#fdf2f8;
+    --border:#fbcfe8;
+    --success:#16a34a;
+    --warning:#f59e0b;
+    --danger:#ef4444;
+}
+
+header{
+    height:90px;
+    background:#ffffff;
+    border-bottom:2px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 35px;
+}
+
+.logo-area{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.logo-area img{
+    width:60px;
+    height:60px;
+}
+
+.store-name{
+    font-size:32px;
+    font-weight:800;
+    color:var(--primary-dark);
+}
+
+.store-sub{
+    color:#6b7280;
+}
+
+.clock{
+    text-align:right;
+}
+
+.clock-time{
+    font-size:38px;
+    font-weight:800;
+    color:var(--primary-dark);
+}
+
+.clock-date{
+    color:#6b7280;
+}
+
+.container{
+    display:flex;
+    gap:20px;
+    padding:20px;
+    height:calc(100vh - 90px);
+}
+
+.left-panel{
+    flex:1;
+    background:#ffffff;
+    border-radius:30px;
+    border:2px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+}
+
+.right-panel{
+    width:470px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.section-title{
+    padding:18px 25px;
+    background:var(--primary-light);
+    border-bottom:1px solid var(--border);
+    font-size:28px;
+    font-weight:700;
+    color:var(--primary-dark);
+}
+
+#cartItems{
+    flex:1;
+    overflow:auto;
+    padding:20px;
+}
+
+.item-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
+    margin-bottom:12px;
+    border-radius:22px;
+    border:1px solid #f3f4f6;
+    background:white;
+    box-shadow:0 6px 18px rgba(0,0,0,.04);
+}
+
+.item-left{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.item-image{
+    width:70px;
+    height:70px;
+    border-radius:18px;
+    object-fit:cover;
+    background:#f3f4f6;
+}
+
+.item-name{
+    font-size:24px;
+    font-weight:700;
+}
+
+.item-detail{
+    color:#6b7280;
+    font-size:18px;
+}
+
+.item-total{
+    font-size:30px;
+    font-weight:800;
+    color:var(--primary-dark);
+}
+
+.summary-card{
+    background:white;
+    border-radius:30px;
+    border:2px solid var(--border);
+    padding:25px;
+}
+
+.customer-box{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.customer-name{
+    font-size:30px;
+    font-weight:800;
+    color:var(--primary-dark);
+}
+
+.table-no{
+    font-size:28px;
+    font-weight:800;
+}
+
+.summary-row{
+    display:flex;
+    justify-content:space-between;
+    margin:12px 0;
+    font-size:22px;
+}
+
+.grand-total{
+    margin-top:20px;
+    border-top:2px dashed #fbcfe8;
+    padding-top:20px;
+    text-align:center;
+}
+
+.grand-total-title{
+    font-size:22px;
+    color:#6b7280;
+}
+
+.grand-total-price{
+    font-size:60px;
+    font-weight:900;
+    color:var(--primary-dark);
+}
+
+.payment-card{
+    flex:1;
+    background:white;
+    border-radius:30px;
+    border:2px solid var(--border);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    padding:30px;
+}
+
+.payment-card.active{
+    display:flex;
+}
+
+.payment-title{
+    font-size:34px;
+    font-weight:800;
+    color:var(--primary-dark);
+    margin-bottom:25px;
+}
+
+.big-number{
+    font-size:78px;
+    font-weight:900;
+}
+
+.cash{
+    color:var(--success);
+}
+
+.change{
+    color:var(--primary-dark);
+}
+
+.qr-box{
+    width:320px;
+    height:320px;
+    border:4px solid var(--border);
+    border-radius:25px;
+    padding:15px;
+    object-fit:contain;
+    background:white;
+}
+
+.delivery-app{
+    font-size:54px;
+    font-weight:900;
+    color:var(--primary-dark);
+}
+
+.delivery-order{
+    font-size:40px;
+    margin-top:10px;
+    font-weight:700;
+}
+
+.waiting{
+    margin-top:40px;
+    font-size:36px;
+    font-weight:700;
+}
+
+.waiting-sub{
+    margin-top:15px;
+    color:#6b7280;
+    font-size:24px;
+}
+
+.fade{
+    animation:fade .3s;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+</style>
 </head>
+
 <body>
 
-<div class="main-container">
-    <!-- ฝั่งซ้าย: ข้อมูลบิล (คงรูปแบบเดิม) -->
-    <section class="white-card w-1/2 flex flex-col">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-black text-gray-800 flex items-center gap-3">
-                <img src="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png" class="w-10 h-10 object-contain"> FamePOS
-            </h1>
-            <div class="text-right">
-                <div class="text-lg font-bold text-gray-600" id="lblTableNo">โต๊ะ: -</div>
-                <div class="text-sm font-bold text-gray-400" id="lblDateTime">--:--:--</div>
-            </div>
-        </div>
+<header>
 
-        <div class="grid grid-cols-12 gap-2 text-sm font-bold text-gray-400 border-b pb-3 mb-3">
-            <span class="col-span-6">รายการสินค้า</span>
-            <span class="col-span-2 text-center">จำนวน</span>
-            <span class="col-span-2 text-right">ราคา</span>
-            <span class="col-span-2 text-right">รวม</span>
-        </div>
-
-        <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-3"></div>
-
-        <div class="border-t-2 border-dashed pt-4 mt-4 space-y-2 text-lg font-bold text-gray-700">
-            <div class="flex justify-between"><span>ยอดรวมสินค้า</span><span id="txtSubTotal">0.00</span></div>
-          <!-- แก้ไข HTML ให้มี id สำหรับเปลี่ยนข้อความ -->
-<div class="flex justify-between">
-    <span id="labelTax">ภาษีมูลค่าเพิ่ม</span>
-    <span id="txtTax">0.00</span>
+<div class="logo-area">
+<img id="storeLogo" src="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png">
+<div>
+<div id="storeName" class="store-name">FamePOS</div>
+<div class="store-sub">Customer Display </div>
 </div>
-<div class="flex justify-between">
-    <span id="labelService">ค่าบริการ</span>
-    <span id="txtService">0.00</span>
 </div>
-            <div class="flex justify-between text-4xl font-black text-pink-600 border-t border-dashed pt-3 mt-2">
-                <span>ยอดรวมทั้งสิ้น</span>
-                <span><span id="txtGrandTotal">0.00</span> บาท</span>
-            </div>
-        </div>
-    </section>
 
-    <!-- ฝั่งขวา: เปลี่ยนโหมดตามสถานะ -->
-    <section id="rightPanel" class="white-card w-1/2 flex flex-col items-center justify-center text-center p-0 overflow-hidden">
-        <div id="adContainer" class="w-full h-full"></div>
-        <div id="paymentModeContainer" class="hidden w-full h-full p-8 flex flex-col justify-center items-center">
-            <!-- ข้อมูลโหมดชำระเงินจะถูก Insert เข้ามาที่นี่ -->
-        </div>
-    </section>
+<div class="clock">
+<div id="clockTime" class="clock-time">00:00:00</div>
+<div id="clockDate" class="clock-date">--</div>
+</div>
+
+</header>
+<div class="container">
+<div class="left-panel">
+<div class="section-title">🛒 รายการสินค้า</div>
+<div id="cartItems">
+</div>
+</div>
+
+<div class="right-panel">
+<div class="summary-card">
+<div class="customer-box">
+<div>
+
+<div style="color:#6b7280">ลูกค้า</div>
+<div id="customerName" class="customer-name">ลูกค้าทั่วไป</div>
+</div>
+
+<div style="text-align:right">
+<div style="color:#6b7280">โต๊ะ</div>
+<div id="tableNo" class="table-no">-</div>
+</div>
+</div>
+
+<div class="summary-row"><span>จำนวนรายการ</span><span id="itemCount">0</span>
+</div>
+<div class="summary-row"> <span>จำนวนชิ้น</span><span id="qtyCount">0</span>
+</div>
+<div class="summary-row"><span>VAT</span><span id="vatAmount">0.00</span>
+</div>
+<div class="summary-row"><span>Service Charge</span><span id="serviceAmount">0.00</span>
+</div>
+<div class="grand-total"><div class="grand-total-title">ยอดชำระทั้งหมด</div>
+ <div id="grandTotal" class="grand-total-price">0.00</div>
+</div>
+</div>
+
+<!-- CASH -->
+
+<div id="cashCard" class="payment-card active fade"> <div class="payment-title">💵 ชำระด้วยเงินสด</div>
+
+    <div style="font-size:28px;color:#6b7280;">รับเงิน</div>
+    <div id="cashReceive" class="big-number cash">0.00</div>
+    <div style="width:100%;border-top:2px dashed #fbcfe8;margin:30px 0;"></div>
+    <div style="font-size:28px;color:#6b7280;">เงินทอน</div>
+    <div id="cashChange" class="big-number change">0.00</div>
+</div>
+
+<!-- QR -->
+
+<div id="transferCard" class="payment-card fade"><div class="payment-title">📱 กรุณาสแกน QR เพื่อชำระเงิน</div>
+<img id="qrImage" class="qr-box" src=""><div style="margin-top:25px;font-size:26px;color:#6b7280;">ยอดที่ต้องชำระ</div>
+<div id="qrAmount" class="big-number" style="color:#db2777;">0.00</div>
+</div>
+
+<!-- ไทยช่วยไทย -->
+<div id="thaiCard" class="payment-card fade">
+
+    <div class="payment-title">
+        🇹🇭 ไทยช่วยไทย 60% / 40%
+    </div>
+
+    <div style="width:100%;display:flex;justify-content:space-between;font-size:26px;margin-top:20px;">
+        <span>ยอดรวม</span>
+        <span id="thaiTotal">0.00</span>
+    </div>
+
+    <div style="width:100%;display:flex;justify-content:space-between;font-size:26px;margin-top:15px;">
+        <span>รัฐช่วย</span>
+        <span id="govPay" style="color:#db2777;font-weight:700;">0.00</span>
+    </div>
+
+    <div style="width:100%;display:flex;justify-content:space-between;font-size:32px;margin-top:20px;font-weight:800;">
+        <span>ลูกค้าชำระ</span>
+        <span id="customerPay" style="color:#16a34a;">0.00</span>
+    </div>
+
+    <img id="thaiQR" class="qr-box" src="" style="margin-top:35px;">
+
+</div>
+
+<!-- DELIVERY -->
+
+<div id="deliveryCard" class="payment-card fade">
+
+    <div id="deliveryApp" class="delivery-app">
+        Grab
+    </div>
+
+    <div id="deliveryOrder" class="delivery-order">
+        #A000001
+    </div>
+
+    <div class="waiting">
+        🍽️ กำลังเตรียมอาหาร
+    </div>
+
+    <div class="waiting-sub">
+        กรุณารอรับอาหารสักครู่
+    </div>
+
+</div>
+
+<!-- SPLIT PAYMENT -->
+
+<div id="splitCard" class="payment-card fade">
+
+    <div class="payment-title">
+        💳 แบ่งชำระ
+    </div>
+
+    <div style="width:100%;display:flex;justify-content:space-between;font-size:26px;">
+        <span>ยอดทั้งหมด</span>
+        <span id="splitTotal">0.00</span>
+    </div>
+
+    <div style="width:100%;display:flex;justify-content:space-between;font-size:26px;margin-top:20px;">
+        <span>ชำระแล้ว</span>
+        <span id="splitPaid">0.00</span>
+    </div>
+
+    <div style="width:100%;display:flex;justify-content:space-between;font-size:36px;margin-top:25px;font-weight:800;">
+        <span>คงเหลือ</span>
+        <span id="splitRemain" style="color:#db2777;">0.00</span>
+    </div>
+
+</div>
+
+<!-- SPLIT BILL -->
+
+<div id="splitBillCard" class="payment-card fade">
+
+    <div class="payment-title">
+        👥 หารบิล
+    </div>
+
+    <div id="splitBillList" style="width:100%;display:flex;flex-direction:column;gap:15px;">
+
+    </div>
+
+</div>
+
+</div>
+
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
-    let adSlides = [];
-    let adIndex = 0;
 
-    // 1. โหลดโฆษณา
-    function fetchAds() {
-        fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getAdSettingsGS" }) })
-        .then(res => res.json()).then(data => { if(data.status==="Success") adSlides = data.result; });
-    }
-    fetchAds(); setInterval(fetchAds, 60000);
+const CDS={
 
-    // 2. แสดงสไลด์โฆษณา
-    function showAds() {
-        const adCont = document.getElementById('adContainer');
-        if(adSlides.length > 0) {
-            adCont.innerHTML = `<img src="${adSlides[adIndex].existingUrl}" class="ad-image">`;
-            adIndex = (adIndex + 1) % adSlides.length;
-        } else {
-            adCont.innerHTML = `<div class="text-gray-400 font-bold">รอการอัปเดตโฆษณา...</div>`;
-        }
-    }
-    setInterval(showAds, 5000);
+storeName:"FamePOS",
 
-    // 3. เชื่อมต่อแคชเชียร์
-    setInterval(() => {
-        document.getElementById('lblDateTime').innerText = new Date().toLocaleTimeString('th-TH');
-        fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getCDSStateGS" }) })
-        .then(res => res.json()).then(data => {
-            if(data.status === "Success" && data.result) updateUI(JSON.parse(data.result));
-        });
-    }, 1000);
-function updateUI(state) {
-    if(!state) return;
+customerName:"ลูกค้าทั่วไป",
 
-    // 1. เปลี่ยนชื่อ Label ตามค่าที่ส่งมาจากแคชเชียร์
-    if(state.taxLabel) document.getElementById('labelTax').innerText = state.taxLabel;
-    if(state.serviceLabel) document.getElementById('labelService').innerText = state.serviceLabel;
+tableNo:"-",
 
-    // 2. แสดงตัวเลข (ใช้ parseFloat/toFixed เพื่อแก้ NaN)
-    const subTotal = parseFloat(state.subTotal || 0);
-    const tax = parseFloat(state.vat || 0);
-    const service = parseFloat(state.serviceCharge || 0);
-    const grandTotal = parseFloat(state.grandTotal || 0);
+subtotal:0,
 
-    document.getElementById('txtSubTotal').innerText = subTotal.toFixed(2);
-    document.getElementById('txtTax').innerText = tax.toFixed(2);
-    document.getElementById('txtService').innerText = service.toFixed(2);
-    document.getElementById('txtGrandTotal').innerText = grandTotal.toFixed(2);
+vat:0,
 
-    // 3. รายการสินค้า
-    const cartCont = document.getElementById('cartItemsContainer');
-    if(state.cart && state.cart.length > 0) {
-        let html = '';
-        state.cart.forEach(item => {
-            let price = parseFloat(item.price || 0);
-            let total = parseFloat(item.total || 0);
-            html += `
-            <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800">
-                <span class="col-span-6 truncate">${item.name}</span>
-                <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
-                <span class="col-span-2 text-right text-gray-500">${price.toFixed(2)}</span>
-                <span class="col-span-2 text-right">${total.toFixed(2)}</span>
-            </div>`;
-        });
-        cartCont.innerHTML = html;
-        document.getElementById('summaryFooter').classList.remove('hidden');
-    }
+service:0,
+
+grandTotal:0,
+
+paymentMode:"cash",
+
+cashReceive:0,
+
+cashChange:0,
+
+governmentPay:0,
+
+customerPay:0,
+
+deliveryApp:"",
+
+deliveryOrder:"",
+
+items:[]
+
+};
+
+function updateClock(){
+
+const now=new Date();
+
+document.getElementById("clockTime").innerHTML=now.toLocaleTimeString("th-TH");
+
+document.getElementById("clockDate").innerHTML=now.toLocaleDateString("th-TH",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
 }
+
+setInterval(updateClock,1000);
+
+updateClock();
+
+function switchPayment(mode){
+
+document.querySelectorAll(".payment-card").forEach(card=>card.classList.remove("active"));
+
+if(mode==="cash") document.getElementById("cashCard").classList.add("active");
+
+if(mode==="transfer") document.getElementById("transferCard").classList.add("active");
+
+if(mode==="half") document.getElementById("thaiCard").classList.add("active");
+
+if(mode==="delivery") document.getElementById("deliveryCard").classList.add("active");
+
+if(mode==="split") document.getElementById("splitCard").classList.add("active");
+
+if(mode==="splitbill") document.getElementById("splitBillCard").classList.add("active");
+
+}
+
+function renderCustomer(){
+
+document.getElementById("storeName").innerHTML=CDS.storeName||"FamePOS";
+
+document.getElementById("customerName").innerHTML=CDS.customerName||"ลูกค้าทั่วไป";
+
+document.getElementById("tableNo").innerHTML=CDS.tableNo||"-";
+
+document.getElementById("itemCount").innerHTML=CDS.items.length;
+
+let qty=0;
+
+let html="";
+
+CDS.items.forEach(item=>{
+
+qty+=Number(item.qty);
+
+html+=`
+<div class="item-card fade">
+
+<div class="item-left">
+
+<img class="item-image" src="${item.image||'https://placehold.co/80x80'}">
+
+<div>
+
+<div class="item-name">${item.name}</div>
+
+<div class="item-detail">
+${item.qty} × ${Number(item.price).toFixed(2)}
+</div>
+
+</div>
+
+</div>
+
+<div class="item-total">
+
+${Number(item.total).toFixed(2)}
+
+</div>
+
+</div>
+`;
+
+});
+
+document.getElementById("cartItems").innerHTML=html;
+
+document.getElementById("qtyCount").innerHTML=qty;
+
+document.getElementById("vatAmount").innerHTML=Number(CDS.vat).toFixed(2);
+
+document.getElementById("serviceAmount").innerHTML=Number(CDS.service).toFixed(2);
+
+document.getElementById("grandTotal").innerHTML=Number(CDS.grandTotal).toFixed(2);
+
+document.getElementById("cashReceive").innerHTML=Number(CDS.cashReceive).toFixed(2);
+
+document.getElementById("cashChange").innerHTML=Number(CDS.cashChange).toFixed(2);
+
+document.getElementById("qrAmount").innerHTML=Number(CDS.grandTotal).toFixed(2);
+
+document.getElementById("thaiTotal").innerHTML=Number(CDS.grandTotal).toFixed(2);
+
+document.getElementById("govPay").innerHTML=Number(CDS.governmentPay).toFixed(2);
+
+document.getElementById("customerPay").innerHTML=Number(CDS.customerPay).toFixed(2);
+
+document.getElementById("deliveryApp").innerHTML=CDS.deliveryApp||"Grab";
+
+document.getElementById("deliveryOrder").innerHTML=CDS.deliveryOrder||"-";
+
+if(CDS.qrImage){
+
+document.getElementById("qrImage").src=CDS.qrImage;
+
+document.getElementById("thaiQR").src=CDS.qrImage;
+
+}
+
+switchPayment(CDS.paymentMode);
+
+}
+
+function renderSplitBill(){
+
+let html="";
+
+if(!CDS.splitBill)return;
+
+CDS.splitBill.forEach((person,index)=>{
+
+html+=`
+
+<div style="display:flex;justify-content:space-between;align-items:center;padding:15px;border-radius:18px;background:#fff7fb;border:1px solid #fbcfe8;">
+
+<div>
+
+<div style="font-size:24px;font-weight:700;">
+
+คนที่ ${index+1}
+
+</div>
+
+<div style="color:#6b7280;">
+
+${person.method||"-"}
+
+</div>
+
+</div>
+
+<div style="font-size:22px;font-weight:800;color:${person.paid?'#16a34a':'#db2777'};">
+
+${person.paid?'✔ ชำระแล้ว':'รอชำระ'}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+document.getElementById("splitBillList").innerHTML=html;
+
+}
+
+function updateDisplay(data){
+
+if(!data)return;
+
+Object.assign(CDS,data);
+
+renderCustomer();
+
+renderSplitBill();
+
+}
+
+async function loadCDS(){
+
+try{
+
+const res=await fetch(API_URL,{
+
+method:"POST",
+
+headers:{
+"Content-Type":"text/plain;charset=utf-8"
+},
+
+body:JSON.stringify({
+
+action:"getCDSStateGS",
+
+args:[]
+
+})
+
+});
+
+const result=await res.json();
+
+if(result.status==="Success"){
+
+let state=result.result;
+
+if(typeof state==="string"){
+
+state=JSON.parse(state);
+
+}
+
+updateDisplay(state);
+
+}
+
+}catch(e){
+
+console.log(e);
+
+}
+
+}
+
+setInterval(loadCDS,1000);
+
+loadCDS();
+
 </script>
+
 </body>
 </html>
