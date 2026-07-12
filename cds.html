@@ -6,26 +6,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; padding: 10px; height: 100vh; width: 100vw; overflow: hidden; box-sizing: border-box; }
-        .main-container { display: flex; gap: 10px; height: 100%; width: 100%; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; height: 100vh; overflow: hidden; }
+        .main-container { display: flex; gap: 15px; height: 100vh; padding: 10px; box-sizing: border-box; }
         .white-card { background: white; border-radius: 2rem; border: 3px solid #fecdd3; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <!-- ฝั่งซ้าย: ข้อมูลบิล -->
+    <!-- ฝั่งซ้าย: ข้อมูลบิล (แสดงตลอด) -->
     <section class="white-card w-1/2 flex flex-col">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-black text-gray-800 flex items-center gap-3">
                 <img src="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png" class="w-10 h-10 object-contain"> FamePOS
             </h1>
             <div class="text-right">
-                <div class="text-xs font-bold text-gray-400">โต๊ะ: <span id="lblTableNo">-</span></div>
-                <div class="text-sm font-bold text-gray-600" id="lblDateTime">--:--:--</div>
+                <div class="text-lg font-bold text-gray-600" id="lblTableNo">โต๊ะ: -</div>
+                <div class="text-sm font-bold text-gray-400" id="lblDateTime">--:--:--</div>
             </div>
         </div>
 
@@ -36,27 +34,28 @@
             <span class="col-span-2 text-right">รวม</span>
         </div>
 
-        <div id="cartItemsContainer" class="flex-1 space-y-3 overflow-y-auto">
-            <!-- รอข้อมูลจากแคชเชียร์ -->
+        <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-3">
+            <!-- รอข้อมูล -->
         </div>
 
-        <div id="summaryFooter" class="hidden border-t-2 border-dashed pt-4 mt-4 space-y-2 text-sm font-bold text-gray-600">
+        <!-- กล่องสรุปที่ต้องแสดงตลอด -->
+        <div class="border-t-2 border-dashed pt-4 mt-4 space-y-2 text-lg font-bold text-gray-700">
             <div class="flex justify-between"><span>ยอดรวมสินค้า</span><span id="txtSubTotal">0.00</span></div>
             <div class="flex justify-between"><span>ภาษีมูลค่าเพิ่ม 7%</span><span id="txtTax">0.00</span></div>
             <div class="flex justify-between"><span>ค่าบริการ 10%</span><span id="txtService">0.00</span></div>
-            <div class="flex justify-between text-3xl font-black text-pink-600 border-t border-dashed pt-3 mt-2">
+            <div class="flex justify-between text-4xl font-black text-pink-600 border-t border-dashed pt-3 mt-2">
                 <span>ยอดรวมทั้งสิ้น</span>
                 <span><span id="txtGrandTotal">0.00</span> บาท</span>
             </div>
         </div>
     </section>
 
-    <!-- ฝั่งขวา: พื้นที่ว่างรอการโต้ตอบ -->
+    <!-- ฝั่งขวา -->
     <section id="rightPanel" class="white-card w-1/2 flex flex-col items-center justify-center text-center">
-        <div id="idleState" class="fade-in">
+        <div id="idleState">
             <span class="text-8xl mb-6 block">✨</span>
             <h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3>
-            <p class="text-gray-300 font-bold text-xl mt-2">รอรายการอาหารจากหน้าแคชเชียร์...</p>
+            <p class="text-gray-400 font-bold text-xl mt-2">เชิญเลือกสั่งรายการอาหารที่เคาน์เตอร์ได้เลยค่ะ</p>
         </div>
     </section>
 </div>
@@ -70,44 +69,49 @@
         .then(res => res.json()).then(data => {
             if(data.status === "Success" && data.result) updateUI(JSON.parse(data.result));
         });
-    }, 1500);
+    }, 1000);
 
     function updateUI(state) {
         if(!state) return;
         
+        // อัปเดต Table หรือ OrderType
+        let tableDisplay = state.tableNo || "-";
+        if(state.orderType === "กลับบ้าน") tableDisplay = "🛍️ กลับบ้าน";
+        else if(state.orderType === "เดลิเวอรี่") tableDisplay = "🛵 ส่งของ";
+        else if(state.tableNo) tableDisplay = "โต๊ะ: " + state.tableNo;
+        document.getElementById('lblTableNo').innerText = tableDisplay;
+
         const cartCont = document.getElementById('cartItemsContainer');
-        const summary = document.getElementById('summaryFooter');
         const idle = document.getElementById('idleState');
         
         if(state.cart && state.cart.length > 0) {
             idle.classList.add('hidden');
-            summary.classList.remove('hidden');
-            
-            // อัปเดตรายการสินค้า
             let html = '';
             state.cart.forEach(item => {
+                let price = parseFloat(item.price || 0);
+                let total = parseFloat(item.total || 0);
                 html += `
-                <div class="grid grid-cols-12 gap-2 text-sm font-bold text-gray-700 fade-in">
+                <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800">
                     <span class="col-span-6 truncate">${item.name}</span>
-                    <span class="col-span-2 text-center text-gray-400">${item.qty}</span>
-                    <span class="col-span-2 text-right text-gray-400">${parseFloat(item.price).toFixed(2)}</span>
-                    <span class="col-span-2 text-right">${parseFloat(item.total).toFixed(2)}</span>
+                    <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
+                    <span class="col-span-2 text-right text-gray-500">${price.toFixed(2)}</span>
+                    <span class="col-span-2 text-right">${total.toFixed(2)}</span>
                 </div>`;
             });
             cartCont.innerHTML = html;
             
-            // อัปเดตตัวเลข
-            document.getElementById('lblTableNo').innerText = state.tableNo || "-";
-            document.getElementById('txtSubTotal').innerText = (state.subTotal || 0).toFixed(2);
-            document.getElementById('txtTax').innerText = (state.vat || 0).toFixed(2);
-            document.getElementById('txtService').innerText = (state.serviceCharge || 0).toFixed(2);
-            document.getElementById('txtGrandTotal').innerText = (state.grandTotal || 0).toFixed(2);
+            // อัปเดตตัวเลข (ใส่ค่า Default 0.00 ป้องกัน NaN)
+            document.getElementById('txtSubTotal').innerText = parseFloat(state.subTotal || 0).toFixed(2);
+            document.getElementById('txtTax').innerText = parseFloat(state.vat || 0).toFixed(2);
+            document.getElementById('txtService').innerText = parseFloat(state.serviceCharge || 0).toFixed(2);
+            document.getElementById('txtGrandTotal').innerText = parseFloat(state.grandTotal || 0).toFixed(2);
         } else {
-            // กรณีไม่มีสินค้า (ว่าง)
             cartCont.innerHTML = '';
-            summary.classList.add('hidden');
             idle.classList.remove('hidden');
-            document.getElementById('lblTableNo').innerText = "-";
+            document.getElementById('txtSubTotal').innerText = "0.00";
+            document.getElementById('txtTax').innerText = "0.00";
+            document.getElementById('txtService').innerText = "0.00";
+            document.getElementById('txtGrandTotal').innerText = "0.00";
         }
     }
 </script>
