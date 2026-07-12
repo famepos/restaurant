@@ -2,119 +2,86 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FamePOS Customer Display</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; height: 100vh; width: 100vw; overflow: hidden; }
-        .main-box { background-color: white; height: 100vh; width: 100vw; display: flex; overflow: hidden; }
+        /* ล็อกให้เต็มจอ 100% ห้ามมีขอบขาวเกินจำเป็น */
+        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; overflow: hidden; height: 100vh; width: 100vw; }
+        .main-container { width: 100vw; height: 100vh; padding: 10px; display: flex; gap: 10px; box-sizing: border-box; }
+        .white-card { background: white; border-radius: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 2px solid #fecdd3; overflow: hidden; }
+        ::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="main-box p-4 gap-4">
-        <!-- ฝั่งซ้าย: รายการสินค้า -->
-        <section class="w-[55%] flex flex-col p-6 overflow-hidden">
-            <div class="flex items-center justify-between mb-4">
+    <div class="main-container">
+        <!-- ฝั่งซ้าย: ข้อมูลบิล -->
+        <section class="white-card w-1/2 flex flex-col p-6">
+            <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-black text-pink-700">FamePOS</h1>
-                <div id="lblDateTime" class="text-sm font-bold text-gray-400">00:00:00</div>
+                <div id="displayTime" class="text-xl font-bold text-gray-500">00:00:00</div>
             </div>
             
-            <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-4 pr-2">
-                <!-- ข้อมูลจะรอโหลดจากแคชเชียร์เท่านั้น -->
+            <div id="cartItems" class="flex-1 overflow-y-auto space-y-3">
+                <!-- ข้อมูลจะขึ้นที่นี่เมื่อแคชเชียร์ส่งมาเท่านั้น -->
             </div>
-
-            <!-- สรุปท้ายบิล (จะโชว์เมื่อมีสินค้า) -->
-            <div id="summaryFooter" class="hidden border-t border-gray-100 pt-4 space-y-2 text-sm font-bold text-gray-500">
-                <div class="flex justify-between"><span>ยอดรวมสินค้า</span><span id="txtSubTotal">0.00</span></div>
-                <div class="flex justify-between"><span>ภาษี/ค่าบริการ</span><span id="txtTaxService">0.00</span></div>
-                <div class="flex justify-between text-2xl font-black text-pink-600 border-t pt-2">
+            
+            <div id="summaryFooter" class="hidden border-t-2 border-pink-100 pt-4 mt-2">
+                <div class="flex justify-between text-2xl font-black text-pink-700">
                     <span>ยอดรวมทั้งสิ้น</span>
-                    <span><span id="txtGrandTotal">0.00</span> บาท</span>
+                    <span id="txtGrandTotal">฿0.00</span>
                 </div>
             </div>
         </section>
 
         <!-- ฝั่งขวา: พื้นที่ว่างรอการโต้ตอบ -->
-        <section id="rightPanel" class="w-[45%] flex flex-col justify-center items-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-            <!-- สถานะรอรับข้อมูล -->
-            <div id="idleState" class="text-center">
-                <div class="text-8xl mb-4">✨</div>
-                <h3 class="text-3xl font-bold text-gray-400">ยินดีต้อนรับ</h3>
-                <p class="text-gray-400 font-medium">รอรายการอาหารจากหน้าแคชเชียร์...</p>
+        <section id="rightPanel" class="white-card w-1/2 flex flex-col items-center justify-center text-center p-8">
+            <div id="idleState">
+                <span class="text-8xl mb-6 block">✨</span>
+                <h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3>
+                <p class="text-gray-300 font-bold text-xl mt-2">รอรายการอาหารจากหน้าแคชเชียร์...</p>
             </div>
             
-            <!-- สถานะมีสินค้า (จะถูกแสดงแทนที่ idleState) -->
-            <div id="activeState" class="hidden w-full h-full p-6 flex flex-col justify-center items-center">
-                <!-- ตรงนี้จะถูกเติม QR หรือสถานะการชำระเงินโดยอัตโนมัติ -->
-            </div>
+            <!-- ส่วนแสดง QR/สถานะ จะถูก inject เข้ามาในนี้ -->
+            <div id="activeState" class="hidden w-full h-full"></div>
         </section>
     </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
 
-    // 🚀 ระบบ Proxy
-    const google = {
-        script: { get run() { 
-            const proxy = new Proxy({}, { get: (target, prop) => (...args) => {
-                fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: prop, args: args }), redirect: "follow" })
-                .then(res => res.json()).then(data => { if(data.status === "Success" && window.successCb) window.successCb(data.result); });
-            }});
-            return proxy;
-        }}
-    };
-    window.successCb = null;
-    google.script.run.withSuccessHandler = (cb) => { window.successCb = cb; return google.script.run; };
-
+    // ระบบเชื่อมต่อข้อมูล
     setInterval(() => {
-        document.getElementById('lblDateTime').innerText = new Date().toLocaleTimeString('th-TH');
-        google.script.run.getCDSStateGS();
+        document.getElementById('displayTime').innerText = new Date().toLocaleTimeString('th-TH');
+        fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "getCDSStateGS", args: [] }), redirect: "follow" })
+        .then(res => res.json()).then(data => { if(data.status === "Success" && data.result) updateUI(JSON.parse(data.result)); });
     }, 1000);
 
     function updateUI(state) {
-        if(!state) return;
+        const cartItems = document.getElementById('cartItems');
+        const summary = document.getElementById('summaryFooter');
+        const idle = document.getElementById('idleState');
         
-        // 1. จัดการฝั่งซ้าย
-        const cartCont = document.getElementById('cartItemsContainer');
-        const summaryFooter = document.getElementById('summaryFooter');
-        
-        if(state.cart && state.cart.length > 0) {
+        if (state.cart && state.cart.length > 0) {
+            idle.classList.add('hidden');
+            summary.classList.remove('hidden');
             let html = '';
             state.cart.forEach(item => {
                 html += `
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 fade-in">
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100 fade-in">
                     <div class="font-bold text-gray-800 text-lg">${item.name}</div>
-                    <div class="flex gap-6 font-bold text-gray-500">
-                        <span>x${item.qty}</span>
-                        <span class="text-pink-600">฿${parseFloat(item.total).toFixed(2)}</span>
-                    </div>
+                    <div class="font-bold text-pink-600 text-xl">฿${(item.price * item.qty).toFixed(2)}</div>
                 </div>`;
             });
-            cartCont.innerHTML = html;
-            summaryFooter.classList.remove('hidden');
-            document.getElementById('txtSubTotal').innerText = (state.subTotal || 0).toFixed(2);
-            document.getElementById('txtGrandTotal').innerText = (state.grandTotal || 0).toFixed(2);
-        } else {
-            cartCont.innerHTML = '';
-            summaryFooter.classList.add('hidden');
-        }
-
-        // 2. จัดการฝั่งขวา (อัปเดตตามสถานะแคชเชียร์)
-        const idle = document.getElementById('idleState');
-        const active = document.getElementById('activeState');
-        
-        if (state.status !== 'idle' && state.cart && state.cart.length > 0) {
-            idle.classList.add('hidden');
-            active.classList.remove('hidden');
-            // ตรงนี้คุณใส่ logic แสดง QR หรือสถานะชำระเงินตาม mode ได้เลย
+            cartItems.innerHTML = html;
+            document.getElementById('txtGrandTotal').innerText = "฿" + (state.grandTotal || 0).toFixed(2);
         } else {
             idle.classList.remove('hidden');
-            active.classList.add('hidden');
+            summary.classList.add('hidden');
+            cartItems.innerHTML = '';
         }
     }
 </script>
