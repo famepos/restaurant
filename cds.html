@@ -6,12 +6,6 @@
   <title>Customer Display | FamePOS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="https://i.postimg.cc/Znng4wjg/fe8393f8-8504-475f-976c-727390b6c790.png" sizes="192x192">
-  <link rel="apple-touch-icon" href="https://i.postimg.cc/Znng4wjg/fe8393f8-8504-475f-976c-727390b6c790.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="KDS FamePOS">
-  <meta name="mobile-web-app-capable" content="yes">
   <style>
     body { font-family: 'Kanit', sans-serif; overflow: hidden; margin: 0; background-color: #f3f4f6; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -62,7 +56,7 @@
   </div>
 
   <!-- ================= ฝั่งขวา: พื้นที่อเนกประสงค์ ================= -->
-  <div class="w-1/2 lg:w-7/12 h-full relative bg-gray-50 flex flex-col">
+  <div class="w-1/2 lg:w-7/12 h-full relative bg-white flex flex-col">
     
     <!-- 1. โหมดโฆษณา (Screensaver) -->
     <div id="adContainer" class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden transition-opacity duration-500 bg-gray-100">
@@ -70,10 +64,10 @@
       <div id="adText" class="absolute bottom-0 left-0 w-full text-center text-white text-3xl font-bold p-8 bg-gradient-to-t from-black/80 to-transparent"></div>
     </div>
 
-    <!-- 2. โหมดแสดงยอดเงินและชำระเงิน (Active & Payment) -->
+    <!-- 2. โหมดชำระเงิน (Payment Display - Ocha Style) -->
     <div id="paymentContainer" class="hidden absolute inset-0 bg-white flex flex-col items-center justify-center p-8 text-center transition-opacity duration-500 z-10">
       <div id="paymentContent" class="pop-in flex flex-col items-center w-full max-w-lg">
-        <!-- เนื้อหาการชำระเงิน หรือยอดรวม จะถูกแทรกที่นี่ด้วย JS -->
+        <!-- เนื้อหาการชำระเงินจะถูกแทรกที่นี่ด้วย JS -->
       </div>
     </div>
 
@@ -91,11 +85,8 @@
   </div>
 
   <script>
-    // =========================================================================
-    // 🔗 ลิงก์ API หลังบ้าน (Web App URL)
-    // =========================================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
-
+    
     let adsList = [];
     let currentAdIndex = 0;
     let adTimer = null;
@@ -143,176 +134,129 @@
       }
     }
 
-    function updateUI(state) {
-      const adContainer = document.getElementById('adContainer');
-      const paymentContainer = document.getElementById('paymentContainer');
-      const successContainer = document.getElementById('successContainer');
-      const paymentContent = document.getElementById('paymentContent');
-      const cartItems = document.getElementById('cdsCartItems');
-      const statusBadge = document.getElementById('cdsStatusBadge');
+   // 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า
+function updateCustomerUI(data) {
+    if (!data) return;
 
-      // --- อัปเดตรายการซ้าย ---
-      if (state.status === 'idle' || (!state.cart || state.cart.length === 0)) {
-        cartItems.innerHTML = `
-          <div class="h-full flex flex-col items-center justify-center text-gray-300">
-            <svg class="w-24 h-24 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            <span class="text-xl font-medium">ยังไม่มีรายการสินค้า</span>
-          </div>`;
-        document.getElementById('cdsSubTotal').innerText = "฿0.00";
-        document.getElementById('cdsDiscount').innerText = "-฿0.00";
-        document.getElementById('cdsGrandTotal').innerText = "฿0.00";
-      } else {
-        let html = '';
-        state.cart.forEach(item => {
-          // ดึงรูปภาพถ้ามี
-          let imgTag = item.image 
-              ? `<img src="${item.image}" class="w-12 h-12 rounded-lg object-cover border border-gray-100 shrink-0">` 
-              : `<div class="w-12 h-12 rounded-lg bg-pink-50 text-pink-400 flex items-center justify-center text-xl shrink-0">🛍️</div>`;
-
-          html += `
-            <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <div class="flex items-center gap-4 flex-1 pr-4">
-                ${imgTag}
-                <div>
-                  <div class="text-lg font-bold text-gray-800">${item.name}</div>
-                  <div class="text-sm text-gray-500 font-medium mt-0.5">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
-                </div>
-              </div>
-              <div class="text-xl font-bold text-gray-800 shrink-0">฿${parseFloat(item.total).toFixed(2)}</div>
-            </div>
-          `;
-        });
-        cartItems.innerHTML = html;
-        document.getElementById('cdsSubTotal').innerText = "฿" + (state.subTotal || 0).toFixed(2);
-        document.getElementById('cdsDiscount').innerText = "-฿" + ((state.discount || 0) + (state.pointDiscount || 0)).toFixed(2);
-        document.getElementById('cdsGrandTotal').innerText = "฿" + (state.grandTotal || 0).toFixed(2);
-        cartItems.scrollTop = cartItems.scrollHeight;
-      }
-
-      // --- อัปเดตหน้าต่างขวา (โฆษณา / ยอดเงินทันที / จ่ายเงิน / สำเร็จ) ---
-      adContainer.classList.add('hidden');
-      paymentContainer.classList.add('hidden');
-      successContainer.classList.add('hidden');
-
-      let grandTotalStr = "฿" + (state.grandTotal || 0).toFixed(2);
-
-      // 1. สถานะ: ชำระเงินสำเร็จ
-      if (state.status === 'success') {
-        successContainer.classList.remove('hidden');
-        statusBadge.innerText = "ชำระเงินสำเร็จ";
-        statusBadge.className = "bg-green-100 text-green-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm";
-      } 
-      
-      // 2. สถานะ: แคชเชียร์กำลังกดปุ่มชำระเงินเลือกช่องทาง
-      else if (state.status === 'payment') {
-        paymentContainer.classList.remove('hidden');
-        statusBadge.innerText = "รอชำระเงิน";
-        statusBadge.className = "bg-orange-100 text-orange-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm";
-        
-        let details = state.paymentDetails || {};
-        let html = '';
-
-        if (details.type === 'เงินสด') {
-          html = `
-            <div class="text-gray-500 mb-2 font-medium text-2xl">ยอดชำระสุทธิ</div>
-            <div class="text-7xl font-black text-gray-800 mb-10">${grandTotalStr}</div>
-            <div class="w-full bg-gray-50 rounded-3xl p-6 border border-gray-100 shadow-sm">
-              <div class="flex justify-between items-center mb-4 text-xl border-b border-gray-200 pb-4">
-                <span class="text-gray-500 font-bold">รับเงินสดมา</span>
-                <span class="font-bold text-gray-800">฿${parseFloat(details.cashReceived || 0).toFixed(2)}</span>
-              </div>
-              <div class="flex justify-between items-center pt-2">
-                <span class="text-2xl font-bold text-gray-600">เงินทอน</span>
-                <span class="text-6xl font-black text-green-500">฿${parseFloat(details.changeAmount || 0).toFixed(2)}</span>
-              </div>
-            </div>`;
-        } 
-        else if (details.type === 'โอนเงิน') {
-          html = `
-            <div class="text-gray-500 mb-2 font-medium text-2xl">ยอดชำระสุทธิ</div>
-            <div class="text-7xl font-black text-green-500 tracking-tight mb-8">${grandTotalStr}</div>
-            <div class="bg-white p-3 rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 border-4 border-green-500">
-              <img src="${details.qrUrl}" class="w-72 h-72 lg:w-96 lg:h-96 object-contain rounded-2xl">
-            </div>
-            <div class="mt-8 text-gray-500 font-medium text-lg">สแกนจ่ายผ่าน Mobile Banking ได้ทุกธนาคาร</div>`;
-        } 
-        else if (details.type === 'คนละครึ่ง') {
-          let govAmount = (state.grandTotal / 2);
-          html = `
-            <div class="bg-blue-900 text-white px-6 py-2 rounded-full text-sm font-bold mb-6 tracking-wider">โครงการรัฐ / คนละครึ่ง</div>
-            <div class="text-gray-500 mb-2 font-medium text-2xl">ยอดสุทธิ</div>
-            <div class="text-7xl font-black text-gray-800 mb-8">${grandTotalStr}</div>
-            <div class="w-full space-y-4">
-              <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 flex justify-between items-center shadow-sm">
-                <span class="text-blue-800 font-bold text-xl">ลูกค้าจ่าย (สแกน)</span>
-                <span class="text-4xl font-black text-blue-600">฿${govAmount.toFixed(2)}</span>
-              </div>
-              <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 flex justify-between items-center">
-                <span class="text-gray-500 font-bold text-xl">รัฐสมทบ (50%)</span>
-                <span class="text-2xl font-bold text-gray-600">฿${govAmount.toFixed(2)}</span>
-              </div>
-            </div>`;
-        }
-        else if (details.type === 'แบ่งจ่าย') {
-          if (details.splitMode === 'mix') {
-            html = `
-              <div class="bg-purple-100 text-purple-700 px-6 py-2 rounded-full text-sm font-bold mb-6">แบ่งจ่าย (เงินสด + โอน)</div>
-              <div class="w-full bg-pink-50 rounded-2xl p-5 flex justify-between items-center mb-6 border border-pink-100">
-                <span class="text-pink-700 font-bold text-xl">รับเงินสดมาแล้ว</span>
-                <span class="text-3xl font-bold text-pink-600">฿${parseFloat(details.cashReceived || 0).toFixed(2)}</span>
-              </div>
-              <div class="text-gray-500 mb-2 font-bold text-xl">ยอดที่ต้องสแกนจ่ายเพิ่ม</div>
-              <div class="text-5xl font-black text-green-500 mb-6">฿${parseFloat(details.transferAmount || 0).toFixed(2)}</div>
-              ${details.qrUrl ? `<div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 border-4 border-green-500"><img src="${details.qrUrl}" class="w-56 h-56 object-contain"></div>` : ''}`;
-          } 
-          else if (details.splitMode === 'equal') {
-            html = `
-              <div class="bg-purple-100 text-purple-700 px-6 py-2 rounded-full text-sm font-bold mb-4">หารบิลเท่ากัน (${details.totalPeople} คน)</div>
-              ${details.cashReceived > 0 ? `<div class="w-full bg-gray-50 rounded-xl p-4 flex justify-between items-center mb-6"><span class="text-gray-600 font-bold text-lg">รับเงินสดรวมมาแล้ว</span><span class="text-2xl font-bold text-gray-800">฿${parseFloat(details.cashReceived).toFixed(2)}</span></div>` : ''}
-              <div class="text-gray-500 mb-2 font-bold text-xl">ยอดสแกนจ่ายต่อคน</div>
-              <div class="text-6xl font-black text-green-500 mb-6">฿${parseFloat(details.perPersonAmount || 0).toFixed(2)}</div>
-              ${details.qrUrl ? `<div class="bg-white p-2 rounded-3xl shadow-lg border-4 border-green-500 mb-6"><img src="${details.qrUrl}" class="w-56 h-56 object-contain"></div>` : ''}
-              <div class="bg-pink-600 text-white px-8 py-3 rounded-full font-bold text-lg shadow-md">กำลังจ่ายคนที่ ${details.currentPerson} จาก ${details.totalPeople}</div>`;
-          }
-        }
-        else if (details.type === 'เดลิเวอรี่') {
-          html = `
-            <div class="w-28 h-28 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center text-6xl mb-6 shadow-md border-4 border-white">🛵</div>
-            <div class="text-gray-500 mb-2 font-medium text-2xl">ออเดอร์เดลิเวอรี่</div>
-            <div class="text-5xl font-black text-gray-800 mb-3">${details.appName || 'แอปเดลิเวอรี่'}</div>
-            <div class="text-3xl font-bold text-orange-600 mb-8 bg-orange-50 px-6 py-2 rounded-xl border border-orange-100">${details.orderId ? '#' + details.orderId : '-'}</div>
-            <div class="w-full border-t border-dashed border-gray-300 pt-8 mt-4">
-              <div class="text-gray-500 mb-2 font-medium text-xl">ยอดรวมเรียกเก็บสุทธิ</div>
-              <div class="text-7xl font-black text-green-500 tracking-tight">${grandTotalStr}</div>
-            </div>`;
-        }
-
-        paymentContent.innerHTML = html;
-      } 
-      
-      // 3. สถานะ: ออเดอร์กำลังเข้า (แสดงยอดเงินทันที ไม่โชว์รูปโฆษณา)
-      else if (state.status === 'active') {
-        paymentContainer.classList.remove('hidden');
-        statusBadge.innerText = "กำลังทำรายการ";
-        statusBadge.className = "bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm";
-        
-        paymentContent.innerHTML = `
-          <div class="text-gray-500 mb-4 font-medium text-2xl">ยอดชำระสุทธิ (Net Total)</div>
-          <div class="text-8xl font-black text-pink-600 tracking-tight mb-8">${grandTotalStr}</div>
-          <div class="mt-8 flex items-center gap-3 text-gray-400 font-medium text-xl">
-             <div class="w-6 h-6 border-4 border-pink-300 border-t-pink-600 rounded-full animate-spin"></div>
-             กำลังทำรายการ กรุณารอสักครู่...
-          </div>
-        `;
-      } 
-      
-      // 4. สถานะ: ว่าง (ตะกร้าไม่มีของ) โชว์โฆษณา
-      else {
-        adContainer.classList.remove('hidden');
-        statusBadge.innerText = "รอรับออเดอร์";
-        statusBadge.className = "bg-gray-100 text-gray-500 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm";
-      }
+    // 🔄 ตรวจสอบความเคลื่อนไหว: ถ้าสถานะไม่ใช่ idle หรือมีสินค้าในตะกร้า ให้รีเซ็ตเวลานับถอยหลังใหม่
+    if (data.status !== 'idle' || (data.cart && data.cart.length > 0)) {
+        lastActivityTime = Date.now();
     }
+
+    // 🛑 ระบบควบคุม Screensaver โฆษณา พร้อมระบบตรวจสอบเวลาถอยหลังอัจฉริยะ
+    const adOverlay = document.getElementById('fullScreenAdOverlay');
+    if (adOverlay) {
+        const configMinutes = data.screensaverTimeout ? parseInt(data.screensaverTimeout) : 5;
+        const timeoutMs = configMinutes * 60 * 1000;
+        const idleDuration = Date.now() - lastActivityTime;
+
+        if (data.status === 'idle' && idleDuration >= timeoutMs) {
+            adOverlay.classList.remove('hidden');
+            adOverlay.style.opacity = "1";
+            adOverlay.style.pointerEvents = "auto";
+        } else {
+            adOverlay.style.opacity = "0";
+            adOverlay.style.pointerEvents = "none";
+            if (!adOverlay.classList.contains('hidden')) {
+                setTimeout(() => {
+                    if (adOverlay.style.opacity === "0") {
+                        adOverlay.classList.add('hidden');
+                    }
+                }, 300);
+            }
+        }
+    }
+
+    if (data.logoUrl) { let logoEl = document.getElementById('displayLogo'); if (logoEl) logoEl.src = data.logoUrl; }
+    if (data.storeName) { let storeNameEl = document.getElementById('displayStoreName'); if (storeNameEl) storeNameEl.innerText = data.storeName; }
+
+    const cartContainer = document.getElementById('customerCartItems');
+    if (!data.cart || data.cart.length === 0 || data.status === 'idle') {
+        cartContainer.innerHTML = `
+            <div class="h-full flex flex-col items-center justify-center text-pink-200 fade-in">
+                <span class="text-8xl mb-4">🛒</span>
+                <p class="text-2xl font-bold text-gray-400">ยินดีต้อนรับลูกค้าทุกท่าน เชิญสั่งอาหารได้เลย</p>
+            </div>`;
+    } else {
+        let html = '';
+        data.cart.forEach(item => {
+            let baseName = item.name || "สินค้า";
+            let optionsHtml = '';
+            let optionIndex = baseName.search(/ \[| \+/);
+            
+            if (optionIndex !== -1) {
+                baseName = item.name.substring(0, optionIndex).trim();
+                let match = item.name.match(/\[(.*?)\]/);
+                if (match && match[1]) {
+                    let opts = match[1].split(',');
+                    optionsHtml = `<div class="flex flex-wrap gap-1.5 mt-1.5">` + 
+                        opts.map(opt => `<span class="bg-pink-50 text-pink-600 px-2.5 py-1 rounded-lg text-[13px] font-bold border border-pink-200 shadow-sm">${opt.trim()}</span>`).join('') + 
+                        `</div>`;
+                }
+            }
+
+            let imgTag = item.image 
+                ? `<img src="${item.image}" class="w-16 h-16 rounded-2xl object-cover border border-pink-100 shadow-sm shrink-0">` 
+                : `<div class="w-16 h-16 rounded-2xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
+
+            // ✨ ส่วนที่แก้ไข: แปลงและตรวจสอบตัวเลขให้ปลอดภัย ป้องกัน NaN 100%
+            let itemQty = Number(item.qty) || 1;
+            
+            // ดึงค่า total ถ้าไม่มีให้คูณกันตรงๆ พร้อมลบสัญลักษณ์ต่างๆ ออกก่อนแปลงเป็น Number
+            let rawTotal = item.total !== undefined ? item.total : (item.price * itemQty);
+            let itemTotal = Number(String(rawTotal).replace(/[^0-9.-]+/g,"")) || 0;
+            
+            // ดึงค่า price ถ้าไม่มีให้เอา total มาหาร qty
+            let rawPrice = item.price !== undefined ? item.price : (itemTotal / itemQty);
+            let itemPrice = Number(String(rawPrice).replace(/[^0-9.-]+/g,"")) || 0;
+
+            html += `
+            <div class="flex justify-between items-center bg-white p-4 rounded-[1.25rem] border border-gray-100 shadow-sm fade-in mb-3 gap-4">
+                ${imgTag}
+                <div class="flex-1 min-w-0 py-1">
+                    <div class="font-bold text-gray-800 text-xl truncate leading-none">${baseName}</div>
+                    <div class="text-gray-500 font-semibold text-sm mt-1">฿${itemPrice.toFixed(2)} x ${itemQty}</div>
+                    ${optionsHtml}
+                </div>
+                <div class="font-bold text-pink-600 text-2xl w-28 text-right shrink-0">฿${itemTotal.toFixed(2)}</div>
+            </div>`;
+        });
+        cartContainer.innerHTML = html;
+        cartContainer.scrollTop = cartContainer.scrollHeight;
+    }
+
+    // ✨ ส่วนที่แก้ไข: จัดการยอดรวมด้านล่าง ป้องกัน NaN และ 0.00
+    let subTotalEl = document.getElementById('displaySubTotal');
+    if(subTotalEl) {
+        // ดักจับชื่อตัวแปรที่ POS อาจจะส่งมา (totalPrice หรือ subTotal)
+        let safeSubTotal = Number(String(data.totalPrice || data.subTotal || 0).replace(/[^0-9.-]+/g,"")) || 0;
+        subTotalEl.innerText = "฿" + safeSubTotal.toFixed(2);
+    }
+    
+    let grandTotalEl = document.getElementById('displayGrandTotal');
+    if(grandTotalEl) {
+        let safeGrandTotal = Number(String(data.grandTotal || 0).replace(/[^0-9.-]+/g,"")) || 0;
+        grandTotalEl.innerText = "฿" + safeGrandTotal.toFixed(2);
+    }
+
+    // ✅ ระบบเรียกคิว
+    if (data.calledQueue && data.calledQueue !== "") {
+        const queueDisplay = document.getElementById('queueCallDisplay');
+        const queueNumber = document.getElementById('calledQueueNumber');
+        const lastQueueTime = localStorage.getItem('lastQueueTime') || 0;
+        
+        if (queueDisplay && data.queueTimestamp > lastQueueTime) {
+            queueNumber.innerText = data.calledQueue;
+            queueDisplay.classList.remove('hidden');
+            // ป้องกัน Error เสียงเตือนในเบราว์เซอร์ที่ยังไม่อนุญาต
+            let audio = new Audio('https://actions.google.com/sounds/v1/notifications/bell_original.ogg');
+            audio.play().catch(()=>{});
+            
+            localStorage.setItem('lastQueueTime', data.queueTimestamp);
+            setTimeout(() => { queueDisplay.classList.add('hidden'); }, 7000);
+        }
+    }
+}
 
     window.onload = function() {
       loadAds();
