@@ -6,6 +6,13 @@
   <title>Customer Display | FamePOS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+   
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Custome FamePOS">
+  <meta name="mobile-web-app-capable" content="yes">
   <style>
     body { font-family: 'Kanit', sans-serif; overflow: hidden; margin: 0; background-color: #f3f4f6; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -47,6 +54,15 @@
       <div class="flex justify-between text-pink-500 mb-4 font-medium text-lg">
         <span>ส่วนลด (Discount)</span>
         <span id="cdsDiscount">-฿0.00</span>
+      </div>
+      <!-- ค้นหาบรรทัดที่มี cdsDiscount แล้วแทรกตรงนี้ด้านล่าง -->
+      <div id="cdsTaxRow" class="hidden justify-between text-gray-500 mb-2 font-medium text-lg">
+        <span>ภาษี (VAT)</span>
+        <span id="cdsTax">฿0.00</span>
+      </div>
+      <div id="cdsServiceRow" class="hidden justify-between text-gray-500 mb-2 font-medium text-lg">
+        <span>ค่าบริการ</span>
+        <span id="cdsService">฿0.00</span>
       </div>
       <div class="flex justify-between items-end border-t border-dashed border-gray-200 pt-4 mt-2">
         <span class="text-xl font-bold text-gray-800">ยอดสุทธิ (Net Total)</span>
@@ -139,21 +155,28 @@ async function fetchCDSState() {
      }
    }
 
-// 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า (เปลี่ยนชื่อกลับเป็น updateUI)
+// 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า (ฉบับแก้ไข: ไม่กระพริบ, เริ่มต้นที่ 0.00, แสดง VAT/Service)
 function updateUI(data) {
     if (!data) return;
 
-    // 🔄 ตรวจสอบความเคลื่อนไหว: ถ้าสถานะไม่ใช่ idle หรือมีสินค้าในตะกร้า ให้รีเซ็ตเวลานับถอยหลังใหม่
-    if (data.status !== 'idle' || (data.cart && data.cart.length > 0)) {
-        lastActivityTime = Date.now();
+    // 🔄 ปิดระบบกระพริบ: ลบคลาส animate-pulse ออกจากสถานะ
+    let statusBadge = document.getElementById('cdsStatusBadge');
+    if(statusBadge) {
+        if(data.status === 'idle' || !data.cart || data.cart.length === 0) {
+            statusBadge.innerText = "รอรับออเดอร์";
+            statusBadge.className = "bg-gray-100 text-gray-500 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm";
+        } else {
+            statusBadge.innerText = "กำลังสั่งซื้อ...";
+            statusBadge.className = "bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm"; // ลบ animate-pulse ออก
+        }
     }
 
-    // 🛑 ระบบควบคุม Screensaver
+    // 🛑 ระบบควบคุม Screensaver (คงเดิม)
     const adOverlay = document.getElementById('fullScreenAdOverlay');
     if (adOverlay) {
         const configMinutes = data.screensaverTimeout ? parseInt(data.screensaverTimeout) : 5;
         const timeoutMs = configMinutes * 60 * 1000;
-        const idleDuration = Date.now() - lastActivityTime;
+        const idleDuration = Date.now() - (window.lastActivityTime || Date.now());
 
         if (data.status === 'idle' && idleDuration >= timeoutMs) {
             adOverlay.classList.remove('hidden');
@@ -198,9 +221,7 @@ function updateUI(data) {
                     }
                 }
 
-                let imgTag = item.image 
-                    ? `<img src="${item.image}" class="w-16 h-16 rounded-xl object-cover border border-gray-100 shadow-sm shrink-0">` 
-                    : `<div class="w-16 h-16 rounded-xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
+                let imgTag = item.image ? `<img src="${item.image}" class="w-16 h-16 rounded-xl object-cover border border-gray-100 shadow-sm shrink-0">` : `<div class="w-16 h-16 rounded-xl bg-pink-50 text-pink-400 flex items-center justify-center text-2xl border border-pink-100 shadow-sm shrink-0">📦</div>`;
 
                 let itemQty = Number(item.qty) || 1;
                 let rawTotal = item.total !== undefined ? item.total : (item.price * itemQty);
@@ -226,27 +247,31 @@ function updateUI(data) {
         }
     }
 
-    // 2. จัดการยอดเงินรวมด้านล่าง
-    let subTotalEl = document.getElementById('cdsSubTotal');
-    if(subTotalEl) subTotalEl.innerText = "฿" + (Number(String(data.totalPrice || data.subTotal || 0).replace(/[^0-9.-]+/g,"")) || 0).toFixed(2);
-
-    let discountEl = document.getElementById('cdsDiscount');
-    if(discountEl) discountEl.innerText = "-฿" + (Number(String(data.discount || 0).replace(/[^0-9.-]+/g,"")) || 0).toFixed(2);
+    // 2. จัดการยอดรวม (เริ่มที่ 0.00 เสมอ)
+    document.getElementById('cdsSubTotal').innerText = "฿" + (Number(String(data.totalPrice || data.subTotal || 0).replace(/[^0-9.-]+/g,"")) || 0).toFixed(2);
+    document.getElementById('cdsDiscount').innerText = "-฿" + (Number(String(data.discount || 0).replace(/[^0-9.-]+/g,"")) || 0).toFixed(2);
     
-    let grandTotalEl = document.getElementById('cdsGrandTotal');
-    if(grandTotalEl) grandTotalEl.innerText = "฿" + (Number(String(data.grandTotal || 0).replace(/[^0-9.-]+/g,"")) || 0).toFixed(2);
-
-    // 3. อัปเดตป้ายสถานะมุมขวาบน
-    let statusBadge = document.getElementById('cdsStatusBadge');
-    if(statusBadge) {
-        if(data.status === 'idle' || !data.cart || data.cart.length === 0) {
-            statusBadge.innerText = "รอรับออเดอร์";
-            statusBadge.className = "bg-gray-100 text-gray-500 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm";
-        } else {
-            statusBadge.innerText = "กำลังสั่งซื้อ...";
-            statusBadge.className = "bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm animate-pulse";
-        }
+    // 3. แสดง VAT และค่าบริการ
+    let taxEl = document.getElementById('cdsTax');
+    let serviceEl = document.getElementById('cdsService');
+    
+    if (data.vat && Number(data.vat) > 0) {
+        document.getElementById('cdsTaxRow').classList.remove('hidden');
+        document.getElementById('cdsTaxRow').classList.add('flex');
+        taxEl.innerText = "฿" + Number(data.vat).toFixed(2);
+    } else {
+        document.getElementById('cdsTaxRow').classList.add('hidden');
     }
+
+    if (data.serviceCharge && Number(data.serviceCharge) > 0) {
+        document.getElementById('cdsServiceRow').classList.remove('hidden');
+        document.getElementById('cdsServiceRow').classList.add('flex');
+        serviceEl.innerText = "฿" + Number(data.serviceCharge).toFixed(2);
+    } else {
+        document.getElementById('cdsServiceRow').classList.add('hidden');
+    }
+    
+    document.getElementById('cdsGrandTotal').innerText = "฿" + (Number(String(data.grandTotal || 0).replace(/[^0-9.-]+/g,"")) || 0).toFixed(2);
 }
     window.onload = function() {
       loadAds();
