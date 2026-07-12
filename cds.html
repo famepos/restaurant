@@ -126,11 +126,16 @@
       clearTimeout(adTimer); adTimer = setTimeout(showNextAd, durationMs);
     }
 
-    async function fetchCDSState() {
+   async function fetchCDSState() {
       const stateStr = await fetchFromGAS('getCDSStateGS');
       if(stateStr && stateStr !== lastStateStr) {
         lastStateStr = stateStr;
-        try { updateUI(JSON.parse(stateStr)); } catch(e) {}
+        try { 
+            // เปลี่ยนจาก updateUI เป็น updateCustomerUI
+            updateCustomerUI(JSON.parse(stateStr)); 
+        } catch(e) {
+            console.error("Error parsing CDS data:", e);
+        }
       }
     }
 
