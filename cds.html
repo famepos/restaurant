@@ -2,218 +2,214 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>สั่งอาหาร | FamePOS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Display | FamePOS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Kanit', sans-serif; background-color: #fdf2f8; color: #b32089; margin: 0; }
-    .modern-card { background: white; border: 1px solid #edc5e2; border-radius: 1.5rem; transition: 0.2s; }
-    .modern-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.1); }
+    body { font-family: 'Kanit', sans-serif; background-color: #fdf2f8; overflow: hidden; margin: 0; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* อนิเมชั่นเฟดเปลี่ยนภาพโฆษณา */
+    .fade-in { animation: fadeIn 1.5s ease-in-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .animate-bounce-slow { animation: bounce 3s infinite; }
   </style>
 </head>
-<body class="pb-28">
+<body class="h-screen w-screen flex bg-black">
 
-  <!-- Header & Logo -->
-  <div class="bg-white shadow-sm p-4 sticky top-0 z-40 flex items-center justify-between border-b border-pink-100">
-    <div class="flex items-center gap-3">
-      <img src="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" class="w-12 h-12 object-contain drop-shadow-sm" alt="App Logo">
+  <!-- ================= ฝั่งซ้าย: พื้นที่โฆษณา (Ads / Slider) ================= -->
+  <div id="adContainer" class="w-1/2 lg:w-[65%] h-full bg-black relative flex flex-col items-center justify-center overflow-hidden">
+    <!-- ภาพเริ่มต้น (ใช้โลโก้แอปที่ให้มา) -->
+    <img id="adImage" src="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" class="w-full h-full object-cover opacity-90 transition-opacity duration-1000" />
+    
+    <!-- ข้อความโฆษณา (ซ้อนทับภาพ) -->
+    <div id="adText" class="absolute bottom-16 left-0 w-full text-center text-white text-4xl lg:text-6xl font-bold drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] px-8 leading-tight">
+    </div>
+  </div>
+
+  <!-- ================= ฝั่งขวา: สรุปรายการสั่งซื้อ (Order Summary) ================= -->
+  <div id="orderContainer" class="w-1/2 lg:w-[35%] h-full bg-white flex flex-col shadow-[-15px_0_30px_rgba(0,0,0,0.1)] z-10 relative">
+    
+    <!-- ส่วนหัว (Header) -->
+    <div class="bg-pink-600 p-5 lg:p-6 text-white flex items-center gap-4 shrink-0 shadow-md">
+      <!-- โลโก้แอป -->
+      <img src="https://i.postimg.cc/W3bYw9R9/2f597a3c-9e6d-473b-a13c-500c4835f076.png" class="w-16 h-16 object-contain bg-white rounded-2xl p-1.5 shadow-sm">
       <div>
-        <h1 class="text-xl font-bold text-pink-600 leading-tight">FamePOS</h1>
-        <p class="text-xs text-gray-500 font-medium">สั่งอาหารผ่านมือถือ</p>
+        <h1 class="text-3xl font-black tracking-wide">FamePOS</h1>
+        <p class="text-sm font-medium opacity-90 mt-0.5">ยินดีต้อนรับ กรุณาตรวจสอบรายการ</p>
       </div>
     </div>
-    <div id="tableDisplay" class="bg-pink-100 text-pink-700 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">
-      โต๊ะ: <span>ระบุ...</span>
+
+    <!-- ส่วนแสดงรายการสินค้า (Cart Items) -->
+    <div class="flex-1 overflow-y-auto p-4 lg:p-6 space-y-3 no-scrollbar bg-gray-50/50" id="cdsCartItems">
+      <!-- ค่า Default ตอนยังไม่มีสินค้า -->
+      <div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-50">
+        <span class="text-7xl mb-4 animate-bounce-slow">🛒</span>
+        <span class="text-2xl font-bold text-pink-300">ยังไม่มีรายการสินค้า</span>
+      </div>
     </div>
-  </div>
 
-  <!-- Loading State -->
-  <div id="loadingState" class="flex flex-col items-center justify-center mt-20">
-    <div class="text-4xl animate-spin mb-4">⏳</div>
-    <div class="text-pink-600 font-bold">กำลังโหลดเมนูอาหาร...</div>
-  </div>
-
-  <!-- Menu Grid -->
-  <div id="menuGrid" class="p-4 grid grid-cols-2 gap-4 hidden">
-    <!-- รายการสินค้าจะถูกดึงมาสร้างที่นี่ -->
-  </div>
-
-  <!-- Floating Cart Bar -->
-  <div class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-pink-100 p-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] flex justify-between items-center z-50 rounded-t-3xl">
-    <div class="flex flex-col">
-      <span class="text-xs font-bold text-gray-500">ยอดรวมทั้งหมด</span>
-      <div class="text-2xl font-black text-pink-600" id="cartTotal">฿0.00</div>
+    <!-- ส่วนสรุปยอดเงิน (Totals) -->
+    <div class="bg-white p-6 shrink-0 border-t-2 border-pink-100 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+      <div class="flex justify-between text-gray-500 mb-2 font-bold text-xl">
+        <span>ยอดรวม</span>
+        <span id="cdsSubTotal">฿0.00</span>
+      </div>
+      <div class="flex justify-between text-red-500 mb-4 font-bold text-xl">
+        <span>ส่วนลด</span>
+        <span id="cdsDiscount">-฿0.00</span>
+      </div>
+      <div class="flex justify-between items-end border-t-2 border-dashed border-pink-200 pt-4 mt-2">
+        <span class="text-2xl font-bold text-pink-800">ยอดสุทธิ</span>
+        <span id="cdsGrandTotal" class="text-6xl font-black text-pink-600 tracking-tight">฿0.00</span>
+      </div>
     </div>
-    <button onclick="openCartModal()" class="bg-pink-500 text-white px-6 py-3.5 rounded-2xl font-bold text-lg shadow-md hover:bg-pink-600 transition flex items-center gap-2">
-      🛒 <span id="cartCountBadge" class="bg-white text-pink-600 px-2 py-0.5 rounded-md text-sm">0</span> ยืนยันสั่ง
-    </button>
-  </div>
 
-  <!-- Cart Modal -->
-  <div id="cartModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center">
-    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl relative max-h-[85vh] flex flex-col">
-      <button onclick="closeCartModal()" class="absolute top-4 right-5 text-gray-400 hover:text-pink-500 text-3xl font-bold">&times;</button>
-      <h2 class="text-xl font-bold text-pink-700 mb-4 border-b pb-3">🛒 ตะกร้าของคุณ</h2>
+    <!-- ================= Overlay: โชว์ QR Code ชำระเงิน ================= -->
+    <div id="cdsQrOverlay" class="hidden absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-8 text-center transition-all">
+      <h2 class="text-4xl font-bold text-pink-700 mb-2">สแกนเพื่อชำระเงิน</h2>
+      <p class="text-gray-500 mb-8 text-xl font-medium">PromptPay / Mobile Banking</p>
       
-      <!-- ช่องกรอกเบอร์โต๊ะ (กรณีไม่ได้แนบมากับ QR) -->
-      <div class="mb-4">
-        <label class="block text-sm font-bold text-gray-600 mb-2">ระบุหมายเลขโต๊ะของคุณ <span class="text-red-500">*</span></label>
-        <input type="text" id="customerTableNo" placeholder="เช่น 01 หรือ A5" class="w-full p-3 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 text-center font-bold text-pink-700 text-lg">
-      </div>
-
-      <div id="cartItemsList" class="flex-1 overflow-y-auto space-y-3 mb-4 pr-1">
-        <!-- ของในตะกร้า -->
+      <div class="bg-white p-6 rounded-[2.5rem] shadow-2xl border-2 border-pink-100 mb-8">
+        <img id="cdsQrImage" src="" class="w-72 h-72 lg:w-80 lg:h-80 object-contain">
       </div>
       
-      <div class="mt-auto pt-4 border-t flex gap-3">
-        <button onclick="closeCartModal()" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold">เลือกเพิ่ม</button>
-        <button onclick="submitOrder()" id="btnSubmitOrder" class="flex-1 py-3 bg-pink-600 text-white rounded-xl font-bold shadow-md hover:bg-pink-700">🚀 ส่งเข้าห้องครัว</button>
-      </div>
+      <div class="text-2xl font-bold text-gray-500 mb-1">ยอดชำระสุทธิ</div>
+      <div id="cdsQrAmount" class="text-6xl font-black text-pink-600">฿0.00</div>
     </div>
+
+    <!-- ================= Overlay: ขอบคุณที่ใช้บริการ ================= -->
+    <div id="cdsThankYouOverlay" class="hidden absolute inset-0 bg-gradient-to-br from-pink-500 to-pink-600 z-30 flex flex-col items-center justify-center p-8 text-center text-white transition-all">
+      <span class="text-9xl mb-8 drop-shadow-lg">✅</span>
+      <h2 class="text-6xl font-black mb-4 tracking-wide">ชำระเงินสำเร็จ</h2>
+      <p class="text-3xl font-medium opacity-90 mt-2">ขอบคุณที่ใช้บริการ โอกาสหน้าเชิญใหม่ครับ</p>
+    </div>
+
   </div>
 
   <script>
-    let products = [];
-    let cart = [];
+    let adsList = [];
+    let currentAdIndex = 0;
+    let adTimer = null;
+    let lastStateStr = "";
 
-    // ดึงข้อมูลสินค้าจากระบบหลังบ้าน
-    function fetchMenu() {
-      google.script.run
-        .withSuccessHandler(function(data) {
-          products = data;
-          renderMenu();
-          document.getElementById('loadingState').classList.add('hidden');
-          document.getElementById('menuGrid').classList.remove('hidden');
-        })
-        .getProductsForMenu();
+    // 1. ดึงข้อมูลโฆษณาจากระบบหลังบ้าน (Apps Script)
+    function loadAds() {
+      if(typeof google !== 'undefined') {
+        google.script.run.withSuccessHandler(function(ads) {
+          if(ads && ads.length > 0) {
+            adsList = ads;
+            showNextAd();
+          }
+        }).getAdSettingsGS();
+      }
     }
 
-    // สร้างการ์ดสินค้า
-    function renderMenu() {
-      let grid = document.getElementById('menuGrid');
-      let html = '';
+    // 2. สลับภาพโฆษณาวนไปเรื่อยๆ
+    function showNextAd() {
+      if(adsList.length === 0) return;
       
-      products.forEach(function(item, index) {
-        let name = item.name;
-        let price = parseFloat(item.price) || 0;
-        let imgUrl = item.image || '';
-        let remaining = item.remaining;
+      let ad = adsList[currentAdIndex];
+      let imgEl = document.getElementById('adImage');
+      let txtEl = document.getElementById('adText');
+      
+      // รีเซ็ตคลาสเพื่อเล่นอนิเมชั่นใหม่
+      imgEl.classList.remove('fade-in');
+      void imgEl.offsetWidth; // บังคับให้บราวเซอร์วาดใหม่
+      
+      imgEl.src = ad.existingUrl;
+      imgEl.classList.add('fade-in');
+      txtEl.innerText = ad.text || "";
+      
+      let durationMs = (ad.duration || 5) * 1000;
+      currentAdIndex = (currentAdIndex + 1) % adsList.length;
+      
+      clearTimeout(adTimer);
+      adTimer = setTimeout(showNextAd, durationMs);
+    }
+
+    // 3. ดึงสถานะปัจจุบันของตะกร้าสินค้าจากแคชเชียร์ (ทุกๆ 1 วินาที)
+    function fetchCDSState() {
+      if(typeof google !== 'undefined') {
+        google.script.run.withSuccessHandler(function(stateStr) {
+          if(stateStr && stateStr !== lastStateStr) {
+            lastStateStr = stateStr;
+            try {
+              let state = JSON.parse(stateStr);
+              updateUI(state);
+            } catch(e) { console.error("JSON Parse error:", e); }
+          }
+        }).getCDSStateGS();
+      }
+    }
+
+    // 4. วาดอัปเดตหน้าจอ
+    function updateUI(state) {
+      const qrOverlay = document.getElementById('cdsQrOverlay');
+      const thankYouOverlay = document.getElementById('cdsThankYouOverlay');
+      const cartItems = document.getElementById('cdsCartItems');
+
+      qrOverlay.classList.add('hidden');
+      thankYouOverlay.classList.add('hidden');
+
+      // กรณีที่ยังไม่มีการคิดเงิน / พักบิล
+      if(state.status === 'idle') {
+        cartItems.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-50">
+            <span class="text-7xl mb-4 animate-bounce-slow">🛒</span>
+            <span class="text-2xl font-bold text-pink-300">ยังไม่มีรายการสินค้า</span>
+          </div>`;
+        document.getElementById('cdsSubTotal').innerText = "฿0.00";
+        document.getElementById('cdsDiscount').innerText = "-฿0.00";
+        document.getElementById('cdsGrandTotal').innerText = "฿0.00";
+
+      // กรณีกำลังยิงสินค้า หรือ อยู่ในหน้าสแกนจ่ายเงิน
+      } else if(state.status === 'active' || state.status === 'qr_payment') {
+        let html = '';
         
-        let isOutOfStock = (remaining !== "" && remaining !== null && remaining <= 0);
-        let imgTag = imgUrl ? `<img src="${imgUrl}" class="w-full h-full object-cover">` : `<div class="w-full h-full bg-pink-50 flex items-center justify-center text-4xl">🍲</div>`;
-        
-        let cardClass = "modern-card p-3 flex flex-col h-full relative ";
-        let btnAction = `onclick="addToCart(${index})"`;
-        
-        if (isOutOfStock) {
-          cardClass += "opacity-50 grayscale";
-          btnAction = `onclick="alert('ขออภัย สินค้านี้หมดชั่วคราวครับ')"`;
+        if(state.cart && state.cart.length > 0) {
+          state.cart.forEach(item => {
+            html += `
+              <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-3">
+                <div class="flex-1 pr-4">
+                  <div class="text-xl font-bold text-gray-800 line-clamp-2">${item.name}</div>
+                  <div class="text-base text-pink-600 font-bold mt-1">฿${parseFloat(item.price).toFixed(2)} <span class="text-gray-400 font-medium px-2">x</span> <span class="text-black">${item.qty}</span></div>
+                </div>
+                <div class="text-2xl font-black text-gray-800 shrink-0">฿${parseFloat(item.total).toFixed(2)}</div>
+              </div>
+            `;
+          });
+        } else {
+          html = `<div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-50"><span class="text-2xl font-bold">กำลังทำรายการ...</span></div>`;
         }
 
-        html += `
-          <div class="${cardClass}">
-            <div class="h-28 w-full mb-3 rounded-xl overflow-hidden border border-gray-100 shadow-sm">${imgTag}</div>
-            <h3 class="font-bold text-gray-800 text-sm leading-tight mb-2 line-clamp-2">${name}</h3>
-            <div class="mt-auto flex justify-between items-end">
-              <div class="text-pink-600 font-bold text-lg">฿${price}</div>
-              <button ${btnAction} class="${isOutOfStock ? 'bg-gray-300' : 'bg-pink-100 text-pink-600 hover:bg-pink-500 hover:text-white'} w-8 h-8 rounded-full font-bold flex items-center justify-center transition shadow-sm pb-0.5">
-                ${isOutOfStock ? 'หมด' : '+'}
-              </button>
-            </div>
-          </div>
-        `;
-      });
-      grid.innerHTML = html;
-    }
-
-    // จัดการตะกร้าสินค้า
-    function addToCart(productIndex) {
-      let product = products[productIndex];
-      let existingItem = cart.find(i => i.name === product.name);
-      
-      if (existingItem) {
-        existingItem.qty++;
-      } else {
-        cart.push({ name: product.name, price: parseFloat(product.price), qty: 1 });
-      }
-      updateCartUI();
-    }
-
-    function increaseQty(index) { cart[index].qty++; updateCartUI(); }
-    function decreaseQty(index) { 
-      if(cart[index].qty > 1) cart[index].qty--; 
-      else cart.splice(index, 1); 
-      updateCartUI(); 
-    }
-
-    function updateCartUI() {
-      let total = 0;
-      let totalQty = 0;
-      let html = '';
-      
-      cart.forEach((item, index) => {
-        let lineTotal = item.price * item.qty;
-        total += lineTotal;
-        totalQty += item.qty;
+        cartItems.innerHTML = html;
+        document.getElementById('cdsSubTotal').innerText = "฿" + (state.subTotal || 0).toFixed(2);
+        document.getElementById('cdsDiscount').innerText = "-฿" + ((state.discount || 0) + (state.pointDiscount || 0)).toFixed(2);
+        document.getElementById('cdsGrandTotal').innerText = "฿" + (state.grandTotal || 0).toFixed(2);
         
-        html += `
-          <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-            <div class="flex-1 min-w-0 pr-2">
-              <div class="font-bold text-gray-800 text-sm truncate">${item.name}</div>
-              <div class="text-pink-600 font-bold text-xs">฿${lineTotal.toFixed(2)}</div>
-            </div>
-            <div class="flex items-center gap-3 bg-white p-1 rounded-lg shadow-sm border border-gray-100">
-              <button onclick="decreaseQty(${index})" class="w-6 h-6 rounded bg-gray-100 text-gray-600 font-bold flex justify-center items-center">-</button>
-              <span class="w-4 text-center font-bold text-sm">${item.qty}</span>
-              <button onclick="increaseQty(${index})" class="w-6 h-6 rounded bg-pink-100 text-pink-600 font-bold flex justify-center items-center">+</button>
-            </div>
-          </div>
-        `;
-      });
-      
-      document.getElementById('cartTotal').innerText = `฿${total.toFixed(2)}`;
-      document.getElementById('cartCountBadge').innerText = totalQty;
-      document.getElementById('cartItemsList').innerHTML = html || '<div class="text-center text-gray-400 py-6 font-medium">ตะกร้าของคุณยังว่างเปล่า</div>';
+        // บังคับเลื่อน Scroll ลงล่างสุดเมื่อของเยอะ
+        cartItems.scrollTop = cartItems.scrollHeight;
+
+        // ถ้าแคชเชียร์กดปุ่ม "โอนเงิน" ให้โชว์คิวอาร์โค้ดทับหน้าจอ
+        if(state.status === 'qr_payment' && state.qrUrl) {
+          document.getElementById('cdsQrImage').src = state.qrUrl;
+          document.getElementById('cdsQrAmount').innerText = "฿" + (state.grandTotal || 0).toFixed(2);
+          qrOverlay.classList.remove('hidden');
+        }
+
+      // กรณีแคชเชียร์กดยืนยันชำระเงินเรียบร้อยแล้ว
+      } else if (state.status === 'success') {
+        thankYouOverlay.classList.remove('hidden');
+      }
     }
 
-    // Modal Control
-    function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
-    function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
-
-    // ส่งข้อมูลเข้าระบบหลังบ้าน
-    function submitOrder() {
-      let tableNo = document.getElementById('customerTableNo').value.trim();
-      if (!tableNo) { alert("กรุณาระบุหมายเลขโต๊ะของคุณก่อนสั่งอาหารครับ"); return; }
-      if (cart.length === 0) { alert("กรุณาเลือกอาหารก่อนยืนยันครับ"); return; }
-
-      let btn = document.getElementById('btnSubmitOrder');
-      btn.innerText = "⏳ กำลังส่งออเดอร์...";
-      btn.disabled = true;
-
-      let totalAmt = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      let orderData = { table: tableNo, items: cart, total: totalAmt };
-
-      google.script.run
-        .withSuccessHandler(function(res) {
-          if(res === "Success") {
-            alert("✅ ส่งออเดอร์เข้าครัวเรียบร้อยแล้ว กรุณารอสักครู่ครับ");
-            cart = [];
-            updateCartUI();
-            closeCartModal();
-          } else {
-            alert("❌ เกิดข้อผิดพลาด: " + res);
-          }
-          btn.innerText = "🚀 ส่งเข้าห้องครัว";
-          btn.disabled = false;
-        })
-        .submitCustomerOrder(orderData);
-    }
-
-    // เริ่มต้นทำงานทันทีที่โหลดหน้าจอ
-    window.onload = fetchMenu;
+    // เริ่มทำงานเมื่อเปิดหน้า
+    window.onload = function() {
+      loadAds();
+      setInterval(fetchCDSState, 1000); // ยิงเช็คสถานะทุกๆ 1 วินาที
+    };
   </script>
 </body>
 </html>
