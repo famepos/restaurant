@@ -153,8 +153,7 @@
 
 // ⏱️ ตัวแปรควบคุมการจับเวลาความเคลื่อนไหว (Inactivity Timer)
 let lastActivityTime = Date.now();
-
-// 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า
+// 🎨 ฟังก์ชันวาดหน้าจอเมื่อมีสินค้าในตะกร้า (อัปเดตเพื่อรองรับ ภาษี และ ค่าบริการ)
 function updateCustomerUI(data) {
     if (!data) return;
 
@@ -163,15 +162,13 @@ function updateCustomerUI(data) {
         lastActivityTime = Date.now();
     }
 
-    // 🛑 ระบบควบคุม Screensaver โฆษณา พร้อมระบบตรวจสอบเวลาถอยหลังอัจฉริยะ
+    // 🛑 ระบบควบคุม Screensaver โฆษณา
     const adOverlay = document.getElementById('fullScreenAdOverlay');
     if (adOverlay) {
-        // ดึงค่าตั้งเวลาจากแคชเชียร์ (เช่น data.screensaverTimeout ในหน่วยนาที) ถ้าไม่มีค่าส่งมาจะตั้งเป็น 5 นาทีเป็นหลัก
         const configMinutes = data.screensaverTimeout ? parseInt(data.screensaverTimeout) : 5;
         const timeoutMs = configMinutes * 60 * 1000;
         const idleDuration = Date.now() - lastActivityTime;
 
-        // จะแสดงโฆษณาเมื่อสถานะเป็น idle และไม่มีความเคลื่อนไหวเกินเวลาที่กำหนดไว้
         if (data.status === 'idle' && idleDuration >= timeoutMs) {
             adOverlay.classList.remove('hidden');
             adOverlay.style.opacity = "1";
@@ -236,15 +233,20 @@ function updateCustomerUI(data) {
         cartContainer.scrollTop = cartContainer.scrollHeight;
     }
 
-    // --- ส่วนสรุปยอดและอื่นๆ ---
+    // --- ส่วนสรุปยอดที่อัปเดตใหม่ ---
     let subTotalEl = document.getElementById('displaySubTotal');
-    if(subTotalEl) subTotalEl.innerText = data.totalPrice || "฿0.00";
+    if(subTotalEl) subTotalEl.innerText = data.totalPrice ? '฿' + data.totalPrice : "฿0.00";
     
-    let grandTotalEl = document.getElementById('displayGrandTotal');
-    if(grandTotalEl) grandTotalEl.innerText = data.grandTotal || "฿0.00";
+    let serviceEl = document.getElementById('displayService');
+    if(serviceEl) serviceEl.innerText = data.serviceCharge ? '฿' + data.serviceCharge : "฿0.00";
     
+    let taxEl = document.getElementById('displayTax');
+    if(taxEl) taxEl.innerText = data.vat ? '฿' + data.vat : "฿0.00";
 
-    // ✅ ระบบเรียกคิว
+    let grandTotalEl = document.getElementById('displayGrandTotal');
+    if(grandTotalEl) grandTotalEl.innerText = data.grandTotal ? '฿' + data.grandTotal : "฿0.00";
+
+    // ✅ ระบบเรียกคิว (คงเดิม)
     if (data.calledQueue && data.calledQueue !== "") {
         const queueDisplay = document.getElementById('queueCallDisplay');
         const queueNumber = document.getElementById('calledQueueNumber');
@@ -259,7 +261,6 @@ function updateCustomerUI(data) {
         }
     }
 }
-
     // 🌟 ระบบสไลด์โชว์โฆษณา (Carousel) แบบเรียลไทม์
     let adSlides = [];
     let currentAdIndex = 0;
