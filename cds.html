@@ -6,16 +6,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; height: 100vh; overflow: hidden; }
-        .main-container { display: flex; gap: 15px; height: 100vh; padding: 10px; box-sizing: border-box; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; padding: 10px; height: 100vh; overflow: hidden; box-sizing: border-box; }
+        .main-container { display: flex; gap: 10px; height: 100%; width: 100%; }
         .white-card { background: white; border-radius: 2rem; border: 3px solid #fecdd3; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        ::-webkit-scrollbar { display: none; }
+        .ad-image { width: 100%; height: 100%; object-fit: cover; border-radius: 1.5rem; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <!-- ฝั่งซ้าย: ข้อมูลบิล (แสดงตลอด) -->
+    <!-- ฝั่งซ้าย: ข้อมูลบิล (คงรูปแบบเดิม) -->
     <section class="white-card w-1/2 flex flex-col">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-black text-gray-800 flex items-center gap-3">
@@ -34,15 +34,19 @@
             <span class="col-span-2 text-right">รวม</span>
         </div>
 
-        <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-3">
-            <!-- รอข้อมูล -->
-        </div>
+        <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-3"></div>
 
-        <!-- กล่องสรุปที่ต้องแสดงตลอด -->
         <div class="border-t-2 border-dashed pt-4 mt-4 space-y-2 text-lg font-bold text-gray-700">
             <div class="flex justify-between"><span>ยอดรวมสินค้า</span><span id="txtSubTotal">0.00</span></div>
-            <div class="flex justify-between"><span>ภาษีมูลค่าเพิ่ม 7%</span><span id="txtTax">0.00</span></div>
-            <div class="flex justify-between"><span>ค่าบริการ 10%</span><span id="txtService">0.00</span></div>
+          <!-- แก้ไข HTML ให้มี id สำหรับเปลี่ยนข้อความ -->
+<div class="flex justify-between">
+    <span id="labelTax">ภาษีมูลค่าเพิ่ม</span>
+    <span id="txtTax">0.00</span>
+</div>
+<div class="flex justify-between">
+    <span id="labelService">ค่าบริการ</span>
+    <span id="txtService">0.00</span>
+</div>
             <div class="flex justify-between text-4xl font-black text-pink-600 border-t border-dashed pt-3 mt-2">
                 <span>ยอดรวมทั้งสิ้น</span>
                 <span><span id="txtGrandTotal">0.00</span> บาท</span>
@@ -50,19 +54,40 @@
         </div>
     </section>
 
-    <!-- ฝั่งขวา -->
-    <section id="rightPanel" class="white-card w-1/2 flex flex-col items-center justify-center text-center">
-        <div id="idleState">
-            <span class="text-8xl mb-6 block">✨</span>
-            <h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3>
-            <p class="text-gray-400 font-bold text-xl mt-2">เชิญเลือกสั่งรายการอาหารที่เคาน์เตอร์ได้เลยค่ะ</p>
+    <!-- ฝั่งขวา: เปลี่ยนโหมดตามสถานะ -->
+    <section id="rightPanel" class="white-card w-1/2 flex flex-col items-center justify-center text-center p-0 overflow-hidden">
+        <div id="adContainer" class="w-full h-full"></div>
+        <div id="paymentModeContainer" class="hidden w-full h-full p-8 flex flex-col justify-center items-center">
+            <!-- ข้อมูลโหมดชำระเงินจะถูก Insert เข้ามาที่นี่ -->
         </div>
     </section>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+    let adSlides = [];
+    let adIndex = 0;
 
+    // 1. โหลดโฆษณา
+    function fetchAds() {
+        fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getAdSettingsGS" }) })
+        .then(res => res.json()).then(data => { if(data.status==="Success") adSlides = data.result; });
+    }
+    fetchAds(); setInterval(fetchAds, 60000);
+
+    // 2. แสดงสไลด์โฆษณา
+    function showAds() {
+        const adCont = document.getElementById('adContainer');
+        if(adSlides.length > 0) {
+            adCont.innerHTML = `<img src="${adSlides[adIndex].existingUrl}" class="ad-image">`;
+            adIndex = (adIndex + 1) % adSlides.length;
+        } else {
+            adCont.innerHTML = `<div class="text-gray-400 font-bold">รอการอัปเดตโฆษณา...</div>`;
+        }
+    }
+    setInterval(showAds, 5000);
+
+    // 3. เชื่อมต่อแคชเชียร์
     setInterval(() => {
         document.getElementById('lblDateTime').innerText = new Date().toLocaleTimeString('th-TH');
         fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getCDSStateGS" }) })
@@ -70,50 +95,43 @@
             if(data.status === "Success" && data.result) updateUI(JSON.parse(data.result));
         });
     }, 1000);
+function updateUI(state) {
+    if(!state) return;
 
-    function updateUI(state) {
-        if(!state) return;
-        
-        // อัปเดต Table หรือ OrderType
-        let tableDisplay = state.tableNo || "-";
-        if(state.orderType === "กลับบ้าน") tableDisplay = "🛍️ กลับบ้าน";
-        else if(state.orderType === "เดลิเวอรี่") tableDisplay = "🛵 ส่งของ";
-        else if(state.tableNo) tableDisplay = "โต๊ะ: " + state.tableNo;
-        document.getElementById('lblTableNo').innerText = tableDisplay;
+    // 1. เปลี่ยนชื่อ Label ตามค่าที่ส่งมาจากแคชเชียร์
+    if(state.taxLabel) document.getElementById('labelTax').innerText = state.taxLabel;
+    if(state.serviceLabel) document.getElementById('labelService').innerText = state.serviceLabel;
 
-        const cartCont = document.getElementById('cartItemsContainer');
-        const idle = document.getElementById('idleState');
-        
-        if(state.cart && state.cart.length > 0) {
-            idle.classList.add('hidden');
-            let html = '';
-            state.cart.forEach(item => {
-                let price = parseFloat(item.price || 0);
-                let total = parseFloat(item.total || 0);
-                html += `
-                <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800">
-                    <span class="col-span-6 truncate">${item.name}</span>
-                    <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
-                    <span class="col-span-2 text-right text-gray-500">${price.toFixed(2)}</span>
-                    <span class="col-span-2 text-right">${total.toFixed(2)}</span>
-                </div>`;
-            });
-            cartCont.innerHTML = html;
-            
-            // อัปเดตตัวเลข (ใส่ค่า Default 0.00 ป้องกัน NaN)
-            document.getElementById('txtSubTotal').innerText = parseFloat(state.subTotal || 0).toFixed(2);
-            document.getElementById('txtTax').innerText = parseFloat(state.vat || 0).toFixed(2);
-            document.getElementById('txtService').innerText = parseFloat(state.serviceCharge || 0).toFixed(2);
-            document.getElementById('txtGrandTotal').innerText = parseFloat(state.grandTotal || 0).toFixed(2);
-        } else {
-            cartCont.innerHTML = '';
-            idle.classList.remove('hidden');
-            document.getElementById('txtSubTotal').innerText = "0.00";
-            document.getElementById('txtTax').innerText = "0.00";
-            document.getElementById('txtService').innerText = "0.00";
-            document.getElementById('txtGrandTotal').innerText = "0.00";
-        }
+    // 2. แสดงตัวเลข (ใช้ parseFloat/toFixed เพื่อแก้ NaN)
+    const subTotal = parseFloat(state.subTotal || 0);
+    const tax = parseFloat(state.vat || 0);
+    const service = parseFloat(state.serviceCharge || 0);
+    const grandTotal = parseFloat(state.grandTotal || 0);
+
+    document.getElementById('txtSubTotal').innerText = subTotal.toFixed(2);
+    document.getElementById('txtTax').innerText = tax.toFixed(2);
+    document.getElementById('txtService').innerText = service.toFixed(2);
+    document.getElementById('txtGrandTotal').innerText = grandTotal.toFixed(2);
+
+    // 3. รายการสินค้า
+    const cartCont = document.getElementById('cartItemsContainer');
+    if(state.cart && state.cart.length > 0) {
+        let html = '';
+        state.cart.forEach(item => {
+            let price = parseFloat(item.price || 0);
+            let total = parseFloat(item.total || 0);
+            html += `
+            <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800">
+                <span class="col-span-6 truncate">${item.name}</span>
+                <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
+                <span class="col-span-2 text-right text-gray-500">${price.toFixed(2)}</span>
+                <span class="col-span-2 text-right">${total.toFixed(2)}</span>
+            </div>`;
+        });
+        cartCont.innerHTML = html;
+        document.getElementById('summaryFooter').classList.remove('hidden');
     }
+}
 </script>
 </body>
 </html>
