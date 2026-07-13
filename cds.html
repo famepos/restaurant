@@ -100,16 +100,46 @@ function updateUI(state) {
     const rightPanel = document.getElementById('rightPanel');
     if(!rightPanel) return;
     
-    if (state.status === 'cash_payment') {
+if (state.status === 'cash_payment') {
         rightPanel.innerHTML = `
-            <div class="text-center fade-in w-full">
-                <div class="text-3xl font-bold text-gray-400 mb-6">รับเงินสด</div>
-                <div class="text-8xl font-black text-gray-800 mb-6">฿${safe(state.cashReceived)}</div>
-                <div class="text-5xl font-bold text-emerald-500 border-t-2 border-dashed pt-6">ทอน: ฿${safe(state.changeAmount)}</div>
+            <div class="text-center fade-in w-full flex flex-col justify-center items-center">
+                <!-- 🟢 ส่วนเงินทอน (ย้ายมาไว้ข้างบน ตัวใหญ่ สีเขียว) -->
+                <div class="w-10/12 border-b-4 border-dashed border-gray-100 pb-8 mb-8">
+                    <div class="text-3xl font-bold text-emerald-600/70 mb-4">เงินทอน</div>
+                    <div class="text-8xl font-black text-emerald-500 drop-shadow-sm">฿${safe(state.changeAmount)}</div>
+                </div>
+                
+                <!-- 🔘 ส่วนรับเงินสด (ย้ายมาไว้ข้างล่าง เล็กลง สีเทา) -->
+                <div>
+                    <div class="text-xl font-bold text-gray-400 mb-2">รับเงินสดมา</div>
+                    <div class="text-5xl font-black text-gray-600">฿${safe(state.cashReceived)}</div>
+                </div>
             </div>`;
-    } 
+    }
 else if (state.status === 'qr_payment') {
+        // --- 🟢 ระบบคำนวณเวลาถอยหลังอัจฉริยะ (ไม่ต้องรอเน็ต) ---
         let timerText = state.qrTimerText || "10:00";
+        
+        // เช็คเวลาปัจจุบัน เทียบกับเวลาที่แคชเชียร์ส่งมา
+        if (state.timestamp) {
+            let parts = timerText.split(':');
+            if (parts.length === 2) {
+                let initialSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                
+                // คำนวณเวลาที่ผ่านไป (วินาที)
+                let elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+                let currentSeconds = initialSeconds - elapsed;
+                
+                // ไม่ให้เวลาติดลบ
+                if (currentSeconds < 0) currentSeconds = 0;
+                
+                // แปลงกลับเป็นรูปแบบ นาที:วินาที
+                let m = Math.floor(currentSeconds / 60).toString().padStart(2, '0');
+                let s = (currentSeconds % 60).toString().padStart(2, '0');
+                timerText = m + ":" + s;
+            }
+        }
+
         rightPanel.innerHTML = `
             <div class="text-center fade-in w-full flex flex-col items-center justify-center mt-8">
                 <!-- หัวข้อ -->
