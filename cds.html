@@ -59,25 +59,25 @@
 function updateUI(state) {
     if(!document.getElementById('lblTableNo') || !state) return;
 
-    // 1. อัปเดตส่วนหัวและรายละเอียดบริการ
+    // 1. อัปเดตข้อมูลฝั่งซ้าย (บิล)
     let displayType = "โต๊ะ: " + (state.tableNo || "-");
     if(state.orderType === "กลับบ้าน") displayType = "🛍️ กลับบ้าน";
     else if(state.orderType === "เดลิเวอรี่") displayType = "🛵 ส่งของ";
     document.getElementById('lblTableNo').innerText = displayType;
 
-    // 2. อัปเดตยอดเงิน (ใช้ parseFloat ป้องกัน NaN)
-    document.getElementById('txtSubTotal').innerText = parseFloat(state.subTotal || 0).toFixed(2);
-    document.getElementById('txtTax').innerText = parseFloat(state.vat || 0).toFixed(2);
-    document.getElementById('txtService').innerText = parseFloat(state.serviceCharge || 0).toFixed(2);
-    document.getElementById('txtGrandTotal').innerText = parseFloat(state.grandTotal || 0).toFixed(2);
+    const safe = (val) => isNaN(parseFloat(val)) ? "0.00" : parseFloat(val).toFixed(2);
+    document.getElementById('txtSubTotal').innerText = safe(state.subTotal);
+    document.getElementById('txtTax').innerText = safe(state.vat);
+    document.getElementById('txtService').innerText = safe(state.serviceCharge);
+    document.getElementById('txtGrandTotal').innerText = safe(state.grandTotal);
     
     if(state.taxLabel) document.getElementById('labelTax').innerText = state.taxLabel;
     if(state.serviceLabel) document.getElementById('labelService').innerText = state.serviceLabel;
 
-    // 3. อัปเดตรายการสินค้า
     const cartCont = document.getElementById('cartItemsContainer');
-    const rightPanel = document.getElementById('rightPanel'); // สมมติว่าคือ div ฝั่งขวา
+    const rightPanel = document.getElementById('rightPanel');
 
+    // 2. แสดงรายการสินค้าฝั่งซ้าย
     if(state.cart && state.cart.length > 0) {
         let html = '';
         state.cart.forEach(item => {
@@ -91,23 +91,32 @@ function updateUI(state) {
         });
         cartCont.innerHTML = html;
 
-        // 🟢 แสดงหน้าจอชำระเงินฝั่งขวาตามโหมด
+        // 3. แสดงฝั่งขวาตามสถานะ (Cash, QR, Split, Half, Delivery)
         if (state.status === 'cash_payment') {
-            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-2xl font-bold text-gray-500">รับเงิน</div><div class="text-6xl font-black text-gray-800 my-4">${parseFloat(state.cashReceived||0).toFixed(2)}</div><div class="text-4xl font-bold text-emerald-500">ทอน: ${parseFloat(state.changeAmount||0).toFixed(2)}</div></div>`;
-        } else if (state.status === 'qr_payment') {
-            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-2xl font-bold text-gray-500 mb-4">สแกน QR ชำระเงิน</div><img src="https://promptpay.io/${state.promptPay}/${state.grandTotal}.png" class="w-64 h-64 mx-auto border-4 p-2 rounded-2xl shadow-lg"></div>`;
-        } else {
-            // โหมดปกติ (กำลังเลือกสินค้า) -> อาจจะโชว์โลโก้ร้านหรือหน้าต้อนรับ
-            rightPanel.innerHTML = `<div class="text-center fade-in"><span class="text-8xl mb-6 block">✨</span><h3 class="text-3xl font-bold text-gray-400">ตรวจสอบรายการอาหาร</h3></div>`;
+            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-xl font-bold text-gray-400 mb-2">รับเงินสด</div><div class="text-6xl font-black text-gray-800 my-4">฿${safe(state.cashReceived)}</div><div class="text-4xl font-black text-emerald-500">ทอน: ฿${safe(state.change)}</div></div>`;
+        } 
+        else if (state.status === 'qr_payment') {
+            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-xl font-bold text-gray-400 mb-4">สแกนเพื่อชำระเงิน</div><img src="https://promptpay.io/${state.promptPay}/${state.grandTotal}.png" class="w-64 h-64 mx-auto border-4 p-2 rounded-2xl shadow-lg"></div>`;
+        }
+        else if (state.status === 'half_payment') {
+            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-3xl font-bold text-orange-600 mb-6">โครงการคนละครึ่ง</div><div class="text-5xl font-black text-pink-600 mb-4">ลูกค้าจ่าย: ฿${(state.grandTotal * 0.4).toFixed(2)}</div><div class="text-3xl font-bold text-blue-600">รัฐช่วยจ่าย: ฿${(state.grandTotal * 0.6).toFixed(2)}</div></div>`;
+        }
+        else if (state.status === 'split_menu') {
+            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-3xl font-bold text-pink-600 mb-6">กรุณาเลือกรูปแบบแบ่งจ่าย</div><div class="text-xl font-bold text-gray-400">พนักงานกำลังดำเนินการ...</div></div>`;
+        }
+        else if (state.status === 'delivery_payment') {
+            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-3xl font-bold text-orange-600 mb-4">เดลิเวอรี่ ${state.deliveryApp}</div><div class="text-2xl font-bold text-gray-600">เลข Order: ${state.deliveryOrderId}</div></div>`;
+        }
+        else if (state.status === 'success_paid') {
+            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="w-32 h-32 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-6xl mx-auto mb-6">✓</div><h3 class="text-4xl font-black text-emerald-600">ชำระครบถ้วน</h3></div>`;
+        }
+        else {
+             rightPanel.innerHTML = `<div class="text-center fade-in"><span class="text-8xl mb-6 block">✨</span><h3 class="text-3xl font-bold text-gray-400">ตรวจสอบรายการอาหาร</h3></div>`;
         }
 
     } else {
         // กรณีไม่มีสินค้า (ว่าง)
         cartCont.innerHTML = '';
-        document.getElementById('txtSubTotal').innerText = "0.00";
-        document.getElementById('txtTax').innerText = "0.00";
-        document.getElementById('txtService').innerText = "0.00";
-        document.getElementById('txtGrandTotal').innerText = "0.00";
         rightPanel.innerHTML = `<div class="text-center fade-in"><span class="text-8xl mb-6 block">✨</span><h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3><p class="text-gray-400 font-bold text-xl mt-2">เชิญเลือกสั่งรายการอาหารที่เคาน์เตอร์ได้เลยค่ะ</p></div>`;
     }
 }
