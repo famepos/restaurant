@@ -57,27 +57,40 @@
     }, 500); 
 
 function updateUI(state) {
-    if(!document.getElementById('lblTableNo') || !state) return;
-
-    // 1. อัปเดตข้อมูลฝั่งซ้าย (บิล)
+    if(!state) return;
+    // 🟢 ถ้าตะกร้าไม่มีของ ให้รีเซ็ตค่าทุกอย่างเป็นค่าเริ่มต้น
+    if (!state.cart || state.cart.length === 0) {
+        document.getElementById('lblTableNo').innerText = "โต๊ะ: -"; // ล้างค่าโต๊ะ
+        document.getElementById('txtSubTotal').innerText = "0.00";
+        document.getElementById('txtTax').innerText = "0.00";
+        document.getElementById('txtService').innerText = "0.00";
+        document.getElementById('txtGrandTotal').innerText = "0.00";
+        
+        // ล้างรายการสินค้า
+        document.getElementById('cartItemsContainer').innerHTML = '';
+        
+        // กลับไปหน้าต้อนรับ (Idle)
+        document.getElementById('idleState').classList.remove('hidden');
+        return; // จบการทำงานไม่รันต่อ
+    }
+    // --- 1. อัปเดตฝั่งซ้าย (บิล) ---
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+    const safe = (val) => isNaN(parseFloat(val)) ? "0.00" : parseFloat(val).toFixed(2);
+    
+    // ตั้งค่าประเภทบริการ
     let displayType = "โต๊ะ: " + (state.tableNo || "-");
     if(state.orderType === "กลับบ้าน") displayType = "🛍️ กลับบ้าน";
     else if(state.orderType === "เดลิเวอรี่") displayType = "🛵 ส่งของ";
-    document.getElementById('lblTableNo').innerText = displayType;
+    setText('lblTableNo', displayType);
 
-    const safe = (val) => isNaN(parseFloat(val)) ? "0.00" : parseFloat(val).toFixed(2);
-    document.getElementById('txtSubTotal').innerText = safe(state.subTotal);
-    document.getElementById('txtTax').innerText = safe(state.vat);
-    document.getElementById('txtService').innerText = safe(state.serviceCharge);
-    document.getElementById('txtGrandTotal').innerText = safe(state.grandTotal);
-    
-    if(state.taxLabel) document.getElementById('labelTax').innerText = state.taxLabel;
-    if(state.serviceLabel) document.getElementById('labelService').innerText = state.serviceLabel;
+    setText('txtSubTotal', safe(state.subTotal));
+    setText('txtTax', safe(state.vat));
+    setText('txtService', safe(state.serviceCharge));
+    setText('txtGrandTotal', safe(state.grandTotal));
+    if(state.taxLabel) setText('labelTax', state.taxLabel);
+    if(state.serviceLabel) setText('labelService', state.serviceLabel);
 
     const cartCont = document.getElementById('cartItemsContainer');
-    const rightPanel = document.getElementById('rightPanel');
-
-    // 2. แสดงรายการสินค้าฝั่งซ้าย
     if(state.cart && state.cart.length > 0) {
         let html = '';
         state.cart.forEach(item => {
@@ -85,39 +98,57 @@ function updateUI(state) {
             <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800 border-b border-gray-50 py-1">
                 <span class="col-span-6 truncate">${item.name}</span>
                 <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
-                <span class="col-span-2 text-right text-gray-500">${parseFloat(item.price||0).toFixed(2)}</span>
-                <span class="col-span-2 text-right">${parseFloat(item.total||0).toFixed(2)}</span>
+                <span class="col-span-2 text-right text-gray-500">${safe(item.price)}</span>
+                <span class="col-span-2 text-right">${safe(item.total)}</span>
             </div>`;
         });
         cartCont.innerHTML = html;
-
-        // 3. แสดงฝั่งขวาตามสถานะ (Cash, QR, Split, Half, Delivery)
-        if (state.status === 'cash_payment') {
-            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-xl font-bold text-gray-400 mb-2">รับเงินสด</div><div class="text-6xl font-black text-gray-800 my-4">฿${safe(state.cashReceived)}</div><div class="text-4xl font-black text-emerald-500">ทอน: ฿${safe(state.change)}</div></div>`;
-        } 
-        else if (state.status === 'qr_payment') {
-            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-xl font-bold text-gray-400 mb-4">สแกนเพื่อชำระเงิน</div><img src="https://promptpay.io/${state.promptPay}/${state.grandTotal}.png" class="w-64 h-64 mx-auto border-4 p-2 rounded-2xl shadow-lg"></div>`;
-        }
-        else if (state.status === 'half_payment') {
-            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-3xl font-bold text-orange-600 mb-6">โครงการคนละครึ่ง</div><div class="text-5xl font-black text-pink-600 mb-4">ลูกค้าจ่าย: ฿${(state.grandTotal * 0.4).toFixed(2)}</div><div class="text-3xl font-bold text-blue-600">รัฐช่วยจ่าย: ฿${(state.grandTotal * 0.6).toFixed(2)}</div></div>`;
-        }
-        else if (state.status === 'split_menu') {
-            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-3xl font-bold text-pink-600 mb-6">กรุณาเลือกรูปแบบแบ่งจ่าย</div><div class="text-xl font-bold text-gray-400">พนักงานกำลังดำเนินการ...</div></div>`;
-        }
-        else if (state.status === 'delivery_payment') {
-            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-3xl font-bold text-orange-600 mb-4">เดลิเวอรี่ ${state.deliveryApp}</div><div class="text-2xl font-bold text-gray-600">เลข Order: ${state.deliveryOrderId}</div></div>`;
-        }
-        else if (state.status === 'success_paid') {
-            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="w-32 h-32 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-6xl mx-auto mb-6">✓</div><h3 class="text-4xl font-black text-emerald-600">ชำระครบถ้วน</h3></div>`;
-        }
-        else {
-             rightPanel.innerHTML = `<div class="text-center fade-in"><span class="text-8xl mb-6 block">✨</span><h3 class="text-3xl font-bold text-gray-400">ตรวจสอบรายการอาหาร</h3></div>`;
-        }
-
     } else {
-        // กรณีไม่มีสินค้า (ว่าง)
         cartCont.innerHTML = '';
-        rightPanel.innerHTML = `<div class="text-center fade-in"><span class="text-8xl mb-6 block">✨</span><h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3><p class="text-gray-400 font-bold text-xl mt-2">เชิญเลือกสั่งรายการอาหารที่เคาน์เตอร์ได้เลยค่ะ</p></div>`;
+    }
+
+    // --- 2. วาดหน้าจอฝั่งขวา (Right Panel) ตามสถานะที่แคชเชียร์ส่งมา ---
+    const rightPanel = document.getElementById('rightPanel');
+    
+    if (state.status === 'cash_payment') {
+        rightPanel.innerHTML = `
+            <div class="text-center fade-in w-full">
+                <div class="text-3xl font-bold text-gray-400 mb-6">รับเงินสด</div>
+                <div class="text-8xl font-black text-gray-800 mb-6">฿${safe(state.cashReceived)}</div>
+                <div class="text-5xl font-bold text-emerald-500 border-t-2 border-dashed pt-6">ทอน: ฿${safe(state.change)}</div>
+            </div>`;
+    } 
+    else if (state.status === 'qr_payment') {
+        rightPanel.innerHTML = `
+            <div class="text-center fade-in w-full">
+                <div class="text-3xl font-bold text-gray-400 mb-6">สแกนเพื่อชำระเงิน</div>
+                <div class="text-6xl font-black text-pink-600 mb-6">฿${safe(state.grandTotal)}</div>
+                <img src="https://promptpay.io/${state.promptPay || '0000000000'}/${safe(state.grandTotal)}.png" class="w-72 h-72 mx-auto border-4 p-2 rounded-2xl shadow-lg">
+            </div>`;
+    }
+    else if (state.status === 'success_paid') {
+        rightPanel.innerHTML = `
+            <div class="text-center fade-in w-full">
+                <div class="w-40 h-40 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-7xl mx-auto mb-6">✓</div>
+                <h3 class="text-5xl font-black text-emerald-600">ชำระครบถ้วน</h3>
+            </div>`;
+    }
+    else if (state.cart && state.cart.length > 0) {
+        // กรณีมีสินค้าแต่ยังไม่กดจ่าย
+        rightPanel.innerHTML = `
+            <div class="text-center fade-in">
+                <span class="text-8xl mb-6 block">✨</span>
+                <h3 class="text-3xl font-bold text-gray-400">ตรวจสอบรายการอาหาร</h3>
+            </div>`;
+    }
+    else {
+        // หน้าต้อนรับ (ว่าง)
+        rightPanel.innerHTML = `
+            <div id="idleState" class="text-center">
+                <span class="text-8xl mb-6 block">✨</span>
+                <h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3>
+                <p class="text-gray-400 font-bold text-xl mt-2">เชิญเลือกสั่งรายการอาหารที่เคาน์เตอร์ได้เลยค่ะ</p>
+            </div>`;
     }
 }
     </script>
