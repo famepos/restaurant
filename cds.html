@@ -2,256 +2,115 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Customer Display | FamePOS</title>
+    <title>FamePOS Customer Display</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; padding: 10px; height: 100vh; overflow: hidden; box-sizing: border-box; }
-        .main-container { display: flex; gap: 10px; height: 100%; width: 100%; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f7cbdc; margin: 0; height: 100vh; overflow: hidden; }
+        .main-container { display: flex; gap: 10px; height: 100vh; padding: 10px; box-sizing: border-box; }
         .white-card { background: white; border-radius: 2rem; border: 3px solid #fecdd3; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        ::-webkit-scrollbar { display: none; }
-        .view-state { display: none; }
-        .view-state.active { display: flex; }
     </style>
 </head>
 <body>
-
-<div class="main-container">
-    <!-- ================= ฝั่งซ้าย: ข้อมูลบิล ================= -->
-    <section class="white-card w-1/2 flex flex-col">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-black text-gray-800 flex items-center gap-3">
-                <img id="imgStoreLogo" src="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png" class="w-10 h-10 object-contain"> 
-                <span id="txtStoreName">FamePOS</span>
-            </h1>
-            <div class="text-right">
-                <div class="text-lg font-bold text-gray-600" id="lblTableNo">โต๊ะ: -</div>
-                <div class="text-sm font-bold text-gray-400" id="lblDateTime">--:--:--</div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-12 gap-2 text-sm font-bold text-gray-400 border-b pb-3 mb-3">
-            <span class="col-span-6">รายการสินค้า</span>
-            <span class="col-span-2 text-center">จำนวน</span>
-            <span class="col-span-2 text-right">ราคา</span>
-            <span class="col-span-2 text-right">รวม</span>
-        </div>
-
-        <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-3 pr-2"></div>
-
-        <div class="border-t-2 border-dashed pt-4 mt-4 space-y-2 text-lg font-bold text-gray-700">
-            <div class="flex justify-between"><span>ยอดรวมสินค้า</span><span id="txtSubTotal">0.00</span></div>
-            <div class="flex justify-between"><span id="labelTax">ภาษี</span><span id="txtTax">0.00</span></div>
-            <div class="flex justify-between"><span id="labelService">ค่าบริการ</span><span id="txtService">0.00</span></div>
-            <div class="flex justify-between text-4xl font-black text-pink-600 border-t border-dashed pt-3 mt-2">
-                <span>ยอดรวมทั้งสิ้น</span>
-                <span><span id="txtGrandTotal">0.00</span> บาท</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- ================= ฝั่งขวา: เปลี่ยนโหมดตามสถานะการชำระเงิน ================= -->
-    <section class="white-card w-1/2 flex flex-col items-center justify-center relative overflow-hidden">
-        
-        <!-- 1. โหมดต้อนรับ (ไม่มีการชำระเงิน) -->
-        <div id="state-idle" class="view-state active flex-col items-center justify-center text-center fade-in w-full h-full">
-            <span class="text-8xl mb-6 block">✨</span>
-            <h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3>
-            <p class="text-gray-400 font-bold text-xl mt-2">เชิญสั่งรายการอาหารที่เคาน์เตอร์ได้เลยค่ะ</p>
-        </div>
-
-        <!-- 2. โหมดเงินสด -->
-        <div id="state-cash_payment" class="view-state flex-col justify-between w-full h-full fade-in p-2">
-            <div class="flex justify-between items-center bg-pink-50 p-4 rounded-2xl border border-pink-100">
-                <span class="font-bold text-gray-700 text-xl">ชำระเงินด้วย</span>
-                <span class="bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-lg">เงินสด</span>
-            </div>
-            <div class="my-auto space-y-10 text-center">
-                <div>
-                    <div class="text-lg font-bold text-gray-400 uppercase tracking-wider mb-2">รับเงิน</div>
-                    <div class="text-7xl font-black text-gray-800" id="valCashReceived">0.00</div>
-                    <div class="text-lg font-bold text-gray-400 mt-2">บาท</div>
-                </div>
-                <div class="border-t-4 border-dashed border-gray-100 w-3/4 mx-auto"></div>
-                <div>
-                    <div class="text-lg font-bold text-gray-400 uppercase tracking-wider mb-2">ทอนเงิน</div>
-                    <div class="text-7xl font-black text-emerald-500" id="valChange">0.00</div>
-                    <div class="text-lg font-bold text-emerald-600 mt-2">บาท</div>
+    <div class="main-container">
+        <!-- ฝั่งซ้าย -->
+        <section class="white-card w-1/2 flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-black text-gray-800 flex items-center gap-3">
+                    <img src="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png" class="w-10 h-10 object-contain"> FamePOS
+                </h1>
+                <div class="text-right">
+                    <div id="lblTableNo" class="text-lg font-bold text-gray-600">โต๊ะ: -</div>
+                    <div id="lblDateTime" class="text-sm font-bold text-gray-400">--:--:--</div>
                 </div>
             </div>
-        </div>
-
-        <!-- 3. โหมดโอนเงิน (QR Code) -->
-        <div id="state-qr_payment" class="view-state flex-col justify-between w-full h-full fade-in p-2">
-            <div class="flex justify-between items-center bg-pink-50 p-4 rounded-2xl border border-pink-100">
-                <span class="font-bold text-gray-700 text-xl">สแกน QR เพื่อชำระเงิน</span>
-                <span class="bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-lg">โอนเงิน</span>
-            </div>
-            <div class="my-auto flex flex-col items-center text-center">
-                <div class="text-xl font-bold text-gray-400 mb-2">ยอดชำระ</div>
-                <div class="text-7xl font-black text-pink-600 mb-6">฿<span id="valTransferTotal">0.00</span></div>
-                <div class="bg-white p-4 rounded-[2rem] border-4 border-pink-100 shadow-xl">
-                    <img id="valQRImage" src="" class="w-64 h-64 object-contain">
-                </div>
-                <div class="mt-6 text-lg font-black text-blue-700 border-2 border-blue-200 bg-blue-50 px-6 py-1.5 rounded-xl">Prompt Pay</div>
-            </div>
-        </div>
-
-        <!-- 4. โหมดคนละครึ่ง -->
-        <div id="state-half_payment" class="view-state flex-col justify-between w-full h-full fade-in p-2">
-            <div class="flex justify-between items-center bg-pink-50 p-4 rounded-2xl border border-pink-100">
-                <span class="font-bold text-gray-700 text-xl">โครงการ คนละครึ่ง</span>
-                <span class="bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-lg">ไทยช่วยไทย 60%/40%</span>
-            </div>
-            <div class="my-auto space-y-8 text-center w-full px-8">
-                <div class="bg-orange-50 border-4 border-orange-100 rounded-[2rem] p-8 w-full shadow-sm">
-                    <div class="text-xl font-bold text-orange-600 mb-3">ลูกค้าชำระ (40%)</div>
-                    <div class="text-6xl font-black text-orange-700">฿<span id="valHalfCustomer">0.00</span></div>
-                </div>
-                <div class="bg-blue-50 border-4 border-blue-100 rounded-[2rem] p-8 w-full shadow-sm">
-                    <div class="text-xl font-bold text-blue-600 mb-3">รัฐช่วยจ่าย (60%)</div>
-                    <div class="text-6xl font-black text-blue-700">฿<span id="valHalfGov">0.00</span></div>
+            <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-3"></div>
+            <div id="summaryFooter" class="border-t-2 border-dashed pt-4 mt-4 space-y-2 text-lg font-bold text-gray-700">
+                <div class="flex justify-between"><span>ยอดรวมสินค้า</span><span id="txtSubTotal">0.00</span></div>
+                <div class="flex justify-between"><span id="labelTax">ภาษี</span><span id="txtTax">0.00</span></div>
+                <div class="flex justify-between"><span id="labelService">ค่าบริการ</span><span id="txtService">0.00</span></div>
+                <div class="flex justify-between text-4xl font-black text-pink-600 border-t border-dashed pt-3 mt-2">
+                    <span>ยอดรวมทั้งสิ้น</span>
+                    <span><span id="txtGrandTotal">0.00</span> บาท</span>
                 </div>
             </div>
-        </div>
-
-        <!-- 5. โหมดแบ่งจ่าย (เมนูเลือก) -->
-        <div id="state-split_menu" class="view-state flex-col justify-center w-full h-full fade-in p-2">
-            <div class="text-center font-bold text-3xl text-gray-700 border-b-2 pb-6 mb-8">เลือกโหมดแบ่งจ่าย</div>
-            <div class="grid grid-cols-2 gap-6 w-full px-6">
-                <div class="border-4 border-pink-100 p-8 rounded-[2rem] flex flex-col items-center justify-center text-center bg-pink-50">
-                    <span class="text-7xl mb-6">💵+🏦</span>
-                    <div class="font-bold text-2xl text-gray-700">โหมดที่ 1</div>
-                    <div class="text-lg text-gray-500 mt-2 font-bold">เงินสด + โอนเงิน</div>
-                </div>
-                <div class="border-4 border-pink-100 p-8 rounded-[2rem] flex flex-col items-center justify-center text-center bg-pink-50">
-                    <span class="text-7xl mb-6">👥</span>
-                    <div class="font-bold text-2xl text-gray-700">โหมดที่ 2</div>
-                    <div class="text-lg text-gray-500 mt-2 font-bold">หารบิลเท่าๆ กัน</div>
-                </div>
+        </section>
+        <!-- ฝั่งขวา -->
+        <section class="white-card w-1/2 flex flex-col items-center justify-center text-center">
+            <div id="idleState">
+                <span class="text-8xl mb-6 block">✨</span>
+                <h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3>
             </div>
-            <div class="text-center text-gray-400 font-bold mt-10 text-lg animate-pulse">กรุณารอพนักงานแคชเชียร์...</div>
-        </div>
+        </section>
+    </div>
 
-        <!-- 6. โหมดเดลิเวอรี่ -->
-        <div id="state-delivery_payment" class="view-state flex-col justify-between w-full h-full fade-in p-2">
-            <div class="flex justify-between items-center bg-orange-50 p-4 rounded-2xl border border-orange-200">
-                <div class="flex items-center gap-3 font-bold text-orange-700 text-xl">
-                    <span class="text-3xl">🛵</span> เดลิเวอรี่
-                </div>
-                <span class="bg-green-600 text-white font-bold px-4 py-2 rounded-xl text-lg" id="valDeliveryApp">Delivery</span>
-            </div>
-            <div class="my-auto flex flex-col items-center text-center bg-amber-50 border-4 border-amber-100 p-10 rounded-[3rem] w-11/12 mx-auto shadow-sm">
-                <span class="text-8xl mb-6">🛍️</span>
-                <h3 class="text-4xl font-black text-amber-900 mb-4">กรุณารอรับอาหารสักครู่</h3>
-                <p class="text-xl text-amber-700 font-bold">ออเดอร์: <span id="valDeliveryOrderNo">-</span></p>
-            </div>
-        </div>
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
-        <!-- 7. โหมดชำระเงินสำเร็จ -->
-        <div id="state-success_paid" class="view-state flex-col items-center justify-center text-center h-full w-full fade-in">
-            <div class="w-40 h-40 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-7xl mb-8 shadow-inner border-4 border-emerald-200">✓</div>
-            <h3 class="text-5xl font-black text-emerald-600 mb-4">ชำระครบถ้วนแล้ว</h3>
-            <p class="text-xl text-gray-400 font-bold">กรุณารับใบเสร็จจากพนักงานแคชเชียร์ค่ะ</p>
-        </div>
-
-    </section>
-</div>
-
-<script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
-
-    // อัปเดตข้อมูลทุกๆ 0.5 วินาที
+// 🟢 เปลี่ยนจาก 1000/1500 เป็น 500 (เพื่อให้จออัปเดตไวขึ้น สั่งปุ๊บจอติดปั๊บ)
     setInterval(() => {
         document.getElementById('lblDateTime').innerText = new Date().toLocaleTimeString('th-TH');
         fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getCDSStateGS" }) })
         .then(res => res.json()).then(data => {
             if(data.status === "Success" && data.result) updateUI(JSON.parse(data.result));
         });
-    }, 500);
+    }, 500); 
 
-    function updateUI(state) {
-        if(!document.getElementById('lblTableNo') || !state) return;
+function updateUI(state) {
+    if(!document.getElementById('lblTableNo') || !state) return;
 
-        const safe = (val) => isNaN(parseFloat(val)) ? "0.00" : parseFloat(val).toFixed(2);
+    // 1. อัปเดตส่วนหัวและรายละเอียดบริการ
+    let displayType = "โต๊ะ: " + (state.tableNo || "-");
+    if(state.orderType === "กลับบ้าน") displayType = "🛍️ กลับบ้าน";
+    else if(state.orderType === "เดลิเวอรี่") displayType = "🛵 ส่งของ";
+    document.getElementById('lblTableNo').innerText = displayType;
 
-        // 1. อัปเดตข้อมูลฝั่งซ้าย (บิล)
-        if(state.storeName) document.getElementById('txtStoreName').innerText = state.storeName;
-        if(state.logoUrl) document.getElementById('imgStoreLogo').src = state.logoUrl;
+    // 2. อัปเดตยอดเงิน (ใช้ parseFloat ป้องกัน NaN)
+    document.getElementById('txtSubTotal').innerText = parseFloat(state.subTotal || 0).toFixed(2);
+    document.getElementById('txtTax').innerText = parseFloat(state.vat || 0).toFixed(2);
+    document.getElementById('txtService').innerText = parseFloat(state.serviceCharge || 0).toFixed(2);
+    document.getElementById('txtGrandTotal').innerText = parseFloat(state.grandTotal || 0).toFixed(2);
+    
+    if(state.taxLabel) document.getElementById('labelTax').innerText = state.taxLabel;
+    if(state.serviceLabel) document.getElementById('labelService').innerText = state.serviceLabel;
 
-        let displayType = "โต๊ะ: " + (state.tableNo || "-");
-        if(state.orderType === "กลับบ้าน") displayType = "🛍️ กลับบ้าน";
-        else if(state.orderType === "เดลิเวอรี่") displayType = "🛵 ส่งของ";
-        document.getElementById('lblTableNo').innerText = displayType;
+    // 3. อัปเดตรายการสินค้า
+    const cartCont = document.getElementById('cartItemsContainer');
+    const rightPanel = document.getElementById('rightPanel'); // สมมติว่าคือ div ฝั่งขวา
 
-        document.getElementById('txtSubTotal').innerText = safe(state.subTotal);
-        document.getElementById('txtTax').innerText = safe(state.vat);
-        document.getElementById('txtService').innerText = safe(state.serviceCharge);
-        document.getElementById('txtGrandTotal').innerText = safe(state.grandTotal);
-        
-        if(state.taxLabel) document.getElementById('labelTax').innerText = state.taxLabel;
-        if(state.serviceLabel) document.getElementById('labelService').innerText = state.serviceLabel;
+    if(state.cart && state.cart.length > 0) {
+        let html = '';
+        state.cart.forEach(item => {
+            html += `
+            <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800 border-b border-gray-50 py-1">
+                <span class="col-span-6 truncate">${item.name}</span>
+                <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
+                <span class="col-span-2 text-right text-gray-500">${parseFloat(item.price||0).toFixed(2)}</span>
+                <span class="col-span-2 text-right">${parseFloat(item.total||0).toFixed(2)}</span>
+            </div>`;
+        });
+        cartCont.innerHTML = html;
 
-        const cartCont = document.getElementById('cartItemsContainer');
-        if(state.cart && state.cart.length > 0) {
-            let html = '';
-            state.cart.forEach(item => {
-                html += `
-                <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800 border-b border-gray-50 py-1">
-                    <span class="col-span-6 truncate">${item.name}</span>
-                    <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
-                    <span class="col-span-2 text-right text-gray-500">${safe(item.price)}</span>
-                    <span class="col-span-2 text-right">${safe(item.total)}</span>
-                </div>`;
-            });
-            cartCont.innerHTML = html;
+        // 🟢 แสดงหน้าจอชำระเงินฝั่งขวาตามโหมด
+        if (state.status === 'cash_payment') {
+            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-2xl font-bold text-gray-500">รับเงิน</div><div class="text-6xl font-black text-gray-800 my-4">${parseFloat(state.cashReceived||0).toFixed(2)}</div><div class="text-4xl font-bold text-emerald-500">ทอน: ${parseFloat(state.changeAmount||0).toFixed(2)}</div></div>`;
+        } else if (state.status === 'qr_payment') {
+            rightPanel.innerHTML = `<div class="text-center fade-in"><div class="text-2xl font-bold text-gray-500 mb-4">สแกน QR ชำระเงิน</div><img src="https://promptpay.io/${state.promptPay}/${state.grandTotal}.png" class="w-64 h-64 mx-auto border-4 p-2 rounded-2xl shadow-lg"></div>`;
         } else {
-            cartCont.innerHTML = '';
+            // โหมดปกติ (กำลังเลือกสินค้า) -> อาจจะโชว์โลโก้ร้านหรือหน้าต้อนรับ
+            rightPanel.innerHTML = `<div class="text-center fade-in"><span class="text-8xl mb-6 block">✨</span><h3 class="text-3xl font-bold text-gray-400">ตรวจสอบรายการอาหาร</h3></div>`;
         }
 
-        // 2. ควบคุมการแสดงผลฝั่งขวา (Payment UI)
-        // ซ่อนทุกอันก่อน
-        document.querySelectorAll('.view-state').forEach(el => el.classList.remove('active'));
-
-        let currentStatus = state.status || 'idle';
-        if (!state.cart || state.cart.length === 0) currentStatus = 'idle';
-
-        // นำข้อมูลไปหยอดตามโหมด
-        if (currentStatus === 'cash_payment') {
-            document.getElementById('valCashReceived').innerText = safe(state.cashReceived);
-            document.getElementById('valChange').innerText = safe(state.changeAmount);
-            document.getElementById('state-cash_payment').classList.add('active');
-        } 
-        else if (currentStatus === 'qr_payment') {
-            document.getElementById('valTransferTotal').innerText = safe(state.grandTotal);
-            let pp = state.promptPay || "0000000000";
-            document.getElementById('valQRImage').src = `https://promptpay.io/${pp}/${state.grandTotal}.png`;
-            document.getElementById('state-qr_payment').classList.add('active');
-        } 
-        else if (currentStatus === 'half_payment') {
-            let tot = parseFloat(state.grandTotal || 0);
-            document.getElementById('valHalfCustomer').innerText = (tot * 0.4).toFixed(2);
-            document.getElementById('valHalfGov').innerText = (tot * 0.6).toFixed(2);
-            document.getElementById('state-half_payment').classList.add('active');
-        } 
-        else if (currentStatus === 'split_menu') {
-            document.getElementById('state-split_menu').classList.add('active');
-        }
-        else if (currentStatus === 'delivery_payment') {
-            document.getElementById('valDeliveryApp').innerText = state.deliveryApp || "Delivery";
-            document.getElementById('valDeliveryOrderNo').innerText = state.deliveryOrderId ? "#" + state.deliveryOrderId : "-";
-            document.getElementById('state-delivery_payment').classList.add('active');
-        }
-        else if (currentStatus === 'success_paid') {
-            document.getElementById('state-success_paid').classList.add('active');
-        }
-        else {
-            // idle (ค่าเริ่มต้น หรือตะกร้าว่าง)
-            document.getElementById('state-idle').classList.add('active');
-        }
+    } else {
+        // กรณีไม่มีสินค้า (ว่าง)
+        cartCont.innerHTML = '';
+        document.getElementById('txtSubTotal').innerText = "0.00";
+        document.getElementById('txtTax').innerText = "0.00";
+        document.getElementById('txtService').innerText = "0.00";
+        document.getElementById('txtGrandTotal').innerText = "0.00";
+        rightPanel.innerHTML = `<div class="text-center fade-in"><span class="text-8xl mb-6 block">✨</span><h3 class="text-4xl font-bold text-gray-400">ยินดีต้อนรับ</h3><p class="text-gray-400 font-bold text-xl mt-2">เชิญเลือกสั่งรายการอาหารที่เคาน์เตอร์ได้เลยค่ะ</p></div>`;
     }
-</script>
+}
+    </script>
 </body>
 </html>
