@@ -47,48 +47,59 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
-        function updateUI(state) {
-            // Safety Check: ถ้า element ไม่มีอยู่จริง ให้หยุดทำงาน
-            if(!document.getElementById('lblTableNo')) return;
+// 🟢 เปลี่ยนจาก 1000/1500 เป็น 500 (เพื่อให้จออัปเดตไวขึ้น สั่งปุ๊บจอติดปั๊บ)
+    setInterval(() => {
+        document.getElementById('lblDateTime').innerText = new Date().toLocaleTimeString('th-TH');
+        fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getCDSStateGS" }) })
+        .then(res => res.json()).then(data => {
+            if(data.status === "Success" && data.result) updateUI(JSON.parse(data.result));
+        });
+    }, 500); 
 
-            // อัปเดตตารางและยอด
-            let displayType = "โต๊ะ: " + (state.tableNo || "-");
-            if(state.orderType === "กลับบ้าน") displayType = "🛍️ กลับบ้าน";
-            else if(state.orderType === "เดลิเวอรี่") displayType = "🛵 ส่งของ";
-            document.getElementById('lblTableNo').innerText = displayType;
+    function updateUI(state) {
+        if(!document.getElementById('lblTableNo')) return;
 
-            // แก้ NaN โดยใช้ (val || 0)
-            document.getElementById('txtSubTotal').innerText = parseFloat(state.subTotal || 0).toFixed(2);
-            document.getElementById('txtTax').innerText = parseFloat(state.vat || 0).toFixed(2);
-            document.getElementById('txtService').innerText = parseFloat(state.serviceCharge || 0).toFixed(2);
-            document.getElementById('txtGrandTotal').innerText = parseFloat(state.grandTotal || 0).toFixed(2);
-            
-            // อัปเดต Label
-            if(state.taxLabel) document.getElementById('labelTax').innerText = state.taxLabel;
-            if(state.serviceLabel) document.getElementById('labelService').innerText = state.serviceLabel;
+        let displayType = "โต๊ะ: " + (state.tableNo || "-");
+        if(state.orderType === "กลับบ้าน") displayType = "🛍️ กลับบ้าน";
+        else if(state.orderType === "เดลิเวอรี่") displayType = "🛵 ส่งของ";
+        document.getElementById('lblTableNo').innerText = displayType;
 
-            const cartCont = document.getElementById('cartItemsContainer');
-            if(state.cart && state.cart.length > 0) {
-                document.getElementById('idleState').classList.add('hidden');
-                let html = '';
-                state.cart.forEach(item => {
-                    html += `
-                    <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800">
-                        <span class="col-span-6 truncate">${item.name}</span>
-                        <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
-                        <span class="col-span-2 text-right text-gray-500">${parseFloat(item.price||0).toFixed(2)}</span>
-                        <span class="col-span-2 text-right">${parseFloat(item.total||0).toFixed(2)}</span>
-                    </div>`;
-                });
-                cartCont.innerHTML = html;
-            }
+        document.getElementById('txtSubTotal').innerText = parseFloat(state.subTotal || 0).toFixed(2);
+        document.getElementById('txtTax').innerText = parseFloat(state.vat || 0).toFixed(2);
+        document.getElementById('txtService').innerText = parseFloat(state.serviceCharge || 0).toFixed(2);
+        document.getElementById('txtGrandTotal').innerText = parseFloat(state.grandTotal || 0).toFixed(2);
+        
+        if(state.taxLabel) document.getElementById('labelTax').innerText = state.taxLabel;
+        if(state.serviceLabel) document.getElementById('labelService').innerText = state.serviceLabel;
+
+        const cartCont = document.getElementById('cartItemsContainer');
+        const idle = document.getElementById('idleState');
+
+        // 🟢 ถ้ารายการสินค้าว่างเปล่า ให้ล้างจอและโชว์หน้าต้อนรับทันที
+        if(state.cart && state.cart.length > 0) {
+            idle.classList.add('hidden');
+            let html = '';
+            state.cart.forEach(item => {
+                html += `
+                <div class="grid grid-cols-12 gap-2 text-lg font-bold text-gray-800">
+                    <span class="col-span-6 truncate">${item.name}</span>
+                    <span class="col-span-2 text-center text-gray-500">${item.qty}</span>
+                    <span class="col-span-2 text-right text-gray-500">${parseFloat(item.price||0).toFixed(2)}</span>
+                    <span class="col-span-2 text-right">${parseFloat(item.total||0).toFixed(2)}</span>
+                </div>`;
+            });
+            cartCont.innerHTML = html;
+        } else {
+            // ล้างตะกร้า
+            cartCont.innerHTML = '';
+            idle.classList.remove('hidden');
+            // รีเซ็ตตัวเลขทุกอย่างเป็น 0.00
+            document.getElementById('txtSubTotal').innerText = "0.00";
+            document.getElementById('txtTax').innerText = "0.00";
+            document.getElementById('txtService').innerText = "0.00";
+            document.getElementById('txtGrandTotal').innerText = "0.00";
         }
-
-        setInterval(() => {
-            document.getElementById('lblDateTime').innerText = new Date().toLocaleTimeString('th-TH');
-            fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getCDSStateGS" }) })
-            .then(res => res.json()).then(data => { if(data.status === "Success" && data.result) updateUI(JSON.parse(data.result)); });
-        }, 1500);
+    }
     </script>
 </body>
 </html>
