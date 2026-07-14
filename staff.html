@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="bg-gray-100 pb-20">
+  <div class="p-4 bg-pink-600 text-white font-bold text-xl shadow-lg">สั่งอาหาร (Staff App)</div>
+  
+  <div id="product-list" class="grid grid-cols-2 gap-3 p-3">
+    <!-- สินค้าจะถูกโหลดมาแสดงที่นี่ -->
+  </div>
+
+  <div class="fixed bottom-0 w-full p-4 bg-white border-t flex gap-2">
+    <input type="text" id="tableNo" placeholder="เลขโต๊ะ" class="w-1/3 p-3 border rounded-xl font-bold">
+    <button onclick="sendOrder()" class="flex-1 bg-green-500 text-white font-bold p-3 rounded-xl">ส่งเข้าครัว</button>
+  </div>
+
+  <script>
+    // โหลดสินค้าจากระบบเดิม
+    google.script.run.withSuccessHandler(renderProducts).getProducts();
+
+    let cart = [];
+    function renderProducts(data) {
+      let list = document.getElementById('product-list');
+      data.forEach(item => {
+        list.innerHTML += `<div class="bg-white p-3 rounded-xl shadow cursor-pointer" onclick="addToCart('${item[1]}', ${item[3]})">
+          <div class="font-bold">${item[1]}</div>
+          <div class="text-pink-600">฿${item[3]}</div>
+        </div>`;
+      });
+    }
+
+    function addToCart(name, price) {
+      cart.push({name: name, qty: 1});
+      alert(name + " เพิ่มในตะกร้าแล้ว");
+    }
+
+    function sendOrder() {
+      let data = {
+        table: document.getElementById('tableNo').value,
+        items: cart,
+        staffName: "พนักงาน 1"
+      };
+      google.script.run.withSuccessHandler(() => {
+        alert("ส่งออร์เดอร์สำเร็จ!");
+        cart = [];
+      }).submitStaffOrderGS(data);
+    }
+  </script>
+</body>
+</html>
