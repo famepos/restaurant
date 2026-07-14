@@ -174,14 +174,30 @@ function updateUI(state) {
                 </div>
             </div>`;
     }
-    else if (state.status === 'delivery_payment') {
+else if (state.status === 'delivery_payment') {
+        // 🌟 ดึงชื่อแอป (ตัดอีโมจิด้านหน้า และข้อความวงเล็บด้านหลังออกให้เหลือแค่ชื่อแอป)
+        let appName = "Delivery";
+        if (state.deliveryAppText) {
+            let parts = state.deliveryAppText.split(' ');
+            if (parts.length > 1) appName = parts[1]; // ดึงคำที่ 2 (เช่น Grab, LineMan)
+        }
+        
+        let orderId = state.deliveryOrderId ? state.deliveryOrderId : "";
+        let deliveryMsg = `${appName} ${orderId}`.trim();
+
         rightPanel.innerHTML = `
             <div class="text-center fade-in w-full flex flex-col items-center justify-center mt-4">
                 <div class="w-32 h-32 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 text-6xl mx-auto mb-6 shadow-inner">
                     🛵
                 </div>
-                <h3 class="text-4xl font-black text-orange-600 mb-2">ระบบเดลิเวอรี่</h3>
-                <p class="text-xl text-gray-500 mb-8 font-bold">ทำรายการผ่านแอปพลิเคชัน / เก็บเงินปลายทาง</p>
+                <h3 class="text-4xl font-black text-orange-600 mb-4">ระบบเดลิเวอรี่</h3>
+                
+                <!-- 🌟 กล่องแสดงแอปและเลขออเดอร์ -->
+                <div class="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-8 py-3 rounded-full text-2xl font-bold mb-4 shadow-md inline-block">
+                    ${deliveryMsg} รอรับอาหารได้เลยค่ะ
+                </div>
+                
+                <p class="text-lg text-gray-500 mb-8 font-bold">ทำรายการผ่านแอปพลิเคชัน</p>
                 
                 <div class="bg-orange-50 py-8 px-12 rounded-[2.5rem] border-4 border-orange-200 shadow-sm inline-block">
                     <div class="text-xl text-orange-600 font-bold mb-2">ยอดเรียกเก็บ (สุทธิ)</div>
@@ -189,7 +205,6 @@ function updateUI(state) {
                 </div>
             </div>`;
     }
-
     else if (state.status === 'split_mix') {
         let changeHtml = state.splitMixChange > 0 ? `
             <div class="text-xl font-bold text-emerald-500 mt-2">
