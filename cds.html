@@ -54,15 +54,22 @@
 </section>
     </div>
 
+<!-- หน้ากากปลดล็อกเสียงตอนเปิดเว็บครั้งแรก -->
+    <div id="startOverlay" class="fixed inset-0 bg-pink-600 z-[9999] flex flex-col items-center justify-center text-white cursor-pointer transition-opacity duration-500" onclick="unlockAudioAndStart()">
+        <span class="text-8xl mb-6 animate-bounce">👆</span>
+        <h1 class="text-5xl font-black mb-4">FamePOS Customer Display</h1>
+        <p class="text-2xl font-bold bg-white/20 px-8 py-3 rounded-full">คลิกที่หน้าจอ 1 ครั้ง เพื่อเริ่มทำงาน</p>
+    </div>
 <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
-        // 🌟 1. ตัวแปรสำหรับระบบภาพโฆษณา
+        // 🌟 ตัวแปรสำหรับระบบภาพโฆษณา และ เสียงเรียกคิว
         let adSlides = [];
         let adTimeout = null;
         let currentAdIdx = 0;
+        let lastAnnouncedQueueTime = 0; // ป้องกันการพูดซ้ำ
 
-        // 🌟 โหลดรูปโฆษณาจากหลังบ้านมาเก็บไว้ตั้งแต่เปิดจอ
+        // โหลดรูปโฆษณาจากหลังบ้าน
         fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getAdSettingsGS" }) })
         .then(res => res.json()).then(data => {
             if(data.status === "Success" && data.result) {
@@ -70,7 +77,7 @@
             }
         });
 
-        // ฟังก์ชันดึงข้อมูลจากแคชเชียร์ทุกๆ 0.5 วินาที
+        // ดึงข้อมูลจากแคชเชียร์ทุกๆ 0.5 วินาที
         setInterval(() => {
             document.getElementById('lblDateTime').innerText = new Date().toLocaleTimeString('th-TH');
             fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getCDSStateGS" }) })
@@ -95,6 +102,24 @@
                 currentAdIdx = (currentAdIdx + 1) % adSlides.length;
                 playNextAd();
             }, (ad.duration || 5) * 1000);
+        }
+
+        // 🌟 ฟังก์ชัน AI เสียงพูดเรียกคิว (Text-to-Speech)
+        function speakQueue(queueNo) {
+            if ('speechSynthesis' in window) {
+                // ยกเลิกเสียงเก่าที่อาจจะค้างอยู่
+                window.speechSynthesis.cancel();
+                
+                // สร้างข้อความที่จะพูด
+                let textToSpeak = "ขอเชิญหมายเลขคิว " + queueNo.split('').join(' ') + " ค่ะ"; // แยกตัวอักษรให้ระบบอ่านทีละตัวชัดๆ เช่น 0 0 1
+                
+                let utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'th-TH'; // ตั้งค่าเป็นภาษาไทย
+                utterance.rate = 0.85;    // ความเร็วในการพูด (0.8-0.9 กำลังดี)
+                utterance.pitch = 1.1;    // โทนเสียงแหลมขึ้นนิดหน่อยให้น่าฟัง
+                
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         function updateUI(state) {
@@ -134,9 +159,9 @@
                 cartCont.innerHTML = '';
             }
 
-            // ระบบคำนวณเวลาถอยหลัง
+            // ระบบคำนวณเวลาถอยหลัง QR
             let timerText = state.qrTimerText || "10:00";
-            if (state.timestamp) {
+            if (state.timestamp && state.status !== 'call_queue') {
                 let parts = timerText.split(':');
                 if (parts.length === 2) {
                     let initialSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
@@ -157,12 +182,11 @@
             const rightPanel = document.getElementById('rightPanel');
             if(!rightPanel) return;
 
-            // 🛑 สำคัญ: ถ้าสถานะไม่ใช่ idle ให้หยุดการเล่นสไลด์โฆษณาทันที เพื่อหลีกทางให้หน้าชำระเงิน
             if (state.status !== 'idle') {
                 clearTimeout(adTimeout);
             }
 
-            // 🌟 3. ระบบแสดง "เรียกคิว" แบบเต็มจอ
+            // 🌟 3. ระบบแสดง "เรียกคิว" พร้อมเสียงพูด
             if (state.status === 'call_queue') {
                 rightPanel.innerHTML = `
                 <div class="text-center fade-in w-full h-full flex flex-col justify-center items-center bg-pink-500 text-white rounded-[2rem] shadow-inner p-8">
@@ -171,6 +195,12 @@
                     <div class="text-3xl font-bold mb-2 text-pink-200">หมายเลขคิว</div>
                     <div class="text-[12rem] font-black leading-none drop-shadow-xl bg-white text-pink-600 px-12 py-4 rounded-[3rem] mt-4">${state.queueNo || "000"}</div>
                 </div>`;
+
+                // ตรวจสอบว่าคิวนี้พูดไปหรือยัง (ดักการพูดซ้ำ)
+                if (state.timestamp && state.timestamp !== lastAnnouncedQueueTime) {
+                    lastAnnouncedQueueTime = state.timestamp;
+                    speakQueue(state.queueNo || "000"); // สั่งให้ระบบพูด
+                }
             }
             else if (state.status === 'cash_payment') {
                 rightPanel.innerHTML = `
@@ -343,10 +373,10 @@
                     </div>`;
             }
             else {
-                // 🌟 กรณีตะกร้าว่างเปล่าและไม่ได้กดชำระเงินใดๆ (สถานะ idle)
+                // 🌟 สถานะ idle: เปิดภาพพักหน้าจอโฆษณา
                 if (adSlides.length > 0) {
                     if (!document.getElementById('adSliderContainer')) {
-                        playNextAd(); // เริ่มเล่นโฆษณา
+                        playNextAd(); 
                     }
                 } else {
                     rightPanel.innerHTML = `
@@ -357,6 +387,19 @@
                         </div>`;
                 }
             }
+        }
+        // ฟังก์ชันปลดล็อกเสียงและซ่อนหน้ากาก
+        function unlockAudioAndStart() {
+            // สั่งให้ AI พูดข้อความเปล่าๆ 1 ครั้ง เพื่อปลดล็อกระบบเสียงของบราวเซอร์
+            if ('speechSynthesis' in window) {
+                let silentUtterance = new SpeechSynthesisUtterance('');
+                window.speechSynthesis.speak(silentUtterance);
+            }
+            
+            // ซ่อนหน้ากาก
+            let overlay = document.getElementById('startOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 500);
         }
     </script>
 </body>
