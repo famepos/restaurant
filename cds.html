@@ -65,6 +65,7 @@
             if(data.status === "Success" && data.result) updateUI(JSON.parse(data.result));
         });
     }, 500); 
+
 function updateUI(state) {
     if(!state) return;
 
@@ -103,67 +104,60 @@ function updateUI(state) {
         cartCont.innerHTML = '';
     }
 
-    // --- 2. วาดหน้าจอฝั่งขวา (Right Panel) ตามสถานะที่แคชเชียร์ส่งมา ---
+    // --- 2. ระบบคำนวณเวลาถอยหลังอัจฉริยะ (ใช้ร่วมกันทุกโหมดที่มี QR) ---
+    let timerText = state.qrTimerText || "10:00";
+    if (state.timestamp) {
+        let parts = timerText.split(':');
+        if (parts.length === 2) {
+            let initialSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            let elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+            let currentSeconds = initialSeconds - elapsed;
+            if (currentSeconds < 0) currentSeconds = 0;
+            let m = Math.floor(currentSeconds / 60).toString().padStart(2, '0');
+            let s = (currentSeconds % 60).toString().padStart(2, '0');
+            timerText = m + ":" + s;
+        }
+    }
+    // ตัวแปรเก็บ HTML ของเวลาถอยหลัง เพื่อเอาไปแทรกตรงไหนก็ได้
+    let timerHtml = `
+        <div class="bg-pink-50 text-pink-600 font-bold px-6 py-2.5 rounded-full text-xl mb-6 border-2 border-pink-100 shadow-sm flex items-center justify-center gap-2 w-max mx-auto">
+            <span>⏳</span> เวลาคงเหลือ: <span>${timerText}</span>
+        </div>
+    `;
+
+    // --- 3. วาดหน้าจอฝั่งขวา (Right Panel) ---
     const rightPanel = document.getElementById('rightPanel');
     if(!rightPanel) return;
     
-if (state.status === 'cash_payment') {
+    if (state.status === 'cash_payment') {
         rightPanel.innerHTML = `
             <div class="text-center fade-in w-full flex flex-col justify-center items-center">
-                <!-- 🟢 ส่วนเงินทอน (ย้ายมาไว้ข้างบน ตัวใหญ่ สีเขียว) -->
+                <!-- 🟢 ส่วนเงินทอน -->
                 <div class="w-10/12 border-b-4 border-dashed border-gray-100 pb-8 mb-8">
                     <div class="text-3xl font-bold text-pink-600/70 mb-4">เงินทอน</div>
                     <div class="text-8xl font-black text-pink-500 drop-shadow-sm">฿${safe(state.changeAmount)}</div>
                 </div>
                 
-                <!-- 🔘 ส่วนรับเงินสด (ย้ายมาไว้ข้างล่าง เล็กลง สีเทา) -->
+                <!-- 🔘 ส่วนรับเงินสด -->
                 <div>
                     <div class="text-xl font-bold text-gray-400 mb-2">รับเงินสดมา</div>
                     <div class="text-5xl font-black text-gray-600">฿${safe(state.cashReceived)}</div>
                 </div>
             </div>`;
     }
-else if (state.status === 'qr_payment') {
-        // --- 🟢 ระบบคำนวณเวลาถอยหลังอัจฉริยะ (ไม่ต้องรอเน็ต) ---
-        let timerText = state.qrTimerText || "10:00";
-        
-        // เช็คเวลาปัจจุบัน เทียบกับเวลาที่แคชเชียร์ส่งมา
-        if (state.timestamp) {
-            let parts = timerText.split(':');
-            if (parts.length === 2) {
-                let initialSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-                
-                // คำนวณเวลาที่ผ่านไป (วินาที)
-                let elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
-                let currentSeconds = initialSeconds - elapsed;
-                
-                // ไม่ให้เวลาติดลบ
-                if (currentSeconds < 0) currentSeconds = 0;
-                
-                // แปลงกลับเป็นรูปแบบ นาที:วินาที
-                let m = Math.floor(currentSeconds / 60).toString().padStart(2, '0');
-                let s = (currentSeconds % 60).toString().padStart(2, '0');
-                timerText = m + ":" + s;
-            }
-        }
-
+    else if (state.status === 'qr_payment') {
         rightPanel.innerHTML = `
             <div class="text-center fade-in w-full flex flex-col items-center justify-center mt-8">
-                <!-- หัวข้อ -->
                 <h3 class="text-3xl font-bold text-pink-700 mb-2">📱 สแกน QR Code เพื่อชำระเงิน</h3>
                 <p class="text-lg text-gray-400 mb-6 font-medium">กรุณาสแกนจ่ายเงินภายในเวลาที่กำหนด</p>
                 
-                <!-- กล่องเวลา -->
-                <div class="bg-pink-50 text-pink-600 font-bold px-6 py-2.5 rounded-full text-xl mb-8 border-2 border-pink-100 shadow-sm flex items-center gap-2">
-                    <span>⏳</span> เวลาคงเหลือ: <span>${timerText}</span>
-                </div>
+                <!-- แทรกเวลาถอยหลัง -->
+                ${timerHtml}
                 
-                <!-- กล่องใส่ QR Code -->
                 <div class="bg-white p-4 rounded-3xl border-4 border-pink-100 mb-8 shadow-inner inline-block">
                     <img src="https://promptpay.io/${state.promptPay || '0000000000'}/${safe(state.grandTotal)}.png" class="w-72 h-72 object-contain rounded-xl">
                 </div>
                 
-                <!-- ยอดเงิน -->
                 <div class="text-xl text-gray-500 mb-1 font-bold">ยอดเงินที่ต้องสแกน</div>
                 <div class="text-7xl font-black text-pink-600">฿${safe(state.grandTotal)}</div>
             </div>`;
@@ -184,111 +178,137 @@ else if (state.status === 'qr_payment') {
                 </div>
             </div>`;
     }
-else if (state.status === 'split_mix') {
-        let qrImgHtml = state.splitMixQR ? `<img src="${state.splitMixQR}" class="w-56 h-56 mx-auto border-4 border-orange-100 p-2 rounded-2xl shadow-sm mt-4">` : '';
-        
-        // 🌟 โชว์เงินทอนถ้ามี
+    else if (state.status === 'split_mix') {
         let changeHtml = state.splitMixChange > 0 ? `
-            <div class="w-full bg-emerald-50 border-2 border-emerald-200 text-center p-3 rounded-2xl shadow-sm mb-4">
-                <span class="text-sm font-bold text-emerald-600 block">เงินทอน (ส่วนเงินสด)</span>
-                <span class="text-4xl font-black text-emerald-500">฿${safe(state.splitMixChange)}</span>
+            <div class="text-xl font-bold text-emerald-500 mb-2">
+                ทอนเงิน ฿${safe(state.splitMixChange)}
             </div>` : '';
 
-        rightPanel.innerHTML = `
-            <div class="text-center fade-in w-full px-4 flex flex-col items-center justify-center mt-2">
-                <h3 class="text-3xl font-bold text-orange-600 mb-6">💵 แบ่งจ่าย (สด + โอน)</h3>
-                
-                ${changeHtml} <!-- โชว์เงินทอนตรงนี้ -->
+        let cashHtml = state.splitMixCash > 0 ? `
+            <div class="bg-gray-100 text-gray-600 font-bold px-6 py-2 rounded-full text-lg mb-2 inline-block">
+                รับเงินสดมาแล้ว: ฿${safe(state.splitMixCash)}
+            </div>
+            ${changeHtml}
+        ` : '';
 
-                <div class="grid grid-cols-2 gap-4 w-full mb-6 max-w-lg">
-                    <div class="bg-white border-2 border-gray-200 p-4 rounded-2xl shadow-sm">
-                        <div class="text-sm font-bold text-gray-500 mb-1">รับเงินสดมา</div>
-                        <div class="text-4xl font-black text-gray-800">฿${safe(state.splitMixCash)}</div>
-                    </div>
-                    <div class="bg-orange-50 border-2 border-orange-200 p-4 rounded-2xl shadow-sm">
-                        <div class="text-sm font-bold text-orange-600 mb-1">ยอดโอนส่วนที่เหลือ</div>
-                        <div class="text-4xl font-black text-orange-700">฿${safe(state.splitMixTransfer)}</div>
-                    </div>
+        rightPanel.innerHTML = `
+            <div class="text-center fade-in w-full flex flex-col items-center justify-center mt-4">
+                <!-- ส่วนเงินสด (โชว์ด้านบนสุด) -->
+                <h3 class="text-2xl font-bold text-gray-700 mb-3">💵 ยอดบิลรวม: ฿${safe(state.grandTotal)}</h3>
+                ${cashHtml}
+
+                ${state.splitMixTransfer > 0 ? `
+                <!-- ส่วน QR Code เหมือนหน้าสแกนจ่ายปกติเป๊ะ -->
+                <div class="border-t border-dashed border-gray-300 w-full max-w-md my-4"></div>
+                <h3 class="text-3xl font-bold text-pink-700 mb-2 mt-2">📱 สแกน QR Code เพื่อชำระเงิน</h3>
+                <p class="text-lg text-gray-400 mb-4 font-medium">กรุณาสแกนจ่ายยอดส่วนต่างที่เหลือ</p>
+                
+                <!-- แทรกเวลาถอยหลัง -->
+                ${timerHtml}
+                
+                <div class="bg-white p-4 rounded-3xl border-4 border-pink-100 mb-6 shadow-inner inline-block">
+                    <img src="${state.promptPayUrl}" class="w-56 h-56 object-contain rounded-xl">
                 </div>
                 
-                <div class="bg-white border-4 border-orange-100 rounded-[2rem] p-6 relative w-full max-w-md shadow-inner">
-                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-6 py-1.5 rounded-full font-bold text-sm shadow-md whitespace-nowrap">
-                        สแกนชำระส่วนที่เหลือ
-                    </div>
-                    ${qrImgHtml}
-                </div>
+                <div class="text-xl text-gray-500 mb-1 font-bold">ยอดเงินโอนสุทธิ</div>
+                <div class="text-6xl font-black text-pink-600">฿${safe(state.splitMixTransfer)}</div>
+                ` : `
+                <div class="border-t border-dashed border-gray-300 w-full max-w-md my-4"></div>
+                <div class="w-32 h-32 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-5xl mx-auto mt-8 mb-4">✓</div>
+                <h3 class="text-4xl font-black text-emerald-600">รับเงินสดครบแล้ว</h3>
+                `}
             </div>`;
     }
-else if (state.status === 'split_equal') {
-        let html = `
-        <div class="flex flex-col items-center justify-center w-full h-full animate-fade-in p-6 bg-pink-50/30">
-            <h2 class="text-4xl font-black text-pink-700 mb-6">👥 หารบิล (จ่ายเท่ากัน)</h2>
-            
-            <!-- กล่องบอกยอดคนและยอดรวม -->
-            <div class="flex gap-6 mb-8 w-full max-w-lg justify-center">
-                <div class="bg-white flex-1 py-4 rounded-3xl border border-gray-100 shadow-sm text-center">
-                    <div class="text-sm font-bold text-gray-400 mb-1">จำนวนลูกค้า</div>
-                    <div class="text-3xl font-black text-gray-800">${state.splitPeopleCount || 0} <span class="text-xl">คน</span></div>
-                </div>
-                <div class="bg-pink-50 flex-1 py-4 rounded-3xl border border-pink-200 shadow-md text-center transform scale-105">
-                    <div class="text-sm font-bold text-pink-500 mb-1">ยอดชำระ/คน</div>
-                    <div class="text-3xl font-black text-pink-700">฿${state.splitPerPerson || "0.00"}</div>
-                </div>
-            </div>
-
-            <!-- แสดง QR Code ตรงกลางให้ทุกคนสแกน -->
-            ${state.promptPayUrl ? `
-            <div class="bg-white p-5 rounded-3xl border-2 border-pink-200 shadow-lg mb-8 flex flex-col items-center">
-                <span class="text-sm font-bold text-gray-500 mb-3 bg-gray-100 px-4 py-1.5 rounded-full">📱 สแกน QR เพื่อชำระเงินโอน</span>
-                <img src="${state.promptPayUrl}" class="w-48 h-48 object-contain">
-            </div>
-            ` : ''}
-
-            <!-- รายละเอียดสถานะการจ่ายเงินของแต่ละคน -->
-            <div class="w-full max-w-lg space-y-3 overflow-y-auto no-scrollbar pb-6" style="max-height: 35vh;">
-        `;
-
-        // ลูปวาดหน้าจอให้แต่ละคนแบบ Real-time
+    else if (state.status === 'split_equal') {
+        let totalCash = 0;
+        let totalChange = 0;
+        let personsHtml = '';
+        
         if (state.splitPersons && state.splitPersons.length > 0) {
             state.splitPersons.forEach(p => {
                 if (p.method === 'transfer') {
-                    html += `
-                    <div class="bg-white p-4 rounded-2xl border border-pink-100 shadow-sm flex justify-between items-center transition-all">
-                        <div class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                    personsHtml += `
+                    <div class="bg-white p-3 rounded-2xl border border-pink-100 shadow-sm flex justify-between items-center transition-all mb-2">
+                        <div class="font-bold text-gray-800 flex items-center gap-2 text-base">
                             <span class="bg-pink-100 text-pink-600 w-8 h-8 flex items-center justify-center rounded-full text-sm">👤</span>
                             คนที่ ${p.id}
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="px-3 py-1.5 bg-pink-50 text-pink-600 rounded-xl text-sm font-bold border border-pink-200 flex items-center gap-1">📱 โอนเงิน</span>
-                        </div>
+                        <span class="px-3 py-1 bg-pink-50 text-pink-600 rounded-xl text-sm font-bold border border-pink-200">📱 โอนเงิน</span>
                     </div>`;
                 } else {
-                    html += `
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-3 transition-all">
-                        <div class="flex justify-between items-center border-b border-dashed border-gray-200 pb-3">
-                            <div class="font-bold text-lg text-gray-800 flex items-center gap-2">
-                                <span class="bg-gray-100 text-gray-600 w-8 h-8 flex items-center justify-center rounded-full text-sm">👤</span>
+                    totalCash += p.cashReceived;
+                    totalChange += p.change;
+                    personsHtml += `
+                    <div class="bg-white p-3 rounded-2xl border border-emerald-100 shadow-sm flex flex-col gap-2 transition-all mb-2">
+                        <div class="flex justify-between items-center border-b border-dashed border-gray-100 pb-2">
+                            <div class="font-bold text-gray-800 flex items-center gap-2 text-base">
+                                <span class="bg-emerald-100 text-emerald-600 w-8 h-8 flex items-center justify-center rounded-full text-sm">👤</span>
                                 คนที่ ${p.id}
                             </div>
-                            <div class="flex items-center gap-3">
-                                <span class="px-3 py-1.5 bg-gray-50 text-gray-600 rounded-xl text-sm font-bold border border-gray-200 flex items-center gap-1">💵 เงินสด</span>
-                            </div>
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-bold border border-emerald-200">💵 เงินสด</span>
                         </div>
                         <div class="flex justify-between items-center px-1">
-                            <span class="text-gray-500 font-bold text-sm">รับเงินมา: <span class="text-gray-800 text-base">฿${safe(p.cashReceived)}</span></span>
-                            <span class="text-pink-600 font-black text-lg bg-pink-50 px-3 py-1.5 rounded-xl border border-pink-100">ทอน: ฿${safe(p.change)}</span>
+                            <span class="text-gray-500 font-bold text-xs">รับมา: <span class="text-gray-800 text-sm">฿${safe(p.cashReceived)}</span></span>
+                            <span class="text-emerald-600 font-black text-sm bg-emerald-50 px-2 py-1 rounded-lg">ทอน: ฿${safe(p.change)}</span>
                         </div>
                     </div>`;
                 }
             });
         }
 
-        html += `
+        rightPanel.innerHTML = `
+        <div class="flex flex-col w-full h-full animate-fade-in p-2">
+            <h2 class="text-3xl font-black text-pink-700 mb-4 text-center shrink-0">👥 หารบิล (จ่ายเท่ากัน)</h2>
+            
+            <div class="flex flex-row w-full gap-4 h-full min-h-0">
+                <!-- ฝั่งซ้าย: โชว์ QR Code สำหรับยอดโอน (ทำให้เหมือนหน้าสแกนปกติ) -->
+                <div class="w-1/2 flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 shrink-0 border border-gray-100">
+                    <h3 class="text-2xl font-bold text-pink-700 mb-2">📱 สแกน QR Code</h3>
+                    <p class="text-sm text-gray-400 mb-4 font-medium">สำหรับคนโอนจ่าย (ต่อคน)</p>
+                    
+                    ${state.promptPayUrl ? `
+                    <!-- แทรกเวลาถอยหลัง -->
+                    ${timerHtml}
+                    
+                    <div class="bg-white p-3 rounded-3xl border-4 border-pink-100 shadow-inner mb-4 inline-block">
+                        <img src="${state.promptPayUrl}" class="w-48 h-48 object-contain rounded-xl">
+                    </div>
+                    ` : '<div class="text-gray-400 font-bold mb-4">ไม่ได้ตั้งค่าพร้อมเพย์</div>'}
+                    
+                    <div class="text-base text-gray-500 mb-1 font-bold">ยอดเงินที่ต้องสแกน</div>
+                    <div class="text-5xl font-black text-pink-600">฿${state.splitPerPerson || "0.00"}</div>
+                </div>
+
+                <!-- ฝั่งขวา: รายชื่อคนจ่ายเงินสด/โอน -->
+                <div class="w-1/2 flex flex-col gap-2 overflow-y-auto pr-2 pb-4">
+                    <div class="bg-gray-100 rounded-2xl p-3 mb-2 shrink-0 text-center flex justify-around">
+                        <div>
+                            <div class="text-[10px] text-gray-500 font-bold uppercase">จำนวนคน</div>
+                            <div class="text-xl font-black text-gray-800">${state.splitPeopleCount || 0}</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-500 font-bold uppercase">ยอดบิลสุทธิ</div>
+                            <div class="text-xl font-black text-pink-600">฿${safe(state.grandTotal)}</div>
+                        </div>
+                    </div>
+
+                    <!-- รายชื่อแต่ละคน -->
+                    ${personsHtml}
+
+                    <!-- สรุปเงินสด/เงินทอนรวม -->
+                    ${totalCash > 0 ? `
+                    <div class="mt-2 bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-3 shrink-0">
+                        <div class="flex justify-between text-xs text-emerald-700 font-bold mb-1">
+                            <span>รับเงินสดรวม:</span> <span>฿${safe(totalCash)}</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-emerald-600 font-black pt-1 border-t border-emerald-200">
+                            <span>ทอนเงินรวม:</span> <span>฿${safe(totalChange)}</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
             </div>
         </div>`;
-
-        // นำ HTML ที่สร้างเสร็จไปแสดงในกล่องฝั่งขวา
-        rightPanel.innerHTML = html;
     }
     else if (state.status === 'success_paid') {
         rightPanel.innerHTML = `
