@@ -104,7 +104,7 @@ function updateUI(state) {
         cartCont.innerHTML = '';
     }
 
-    // --- 2. ระบบคำนวณเวลาถอยหลังอัจฉริยะ (ใช้ร่วมกันทุกโหมดที่มี QR) ---
+    // --- 2. 🌟 ระบบคำนวณเวลาถอยหลัง (ใช้ร่วมกันทุกโหมดที่มี QR Code) ---
     let timerText = state.qrTimerText || "10:00";
     if (state.timestamp) {
         let parts = timerText.split(':');
@@ -118,7 +118,7 @@ function updateUI(state) {
             timerText = m + ":" + s;
         }
     }
-    // ตัวแปรเก็บ HTML ของเวลาถอยหลัง เพื่อเอาไปแทรกตรงไหนก็ได้
+    // ตัวแปรเก็บเวลาถอยหลัง เพื่อเอาไปแทรกตรงไหนก็ได้ที่ต้องการให้โชว์
     let timerHtml = `
         <div class="bg-pink-50 text-pink-600 font-bold px-6 py-2.5 rounded-full text-xl mb-6 border-2 border-pink-100 shadow-sm flex items-center justify-center gap-2 w-max mx-auto">
             <span>⏳</span> เวลาคงเหลือ: <span>${timerText}</span>
@@ -132,13 +132,10 @@ function updateUI(state) {
     if (state.status === 'cash_payment') {
         rightPanel.innerHTML = `
             <div class="text-center fade-in w-full flex flex-col justify-center items-center">
-                <!-- 🟢 ส่วนเงินทอน -->
                 <div class="w-10/12 border-b-4 border-dashed border-gray-100 pb-8 mb-8">
                     <div class="text-3xl font-bold text-pink-600/70 mb-4">เงินทอน</div>
                     <div class="text-8xl font-black text-pink-500 drop-shadow-sm">฿${safe(state.changeAmount)}</div>
                 </div>
-                
-                <!-- 🔘 ส่วนรับเงินสด -->
                 <div>
                     <div class="text-xl font-bold text-gray-400 mb-2">รับเงินสดมา</div>
                     <div class="text-5xl font-black text-gray-600">฿${safe(state.cashReceived)}</div>
@@ -151,7 +148,6 @@ function updateUI(state) {
                 <h3 class="text-3xl font-bold text-pink-700 mb-2">📱 สแกน QR Code เพื่อชำระเงิน</h3>
                 <p class="text-lg text-gray-400 mb-6 font-medium">กรุณาสแกนจ่ายเงินภายในเวลาที่กำหนด</p>
                 
-                <!-- แทรกเวลาถอยหลัง -->
                 ${timerHtml}
                 
                 <div class="bg-white p-4 rounded-3xl border-4 border-pink-100 mb-8 shadow-inner inline-block">
@@ -178,36 +174,52 @@ function updateUI(state) {
                 </div>
             </div>`;
     }
+    else if (state.status === 'delivery_payment') {
+        rightPanel.innerHTML = `
+            <div class="text-center fade-in w-full flex flex-col items-center justify-center mt-4">
+                <div class="w-32 h-32 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 text-6xl mx-auto mb-6 shadow-inner">
+                    🛵
+                </div>
+                <h3 class="text-4xl font-black text-orange-600 mb-2">ระบบเดลิเวอรี่</h3>
+                <p class="text-xl text-gray-500 mb-8 font-bold">ทำรายการผ่านแอปพลิเคชัน / เก็บเงินปลายทาง</p>
+                
+                <div class="bg-orange-50 py-8 px-12 rounded-[2.5rem] border-4 border-orange-200 shadow-sm inline-block">
+                    <div class="text-xl text-orange-600 font-bold mb-2">ยอดเรียกเก็บ (สุทธิ)</div>
+                    <div class="text-7xl font-black text-orange-600">฿${safe(state.grandTotal)}</div>
+                </div>
+            </div>`;
+    }
+
     else if (state.status === 'split_mix') {
         let changeHtml = state.splitMixChange > 0 ? `
-            <div class="text-xl font-bold text-emerald-500 mb-2">
+            <div class="text-xl font-bold text-emerald-500 mt-2">
                 ทอนเงิน ฿${safe(state.splitMixChange)}
             </div>` : '';
 
         let cashHtml = state.splitMixCash > 0 ? `
-            <div class="bg-gray-100 text-gray-600 font-bold px-6 py-2 rounded-full text-lg mb-2 inline-block">
-                รับเงินสดมาแล้ว: ฿${safe(state.splitMixCash)}
+            <div class="bg-gray-100 text-gray-700 font-bold px-6 py-3 rounded-2xl text-xl mb-4 inline-block border border-gray-200 shadow-sm">
+                💵 รับเงินสดมาแล้ว: <span class="text-2xl">฿${safe(state.splitMixCash)}</span>
+                ${changeHtml}
             </div>
-            ${changeHtml}
         ` : '';
 
         rightPanel.innerHTML = `
-            <div class="text-center fade-in w-full flex flex-col items-center justify-center mt-4">
-                <!-- ส่วนเงินสด (โชว์ด้านบนสุด) -->
-                <h3 class="text-2xl font-bold text-gray-700 mb-3">💵 ยอดบิลรวม: ฿${safe(state.grandTotal)}</h3>
+            <div class="text-center fade-in w-full flex flex-col items-center justify-center mt-2 h-full">
+                <!-- 🌟 ปรับเงินสดไว้บนสุด ตามที่คุณแจ้ง -->
+                <h3 class="text-2xl font-bold text-gray-700 mb-3">ยอดบิลรวม: ฿${safe(state.grandTotal)}</h3>
                 ${cashHtml}
 
                 ${state.splitMixTransfer > 0 ? `
-                <!-- ส่วน QR Code เหมือนหน้าสแกนจ่ายปกติเป๊ะ -->
                 <div class="border-t border-dashed border-gray-300 w-full max-w-md my-4"></div>
+                
+                <!-- 🌟 QR Code สไตล์เดียวกับหน้าปกติ + มีเวลาถอยหลัง -->
                 <h3 class="text-3xl font-bold text-pink-700 mb-2 mt-2">📱 สแกน QR Code เพื่อชำระเงิน</h3>
                 <p class="text-lg text-gray-400 mb-4 font-medium">กรุณาสแกนจ่ายยอดส่วนต่างที่เหลือ</p>
                 
-                <!-- แทรกเวลาถอยหลัง -->
                 ${timerHtml}
                 
-                <div class="bg-white p-4 rounded-3xl border-4 border-pink-100 mb-6 shadow-inner inline-block">
-                    <img src="${state.promptPayUrl}" class="w-56 h-56 object-contain rounded-xl">
+                <div class="bg-white p-4 rounded-3xl border-4 border-pink-100 mb-4 shadow-inner inline-block">
+                    <img src="${state.promptPayUrl}" class="w-64 h-64 object-contain rounded-xl">
                 </div>
                 
                 <div class="text-xl text-gray-500 mb-1 font-bold">ยอดเงินโอนสุทธิ</div>
@@ -239,7 +251,7 @@ function updateUI(state) {
                     totalCash += p.cashReceived;
                     totalChange += p.change;
                     personsHtml += `
-                    <div class="bg-white p-3 rounded-2xl border border-emerald-100 shadow-sm flex flex-col gap-2 transition-all mb-2">
+                    <div class="bg-white p-3 rounded-2xl border border-emerald-100 shadow-sm flex flex-col gap-2 transition-all mb-2 border-l-4 border-emerald-400">
                         <div class="flex justify-between items-center border-b border-dashed border-gray-100 pb-2">
                             <div class="font-bold text-gray-800 flex items-center gap-2 text-base">
                                 <span class="bg-emerald-100 text-emerald-600 w-8 h-8 flex items-center justify-center rounded-full text-sm">👤</span>
@@ -261,17 +273,17 @@ function updateUI(state) {
             <h2 class="text-3xl font-black text-pink-700 mb-4 text-center shrink-0">👥 หารบิล (จ่ายเท่ากัน)</h2>
             
             <div class="flex flex-row w-full gap-4 h-full min-h-0">
-                <!-- ฝั่งซ้าย: โชว์ QR Code สำหรับยอดโอน (ทำให้เหมือนหน้าสแกนปกติ) -->
+                <!-- ฝั่งซ้าย: โชว์ QR Code สำหรับยอดโอน (มีเวลาถอยหลัง) -->
                 <div class="w-1/2 flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm p-4 shrink-0 border border-gray-100">
                     <h3 class="text-2xl font-bold text-pink-700 mb-2">📱 สแกน QR Code</h3>
                     <p class="text-sm text-gray-400 mb-4 font-medium">สำหรับคนโอนจ่าย (ต่อคน)</p>
                     
                     ${state.promptPayUrl ? `
-                    <!-- แทรกเวลาถอยหลัง -->
+                    <!-- 🌟 แทรกเวลาถอยหลัง 🌟 -->
                     ${timerHtml}
                     
                     <div class="bg-white p-3 rounded-3xl border-4 border-pink-100 shadow-inner mb-4 inline-block">
-                        <img src="${state.promptPayUrl}" class="w-48 h-48 object-contain rounded-xl">
+                        <img src="${state.promptPayUrl}" class="w-56 h-56 object-contain rounded-xl">
                     </div>
                     ` : '<div class="text-gray-400 font-bold mb-4">ไม่ได้ตั้งค่าพร้อมเพย์</div>'}
                     
@@ -281,7 +293,7 @@ function updateUI(state) {
 
                 <!-- ฝั่งขวา: รายชื่อคนจ่ายเงินสด/โอน -->
                 <div class="w-1/2 flex flex-col gap-2 overflow-y-auto pr-2 pb-4">
-                    <div class="bg-gray-100 rounded-2xl p-3 mb-2 shrink-0 text-center flex justify-around">
+                    <div class="bg-gray-100 rounded-2xl p-3 mb-2 shrink-0 text-center flex justify-around shadow-inner">
                         <div>
                             <div class="text-[10px] text-gray-500 font-bold uppercase">จำนวนคน</div>
                             <div class="text-xl font-black text-gray-800">${state.splitPeopleCount || 0}</div>
@@ -297,7 +309,7 @@ function updateUI(state) {
 
                     <!-- สรุปเงินสด/เงินทอนรวม -->
                     ${totalCash > 0 ? `
-                    <div class="mt-2 bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-3 shrink-0">
+                    <div class="mt-2 bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-3 shrink-0 shadow-sm">
                         <div class="flex justify-between text-xs text-emerald-700 font-bold mb-1">
                             <span>รับเงินสดรวม:</span> <span>฿${safe(totalCash)}</span>
                         </div>
@@ -333,7 +345,6 @@ function updateUI(state) {
             </div>`;
     }
 }
-
     </script>
 </body>
 </html>
