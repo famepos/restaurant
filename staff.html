@@ -39,48 +39,48 @@
     </div>
   </div>
 
-  <!-- 🌟 Modal เปิดโต๊ะ (ฉบับใหม่ที่ขอ) -->
-  <div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-      <div class="bg-white rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl relative flex flex-col max-h-[90vh] overflow-y-auto">
-          <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
-          
-          <div class="text-center mb-4">
-              <h2 class="text-2xl font-black text-pink-700">🪑 เปิดโต๊ะ: <span id="openTableNameDisplay">-</span></h2>
-          </div>
+<!-- Modal เปิดโต๊ะ (ฉบับสมบูรณ์: บุฟเฟต์ / สั่งแยก) -->
+<div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2.5rem] w-full max-w-sm p-8 shadow-2xl relative">
+        <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+        
+        <div class="text-center mb-6">
+            <h2 class="text-xl font-black text-pink-700">🪑 เปิดโต๊ะ: <span id="openTableNameDisplay">-</span></h2>
+            <p class="text-[10px] text-gray-400 font-bold mt-1 uppercase">ระบุโหมด จำนวนลูกค้า</p>
+        </div>
 
-          <div class="space-y-4">
-              <!-- เลือกโหมด -->
-              <div class="grid grid-cols-2 gap-2">
-                  <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm">🥩 ระบบบุฟเฟต์</button>
-                  <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm">🍽️ สั่งแยก</button>
-              </div>
-              <input type="hidden" id="selectedTableMode" value="Buffet">
+        <div class="space-y-4">
+            <!-- ปุ่มเลือกโหมด -->
+            <div class="flex p-1 bg-gray-100 rounded-2xl">
+                <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm transition">🥩 ระบบบุฟเฟต์</button>
+                <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs transition">🍽️ สั่งแยก</button>
+            </div>
+            <input type="hidden" id="selectedTableMode" value="Buffet">
 
-              <!-- แพ็กเกจ -->
-              <div id="buffetPackageContainer" class="relative">
-                  <button type="button" onclick="toggleBuffetDropdown()" class="w-full p-3.5 border-2 border-pink-100 rounded-xl bg-white text-left flex justify-between items-center shadow-sm">
-                      <span id="buffetPackageSelectedText" class="text-pink-700 font-bold text-sm">🥩 กำลังโหลดแพ็กเกจ...</span>
-                      <span>▼</span>
-                  </button>
-                  <div id="buffetPackageMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-pink-100 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto"></div>
-              </div>
+            <!-- แพ็กเกจ (จะแสดงเฉพาะโหมดบุฟเฟต์) -->
+            <div id="buffetPackageContainer">
+                <label class="block text-xs font-bold text-gray-400 mb-1">เลือกแพ็กเกจบุฟเฟต์</label>
+                <select id="selectBuffetPackage" class="w-full p-3.5 border-2 border-pink-100 rounded-xl font-bold text-pink-700 text-sm focus:border-pink-300 focus:outline-none bg-white"></select>
+            </div>
 
-              <!-- จำนวนลูกค้า -->
-              <div class="grid grid-cols-1 gap-2">
-                  <div class="flex items-center justify-between border rounded-xl p-2">
-                      <span class="font-bold text-sm">👨 ผู้ใหญ่</span>
-                      <div class="flex items-center gap-2"><button type="button" onclick="adjustHeadCount('adult', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><input type="number" id="inputAdultCount" value="1" class="w-10 text-center font-bold outline-none"><button type="button" onclick="adjustHeadCount('adult', 1)" class="w-8 h-8 bg-gray-100 rounded-lg">+</button></div>
-                  </div>
-                  <div class="flex items-center justify-between border rounded-xl p-2">
-                      <span class="font-bold text-sm">👦 เด็ก</span>
-                      <div class="flex items-center gap-2"><button type="button" onclick="adjustHeadCount('kid', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><input type="number" id="inputKidCount" value="0" class="w-10 text-center font-bold outline-none"><button type="button" onclick="adjustHeadCount('kid', 1)" class="w-8 h-8 bg-gray-100 rounded-lg">+</button></div>
-                  </div>
-              </div>
-          </div>
+            <!-- จำนวนลูกค้า -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between bg-gray-50 p-2 rounded-2xl border border-gray-100">
+                    <span class="text-xs font-bold text-gray-700 pl-2">👨 ผู้ใหญ่</span>
+                    <div class="flex items-center bg-white rounded-lg shadow-sm">
+                        <button type="button" onclick="adjustHeadCount('adult', -1)" class="w-8 h-8 font-bold text-gray-500">-</button>
+                        <input type="number" id="inputAdultCount" value="1" class="w-10 text-center font-bold text-pink-600 outline-none">
+                        <button type="button" onclick="adjustHeadCount('adult', 1)" class="w-8 h-8 font-bold text-gray-500">+</button>
+                    </div>
+                </div>
+            </div>
 
-          <button onclick="confirmOpenTable()" class="w-full mt-6 py-4 bg-pink-600 text-white rounded-2xl font-bold text-lg shadow-md active:scale-95 transform">🚀 ยืนยันเปิดโต๊ะ</button>
-      </div>
-  </div>
+            <button onclick="confirmOpenTable()" class="w-full mt-4 py-4 bg-[#e91e63] text-white rounded-2xl font-black text-lg shadow-lg active:scale-95 transform transition">
+                🚀 ยืนยันเปิดโต๊ะ
+            </button>
+        </div>
+    </div>
+</div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
@@ -144,17 +144,28 @@
         document.getElementById('buffetPackageMenu').classList.add('hidden');
     }
 
-    function setTableMode(mode) {
-        document.getElementById('selectedTableMode').value = mode;
-        document.getElementById('btnModeBuffet').className = mode === 'Buffet' ? "py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm" : "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm";
-        document.getElementById('btnModeAlacarte').className = mode === 'A_la_carte' ? "py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm" : "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm";
-    }
+function setTableMode(mode) {
+    document.getElementById('selectedTableMode').value = mode;
+    let buffetBtn = document.getElementById('btnModeBuffet');
+    let alaBtn = document.getElementById('btnModeAlacarte');
+    let pkgContainer = document.getElementById('buffetPackageContainer');
 
-    function adjustHeadCount(type, val) {
-        let el = document.getElementById(type === 'adult' ? 'inputAdultCount' : 'inputKidCount');
-        let n = parseInt(el.value) + val;
-        if(n >= 0) el.value = n;
+    if (mode === 'Buffet') {
+        buffetBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm transition";
+        alaBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs transition";
+        pkgContainer.classList.remove('hidden');
+    } else {
+        buffetBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs transition";
+        alaBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm transition";
+        pkgContainer.classList.add('hidden');
     }
+}
+
+function adjustHeadCount(type, val) {
+    let el = document.getElementById('inputAdultCount');
+    let n = parseInt(el.value) + val;
+    if(n >= 0) el.value = n;
+}
 
     function confirmOpenTable() {
         let name = document.getElementById('openTableNameDisplay').innerText;
