@@ -470,7 +470,7 @@ function enterOrderView(name) {
     }
 }
 
-// ฟังก์ชันวาดการ์ดสินค้า (เปลี่ยนราคาเป็น 0 หากอยู่ในบุฟเฟต์)
+// ฟังก์ชันวาดการ์ดสินค้า (อัปเดต: ถ้าสินค้าหมดจะขึ้นว่า "สินค้าหมด")
 function renderProductGrid() {
     let grid = document.getElementById('productGrid');
     grid.innerHTML = '';
@@ -483,28 +483,39 @@ function renderProductGrid() {
         let activePrice = parseFloat(row[3]) || 0;
         let imageUrl = row[8] || "https://via.placeholder.com/150"; 
         
-        // 🟢 กฎของบุฟเฟต์: ถ้าหมวดหมู่นี้อยู่ในแพ็กเกจ ราคา = 0[cite: 5]
+        // 🟢 ดึงสต็อกจากคอลัมน์ G (index 6)
+        let stock = parseInt(row[6]) || 0;
+        let isOutOfStock = stock <= 0;
+
+        // 🟢 กฎของบุฟเฟต์ (ราคา = 0)
         if (isBuffetMode) {
             if (buffetIncludedCategories.includes("ALL") || buffetIncludedCategories.includes(cat)) {
                 activePrice = 0; 
             }
         }
         
-        let card = document.createElement('div');
-        card.className = "modern-card p-3 shadow-sm border border-gray-100 flex flex-col bg-white";
+        // ออกแบบการ์ด: ถ้าหมดจะใช้สีเทาจางๆ (bg-gray-50)
+        let cardClass = isOutOfStock 
+            ? "modern-card p-3 shadow-sm border border-gray-100 flex flex-col bg-gray-50 opacity-80" 
+            : "modern-card p-3 shadow-sm border border-gray-100 flex flex-col bg-white";
         
-        // ถ้าเป็นของในแพ็กเกจ (0 บาท) ให้โชว์คำว่า ฟรี สีเขียว!
+        let card = document.createElement('div');
+        card.className = cardClass;
+        
+        // กำหนดปุ่มและสถานะสินค้าหมด
         let priceHtml = (activePrice === 0 && isBuffetMode) 
             ? `<p class="text-green-500 font-bold mt-auto text-lg">ฟรี (ในแพ็กเกจ)</p>` 
             : `<p class="text-pink-600 font-bold mt-auto">฿${activePrice.toFixed(2)}</p>`;
             
-        let btnColor = (activePrice === 0 && isBuffetMode) ? "bg-green-500" : "bg-pink-500";
-            
+        let actionHtml = isOutOfStock 
+            ? `<button disabled class="mt-2 w-full bg-gray-300 text-gray-500 font-bold py-2 rounded-xl text-sm cursor-not-allowed">สินค้าหมด</button>`
+            : `<button onclick="addToCart('${name}', ${activePrice})" class="mt-2 w-full bg-pink-500 text-white font-bold py-2 rounded-xl text-sm active:scale-95 transition">เพิ่มลงตะกร้า</button>`;
+
         card.innerHTML = `
             <img src="${imageUrl}" class="w-full h-24 object-cover rounded-xl mb-2" onerror="this.src='https://via.placeholder.com/150'">
             <h3 class="font-bold text-sm text-gray-800 line-clamp-1">${name}</h3>
             ${priceHtml}
-            <button onclick="addToCart('${name}', ${activePrice})" class="mt-2 w-full ${btnColor} text-white font-bold py-2 rounded-xl text-sm active:scale-95 transition">เพิ่มลงตะกร้า</button>
+            ${actionHtml}
         `;
         grid.appendChild(card);
     });
@@ -516,17 +527,29 @@ function renderProductGrid() {
 
 // อัปเดตฟังก์ชัน addToCart เดิม ให้เรียกอัปเดตตัวเลขหน้าปุ่มด้วย
 function addToCart(name, price) {
+    // 1. หาข้อมูลสินค้าจาก allSalesProducts
+    let productRow = allSalesProducts.find(p => p[1] === name);
+    // 🟢 เปลี่ยนจาก [4] เป็น [6] เพราะ Remaining อยู่คอลัมน์ G
+    let stock = parseInt(productRow[6]) || 0; 
+
+    // 2. เช็คว่าในตะกร้ามีอยู่กี่ชิ้นแล้ว
     let existing = cart.find(item => item.name === name);
+    let currentQtyInCart = existing ? existing.qty : 0;
+
+    // 3. เช็คเงื่อนไขก่อนเพิ่ม
+    if (currentQtyInCart >= stock) {
+        showToast("สินค้าหมดหรือเกินจำนวนสต็อกที่มีครับ", "error");
+        return;
+    }
+
     if(existing) {
         existing.qty++;
     } else {
         cart.push({ name: name, price: price, qty: 1 });
     }
     
-    // อัปเดตตัวเลขบนปุ่ม
     updateCartBadge();
-
-    // เอฟเฟกต์ปุ่ม
+    
     let btn = document.querySelector(`button[onclick="addToCart('${name}', ${price})"]`);
     if(btn) {
         let oldText = btn.innerText;
@@ -991,14 +1014,28 @@ function renderCartItems() {
     document.getElementById('cartTotalDisplay').innerText = "฿" + total.toFixed(2);
 }
 
-// ฟังก์ชันปรับเพิ่ม/ลดจำนวนในตะกร้า
 function adjustCartQty(index, amount) {
-    cart[index].qty += amount;
-    if (cart[index].qty <= 0) {
-        cart.splice(index, 1); // ถ้าลดเหลือ 0 ให้ลบทิ้ง
+    let item = cart[index];
+    
+    // หาข้อมูลสต็อก
+    let productRow = allSalesProducts.find(p => p[1] === item.name);
+    // 🟢 เปลี่ยนจาก [4] เป็น [6] ให้ตรงกับคอลัมน์ Remaining
+    let stock = parseInt(productRow[6]) || 0; 
+
+    // ถ้ากดเพิ่ม (+) แล้วจำนวนในตะกร้าจะเกินสต็อก ให้บล็อกไว้
+    if (amount > 0 && (item.qty + amount) > stock) {
+        showToast("ไม่สามารถเพิ่มได้ สินค้าในสต็อกไม่พอครับ", "error");
+        return;
     }
+
+    item.qty += amount;
+    
+    if (item.qty <= 0) {
+        cart.splice(index, 1);
+    }
+    
     updateCartBadge();
-    renderCartItems(); // วาดตะกร้าใหม่
+    renderCartItems();
 }
 // ฟังก์ชันสำหรับพิมพ์ใบเปิดโต๊ะ
 function printTableSlip() {
