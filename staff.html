@@ -39,120 +39,90 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+// --- ส่วนเชื่อมต่อ (Proxy) ที่ปรับปรุงให้เสถียร ---
+const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+
+window.google = {
+    script: {
+        run: new Proxy({}, {
+            get: function(target, prop) {
+                let successCb = null;
+                // ถ้าเรียก withSuccessHandler ให้เก็บ callback ไว้
+                if (prop === 'withSuccessHandler') return (cb) => { successCb = cb; return target; };
+                
+                // ถ้าเรียกชื่อฟังก์ชัน ให้ส่ง request ไปที่ Apps Script
+                return (...args) => {
+                    fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: prop, args: args })
+                    })
+                    .then(res => res.json())
+                    .then(data => { if(successCb && data.status === "Success") successCb(data.result); });
+                };
+            }
+        })
+    }
+};
+
+// --- โค้ด Staff App ---
+let cart = [];
+let allProducts = [];
+
+// ดึงข้อมูลเมื่อโหลดหน้าเว็บ
+google.script.run.withSuccessHandler(data => {
+    allProducts = data;
+    renderProducts(allProducts);
+}).getProducts();
+
+function renderProducts(data) {
+    let list = document.getElementById('product-list');
+    list.innerHTML = '';
+    // ตามภาพ: Name=item[1], Category=item[2], Price=item[3], Remaining=item[7], Image=item[8]
+    data.forEach(item => {
+        if(item[1]) {
+            let name = item[1], price = item[3], cat = item[2], stock = item[7] || 0, img = item[8] || "";
+            let isOut = stock <= 0;
+            list.innerHTML += `
+                <div class="bg-white p-3 rounded-2xl shadow border ${isOut ? 'opacity-50' : ''} cursor-pointer" 
+                     onclick="${isOut ? '' : `addToCart('${name}', ${price})`}">
+                    <img src="${img}" class="w-full h-20 object-cover rounded-lg mb-2" onerror="this.src='https://via.placeholder.com/150'">
+                    <div class="font-bold text-sm text-gray-800 truncate">${name}</div>
+                    <div class="text-pink-600 font-bold text-xs">฿${price} ${isOut ? '(หมด)' : ''}</div>
+                </div>`;
+        }
+    });
+}
+
+function addToCart(name, price) {
+    cart.push({name: name, qty: 1, price: price, total: price});
+    renderCart();
+}
+
+function renderCart() {
+    let total = cart.reduce((sum, item) => sum + item.total, 0);
+    document.getElementById('totalDisplay').innerText = "฿" + total.toFixed(2);
+}
+
+function selectTable(name) {
+    document.getElementById('tableNo').value = name;
+    document.getElementById('tableModal').classList.add('hidden');
+    document.getElementById('header-title').innerText = "โต๊ะ: " + name;
     
-    // Proxy ของ Google Script
-    const google = { script: { get run() { 
-      let successCb = null;
-      const proxy = new Proxy({}, {
-        get: function(target, prop) {
-          if (prop === 'withSuccessHandler') return function(cb) { successCb = cb; return proxy; };
-          return function(...args) {
-            fetch(API_URL, { method: "POST", body: JSON.stringify({ action: prop, args: args }) })
-            .then(res => res.json()).then(data => { if(successCb) successCb(data.result); });
-          };
-        }
-      });
-      return proxy;
-    }}};
+    // ดึงบิลเดิมของโต๊ะ
+    google.script.run.withSuccessHandler(function(res) {
+        cart = (typeof res.items === 'string') ? JSON.parse(res.items) : (res.items || []);
+        renderCart();
+    }).getTableTotalGS(name);
+}
 
-    let allProducts = [];
-    let cart = [];
-    let allowedCategories = [];
-
-    // 1. โหลดข้อมูลเริ่มต้น
-    google.script.run.withSuccessHandler(data => { allProducts = data; renderCategories(); renderProducts('ทั้งหมด'); }).getProducts();
-
-    function renderCategories() {
-      let cats = ['ทั้งหมด', ...new Set(allProducts.map(i => i[2]).filter(c => c))];
-      let tabContainer = document.getElementById('category-tabs');
-      tabContainer.innerHTML = '';
-      cats.forEach(cat => {
-        tabContainer.innerHTML += `<button onclick="filterProducts('${cat}')" class="bg-white border border-pink-200 text-pink-700 px-4 py-2 rounded-full font-bold whitespace-nowrap">${cat}</button>`;
-      });
-    }
-
-    function filterProducts(cat) { renderProducts(cat); }
-
-    function renderProducts(cat) {
-      let list = document.getElementById('product-list');
-      list.innerHTML = '';
-      allProducts.forEach(item => {
-        let name = item[1], price = item[3], category = item[2], stock = item[7] || 999;
-        let isAllowed = allowedCategories.length === 0 || allowedCategories.includes(category);
-        let isOut = stock <= 0;
-
-        if(isAllowed) {
-          list.innerHTML += `
-            <div class="bg-white p-3 rounded-2xl shadow border ${isOut ? 'opacity-50' : 'cursor-pointer'}" 
-                 onclick="${isOut ? '' : `addToCart('${name}', ${price})`}">
-              <img src="${item[8]}" class="w-full h-20 object-cover rounded-lg mb-2">
-              <div class="font-bold text-sm truncate">${name}</div>
-              <div class="text-pink-600 font-bold text-xs">฿${price} ${isOut ? '(หมด)' : ''}</div>
-            </div>`;
-        }
-      });
-    }
-
-    function addToCart(name, price) {
-      cart.push({name: name, qty: 1, price: price, total: price});
-      updateUI();
-    }
-
-    function updateUI() {
-      let total = cart.reduce((sum, item) => sum + item.total, 0);
-      document.getElementById('totalDisplay').innerText = "฿" + total.toFixed(2);
-    }
-
-    // ระบบเลือกโต๊ะ
-    function openTableModal() {
-      document.getElementById('tableModal').classList.remove('hidden');
-      google.script.run.withSuccessHandler(renderTableGrid).getTablesData();
-    }
-
-    function renderTableGrid(tables) {
-      let grid = document.getElementById('tableGrid');
-      grid.innerHTML = '';
-      tables.forEach(table => {
-        let isAvailable = (table.status === "ว่าง" || table.status === "🟢 ว่าง");
-        grid.innerHTML += `
-            <button onclick="selectTable('${table.name}')" class="p-4 ${isAvailable ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'} rounded-xl font-bold border border-gray-200">
-                ${table.name}
-            </button>`;
-      });
-    }
-
-    function selectTable(name) {
-      document.getElementById('tableNo').value = name;
-      document.getElementById('tableModal').classList.add('hidden');
-      document.getElementById('header-title').innerText = "โต๊ะ: " + name;
-
-      // ดึงข้อมูลบุฟเฟต์และยอดรวม
-      google.script.run.withSuccessHandler(function(tables) {
-          let table = tables.find(t => t.name === name);
-          if (table && table.packageName) {
-              google.script.run.withSuccessHandler(cats => {
-                  allowedCategories = cats;
-                  renderProducts('ทั้งหมด');
-              }).getBuffetCategoriesByPackageGS(table.packageName);
-          }
-      }).getTablesData();
-
-      google.script.run.withSuccessHandler(res => {
-          cart = (typeof res.items === 'string') ? JSON.parse(res.items) : (res.items || []);
-          updateUI();
-      }).getTableTotalGS(name);
-    }
-
-    function sendOrder() {
-        let table = document.getElementById('tableNo').value;
-        if(!table) return alert("เลือกโต๊ะก่อน!");
-        
-        google.script.run.withSuccessHandler(() => {
-            alert("ส่งเข้าครัวแล้ว!");
-            cart = []; updateUI();
-        }).createKitchenOrderGS({ orderId: "STAFF-"+Date.now(), tableNo: table, orderType: "ทานที่ร้าน", items: cart });
-    }
-  </script>
+function sendOrder() {
+    let table = document.getElementById('tableNo').value;
+    if(!table) return alert("กรุณาเลือกโต๊ะก่อน!");
+    google.script.run.withSuccessHandler(() => {
+        alert("ส่งเข้าครัวแล้ว!");
+        cart = []; renderCart();
+    }).createKitchenOrderGS({ orderId: "STAFF-"+Date.now(), tableNo: table, orderType: "ทานที่ร้าน", items: cart });
+}
+</script>
 </body>
 </html>
