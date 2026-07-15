@@ -1,766 +1,192 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>FamePOS Staff</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-<style>
-
-body{
-    font-family:'Kanit',sans-serif;
-    background:#fdecec;
-    overflow:hidden;
-}
-
-::-webkit-scrollbar{
-    display:none;
-}
-
-.card{
-    background:#fff;
-    border-radius:24px;
-    box-shadow:0 6px 20px rgba(0,0,0,.08);
-}
-
-.table-card{
-    transition:.18s;
-    cursor:pointer;
-}
-
-.table-card:hover{
-    transform:translateY(-4px);
-}
-
-.status-free{
-    background:#dcfce7;
-    color:#15803d;
-}
-
-.status-open{
-    background:#fee2e2;
-    color:#b91c1c;
-}
-
-.status-clean{
-    background:#fef3c7;
-    color:#92400e;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FamePOS Staff</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background: #fdecec; overflow: hidden; }
+        ::-webkit-scrollbar { display: none; }
+        .card { background: #fff; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+        .table-card { transition: .18s; cursor: pointer; }
+        .table-card:hover { transform: translateY(-4px); }
+    </style>
 </head>
-
 <body>
 
 <div class="flex flex-col h-screen">
-
-<!-- Header -->
-
-<div class="bg-white shadow-sm px-5 py-4 flex justify-between items-center">
-
-<div>
-
-<h1 class="text-2xl font-bold text-pink-700">
-
-👩🏻‍🍳 Staff Order
-
-</h1>
-
-<div class="text-sm text-gray-500">
-
-ระบบรับออเดอร์พนักงาน
-
-</div>
-
-</div>
-
-<div class="flex items-center gap-3">
-
-<div class="text-right">
-
-<div class="font-bold text-pink-700" id="staffName">
-
-กำลังโหลด...
-
-</div>
-
-<div class="text-xs text-gray-400">
-
-ONLINE
-
-</div>
-
-</div>
-
-<button onclick="loadTables()"
-class="bg-pink-500 hover:bg-pink-600 text-white rounded-xl px-4 py-2 font-bold">
-
-🔄 รีเฟรช
-
-</button>
-
-</div>
-
-</div>
-
-<!-- Summary -->
-
-<div class="px-4 py-3">
-
-<div class="card p-4 flex justify-between">
-
-<div>
-
-<div class="text-sm text-gray-500">
-
-โต๊ะทั้งหมด
-
-</div>
-
-<div id="totalTables"
-class="text-3xl font-bold text-pink-600">
-
-0
-
-</div>
-
-</div>
-
-<div>
-
-<div class="text-sm text-gray-500">
-
-กำลังใช้งาน
-
-</div>
-
-<div id="openTables"
-class="text-3xl font-bold text-red-500">
-
-0
-
-</div>
-
-</div>
-
-<div>
-
-<div class="text-sm text-gray-500">
-
-ว่าง
-
-</div>
-
-<div id="freeTables"
-class="text-3xl font-bold text-green-600">
-
-0
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- Grid -->
-
-<div
-id="tableGrid"
-class="flex-1 overflow-auto p-4 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
-
-<!-- โหลดจาก JS -->
-<!-- ========================= -->
-<!-- Product View -->
-<!-- ========================= -->
-
-<div id="productView" class="hidden flex flex-col h-full">
-
     <!-- Header -->
-
-    <div class="bg-white shadow-sm px-4 py-3 flex items-center gap-3">
-
-        <button onclick="backToTables()"
-        class="bg-pink-100 hover:bg-pink-200 px-4 py-2 rounded-xl font-bold">
-
-            ←
-
-        </button>
-
-        <div class="flex-1">
-
-            <div class="text-sm text-gray-400">
-
-                โต๊ะที่กำลังเลือก
-
-            </div>
-
-            <div id="lblCurrentTable"
-
-            class="font-bold text-pink-700 text-xl">
-
-                -
-
-            </div>
-
+    <div class="bg-white shadow-sm px-5 py-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-pink-700">👩🏻‍🍳 Staff Order</h1>
+            <div class="text-sm text-gray-500">ระบบรับออเดอร์พนักงาน</div>
         </div>
-
-        <button
-onclick="openCart()"
-class="bg-green-500 text-white px-4 py-2 rounded-xl font-bold">
-
-🛒
-
-<span id="cartCount">
-
-0
-
-</span>
-
-</button>
-
-    <!-- Search -->
-
-    <div class="p-3 bg-white">
-
-        <input
-
-        id="txtSearch"
-
-        onkeyup="filterProducts()"
-
-        placeholder="ค้นหาสินค้า..."
-
-        class="w-full rounded-xl border p-3">
-
+        <button onclick="loadTables()" class="bg-pink-500 text-white rounded-xl px-4 py-2 font-bold">🔄 รีเฟรช</button>
     </div>
 
-    <!-- Category -->
-
-    <div
-
-    id="categoryBar"
-
-    class="flex overflow-auto gap-2 px-3 pb-3 bg-white">
-
+    <!-- Summary -->
+    <div id="summaryArea" class="px-4 py-3">
+        <div class="card p-4 flex justify-between">
+            <div><div class="text-sm text-gray-500">โต๊ะทั้งหมด</div><div id="totalTables" class="text-3xl font-bold text-pink-600">0</div></div>
+            <div><div class="text-sm text-gray-500">กำลังใช้งาน</div><div id="openTables" class="text-3xl font-bold text-red-500">0</div></div>
+            <div><div class="text-sm text-gray-500">ว่าง</div><div id="freeTables" class="text-3xl font-bold text-green-600">0</div></div>
+        </div>
     </div>
 
-    <!-- Product Grid -->
+    <!-- Grid โต๊ะ -->
+    <div id="tableGrid" class="flex-1 overflow-auto p-4 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4"></div>
 
-    <div
-
-    id="productGrid"
-
-    class="flex-1 overflow-auto p-3 grid grid-cols-2 gap-3">
-
+    <!-- Product View (ถูกซ่อนไว้ตอนเริ่ม) -->
+    <div id="productView" class="hidden flex flex-col h-full bg-gray-50">
+        <div class="bg-white shadow-sm px-4 py-3 flex items-center gap-3">
+            <button onclick="backToTables()" class="bg-pink-100 px-4 py-2 rounded-xl font-bold">←</button>
+            <div class="flex-1">
+                <div class="text-sm text-gray-400">โต๊ะที่กำลังเลือก</div>
+                <div id="lblCurrentTable" class="font-bold text-pink-700 text-xl">-</div>
+            </div>
+            <button onclick="openCart()" class="bg-green-500 text-white px-4 py-2 rounded-xl font-bold">🛒 <span id="cartCount">0</span></button>
+        </div>
+        <div class="p-3 bg-white"><input id="txtSearch" onkeyup="renderProducts()" placeholder="ค้นหาสินค้า..." class="w-full rounded-xl border p-3"></div>
+        <div id="categoryBar" class="flex overflow-auto gap-2 px-3 pb-3 bg-white"></div>
+        <div id="productGrid" class="flex-1 overflow-auto p-3 grid grid-cols-2 gap-3"></div>
     </div>
-
 </div>
 
-</div>
-
-</div>
-<!-- ========================= -->
 <!-- Cart Drawer -->
-<!-- ========================= -->
-
-<div id="cartDrawer"
-class="hidden fixed inset-0 bg-black/40 z-50">
-
-    <div
-    class="absolute right-0 top-0 h-full w-full md:w-[420px]
-    bg-white shadow-2xl flex flex-col">
-
+<div id="cartDrawer" class="hidden fixed inset-0 bg-black/40 z-50">
+    <div class="absolute right-0 top-0 h-full w-full md:w-[420px] bg-white shadow-2xl flex flex-col">
         <div class="p-4 border-b flex justify-between items-center">
-
-            <div class="text-xl font-bold">
-
-                🛒 รายการอาหาร
-
-            </div>
-
-            <button
-            onclick="closeCart()"
-            class="text-3xl">
-
-                ×
-
-            </button>
-
+            <div class="text-xl font-bold">🛒 รายการอาหาร</div>
+            <button onclick="document.getElementById('cartDrawer').classList.add('hidden')" class="text-3xl">×</button>
         </div>
-
-        <div
-        id="cartItems"
-
-        class="flex-1 overflow-auto p-4 space-y-3">
-
-        </div>
-
+        <div id="cartItems" class="flex-1 overflow-auto p-4 space-y-3"></div>
         <div class="border-t p-4">
-
-            <div
-            class="flex justify-between text-xl font-bold">
-
-                <span>
-
-                    รวม
-
-                </span>
-
-                <span id="cartTotal">
-
-                    ฿0.00
-
-                </span>
-
-            </div>
-
-            <button
-
-            onclick="submitKitchenOrder()"
-
-            class="w-full mt-4 bg-pink-600
-            text-white rounded-xl p-4
-            font-bold">
-
-                📤 ส่งเข้าครัว
-
-            </button>
-
+            <div class="flex justify-between text-xl font-bold"><span>รวม</span><span id="cartTotal">฿0.00</span></div>
+            <button onclick="submitKitchenOrder()" class="w-full mt-4 bg-pink-600 text-white rounded-xl p-4 font-bold">📤 ส่งเข้าครัว</button>
         </div>
-
     </div>
-
 </div>
 
 <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+    
+    // ประกาศตัวแปร Global
+    let allProducts = [];
+    let cart = [];
+    let currentCategory = "ทั้งหมด";
+    let selectedTable = null;
 
-     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
-     // =====================================
-// FamePOS Staff Engine
-// =====================================
+    async function api(action, ...args) {
+        const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action, args }) });
+        const json = await res.json();
+        if (json.status !== "Success") throw json.message;
+        return json.result;
+    }
 
-const StaffEngine = {
-
-    table:null,
-
-    products:[],
-
-    cart:[],
-
-    category:"ทั้งหมด",
-
-    keyword:"",
-
-    user:null,
-
-    settings:null,
-
-    orderType:"DineIn"
-
-};
-// --- เพิ่มบรรทัดเหล่านี้ที่ด้านบนของส่วน <script> (ก่อนฟังก์ชันต่างๆ) ---
-const productView = document.getElementById('productView');
-const lblCurrentTable = document.getElementById('lblCurrentTable');
-const productGrid = document.getElementById('productGrid');
-const categoryBar = document.getElementById('categoryBar');
-const cartDrawer = document.getElementById('cartDrawer');
-const cartItems = document.getElementById('cartItems');
-const cartCount = document.getElementById('cartCount');
-const cartTotal = document.getElementById('cartTotal');
-const tableGrid = document.getElementById('tableGrid');
-const txtSearch = document.getElementById('txtSearch');
-let cart=[];
-let tables = [];
-StaffEngine.table
-let products = [];
-
-async function loadTables(){
-
-    tables=await api("getTablesData");
-
-    renderTables();
-
-}
-
-function selectTable(no){
-
-StaffEngine.table=no;
-
-Swal.fire({
-
-title:"โต๊ะ "+no,
-
-text:"กำลังเข้าสู่เมนูอาหาร",
-
-icon:"success",
-
-timer:700,
-
-showConfirmButton:false
-
-}).then(()=>{
-
-openProductPage();
-
-});
-
-}
-
-loadTables();
-
-function renderTables() 
-{ tableGrid.innerHTML = "";
-
-    let open = 0;
-    let free = 0;
-
-    tables.forEach(t => {
-        let isOpen = t.status != "ว่าง";
-
-        if (isOpen) {
-            open++;
-        } else {
-            free++;
-        }
-
-        tableGrid.innerHTML += `
-            <div class="card table-card p-4" onclick="selectTable('${t.name}')">
-                <div class="text-center">
-                    <div class="text-5xl">🪑</div>
+    async function loadTables() {
+        let tables = await api("getTablesData");
+        let grid = document.getElementById('tableGrid');
+        grid.innerHTML = "";
+        let open = 0, free = 0;
+        tables.forEach(t => {
+            if (t.status !== "ว่าง") open++; else free++;
+            grid.innerHTML += `
+                <div class="card table-card p-4" onclick="selectTable('${t.name}')">
+                    <div class="text-center"><div class="text-5xl">🪑</div>
                     <div class="font-bold text-xl mt-2">${t.name}</div>
-                    <div class="text-sm text-gray-500">${t.zone} </div>
-                    </div>
-                     </div>
-        `;
-    });
-
-    totalTables.innerHTML = tables.length;
-    openTables.innerHTML = open;
-    freeTables.innerHTML = free;
-}
-
-// แก้ไขฟังก์ชัน openProductPage ให้เหลืออันเดียวและถูกต้อง
-function openProductPage(){
-    // ซ่อน Grid โต๊ะอาหาร (ถ้าคุณโครงสร้างเปลี่ยน ให้เช็คให้แน่ใจว่าปิดส่วนที่แสดงโต๊ะได้ถูกต้อง)
-    const tableContainer = document.getElementById('tableGrid').parentElement; 
-    tableContainer.style.display = "none";
-
-    // แสดงหน้าสินค้า
-    productView.classList.remove("hidden");
-    
-    // ตั้งค่าโต๊ะปัจจุบัน
-    lblCurrentTable.innerHTML = StaffEngine.table;
-    
-    // โหลดสินค้า
-    loadProducts();
-}
-function backToTables(){
-
-productView.classList.add("hidden");
-
-document.querySelector(".flex.flex-col.h-screen").children[2].style.display="grid";
-
-}
-async function loadProducts(){
-
-    StaffEngine.products=await api("getProducts");
-
-    renderCategories();
-
-    renderProducts();
-
-}
-function renderCategories(){
-
-let cats=["ทั้งหมด"];
-
-allProducts.forEach(p=>{
-
-if(!cats.includes(p.category))
-cats.push(p.category);
-
-});
-
-categoryBar.innerHTML="";
-
-cats.forEach(c=>{
-
-categoryBar.innerHTML+=`
-
-<button
-
-onclick="changeCategory('${c}')"
-
-class="px-4 py-2 rounded-full bg-pink-100 font-bold whitespace-nowrap">
-
-${c}
-
-</button>
-
-`;
-
-});
-
-}
-function changeCategory(c){
-
-currentCategory=c;
-
-renderProducts();
-
-}
-function renderProducts(){
-
-let keyword=txtSearch.value.toLowerCase();
-
-productGrid.innerHTML="";
-
-allProducts
-
-.filter(p=>{
-
-if(currentCategory!="ทั้งหมด"){
-
-if(p.category!=currentCategory)
-
-return false;
-
-}
-
-if(keyword!=""){
-
-return p.name.toLowerCase().includes(keyword);
-
-}
-
-return true;
-
-})
-
-.forEach(p=>{
-
-productGrid.innerHTML+=`
-
-<div
-
-onclick="addProduct('${p.id}')"
-
-class="bg-white rounded-2xl shadow p-3">
-
-<img
-
-src="${p.image}"
-
-class="w-full h-28 object-cover rounded-xl">
-
-<div class="font-bold mt-2">
-
-${p.name}
-
-</div>
-
-<div class="text-pink-600 font-bold">
-
-฿${Number(p.price).toFixed(2)}
-
-</div>
-
-</div>
-
-`;
-
-});
-
-}
-function openCart(){
-
-cartDrawer.classList.remove("hidden");
-
-renderCart();
-
-}
-
-function closeCart(){
-
-cartDrawer.classList.add("hidden");
-
-}
-function addProduct(id){
-
-let p=allProducts.find(x=>x.id==id);
-
-if(!p)return;
-
-let item=cart.find(x=>x.id==id);
-
-if(item){
-
-item.qty++;
-
-}else{
-
-StaffEngine.cart.push({
-
-id:p.id,
-
-name:p.name,
-
-price:Number(p.price),
-
-qty:1
-
-});
-
-}
-
-renderCart();
-
-}
-function renderCart(){
-
-cartItems.innerHTML="";
-
-let total=0;
-
-let qty=0;
-
-cart.forEach((i,index)=>{
-
-total+=i.price*i.qty;
-
-qty+=i.qty;
-
-cartItems.innerHTML+=`
-
-<div class="border rounded-xl p-3">
-
-<div class="font-bold">
-
-${i.name}
-
-</div>
-
-<div class="flex justify-between mt-2">
-
-<div>
-
-${i.qty} × ${i.price}
-
-</div>
-
-<div>
-
-${(i.qty*i.price).toFixed(2)}
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-cartCount.innerHTML=qty;
-
-cartTotal.innerHTML="฿"+total.toFixed(2);
-
-}
-// เพิ่มฟังก์ชันคำนวณยอดรวม (ถ้ายังไม่มี)
-function calculateTotal() {
-    return StaffEngine.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-}
-
-async function submitKitchenOrder() {
-    if (StaffEngine.cart.length === 0) {
-        Swal.fire("แจ้งเตือน", "ตะกร้าว่างเปล่าครับ", "warning");
-        return;
+                    <div class="text-sm text-gray-500">${t.zone}</div></div>
+                </div>`;
+        });
+        document.getElementById('totalTables').innerText = tables.length;
+        document.getElementById('openTables').innerText = open;
+        document.getElementById('freeTables').innerText = free;
     }
 
-    Swal.fire({ title: "กำลังส่งออเดอร์...", didOpen: () => Swal.showLoading() });
-
-    try {
-        // 1. ส่งออเดอร์เข้าครัว
-        const orderData = {
-            orderId: "ORD-" + Date.now(),
-            tableNo: StaffEngine.table,
-            orderType: "DineIn",
-            items: StaffEngine.cart
-        };
-        const resOrder = await api("createKitchenOrderGS", orderData);
-
-        // 2. อัปเดตสถานะโต๊ะเป็น "ไม่ว่าง"
-        // ใช้ชื่อสถานะให้ตรงกับที่ renderTables() เช็คไว้ (ในโค้ดของคุณคือ t.status != "ว่าง")
-        await api("updateTableStatusGS", [StaffEngine.table, "🔴 ไม่ว่าง (มีลูกค้า)"]);
-
-        if (resOrder === "Success") {
-            Swal.fire("สำเร็จ!", "ออเดอร์เข้าครัวและโต๊ะถูกจองแล้ว", "success");
-            
-            // 3. เคลียร์ค่า
-            StaffEngine.cart = [];
-            document.getElementById('cartCount').innerText = "0";
-            closeCart();
-            backToTables();
-            loadTables(); // โหลดหน้าตารางใหม่เพื่อให้สถานะเปลี่ยนเป็นสีแดง
-        } else {
-            throw new Error(resOrder);
-        }
-    } catch (e) {
-        Swal.fire("ผิดพลาด", e.toString(), "error");
-    }
-}
-async function api(action,...args){
-
-    const res=await fetch(API_URL,{
-        method:"POST",
-        body:JSON.stringify({
-            action,
-            args
-        })
-    });
-
-    const json=await res.json();
-
-    if(json.status!="Success"){
-
-        throw json.message;
-
+    function selectTable(no) {
+        selectedTable = no;
+        openProductPage();
     }
 
-    return json.result;
+    function openProductPage() {
+        document.getElementById('summaryArea').classList.add('hidden');
+        document.getElementById('tableGrid').classList.add('hidden');
+        document.getElementById('productView').classList.remove('hidden');
+        document.getElementById('lblCurrentTable').innerText = selectedTable;
+        loadProducts();
+    }
 
-}
-// ตัวอย่างการเรียกใช้งานเมื่อพนักงานกดเคลียร์โต๊ะ
-async function clearTable(tableName) {
-    Swal.fire({
-        title: 'ยืนยันเคลียร์โต๊ะ?',
-        text: `ต้องการคืนสถานะโต๊ะ ${tableName} เป็นโต๊ะว่างใช่หรือไม่?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'ตกลง'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            // เรียกใช้ฟังก์ชัน Backend ของคุณ
-            const updatedTables = await api("updateTableStatusGS", [tableName, "ว่าง"]);
-            if (updatedTables) {
-                showToast("เคลียร์โต๊ะเรียบร้อย!", "success");
-                loadTables(); // โหลดตารางใหม่ในหน้าจอ Staff
-            }
-        }
-    });
-}
+    function backToTables() {
+        document.getElementById('summaryArea').classList.remove('hidden');
+        document.getElementById('tableGrid').classList.remove('hidden');
+        document.getElementById('productView').classList.add('hidden');
+    }
+
+    async function loadProducts() {
+        allProducts = await api("getProducts");
+        renderCategories();
+        renderProducts();
+    }
+
+    function renderCategories() {
+        let cats = ["ทั้งหมด", ...new Set(allProducts.map(p => p[2]))];
+        document.getElementById('categoryBar').innerHTML = cats.map(c => 
+            `<button onclick="changeCategory('${c}')" class="px-4 py-2 rounded-full bg-pink-100 font-bold whitespace-nowrap">${c}</button>`
+        ).join('');
+    }
+
+    function changeCategory(c) { currentCategory = c; renderProducts(); }
+
+    function renderProducts() {
+        let keyword = document.getElementById('txtSearch').value.toLowerCase();
+        let grid = document.getElementById('productGrid');
+        grid.innerHTML = "";
+        allProducts.filter(p => {
+            let catMatch = (currentCategory === "ทั้งหมด" || p[2] === currentCategory);
+            let keyMatch = p[1].toLowerCase().includes(keyword);
+            return catMatch && keyMatch;
+        }).forEach(p => {
+            grid.innerHTML += `
+                <div onclick="addProduct('${p[1]}', ${p[3]})" class="bg-white rounded-2xl shadow p-3 cursor-pointer">
+                    <img src="${p[8]}" class="w-full h-28 object-cover rounded-xl" onerror="this.src='https://via.placeholder.com/150'">
+                    <div class="font-bold mt-2">${p[1]}</div>
+                    <div class="text-pink-600 font-bold">฿${Number(p[3]).toFixed(2)}</div>
+                </div>`;
+        });
+    }
+
+    function addProduct(name, price) {
+        let item = cart.find(x => x.name === name);
+        if (item) item.qty++;
+        else cart.push({ name, price, qty: 1 });
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        let html = ""; let total = 0;
+        cart.forEach((i, idx) => {
+            total += i.price * i.qty;
+            html += `<div class="border rounded-xl p-3 flex justify-between"><div>${i.name} x${i.qty}</div><div>฿${(i.price*i.qty).toFixed(2)}</div></div>`;
+        });
+        document.getElementById('cartItems').innerHTML = html;
+        document.getElementById('cartTotal').innerText = "฿" + total.toFixed(2);
+        document.getElementById('cartCount').innerText = cart.reduce((a,b) => a + b.qty, 0);
+    }
+
+    function openCart() { document.getElementById('cartDrawer').classList.remove('hidden'); }
+    function closeCart() { document.getElementById('cartDrawer').classList.add('hidden'); }
+
+    async function submitKitchenOrder() {
+        // อัปเดตการส่งข้อมูลให้ตรงกับที่ตกลงกันไว้
+        const orderData = { orderId: "ORD-" + Date.now(), tableNo: selectedTable, orderType: "DineIn", items: cart };
+        await api("createKitchenOrderGS", orderData);
+        Swal.fire("สำเร็จ", "ส่งออเดอร์เข้าครัวแล้ว", "success");
+        cart = []; updateCartUI(); closeCart(); backToTables();
+    }
+
+    loadTables();
 </script>
-
 </body>
-
 </html>
