@@ -231,6 +231,57 @@ function clearTable() {
         }
     );
 }
+
+let allSalesProducts = [];
+
+// ฟังก์ชันโหลดข้อมูลสินค้า
+function loadProducts() {
+    google.script.run.withSuccessHandler(function(data) {
+        if (data && data.length > 0) {
+            allSalesProducts = data;
+            renderProductGrid(allSalesProducts); // เรียกฟังก์ชันวาด
+        }
+    }).getProducts();
+}
+
+// ฟังก์ชันวาดการ์ดสินค้า (นำโครงสร้างจาก index.html มาปรับให้เข้ากับ Staff App)
+function renderProductGrid(data) {
+    let grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+    
+    data.forEach(function(row) {
+        // row[1] = ชื่อสินค้า, row[3] = ราคา, row[8] = รูปภาพ
+        let name = row[1] || "ไม่มีชื่อ";
+        let price = parseFloat(row[3]) || 0;
+        let imageUrl = row[8] || ""; 
+        
+        let card = document.createElement('div');
+        card.className = "modern-card p-3 shadow-sm border border-gray-100 flex flex-col";
+        card.innerHTML = `
+            <img src="${imageUrl}" class="w-full h-24 object-cover rounded-xl mb-2" onerror="this.src='https://via.placeholder.com/150'">
+            <h3 class="font-bold text-sm text-gray-800 line-clamp-1">${name}</h3>
+            <p class="text-pink-600 font-bold mt-auto">฿${price.toFixed(2)}</p>
+            <button onclick="addToCart('${name}', ${price})" class="mt-2 w-full bg-pink-500 text-white font-bold py-2 rounded-xl text-sm">เพิ่ม</button>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// เริ่มโหลดทันทีที่หน้าจอทำงาน
+document.addEventListener("DOMContentLoaded", function() {
+    loadProducts();
+});
+
+function addToCart(name, price) {
+    let existing = cart.find(item => item.name === name);
+    if(existing) {
+        existing.qty++;
+    } else {
+        cart.push({ name: name, price: price, qty: 1 });
+    }
+    alert("เพิ่ม " + name + " ลงตะกร้าแล้ว");
+    console.log("ตะกร้าปัจจุบัน:", cart);
+}
 </script>
 </body>
 </html>
