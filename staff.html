@@ -20,18 +20,20 @@
             display: none; /* สำหรับ Chrome, Safari, Opera */
         }
         /* ซ่อนทุกอย่างเวลาสั่งพิมพ์ ยกเว้นตัวใบเปิดโต๊ะ */
-    @media print {
-        body * { visibility: hidden; }
-        #tableQRPrintContainer, #tableQRPrintContainer * {
-            visibility: visible;
-        }
-        #tableQRPrintContainer {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-        }
+@media print {
+    body * { visibility: hidden; }
+    #tableQRPrintContainer, #tableQRPrintContainer * {
+        visibility: visible;
     }
+    #tableQRPrintContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 10px;
+    }
+}
     </style>
 </head>
   <body class="pb-24">
@@ -222,25 +224,36 @@
         </div>
     </div>
 
-<div id="tableQRPrintContainer" class="hidden flex-col bg-white p-6 text-black" style="font-family: 'Courier New', monospace; max-width: 300px; margin: auto;">
-    <div class="text-center border-b-2 border-black pb-3 mb-3">
-        <h1 class="text-2xl font-black" id="printSlipStoreName">FamePOS Buffet</h1>
-        <p class="text-xs mt-1 font-bold">ใบเปิดโต๊ะ & คิวอาร์สั่งอาหาร</p>
+<!-- คอนเทนเนอร์สำหรับพิมพ์ใบเปิดโต๊ะ (ดีไซน์ใหม่) -->
+<div id="tableQRPrintContainer" class="hidden flex-col bg-white p-4 text-black border border-gray-300 w-[300px] mx-auto" style="font-family: 'Courier New', monospace;">
+    
+    <div class="text-center mb-2">
+        <h1 class="text-2xl font-black">FamePOS</h1>
+        <p class="text-sm font-bold">ใบเปิดโต๊ะ & คิวอาร์สั่งอาหาร</p>
     </div>
-    <div class="text-sm space-y-1.5 font-bold mb-4">
-        <div class="flex justify-between text-xl font-black bg-black text-white p-1 text-center justify-center rounded-md"><span>หมายเลข: <span id="printSlipTable">-</span></span></div>
-        <div class="flex justify-between pt-2"><span>รูปแบบ:</span><span id="printSlipMode">-</span></div>
-        <div class="flex justify-between"><span>แพ็กเกจ:</span><span id="printSlipPkg">-</span></div>
-        <div class="flex justify-between"><span>จำนวนลูกค้า:</span><span><span id="printSlipHead">-</span> ท่าน</span></div>
+    
+    <div class="border-t-2 border-b-2 border-black py-2 my-2">
+        <!-- แถบดำหมายเลขโต๊ะ -->
+        <div class="bg-black text-white text-xl font-bold py-1 px-2 mb-3 text-center rounded-sm">
+            หมายเลข: <span id="printSlipTable">-</span>
+        </div>
         
-        <div class="flex justify-between border-t border-dashed border-gray-300 pt-2 mt-2"><span>เวลาเริ่มทาน:</span><span id="printSlipStartTime">-</span></div>
-        <div class="flex justify-between text-pink-600"><span>เวลาหมดรอบ:</span><span id="printSlipEndTime">-</span></div>
+        <!-- ข้อมูลรายละเอียด -->
+        <div class="text-sm font-bold space-y-1">
+            <div class="flex justify-between"><span>รูปแบบ:</span> <span id="printSlipMode">-</span></div>
+            <div class="flex justify-between"><span>แพ็กเกจ:</span> <span id="printSlipPkg">-</span></div>
+            <div class="flex justify-between"><span>จำนวนลูกค้า:</span> <span id="printSlipHead">-</span> ท่าน</div>
+            <div class="flex justify-between pt-1"><span>เวลาเริ่มทาน:</span> <span id="printSlipStartTime">-</span></div>
+            <div class="flex justify-between text-pink-600"><span>เวลาหมดรอบ:</span> <span id="printSlipEndTime">-</span></div>
+        </div>
     </div>
-    <div class="text-center border-t border-b border-dashed border-black py-4 my-2 flex flex-col items-center">
-        <p class="text-xs font-bold mb-2">📸 สแกนคิวอาร์ด้านล่างเพื่อสั่งอาหาร</p>
-        <img id="printSlipQRImage" src="" class="w-48 h-48 object-contain mx-auto">
+    
+    <div class="text-center py-2">
+        <p class="text-xs font-bold mb-1">📸 สแกนคิวอาร์ด้านล่างเพื่อสั่งอาหาร</p>
+        <img id="printSlipQRImage" src="" class="w-40 h-40 mx-auto">
     </div>
-    <div class="text-center text-xs font-bold mt-2 text-gray-500">
+    
+    <div class="text-center text-[10px] font-bold border-t border-black pt-2">
         <p>*** โปรดเก็บสลิปใบนี้ไว้เพื่อสั่งอาหาร ***</p>
         <p class="mt-1">Powered by FamePOS</p>
     </div>
@@ -972,41 +985,36 @@ function adjustCartQty(index, amount) {
 }
 // ฟังก์ชันสำหรับพิมพ์ใบเปิดโต๊ะ
 function printTableSlip() {
-    if (!currentTable) {
-        showToast("กรุณาเลือกโต๊ะก่อนครับ", "warning");
-        return;
-    }
-
-    // 1. ดึงข้อมูลโต๊ะจาก globalTablesList หรือจากตัวแปรที่คุณใช้อยู่
+    if (!currentTable) return;
     let tableInfo = globalTablesList.find(t => t.name === currentTable);
-    
-    if (!tableInfo) {
-        showToast("ไม่พบข้อมูลโต๊ะ", "error");
-        return;
-    }
+    if (!tableInfo) return;
 
-    // 2. ยัดข้อมูลลงใน HTML ที่คุณเตรียมไว้ (printSlip...)
+    // เติมข้อมูล
     document.getElementById('printSlipTable').innerText = tableInfo.name;
     document.getElementById('printSlipMode').innerText = tableInfo.orderMode || "-";
     document.getElementById('printSlipPkg').innerText = tableInfo.packageName || "-";
     document.getElementById('printSlipHead').innerText = tableInfo.headCount || "0";
-    document.getElementById('printSlipStartTime').innerText = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'});
-    document.getElementById('printSlipEndTime').innerText = tableInfo.timeLimit ? tableInfo.timeLimit + " นาที" : "-";
     
-    // ตั้งค่า QR Code (ถ้าคุณมีลิงก์ QR เก็บไว้ใน tableInfo.qrCode)
-    document.getElementById('printSlipQRImage').src = tableInfo.qrCode || "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(tableInfo.name);
+    // ตั้งเวลา
+    let now = new Date();
+    document.getElementById('printSlipStartTime').innerText = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'}) + " น.";
+    
+    // คำนวณเวลาหมดรอบ (สมมติว่า endTime มีค่ามาให้)
+    document.getElementById('printSlipEndTime').innerText = tableInfo.endTime ? new Date(tableInfo.endTime).toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'}) + " น." : "-";
+    
+    // ตั้งค่า QR
+    document.getElementById('printSlipQRImage').src = tableInfo.qrCode || "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(tableInfo.name);
 
-    // 3. แสดงคอนเทนเนอร์เพื่อพิมพ์
-    let printContainer = document.getElementById('tableQRPrintContainer');
-    printContainer.classList.remove('hidden');
-    printContainer.classList.add('flex'); // ทำให้มันโชว์ขึ้นมา
-
-    // 4. สั่งพิมพ์
+    // แสดงและพิมพ์
+    let container = document.getElementById('tableQRPrintContainer');
+    container.classList.remove('hidden');
+    container.classList.add('flex');
+    
     window.print();
-
-    // 5. ซ่อนกลับเหมือนเดิมหลังจากสั่งพิมพ์เสร็จ
-    printContainer.classList.add('hidden');
-    printContainer.classList.remove('flex');
+    
+    // ซ่อนกลับ
+    container.classList.add('hidden');
+    container.classList.remove('flex');
 }
 </script>
 </body>
