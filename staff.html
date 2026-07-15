@@ -106,12 +106,23 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // 3. ปรับฟังก์ชัน enterOrderView ให้ซ่อน/โชว์หน้าจอ
+// แก้ไขฟังก์ชันนี้ใน script ของคุณ
 function enterOrderView(name) {
     currentTable = name;
+    
+    // 1. ซ่อนหน้าเลือกโต๊ะ
     document.getElementById('tableSelectorView').classList.add('hidden');
-    document.getElementById('productGrid').classList.remove('hidden'); // แสดงเมนูเมื่อเลือกโต๊ะแล้ว
+    
+    // 2. แสดงหน้า orderView (กล่องแม่) แทนการแสดง productGrid โดยตรง
+    document.getElementById('orderView').classList.remove('hidden'); 
+    
+    // 3. แสดง Footer ของหน้าสั่งอาหาร
+    document.getElementById('orderFooter').classList.remove('hidden');
+    
     document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
-    // เรียกโหลดเมนูอาหารที่นี่
+    
+    // ตรวจสอบให้แน่ใจว่า productGrid ถูกแสดงผล (ปกติไม่ต้องทำอะไรเพิ่มถ้า orderView โชว์แล้ว)
+    document.getElementById('productGrid').classList.remove('hidden');
 }
     // ตัวแปรสำหรับเก็บรายการในตะกร้า
 let cart = []; 
