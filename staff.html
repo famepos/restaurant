@@ -54,9 +54,9 @@
     </div>
 
 <script>
-
-  // 1. เพิ่มตัวแปร API ให้ครบ
+// 1. ตัวแปร API (ใส่ลิงก์ของคุณให้ถูกต้อง)
 const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+
 // 2. MAGIC PROXY: ตัวเชื่อมให้คำสั่ง google.script.run ใช้งานได้บน Browser
 const google = {
     script: {
@@ -99,76 +99,21 @@ const google = {
     }
 };
 
-// 2. ซ่อนหน้าเมนูตอนเริ่มต้น
+// เริ่มโหลดทันทีที่หน้าจอทำงาน
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('productGrid').classList.add('hidden');
     loadTableSelector(); // โหลดหน้าโต๊ะทันที
+    loadProducts();      // โหลดสินค้ามารอไว้เลย
 });
 
-// 3. ปรับฟังก์ชัน enterOrderView ให้ซ่อน/โชว์หน้าจอ
-// แก้ไขฟังก์ชันนี้ใน script ของคุณ
-// เข้าหน้าสั่งอาหาร (ซ่อนหน้าโต๊ะ แสดงหน้าเมนู)
-function enterOrderView(name) {
-    currentTable = name;
-    
-    // 1. ซ่อนหน้าเลือกโต๊ะ
-    document.getElementById('tableSelectorView').classList.add('hidden');
-    
-    // 2. โชว์หน้าสั่งอาหาร (ต้องอ้างอิง id="orderView" ไม่ใช่ productGrid ครับ)
-    document.getElementById('orderView').classList.remove('hidden'); 
-    
-    // 3. โชว์ Footer ปุ่มส่งเข้าครัว
-    document.getElementById('orderFooter').classList.remove('hidden');
-    
-    // 4. เปลี่ยนชื่อโต๊ะบน Header
-    document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
-}
-    // ตัวแปรสำหรับเก็บรายการในตะกร้า
+// ตัวแปรสำหรับเก็บรายการในตะกร้าและสินค้า
 let cart = []; 
-let currentTable = "โต๊ะ 01"; // ตัวอย่าง: ในอนาคตดึงมาจากระบบเลือกโต๊ะ
+let currentTable = "โต๊ะ 01"; 
+let allSalesProducts = [];
 
-// 1. ฟังก์ชันส่งเข้าครัว
-function sendToKitchen() {
-    if (cart.length === 0) {
-        alert("ตะกร้าว่างเปล่า!");
-        return;
-    }
-
-    // สร้าง Order Object ตามโครงสร้างที่ backend ต้องการ
-    let orderData = {
-        orderId: "STF-" + Date.now(), // สร้าง ID ชั่วคราว
-        tableNo: currentTable,
-        orderType: "ทานที่ร้าน",
-        items: cart.map(item => ({
-            name: item.name,
-            qty: item.qty
-        }))
-    };
-
-    // ส่งไปเรียกฟังก์ชัน createKitchenOrderGS ใน Code.gs
-    fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ 
-            action: "createKitchenOrderGS", 
-            args: [orderData] 
-        }),
-        redirect: "follow"
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === "Success") {
-            alert("ส่งออเดอร์เข้าครัวเรียบร้อย! 🍳");
-            cart = []; // ล้างตะกร้าหลังส่งเสร็จ
-            updateCartUI();
-        } else {
-            alert("เกิดข้อผิดพลาด: " + data.message);
-        }
-    })
-    .catch(err => {
-        alert("การเชื่อมต่อล้มเหลว");
-    });
-}
+// ==========================================
+// 1. ระบบจัดการโต๊ะ
+// ==========================================
 
 // ดึงข้อมูลโต๊ะจาก Google Sheets
 function loadTableSelector() {
@@ -177,7 +122,6 @@ function loadTableSelector() {
         let html = '';
         
         tables.forEach(table => {
-            // เช็คสีตามสถานะโต๊ะ (ใช้ตรรกะเดิมของคุณ)
             let color = (table.status === 'ว่าง' || table.status === '🟢 ว่าง') ? 'bg-green-100 border-green-300 text-green-700' : 'bg-red-100 border-red-300 text-red-700';
             
             html += `
@@ -191,97 +135,85 @@ function loadTableSelector() {
 }
 
 // ฟังก์ชันเมื่อพนักงานกดเลือกโต๊ะ
-let selectedTable = "";
 function selectTable(name, status) {
     selectedTable = name;
     if (status === 'ว่าง' || status === '🟢 ว่าง') {
         document.getElementById('modalTableName').innerText = "เปิดโต๊ะ: " + name;
         document.getElementById('openTableModal').classList.remove('hidden');
     } else {
-        // ถ้าโต๊ะไม่ว่าง ก็เข้าหน้าสั่งอาหารได้เลย
         enterOrderView(name);
     }
 }
 
-// ฟังก์ชันยืนยันเปิดโต๊ะ (ใช้ฟังก์ชันที่คุณมีอยู่แล้วใน backend)[cite: 2]
+// ฟังก์ชันยืนยันเปิดโต๊ะ
 function confirmOpenTable() {
     let count = document.getElementById('headCountInput').value;
+    // ป้องกันการกรอกค่าว่าง
+    if(!count) count = 1; 
+
     google.script.run.withSuccessHandler(() => {
         document.getElementById('openTableModal').classList.add('hidden');
         enterOrderView(selectedTable);
     }).openTableGS(selectedTable, 'A_la_carte', count, '', '');
 }
 
-// เข้าหน้าสั่งอาหาร (ซ่อนหน้าโต๊ะ แสดงหน้าเมนู)
+// ==========================================
+// 2. ระบบสั่งอาหาร
+// ==========================================
+
+// เข้าหน้าสั่งอาหาร
 function enterOrderView(name) {
     currentTable = name;
+    
+    // 1. ซ่อนหน้าเลือกโต๊ะ
     document.getElementById('tableSelectorView').classList.add('hidden');
+    
+    // 2. โชว์หน้าสั่งอาหาร (orderView)
+    document.getElementById('orderView').classList.remove('hidden'); 
+    
+    // 3. โชว์ Footer
+    document.getElementById('orderFooter').classList.remove('hidden');
+    
+    // 4. เปลี่ยนชื่อโต๊ะบน Header
     document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
-    // เรียกโหลดเมนูอาหารที่นี่
-}
-function clearTable() {
-    if (!currentTable) return;
-
-    showConfirmAlert(
-        'เช็คบิลและเคลียร์โต๊ะ?', 
-        `ยืนยันการเคลียร์โต๊ะ ${currentTable} เพื่อให้ลูกค้าท่านใหม่เข้ามาใช้งาน?`, 
-        '🧹', 
-        'ยืนยัน',
-        () => {
-            // เรียกใช้ฟังก์ชัน updateTableStatusGS ของคุณ
-            google.script.run
-                .withSuccessHandler(function() {
-                    showAlert("เคลียร์โต๊ะเรียบร้อย", `โต๊ะ ${currentTable} ว่างแล้วครับ`, "✅", "success");
-                    // เด้งกลับไปหน้าแรก (หน้าเลือกโต๊ะ)
-                    document.getElementById('productGrid').classList.add('hidden');
-                    document.getElementById('tableSelectorView').classList.remove('hidden');
-                    loadTableSelector(); // โหลดสถานะโต๊ะใหม่
-                })
-                .updateTableStatusGS(currentTable, "ว่าง"); 
-        }
-    );
 }
 
-let allSalesProducts = [];
-
-// ฟังก์ชันโหลดข้อมูลสินค้า
 // ฟังก์ชันโหลดข้อมูลสินค้า
 function loadProducts() {
     google.script.run.withSuccessHandler(function(data) {
-        console.log("ดึงข้อมูลมาแล้ว: ", data); // <-- เพิ่มบรรทัดนี้เพื่อเช็คข้อมูล
+        console.log("ดึงข้อมูลสินค้ามาแล้ว: ", data);
         if (data && data.length > 0) {
             allSalesProducts = data;
             renderProductGrid(allSalesProducts);
         }
     }).getProducts();
 }
-// ฟังก์ชันวาดการ์ดสินค้า (นำโครงสร้างจาก index.html มาปรับให้เข้ากับ Staff App)
+
+// ฟังก์ชันวาดการ์ดสินค้า
 function renderProductGrid(data) {
     let grid = document.getElementById('productGrid');
     grid.innerHTML = '';
     
     data.forEach(function(row) {
-        // row[1] = ชื่อสินค้า, row[3] = ราคา, row[8] = รูปภาพ
         let name = row[1] || "ไม่มีชื่อ";
         let price = parseFloat(row[3]) || 0;
-        let imageUrl = row[8] || ""; 
+        let imageUrl = row[8] || "https://via.placeholder.com/150"; 
         
         let card = document.createElement('div');
-        card.className = "modern-card p-3 shadow-sm border border-gray-100 flex flex-col";
+        card.className = "modern-card p-3 shadow-sm border border-gray-100 flex flex-col bg-white";
         card.innerHTML = `
             <img src="${imageUrl}" class="w-full h-24 object-cover rounded-xl mb-2" onerror="this.src='https://via.placeholder.com/150'">
             <h3 class="font-bold text-sm text-gray-800 line-clamp-1">${name}</h3>
             <p class="text-pink-600 font-bold mt-auto">฿${price.toFixed(2)}</p>
-            <button onclick="addToCart('${name}', ${price})" class="mt-2 w-full bg-pink-500 text-white font-bold py-2 rounded-xl text-sm">เพิ่ม</button>
+            <button onclick="addToCart('${name}', ${price})" class="mt-2 w-full bg-pink-500 text-white font-bold py-2 rounded-xl text-sm active:scale-95 transition">เพิ่มลงตะกร้า</button>
         `;
         grid.appendChild(card);
     });
 }
 
-// เริ่มโหลดทันทีที่หน้าจอทำงาน
-document.addEventListener("DOMContentLoaded", function() {
-    loadProducts();
-});
+// ==========================================
+// 3. ระบบตะกร้า และ ส่งเข้าครัว
+// ==========================================
 
 function addToCart(name, price) {
     let existing = cart.find(item => item.name === name);
@@ -290,8 +222,93 @@ function addToCart(name, price) {
     } else {
         cart.push({ name: name, price: price, qty: 1 });
     }
-    alert("เพิ่ม " + name + " ลงตะกร้าแล้ว");
+    // เปลี่ยนข้อความบนปุ่มชั่วคราวให้พนักงานรู้ว่าเพิ่มแล้ว
+    let btn = document.querySelector(`button[onclick="addToCart('${name}', ${price})"]`);
+    if(btn) {
+        let oldText = btn.innerText;
+        btn.innerText = "✅ เพิ่มแล้ว";
+        btn.classList.replace("bg-pink-500", "bg-green-500");
+        setTimeout(() => {
+            btn.innerText = oldText;
+            btn.classList.replace("bg-green-500", "bg-pink-500");
+        }, 1000);
+    }
     console.log("ตะกร้าปัจจุบัน:", cart);
+}
+
+function sendToKitchen() {
+    if (cart.length === 0) {
+        alert("ตะกร้าว่างเปล่า! กรุณาเลือกสินค้าก่อนครับ");
+        return;
+    }
+
+    let orderData = {
+        orderId: "STF-" + Date.now(), 
+        tableNo: currentTable,
+        orderType: "ทานที่ร้าน",
+        items: cart.map(item => ({
+            name: item.name,
+            qty: item.qty
+        }))
+    };
+
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ 
+            action: "createKitchenOrderGS", 
+            args: [orderData] 
+        }),
+        redirect: "follow"
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "Success") {
+            alert("ส่งออเดอร์เข้าครัวเรียบร้อย! 🍳");
+            cart = []; // ล้างตะกร้า
+        } else {
+            alert("เกิดข้อผิดพลาด: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("การเชื่อมต่อล้มเหลว");
+    });
+}
+
+// ==========================================
+// 4. ระบบเคลียร์โต๊ะ
+// ==========================================
+
+function clearTable() {
+    if (!currentTable) return;
+
+    // ใช้ confirm พื้นฐานของ Browser เพื่อป้องกันบั๊ก
+    let isConfirm = confirm(`ยืนยันการเคลียร์โต๊ะ ${currentTable} เพื่อให้ลูกค้าท่านใหม่เข้ามาใช้งาน?`);
+    
+    if (isConfirm) {
+        google.script.run
+            .withSuccessHandler(function() {
+                alert(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`);
+                
+                // 1. ล้างตะกร้า
+                cart = [];
+                currentTable = "";
+                
+                // 2. ซ่อนหน้าเมนูและ Footer
+                document.getElementById('orderView').classList.add('hidden');
+                document.getElementById('orderFooter').classList.add('hidden');
+                
+                // 3. เปลี่ยนหัวกลับเป็นยังไม่เลือกโต๊ะ
+                document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
+                
+                // 4. โชว์หน้าโต๊ะกลับมา
+                document.getElementById('tableSelectorView').classList.remove('hidden');
+                
+                // 5. โหลดสถานะโต๊ะใหม่
+                loadTableSelector(); 
+            })
+            .updateTableStatusGS(currentTable, "ว่าง"); 
+    }
 }
 </script>
 </body>
