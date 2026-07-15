@@ -107,19 +107,35 @@
         document.getElementById('tableModal').classList.remove('hidden');
         google.script.run.withSuccessHandler(renderTableGrid).getTablesData();
     }
-
-    function renderTableGrid(tables) {
-        let grid = document.getElementById('tableGrid'); grid.innerHTML = '';
-        let zones = [...new Set(tables.map(t => t.zone))];
-        zones.forEach(zone => {
-            grid.innerHTML += `<div class="col-span-3 font-bold text-pink-600 mt-2">${zone}</div>`;
-            tables.filter(t => t.zone === zone).forEach(t => {
-                let isAvail = (t.status === "ว่าง" || t.status === "🟢 ว่าง");
-                grid.innerHTML += `<button onclick="${isAvail ? `openTableModeModal('${t.name}')` : 'alert(\'มีลูกค้า\')'}" 
-                    class="p-4 ${isAvail ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'} rounded-xl font-bold">${t.name}</button>`;
-            });
+// แก้ไขฟังก์ชัน renderTableGrid นี้ในไฟล์ staff.html
+function renderTableGrid(tables) {
+    let grid = document.getElementById('tableGrid');
+    grid.innerHTML = '';
+    
+    // จัดกลุ่มตามโซน
+    let zones = [...new Set(tables.map(t => t.zone))];
+    
+    zones.forEach(zone => {
+        grid.innerHTML += `<div class="col-span-3 font-bold text-pink-600 mt-2 border-b pb-1">${zone}</div>`;
+        
+        tables.filter(t => t.zone === zone).forEach(t => {
+            let isAvailable = (t.status === "ว่าง" || t.status === "🟢 ว่าง");
+            
+            // 🟢 เปลี่ยน LOGIC ตรงนี้: 
+            // ถ้าว่าง -> ไปหน้าเปิดโต๊ะ | ถ้ามีลูกค้าแล้ว -> ไปหน้าสั่งอาหาร(selectTable)
+            let action = isAvailable ? `openTableModeModal('${t.name}')` : `selectTable('${t.name}')`;
+            let btnClass = isAvailable 
+                ? "bg-green-100 text-green-700"  // โต๊ะว่าง
+                : "bg-orange-100 text-orange-700"; // โต๊ะมีคนนั่งแล้ว (เปลี่ยนสีให้กดได้)
+            
+            grid.innerHTML += `
+                <button onclick="${action}" class="p-4 ${btnClass} rounded-xl font-bold border border-gray-200">
+                    ${t.name}<br>
+                    <span class="text-[10px]">${isAvailable ? 'ว่าง' : 'มีลูกค้า'}</span>
+                </button>`;
         });
-    }
+    });
+}
 
     function openTableModeModal(name) {
         document.getElementById('openTableModeModal').classList.remove('hidden');
@@ -142,11 +158,29 @@
         }).openTableGS(name, 'Buffet', head, pkg, '90');
     }
 
-    function sendOrder() {
-        let table = document.getElementById('tableNo').value;
-        if(!table) return alert("เลือกโต๊ะ!");
-        google.script.run.withSuccessHandler(() => { alert("ส่งเข้าครัวแล้ว!"); cart=[]; }).createKitchenOrderGS({ orderId: "STAFF-"+Date.now(), tableNo: table, orderType: "ทานที่ร้าน", items: cart });
-    }
+function sendOrder() {
+    let table = document.getElementById('tableNo').value;
+    if(!table) return alert("กรุณาเลือกโต๊ะก่อน!");
+    if(cart.length === 0) return alert("ตะกร้าว่างเปล่า!");
+
+    // คำนวณยอดรวมก่อนส่ง
+    let total = cart.reduce((sum, item) => sum + item.total, 0);
+
+    // สร้างข้อมูลในรูปแบบที่แคชเชียร์ (POS) ของคุณอ่านออก
+    let orderData = {
+        table: table,
+        items: cart, // ส่งเป็น Object เพื่อให้ submitCustomerOrder แปลงเป็น JSON
+        total: total
+    };
+
+    // 🟢 เปลี่ยนจาก createKitchenOrderGS มาเป็น submitCustomerOrder 
+    // เพื่อให้ข้อมูลไปลงชีต QROrders ที่หน้าแคชเชียร์คุณใช้อยู่ครับ
+    google.script.run.withSuccessHandler(() => {
+        alert("ส่งข้อมูลเข้าครัวและแคชเชียร์สำเร็จ!");
+        cart = []; 
+        renderCart(); // ล้างหน้าจอ Staff
+    }).submitCustomerOrder(orderData);
+}
 
     function openProductForm() { document.getElementById('productFormModal').classList.remove('hidden'); }
     function closeProductForm() { document.getElementById('productFormModal').classList.add('hidden'); }
