@@ -63,55 +63,101 @@
         </div>
     </div>
 
-    <script>
-        // ฟังก์ชันจัดการ UI เหมือนต้นฉบับ
-        function renderTableGrid(tables) {
-            let grid = document.getElementById('tableGrid'); grid.innerHTML = '';
-            let zones = [...new Set(tables.map(t => t.zone))];
-            zones.forEach(zone => {
-                grid.innerHTML += `<div class="font-bold text-pink-700 border-b pb-1 text-sm">📍 ${zone}</div>`;
-                let zoneDiv = document.createElement('div');
-                zoneDiv.className = "grid grid-cols-3 gap-3";
-                tables.filter(t => t.zone === zone).forEach(t => {
-                    let isAvail = (t.status === "ว่าง" || t.status === "🟢 ว่าง");
-                    zoneDiv.innerHTML += `<button onclick="${isAvail ? `openTableModeModal('${t.name}')` : `selectTable('${t.name}')`}" 
-                        class="p-2 border rounded-xl flex flex-col items-center bg-white shadow-sm active:scale-95 transition">
-                        <span class="text-lg">🪑</span><span class="font-bold text-xs">${t.name}</span>
-                        <span class="text-[9px] text-gray-400">4 ที่นั่ง</span>
-                        <span class="text-[9px] font-bold ${isAvail ? 'text-green-500' : 'text-red-500'}">● ${isAvail ? 'ว่าง' : 'มีลูกค้า'}</span>
-                    </button>`;
-                });
-                grid.appendChild(zoneDiv);
-            });
-        }
+<script>
+    // 1. ประกาศตัวแปร google ก่อนเป็นอันดับแรก เพื่อให้เรียกใช้ได้ทั่วถึง (Global Scope)
+    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+    const RunManager = { 
+        successCb: null, 
+        withSuccessHandler: function(cb) { this.successCb = cb; return this; }, 
+        runMethod: function(m, a) { 
+            fetch(API_URL, {method:"POST", body:JSON.stringify({action:m, args:a})})
+            .then(r=>r.json()).then(d=>{ if(this.successCb && d.status==="Success") this.successCb(d.result); }); 
+        } 
+    };
+    const google = { script: { run: new Proxy(RunManager, { get: (t, p) => p in t ? t[p] : (...args) => t.runMethod(p, args) }) } };
 
-        function setTableMode(mode) {
-            let buffetBtn = document.getElementById('btnModeBuffet');
-            let alaBtn = document.getElementById('btnModeAlacarte');
-            let pkg = document.getElementById('buffetPackageContainer');
-            if(mode === 'Buffet') {
-                buffetBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm";
-                alaBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs";
-                pkg.classList.remove('hidden');
-            } else {
-                buffetBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs";
-                alaBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm";
-                pkg.classList.add('hidden');
-            }
-        }
+    // 2. ตัวแปรอื่นๆ
+    let cart = [], allProducts = [], currentTable = "", currentPackage = {name:"", price:0};
 
-        function adjustHead(type, val) {
-            let id = type === 'adult' ? 'inputAdultCount' : (type === 'kid' ? 'inputKidCount' : 'inputSeniorCount');
-            let el = document.getElementById(id);
-            let n = parseInt(el.value) + val;
-            if(n >= 0) el.value = n;
-        }
+    // 3. เริ่มทำงาน
+    google.script.run.withSuccessHandler(data => { allProducts = data; }).getProducts();
 
-        // เชื่อมต่อ Backend (เช่นเดิม)
-        const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
-        function openTableModal() { document.getElementById('tableModal').classList.remove('hidden'); google.script.run.withSuccessHandler(renderTableGrid).getTablesData(); }
-        function openTableModeModal(name) { document.getElementById('openTableModeModal').classList.remove('hidden'); document.getElementById('openTableNameDisplay').innerText = name; }
-        function selectTable(name) { document.getElementById('tableNo').value = name; document.getElementById('tableModal').classList.add('hidden'); }
-    </script>
+    // 4. ฟังก์ชันต่างๆ (เรียกใช้ google ได้แล้ว)
+    function openTableModal() {
+        document.getElementById('tableModal').classList.remove('hidden');
+        google.script.run.withSuccessHandler(renderTableGrid).getTablesData();
+    }
+
+    function renderTableGrid(tables) {
+        let grid = document.getElementById('tableGrid'); grid.innerHTML = '';
+        tables.forEach(t => {
+            let isAvail = (t.status === "ว่าง" || t.status === "🟢 ว่าง");
+            grid.innerHTML += `<button onclick="${isAvail ? `openTableModeModal('${t.name}')` : `selectTable('${t.name}')`}" 
+                class="p-4 ${isAvail ? 'bg-green-50' : 'bg-orange-50'} rounded-xl font-bold w-full border text-sm">
+                ${t.name} ${isAvail ? '' : `👤${t.headCount || 0}`}</button>`;
+        });
+    }
+
+    function openTableModeModal(name) {
+        document.getElementById('openTableModeModal').classList.remove('hidden');
+        document.getElementById('openTableNameDisplay').innerText = name;
+        google.script.run.withSuccessHandler(pkgs => {
+            let select = document.getElementById('selectBuffetPackage');
+            select.innerHTML = '';
+            pkgs.forEach(p => select.innerHTML += `<option value="${p.name}">${p.name}</option>`);
+        }).getBuffetPackagesGS();
+    }
+
+    function setTableMode(mode) {
+        document.getElementById('selectedTableMode').value = mode;
+        let buffetBtn = document.getElementById('btnModeBuffet');
+        let alaBtn = document.getElementById('btnModeAlacarte');
+        let pkg = document.getElementById('buffetPackageContainer');
+        if(mode === 'Buffet') {
+            buffetBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm";
+            alaBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs";
+            pkg.classList.remove('hidden');
+        } else {
+            buffetBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs";
+            alaBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm";
+            pkg.classList.add('hidden');
+        }
+    }
+
+    function adjustHeadCount(type, val) {
+        let el = document.getElementById(type === 'adult' ? 'inputAdultCount' : (type === 'kid' ? 'inputKidCount' : 'inputSeniorCount'));
+        let n = parseInt(el.value) + val;
+        if(n >= 0) el.value = n;
+    }
+
+    function confirmOpenTable() {
+        let name = document.getElementById('openTableNameDisplay').innerText;
+        let head = parseInt(document.getElementById('inputAdultCount').value) + parseInt(document.getElementById('inputKidCount').value);
+        let pkg = document.getElementById('selectBuffetPackage').value;
+        google.script.run.withSuccessHandler(() => {
+            document.getElementById('openTableModeModal').classList.add('hidden');
+            document.getElementById('tableModal').classList.add('hidden');
+            selectTable(name);
+        }).openTableGS(name, 'Buffet', head, pkg, '90');
+    }
+
+    function selectTable(name) {
+        currentTable = name;
+        document.getElementById('tableNo').value = name;
+        document.getElementById('tableModal').classList.add('hidden');
+        document.getElementById('header-title').innerText = "โต๊ะ: " + name;
+        google.script.run.withSuccessHandler(res => {
+            cart = (typeof res.items === 'string') ? JSON.parse(res.items) : (res.items || []);
+            document.getElementById('totalDisplay').innerText = "฿" + parseFloat(res.total || 0).toFixed(0);
+        }).getTableTotalGS(name);
+    }
+
+    function sendOrder() {
+        if(!currentTable) return alert("เลือกโต๊ะ!");
+        google.script.run.withSuccessHandler(() => { alert("ส่งเข้าครัวแล้ว!"); cart=[]; updateUI(); }).createKitchenOrderGS({ orderId: "STAFF-"+Date.now(), tableNo: currentTable, orderType: "ทานที่ร้าน", items: cart });
+    }
+    
+    function updateUI() { document.getElementById('totalDisplay').innerText = "฿" + cart.reduce((s, i) => s + i.total, 0).toFixed(0); }
+</script>
 </body>
 </html>
