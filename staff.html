@@ -21,6 +21,10 @@
         }
         /* ซ่อนทุกอย่างเวลาสั่งพิมพ์ ยกเว้นตัวใบเปิดโต๊ะ */
 @media print {
+    @page {
+        size: auto; 
+        margin: 0;
+    }
     body * { visibility: hidden; }
     #tableQRPrintContainer, #tableQRPrintContainer * {
         visibility: visible;
@@ -31,7 +35,7 @@
         top: 0;
         width: 100%;
         margin: 0;
-        padding: 10px;
+        padding: 5px;
     }
 }
     </style>
@@ -224,8 +228,8 @@
         </div>
     </div>
 
-<!-- คอนเทนเนอร์สำหรับพิมพ์ใบเปิดโต๊ะ (ดีไซน์ใหม่) -->
-<div id="tableQRPrintContainer" class="hidden flex-col bg-white p-4 text-black border border-gray-300 w-[300px] mx-auto" style="font-family: 'Courier New', monospace;">
+<!-- คอนเทนเนอร์สำหรับพิมพ์ใบเปิดโต๊ะ (รองรับ 58mm & 80mm) -->
+<div id="tableQRPrintContainer" class="hidden flex-col bg-white p-2 text-black" style="font-family: 'Courier New', monospace; width: 100%; max-width: 80mm;">
     
     <div class="text-center mb-2">
         <h1 class="text-2xl font-black">FamePOS</h1>
@@ -243,19 +247,19 @@
             <div class="flex justify-between"><span>รูปแบบ:</span> <span id="printSlipMode">-</span></div>
             <div class="flex justify-between"><span>แพ็กเกจ:</span> <span id="printSlipPkg">-</span></div>
             <div class="flex justify-between"><span>จำนวนลูกค้า:</span> <span id="printSlipHead">-</span> ท่าน</div>
-            <div class="flex justify-between pt-1"><span>เวลาเริ่มทาน:</span> <span id="printSlipStartTime">-</span></div>
-            <div class="flex justify-between text-pink-600"><span>เวลาหมดรอบ:</span> <span id="printSlipEndTime">-</span></div>
+            <div class="flex justify-between pt-1"><span>เริ่ม:</span> <span id="printSlipStartTime">-</span></div>
+            <div class="flex justify-between text-pink-600"><span>หมด:</span> <span id="printSlipEndTime">-</span></div>
         </div>
     </div>
     
     <div class="text-center py-2">
-        <p class="text-xs font-bold mb-1">📸 สแกนคิวอาร์ด้านล่างเพื่อสั่งอาหาร</p>
+        <p class="text-xs font-bold mb-1">📸 สแกนเพื่อสั่งอาหาร</p>
         <img id="printSlipQRImage" src="" class="w-40 h-40 mx-auto">
     </div>
     
     <div class="text-center text-[10px] font-bold border-t border-black pt-2">
         <p>*** โปรดเก็บสลิปใบนี้ไว้เพื่อสั่งอาหาร ***</p>
-        <p class="mt-1">Powered by FamePOS</p>
+        <p>Powered by FamePOS</p>
     </div>
 </div>
 
