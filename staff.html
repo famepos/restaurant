@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+  </style>
 </head>
-<body class="bg-gray-100 pb-28">
+<body class="bg-gray-100 pb-24">
 
   <!-- Header -->
   <div class="p-4 bg-white border-b sticky top-0 z-40 shadow-sm flex justify-between items-center">
@@ -12,50 +15,71 @@
     <div id="totalDisplay" class="font-black text-xl text-gray-800">฿0.00</div>
   </div>
 
-  <div id="product-list" class="grid grid-cols-2 gap-3 p-3"></div>
+  <!-- หมวดหมู่ -->
+  <div id="category-tabs" class="flex gap-2 p-3 overflow-x-auto scrollbar-hide bg-white shadow-sm"></div>
+  
+  <!-- รายการสินค้า -->
+  <div id="product-list" class="grid grid-cols-2 gap-3 p-3">
+    <div class="text-center py-10 col-span-2 text-gray-500 font-bold">กำลังโหลดเมนู...</div>
+  </div>
 
   <!-- Bottom Bar: เลือกโต๊ะ & ส่ง -->
-  <div class="fixed bottom-0 w-full p-4 bg-white border-t shadow-2xl flex gap-2 z-40">
-    <input type="text" id="tableNo" readonly onclick="openTableModal()" placeholder="เลือกโต๊ะ" class="w-1/3 p-3 border-2 border-pink-200 rounded-xl font-bold text-center cursor-pointer">
+  <div class="fixed bottom-0 w-full p-4 bg-white border-t border-gray-200 shadow-2xl flex gap-2 z-50">
+    <input type="text" id="tableNo" readonly onclick="openTableModal()" placeholder="เลือกโต๊ะ" 
+           class="w-1/3 p-3 border-2 border-pink-200 rounded-xl font-bold text-center cursor-pointer">
     <button onclick="sendOrder()" class="flex-1 bg-pink-600 text-white font-bold p-3 rounded-xl hover:bg-pink-700 transition">ส่งเข้าครัว</button>
   </div>
 
   <!-- Modal เลือกโต๊ะ -->
   <div id="tableModal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
     <div class="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl max-h-[80vh] overflow-y-auto">
-      <h3 class="text-xl font-bold mb-4 text-pink-700">🪑 เลือกโต๊ะ</h3>
-      <div id="tableGrid" class="grid grid-cols-3 gap-3"></div>
-      <button onclick="document.getElementById('tableModal').classList.add('hidden')" class="w-full mt-4 py-3 bg-gray-200 rounded-xl font-bold">ปิด</button>
+      <h3 class="text-xl font-bold mb-4 text-pink-700">🪑 เลือกหมายเลขโต๊ะ</h3>
+      <div id="tableGrid" class="space-y-4"></div>
+      <button onclick="document.getElementById('tableModal').classList.add('hidden')" class="w-full mt-6 py-3 bg-gray-200 rounded-xl font-bold">ปิด</button>
     </div>
   </div>
 
-  <!-- 🌟 Modal เปิดโต๊ะ (เหมือนหน้า POS เป๊ะ) -->
-  <div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2rem] w-full max-w-md p-6 shadow-2xl">
-        <h2 class="text-xl font-black text-pink-700 text-center mb-4">🪑 เปิดโต๊ะ: <span id="openTableNameDisplay"></span></h2>
-        
-        <!-- โหมด -->
-        <div class="grid grid-cols-2 gap-2 mb-4">
-            <button onclick="setTableMode('Buffet')" id="btnBuffet" class="py-2 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold">🥩 ระบบบุฟเฟต์</button>
-            <button onclick="setTableMode('A_la_carte')" id="btnAla" class="py-2 border-2 border-gray-100 text-gray-500 rounded-xl font-bold">🍽️ สั่งแยก</button>
-        </div>
+  <!-- 🌟 Modal เปิดโต๊ะ (ฉบับใหม่ที่ขอ) -->
+  <div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+      <div class="bg-white rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl relative flex flex-col max-h-[90vh] overflow-y-auto">
+          <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+          
+          <div class="text-center mb-4">
+              <h2 class="text-2xl font-black text-pink-700">🪑 เปิดโต๊ะ: <span id="openTableNameDisplay">-</span></h2>
+          </div>
 
-        <select id="selectBuffetPackage" class="w-full p-3 border rounded-xl mb-4 font-bold"></select>
+          <div class="space-y-4">
+              <!-- เลือกโหมด -->
+              <div class="grid grid-cols-2 gap-2">
+                  <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm">🥩 ระบบบุฟเฟต์</button>
+                  <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm">🍽️ สั่งแยก</button>
+              </div>
+              <input type="hidden" id="selectedTableMode" value="Buffet">
 
-        <!-- จำนวนคน -->
-        <div class="space-y-2 mb-4">
-            <div class="flex items-center justify-between bg-gray-50 p-2 rounded-xl">
-                <span>👨 ผู้ใหญ่</span>
-                <div class="flex items-center gap-2"><button onclick="adjustHead('adult', -1)" class="w-8 h-8 bg-white rounded-lg">-</button><input type="number" id="inputAdultCount" value="1" class="w-10 text-center bg-transparent"><button onclick="adjustHead('adult', 1)" class="w-8 h-8 bg-white rounded-lg">+</button></div>
-            </div>
-            <div class="flex items-center justify-between bg-gray-50 p-2 rounded-xl">
-                <span>👦 เด็ก</span>
-                <div class="flex items-center gap-2"><button onclick="adjustHead('kid', -1)" class="w-8 h-8 bg-white rounded-lg">-</button><input type="number" id="inputKidCount" value="0" class="w-10 text-center bg-transparent"><button onclick="adjustHead('kid', 1)" class="w-8 h-8 bg-white rounded-lg">+</button></div>
-            </div>
-        </div>
+              <!-- แพ็กเกจ -->
+              <div id="buffetPackageContainer" class="relative">
+                  <button type="button" onclick="toggleBuffetDropdown()" class="w-full p-3.5 border-2 border-pink-100 rounded-xl bg-white text-left flex justify-between items-center shadow-sm">
+                      <span id="buffetPackageSelectedText" class="text-pink-700 font-bold text-sm">🥩 กำลังโหลดแพ็กเกจ...</span>
+                      <span>▼</span>
+                  </button>
+                  <div id="buffetPackageMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-pink-100 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto"></div>
+              </div>
 
-        <button onclick="confirmOpenTable()" class="w-full py-4 bg-pink-600 text-white font-bold rounded-2xl">ยืนยันเปิดโต๊ะ</button>
-    </div>
+              <!-- จำนวนลูกค้า -->
+              <div class="grid grid-cols-1 gap-2">
+                  <div class="flex items-center justify-between border rounded-xl p-2">
+                      <span class="font-bold text-sm">👨 ผู้ใหญ่</span>
+                      <div class="flex items-center gap-2"><button type="button" onclick="adjustHeadCount('adult', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><input type="number" id="inputAdultCount" value="1" class="w-10 text-center font-bold outline-none"><button type="button" onclick="adjustHeadCount('adult', 1)" class="w-8 h-8 bg-gray-100 rounded-lg">+</button></div>
+                  </div>
+                  <div class="flex items-center justify-between border rounded-xl p-2">
+                      <span class="font-bold text-sm">👦 เด็ก</span>
+                      <div class="flex items-center gap-2"><button type="button" onclick="adjustHeadCount('kid', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><input type="number" id="inputKidCount" value="0" class="w-10 text-center font-bold outline-none"><button type="button" onclick="adjustHeadCount('kid', 1)" class="w-8 h-8 bg-gray-100 rounded-lg">+</button></div>
+                  </div>
+              </div>
+          </div>
+
+          <button onclick="confirmOpenTable()" class="w-full mt-6 py-4 bg-pink-600 text-white rounded-2xl font-bold text-lg shadow-md active:scale-95 transform">🚀 ยืนยันเปิดโต๊ะ</button>
+      </div>
   </div>
 
   <script>
@@ -63,19 +87,26 @@
     const RunManager = { successCb: null, withSuccessHandler: function(cb) { this.successCb = cb; return this; }, runMethod: function(m, a) { fetch(API_URL, {method:"POST", body:JSON.stringify({action:m, args:a})}).then(r=>r.json()).then(d=>{if(this.successCb && d.status==="Success") this.successCb(d.result);}); } };
     const google = { script: { run: new Proxy(RunManager, { get: (t, p) => p in t ? t[p] : (...args) => t.runMethod(p, args) }) } };
 
-    let cart = [], allProducts = [], currentTable = "";
+    let cart = [], allProducts = [], currentTable = "", currentPackage = {name:"", price:0};
 
-    google.script.run.withSuccessHandler(data => { allProducts = data; renderProducts(allProducts); }).getProducts();
+    // Load Data
+    google.script.run.withSuccessHandler(data => { allProducts = data; renderProducts('ทั้งหมด'); }).getProducts();
 
-    function renderProducts(data) {
+    // UI Logic
+    function renderProducts(cat) {
         let list = document.getElementById('product-list'); list.innerHTML = '';
-        data.forEach(item => {
-            if(item[1]) list.innerHTML += `<div class="bg-white p-3 rounded-2xl shadow border cursor-pointer" onclick="addToCart('${item[1]}', ${item[3]})"><img src="${item[8]}" class="w-full h-20 object-cover rounded-lg mb-2"><div class="font-bold text-sm truncate">${item[1]}</div><div class="text-pink-600 font-bold text-xs">฿${item[3]}</div></div>`;
+        allProducts.forEach(item => {
+            if(item[1] && (cat === 'ทั้งหมด' || item[2] === cat)) {
+                list.innerHTML += `<div class="bg-white p-3 rounded-2xl shadow border" onclick="addToCart('${item[1]}', ${item[3]})">
+                    <img src="${item[8]}" class="w-full h-20 object-cover rounded-lg mb-2">
+                    <div class="font-bold text-sm truncate">${item[1]}</div>
+                    <div class="text-pink-600 font-bold text-xs">฿${item[3]}</div>
+                </div>`;
+            }
         });
     }
 
-    function addToCart(name, price) { cart.push({name: name, qty: 1, price: price, total: price}); updateUI(); }
-    function updateUI() { document.getElementById('totalDisplay').innerText = "฿" + cart.reduce((s, i) => s + i.total, 0).toFixed(2); }
+    function addToCart(name, price) { cart.push({name, price, qty: 1, total: price}); document.getElementById('totalDisplay').innerText = "฿" + cart.reduce((s, i) => s + i.total, 0).toFixed(0); }
 
     function openTableModal() {
         document.getElementById('tableModal').classList.remove('hidden');
@@ -87,20 +118,39 @@
         tables.forEach(t => {
             let isAvail = (t.status === "ว่าง" || t.status === "🟢 ว่าง");
             grid.innerHTML += `<button onclick="${isAvail ? `openTableModeModal('${t.name}')` : `selectTable('${t.name}')`}" 
-                class="p-4 ${isAvail ? 'bg-green-100' : 'bg-orange-100'} rounded-xl font-bold">${t.name}</button>`;
+                class="p-4 ${isAvail ? 'bg-green-50' : 'bg-orange-50'} rounded-xl font-bold w-full border text-sm">
+                ${t.name} ${isAvail ? '' : `👤${t.headCount || 0}`}</button>`;
         });
     }
 
+    // Modal Logic
     function openTableModeModal(name) {
         document.getElementById('openTableModeModal').classList.remove('hidden');
         document.getElementById('openTableNameDisplay').innerText = name;
         google.script.run.withSuccessHandler(pkgs => {
-            let select = document.getElementById('selectBuffetPackage');
-            pkgs.forEach(p => select.innerHTML += `<option value="${p.name}">${p.name}</option>`);
+            let menu = document.getElementById('buffetPackageMenu');
+            menu.innerHTML = '';
+            pkgs.forEach(p => {
+                menu.innerHTML += `<div onclick="selectPackage('${p.name}', ${p.price})" class="p-3 border-b font-bold cursor-pointer hover:bg-pink-50">${p.name}</div>`;
+            });
+            if(pkgs.length > 0) selectPackage(pkgs[0].name, pkgs[0].price);
         }).getBuffetPackagesGS();
     }
 
-    function adjustHead(type, val) {
+    function toggleBuffetDropdown() { document.getElementById('buffetPackageMenu').classList.toggle('hidden'); }
+    function selectPackage(name, price) {
+        currentPackage = {name, price};
+        document.getElementById('buffetPackageSelectedText').innerText = name;
+        document.getElementById('buffetPackageMenu').classList.add('hidden');
+    }
+
+    function setTableMode(mode) {
+        document.getElementById('selectedTableMode').value = mode;
+        document.getElementById('btnModeBuffet').className = mode === 'Buffet' ? "py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm" : "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm";
+        document.getElementById('btnModeAlacarte').className = mode === 'A_la_carte' ? "py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm" : "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm";
+    }
+
+    function adjustHeadCount(type, val) {
         let el = document.getElementById(type === 'adult' ? 'inputAdultCount' : 'inputKidCount');
         let n = parseInt(el.value) + val;
         if(n >= 0) el.value = n;
@@ -108,13 +158,12 @@
 
     function confirmOpenTable() {
         let name = document.getElementById('openTableNameDisplay').innerText;
-        let head = document.getElementById('inputAdultCount').value;
-        let pkg = document.getElementById('selectBuffetPackage').value;
+        let head = parseInt(document.getElementById('inputAdultCount').value) + parseInt(document.getElementById('inputKidCount').value);
         google.script.run.withSuccessHandler(() => {
             document.getElementById('openTableModeModal').classList.add('hidden');
             document.getElementById('tableModal').classList.add('hidden');
             selectTable(name);
-        }).openTableGS(name, 'Buffet', head, pkg, '90');
+        }).openTableGS(name, 'Buffet', head, currentPackage.name, '90');
     }
 
     function selectTable(name) {
@@ -124,7 +173,7 @@
         document.getElementById('header-title').innerText = "โต๊ะ: " + name;
         google.script.run.withSuccessHandler(res => {
             cart = (typeof res.items === 'string') ? JSON.parse(res.items) : (res.items || []);
-            updateUI();
+            document.getElementById('totalDisplay').innerText = "฿" + parseFloat(res.total || 0).toFixed(0);
         }).getTableTotalGS(name);
     }
 
@@ -132,6 +181,8 @@
         if(!currentTable) return alert("เลือกโต๊ะ!");
         google.script.run.withSuccessHandler(() => { alert("ส่งเข้าครัวแล้ว!"); cart=[]; updateUI(); }).createKitchenOrderGS({ orderId: "STAFF-"+Date.now(), tableNo: currentTable, orderType: "ทานที่ร้าน", items: cart });
     }
+    
+    function updateUI() { document.getElementById('totalDisplay').innerText = "฿" + cart.reduce((s, i) => s + i.total, 0).toFixed(0); }
   </script>
 </body>
 </html>
