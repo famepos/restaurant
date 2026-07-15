@@ -344,50 +344,46 @@ class="hidden fixed inset-0 bg-black/40 z-50">
 <script>
 
      const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+     // =====================================
+// FamePOS Staff Engine
+// =====================================
+
+const StaffEngine = {
+
+    table:null,
+
+    products:[],
+
+    cart:[],
+
+    category:"ทั้งหมด",
+
+    keyword:"",
+
+    user:null,
+
+    settings:null,
+
+    orderType:"DineIn"
+
+};
 
 let cart=[];
 let tables = [];
-let currentTable = null;
+StaffEngine.table
 let products = [];
 
-function loadTables(){
+async function loadTables(){
 
-Swal.showLoading();
+    tables=await api("getTablesData");
 
-fetch(API_URL,{
-method:"POST",
-body:JSON.stringify({
-action:"getTablesData"
-})
-})
-.then(r=>r.json())
-.then(res=>{
-
-Swal.close();
-
-if(res.status!="Success"){
-Swal.fire("ผิดพลาด",res.message,"error");
-return;
-}
-
-tables=res.result||[];
-
-renderTables();
-
-})
-.catch(e=>{
-
-Swal.close();
-
-Swal.fire("เชื่อมต่อไม่ได้",e.toString(),"error");
-
-});
+    renderTables();
 
 }
 
 function selectTable(no){
 
-currentTable=no;
+StaffEngine.table=no;
 
 Swal.fire({
 
@@ -411,83 +407,35 @@ openProductPage();
 
 loadTables();
 
-function renderTables(){
+function renderTables() 
+{ tableGrid.innerHTML = "";
 
-    tableGrid.innerHTML="";
+    let open = 0;
+    let free = 0;
 
-    let open=0;
-    let free=0;
+    tables.forEach(t => {
+        let isOpen = t.status != "ว่าง";
 
-    tables.forEach(t=>{
-
-        let isOpen=t.status!="ว่าง";
-
-        if(isOpen){
+        if (isOpen) {
             open++;
-        }else{
+        } else {
             free++;
         }
 
-        tableGrid.innerHTML+=`
-
-        <div class="card table-card p-4"
-
-        onclick="selectTable('${t.name}')">
-
-            <div class="text-center">
-
-                <div class="text-5xl">
-                    🪑
-                </div>
-
-                <div class="font-bold text-xl mt-2">
-
-                    ${t.name}
-
-                </div>
-
-                <div class="text-sm text-gray-500">
-
-                    ${t.zone}
-
-                </div>
-
-                <div class="mt-2 text-xs text-gray-400">
-
-                    👥 ${t.capacity} ที่นั่ง
-
-                </div>
-
-                ${
-                    t.orderMode=="Buffet"
-                    ?
-                    `<div class="mt-2 text-xs bg-orange-100 text-orange-700 rounded-lg py-1">
-                        🍱 ${t.packageName}
-                    </div>`
-                    :
-                    ""
-                }
-
-                <div class="mt-3 rounded-full py-2 font-bold
-
-                ${isOpen?"status-open":"status-free"}">
-
-                    ${isOpen?"ไม่ว่าง":"ว่าง"}
-
-                </div>
-
-            </div>
-
-        </div>
-
+        tableGrid.innerHTML += `
+            <div class="card table-card p-4" onclick="selectTable('${t.name}')">
+                <div class="text-center">
+                    <div class="text-5xl">🪑</div>
+                    <div class="font-bold text-xl mt-2">${t.name}</div>
+                    <div class="text-sm text-gray-500">${t.zone} </div>
+                    </div>
+                     </div>
         `;
-
     });
 
-    totalTables.innerHTML=tables.length;
-    openTables.innerHTML=open;
-    freeTables.innerHTML=free;
-
+    totalTables.innerHTML = tables.length;
+    openTables.innerHTML = open;
+    freeTables.innerHTML = free;
 }
 
 function openProductPage(){
@@ -509,7 +457,7 @@ document.querySelector(".flex.flex-col.h-screen").children[2].style.display="non
 
 productView.classList.remove("hidden");
 
-lblCurrentTable.innerHTML=currentTable;
+lblCurrentTable.innerHTML = StaffEngine.table;
 
 loadProducts();
 
@@ -521,24 +469,13 @@ productView.classList.add("hidden");
 document.querySelector(".flex.flex-col.h-screen").children[2].style.display="grid";
 
 }
-function loadProducts(){
+async function loadProducts(){
 
-fetch(API_URL,{
-method:"POST",
-body:JSON.stringify({
-action:"getProducts"
-})
-})
-.then(r=>r.json())
-.then(res=>{
+    StaffEngine.products=await api("getProducts");
 
-allProducts=res.result||[];
+    renderCategories();
 
-renderCategories();
-
-renderProducts();
-
-});
+    renderProducts();
 
 }
 function renderCategories(){
@@ -670,7 +607,7 @@ item.qty++;
 
 }else{
 
-cart.push({
+StaffEngine.cart.push({
 
 id:p.id,
 
@@ -738,18 +675,88 @@ cartCount.innerHTML=qty;
 cartTotal.innerHTML="฿"+total.toFixed(2);
 
 }
-function submitKitchenOrder(){
+// เพิ่มฟังก์ชันคำนวณยอดรวม (ถ้ายังไม่มี)
+function calculateTotal() {
+    return StaffEngine.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+}
 
-Swal.fire({
+async function submitKitchenOrder() {
+    if (StaffEngine.cart.length === 0) {
+        Swal.fire("แจ้งเตือน", "ตะกร้าว่างเปล่าครับ", "warning");
+        return;
+    }
 
-icon:"success",
+    Swal.fire({ title: "กำลังส่งออเดอร์...", didOpen: () => Swal.showLoading() });
 
-title:"ขั้นตอนต่อไป",
+    try {
+        // 1. ส่งออเดอร์เข้าครัว
+        const orderData = {
+            orderId: "ORD-" + Date.now(),
+            tableNo: StaffEngine.table,
+            orderType: "DineIn",
+            items: StaffEngine.cart
+        };
+        const resOrder = await api("createKitchenOrderGS", orderData);
 
-text:"จะเชื่อมกับ Kitchen และ POS จริง"
+        // 2. อัปเดตสถานะโต๊ะเป็น "ไม่ว่าง"
+        // ใช้ชื่อสถานะให้ตรงกับที่ renderTables() เช็คไว้ (ในโค้ดของคุณคือ t.status != "ว่าง")
+        await api("updateTableStatusGS", [StaffEngine.table, "🔴 ไม่ว่าง (มีลูกค้า)"]);
 
-});
+        if (resOrder === "Success") {
+            Swal.fire("สำเร็จ!", "ออเดอร์เข้าครัวและโต๊ะถูกจองแล้ว", "success");
+            
+            // 3. เคลียร์ค่า
+            StaffEngine.cart = [];
+            document.getElementById('cartCount').innerText = "0";
+            closeCart();
+            backToTables();
+            loadTables(); // โหลดหน้าตารางใหม่เพื่อให้สถานะเปลี่ยนเป็นสีแดง
+        } else {
+            throw new Error(resOrder);
+        }
+    } catch (e) {
+        Swal.fire("ผิดพลาด", e.toString(), "error");
+    }
+}
+async function api(action,...args){
 
+    const res=await fetch(API_URL,{
+        method:"POST",
+        body:JSON.stringify({
+            action,
+            args
+        })
+    });
+
+    const json=await res.json();
+
+    if(json.status!="Success"){
+
+        throw json.message;
+
+    }
+
+    return json.result;
+
+}
+// ตัวอย่างการเรียกใช้งานเมื่อพนักงานกดเคลียร์โต๊ะ
+async function clearTable(tableName) {
+    Swal.fire({
+        title: 'ยืนยันเคลียร์โต๊ะ?',
+        text: `ต้องการคืนสถานะโต๊ะ ${tableName} เป็นโต๊ะว่างใช่หรือไม่?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ตกลง'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            // เรียกใช้ฟังก์ชัน Backend ของคุณ
+            const updatedTables = await api("updateTableStatusGS", [tableName, "ว่าง"]);
+            if (updatedTables) {
+                showToast("เคลียร์โต๊ะเรียบร้อย!", "success");
+                loadTables(); // โหลดตารางใหม่ในหน้าจอ Staff
+            }
+        }
+    });
 }
 </script>
 
