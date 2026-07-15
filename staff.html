@@ -107,22 +107,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // 3. ปรับฟังก์ชัน enterOrderView ให้ซ่อน/โชว์หน้าจอ
 // แก้ไขฟังก์ชันนี้ใน script ของคุณ
+// เข้าหน้าสั่งอาหาร (ซ่อนหน้าโต๊ะ แสดงหน้าเมนู)
 function enterOrderView(name) {
     currentTable = name;
     
     // 1. ซ่อนหน้าเลือกโต๊ะ
     document.getElementById('tableSelectorView').classList.add('hidden');
     
-    // 2. แสดงหน้า orderView (กล่องแม่) แทนการแสดง productGrid โดยตรง
+    // 2. โชว์หน้าสั่งอาหาร (ต้องอ้างอิง id="orderView" ไม่ใช่ productGrid ครับ)
     document.getElementById('orderView').classList.remove('hidden'); 
     
-    // 3. แสดง Footer ของหน้าสั่งอาหาร
+    // 3. โชว์ Footer ปุ่มส่งเข้าครัว
     document.getElementById('orderFooter').classList.remove('hidden');
     
+    // 4. เปลี่ยนชื่อโต๊ะบน Header
     document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
-    
-    // ตรวจสอบให้แน่ใจว่า productGrid ถูกแสดงผล (ปกติไม่ต้องทำอะไรเพิ่มถ้า orderView โชว์แล้ว)
-    document.getElementById('productGrid').classList.remove('hidden');
 }
     // ตัวแปรสำหรับเก็บรายการในตะกร้า
 let cart = []; 
@@ -246,15 +245,16 @@ function clearTable() {
 let allSalesProducts = [];
 
 // ฟังก์ชันโหลดข้อมูลสินค้า
+// ฟังก์ชันโหลดข้อมูลสินค้า
 function loadProducts() {
     google.script.run.withSuccessHandler(function(data) {
+        console.log("ดึงข้อมูลมาแล้ว: ", data); // <-- เพิ่มบรรทัดนี้เพื่อเช็คข้อมูล
         if (data && data.length > 0) {
             allSalesProducts = data;
-            renderProductGrid(allSalesProducts); // เรียกฟังก์ชันวาด
+            renderProductGrid(allSalesProducts);
         }
     }).getProducts();
 }
-
 // ฟังก์ชันวาดการ์ดสินค้า (นำโครงสร้างจาก index.html มาปรับให้เข้ากับ Staff App)
 function renderProductGrid(data) {
     let grid = document.getElementById('productGrid');
