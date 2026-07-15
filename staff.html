@@ -8,35 +8,188 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
         body { font-family: 'Kanit', sans-serif; background-color: #fccfed; }
-        .modern-card { background: white; border-radius: 1.5rem; }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- Header: แสดงโต๊ะที่พนักงานดูแล -->
-    <header class="bg-white p-4 sticky top-0 z-50 shadow-sm">
-        <div class="flex justify-between items-center">
-            <h1 class="font-bold text-pink-600 text-xl">Staff Order</h1>
-            <div id="selectedTableDisplay" class="bg-pink-100 px-4 py-1 rounded-full font-bold text-pink-700">เลือกโต๊ะ...</div>
-        </div>
+    <!-- 1. HEADER (คงที่) -->
+    <header class="bg-white p-4 sticky top-0 z-50 shadow-sm flex justify-between items-center">
+        <h1 class="font-bold text-pink-600 text-xl">Staff Order</h1>
+        <div id="selectedTableDisplay" class="bg-pink-100 px-4 py-1 rounded-full font-bold text-pink-700">เลือกโต๊ะ...</div>
     </header>
 
-    <!-- Category Filter (ดึงมาจากตรรกะเดิม) -->
-    <div class="flex overflow-x-auto p-4 gap-2">
-        <button class="bg-pink-600 text-white px-4 py-2 rounded-xl font-bold">ทั้งหมด</button>
-        <!-- ปุ่มหมวดหมู่จะถูกเติมด้วย JavaScript -->
+    <!-- 2. VIEW: หน้าเลือกโต๊ะ (แสดงตอนเริ่มต้น) -->
+    <div id="tableSelectorView" class="p-4 grid grid-cols-3 gap-3">
+        <!-- โต๊ะจะถูกโหลดมาแสดงที่นี่ -->
     </div>
 
-    <!-- Product Grid -->
-    <main id="productGrid" class="grid grid-cols-2 gap-4 p-4">
-        <!-- การ์ดสินค้าจะถูกวาดที่นี่โดยใช้โครงสร้างจาก POS หลัก -->
-    </main>
+    <!-- 3. VIEW: หน้าสั่งอาหาร (ซ่อนไว้ก่อน) -->
+    <div id="orderView" class="hidden">
+        <!-- Category Filter -->
+        <div class="flex overflow-x-auto p-4 gap-2">
+            <button class="bg-pink-600 text-white px-4 py-2 rounded-xl font-bold">ทั้งหมด</button>
+        </div>
 
-    <!-- Bottom Action Bar -->
-    <footer class="fixed bottom-0 w-full bg-white border-t p-4 flex gap-2">
+        <!-- Product Grid -->
+        <main id="productGrid" class="grid grid-cols-2 gap-4 p-4">
+            <!-- การ์ดสินค้า -->
+        </main>
+    </div>
+
+    <!-- 4. FOOTER (จะแสดงเฉพาะในหน้าสั่งอาหาร) -->
+    <footer id="orderFooter" class="hidden fixed bottom-0 w-full bg-white border-t p-4 flex gap-2">
         <button class="flex-1 bg-gray-200 py-3 rounded-xl font-bold">ล้างออเดอร์</button>
         <button onclick="sendToKitchen()" class="flex-1 bg-pink-600 text-white py-3 rounded-xl font-bold shadow-lg">ส่งเข้าครัว 🍳</button>
+        <!-- ย้ายปุ่มเช็คบิลมาวางไว้ข้างๆ เพื่อความสะดวก -->
+        <button onclick="clearTable()" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold shadow-lg">✅ เช็คบิล</button>
     </footer>
 
+    <!-- MODALS -->
+    <div id="openTableModal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h3 id="modalTableName" class="text-xl font-bold mb-4 text-pink-700">เปิดโต๊ะ: -</h3>
+            <input type="number" id="headCountInput" placeholder="จำนวนลูกค้า (ท่าน)" class="w-full p-4 border rounded-xl mb-4">
+            <button onclick="confirmOpenTable()" class="w-full bg-pink-600 text-white py-3 rounded-xl font-bold">ยืนยันเปิดโต๊ะ</button>
+        </div>
+    </div>
+
+<script>
+
+  // 1. เพิ่มตัวแปร API ให้ครบ
+const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+
+// 2. ซ่อนหน้าเมนูตอนเริ่มต้น
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById('productGrid').classList.add('hidden');
+    loadTableSelector(); // โหลดหน้าโต๊ะทันที
+});
+
+// 3. ปรับฟังก์ชัน enterOrderView ให้ซ่อน/โชว์หน้าจอ
+function enterOrderView(name) {
+    currentTable = name;
+    document.getElementById('tableSelectorView').classList.add('hidden');
+    document.getElementById('productGrid').classList.remove('hidden'); // แสดงเมนูเมื่อเลือกโต๊ะแล้ว
+    document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
+    // เรียกโหลดเมนูอาหารที่นี่
+}
+    // ตัวแปรสำหรับเก็บรายการในตะกร้า
+let cart = []; 
+let currentTable = "โต๊ะ 01"; // ตัวอย่าง: ในอนาคตดึงมาจากระบบเลือกโต๊ะ
+
+// 1. ฟังก์ชันส่งเข้าครัว
+function sendToKitchen() {
+    if (cart.length === 0) {
+        alert("ตะกร้าว่างเปล่า!");
+        return;
+    }
+
+    // สร้าง Order Object ตามโครงสร้างที่ backend ต้องการ
+    let orderData = {
+        orderId: "STF-" + Date.now(), // สร้าง ID ชั่วคราว
+        tableNo: currentTable,
+        orderType: "ทานที่ร้าน",
+        items: cart.map(item => ({
+            name: item.name,
+            qty: item.qty
+        }))
+    };
+
+    // ส่งไปเรียกฟังก์ชัน createKitchenOrderGS ใน Code.gs
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ 
+            action: "createKitchenOrderGS", 
+            args: [orderData] 
+        }),
+        redirect: "follow"
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "Success") {
+            alert("ส่งออเดอร์เข้าครัวเรียบร้อย! 🍳");
+            cart = []; // ล้างตะกร้าหลังส่งเสร็จ
+            updateCartUI();
+        } else {
+            alert("เกิดข้อผิดพลาด: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("การเชื่อมต่อล้มเหลว");
+    });
+}
+
+// ดึงข้อมูลโต๊ะจาก Google Sheets
+function loadTableSelector() {
+    google.script.run.withSuccessHandler(function(tables) {
+        let container = document.getElementById('tableSelectorView');
+        let html = '';
+        
+        tables.forEach(table => {
+            // เช็คสีตามสถานะโต๊ะ (ใช้ตรรกะเดิมของคุณ)
+            let color = (table.status === 'ว่าง' || table.status === '🟢 ว่าง') ? 'bg-green-100 border-green-300 text-green-700' : 'bg-red-100 border-red-300 text-red-700';
+            
+            html += `
+            <div onclick="selectTable('${table.name}', '${table.status}')" class="p-4 rounded-xl border-2 ${color} text-center font-bold shadow-sm cursor-pointer active:scale-95 transition">
+                <div class="text-sm">${table.name}</div>
+                <div class="text-[10px]">${table.status}</div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }).getTablesData();
+}
+
+// ฟังก์ชันเมื่อพนักงานกดเลือกโต๊ะ
+let selectedTable = "";
+function selectTable(name, status) {
+    selectedTable = name;
+    if (status === 'ว่าง' || status === '🟢 ว่าง') {
+        document.getElementById('modalTableName').innerText = "เปิดโต๊ะ: " + name;
+        document.getElementById('openTableModal').classList.remove('hidden');
+    } else {
+        // ถ้าโต๊ะไม่ว่าง ก็เข้าหน้าสั่งอาหารได้เลย
+        enterOrderView(name);
+    }
+}
+
+// ฟังก์ชันยืนยันเปิดโต๊ะ (ใช้ฟังก์ชันที่คุณมีอยู่แล้วใน backend)[cite: 2]
+function confirmOpenTable() {
+    let count = document.getElementById('headCountInput').value;
+    google.script.run.withSuccessHandler(() => {
+        document.getElementById('openTableModal').classList.add('hidden');
+        enterOrderView(selectedTable);
+    }).openTableGS(selectedTable, 'A_la_carte', count, '', '');
+}
+
+// เข้าหน้าสั่งอาหาร (ซ่อนหน้าโต๊ะ แสดงหน้าเมนู)
+function enterOrderView(name) {
+    currentTable = name;
+    document.getElementById('tableSelectorView').classList.add('hidden');
+    document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
+    // เรียกโหลดเมนูอาหารที่นี่
+}
+function clearTable() {
+    if (!currentTable) return;
+
+    showConfirmAlert(
+        'เช็คบิลและเคลียร์โต๊ะ?', 
+        `ยืนยันการเคลียร์โต๊ะ ${currentTable} เพื่อให้ลูกค้าท่านใหม่เข้ามาใช้งาน?`, 
+        '🧹', 
+        'ยืนยัน',
+        () => {
+            // เรียกใช้ฟังก์ชัน updateTableStatusGS ของคุณ
+            google.script.run
+                .withSuccessHandler(function() {
+                    showAlert("เคลียร์โต๊ะเรียบร้อย", `โต๊ะ ${currentTable} ว่างแล้วครับ`, "✅", "success");
+                    // เด้งกลับไปหน้าแรก (หน้าเลือกโต๊ะ)
+                    document.getElementById('productGrid').classList.add('hidden');
+                    document.getElementById('tableSelectorView').classList.remove('hidden');
+                    loadTableSelector(); // โหลดสถานะโต๊ะใหม่
+                })
+                .updateTableStatusGS(currentTable, "ว่าง"); 
+        }
+    );
+}
+</script>
 </body>
 </html>
