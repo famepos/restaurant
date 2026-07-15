@@ -185,45 +185,156 @@
         Swal.fire("สำเร็จ", "ส่งออเดอร์เข้าครัวแล้ว", "success");
         cart = []; updateCartUI(); closeCart(); backToTables();
     }
-// ฟังก์ชันสำหรับรวบรวมข้อมูลจาก Modal แล้วส่งไปเปิดโต๊ะ
-async function confirmOpenTable() {
-    // 1. ดึงค่าจาก Input ใน Modal
-    const tableName = document.getElementById('openTableNameDisplay').innerText.replace("🪑 เปิดโต๊ะอาหาร: ", "");
-    const mode = document.getElementById('selectedTableMode').value; // 'Buffet' หรือ 'A_la_carte'
-    const packageName = document.getElementById('selectBuffetPackage').value;
-    const timeLimit = document.getElementById('inputTimeLimit').value;
-    
-    // 2. คำนวณจำนวนลูกค้า (รวมผู้ใหญ่ + เด็ก + ผู้สูงอายุ)
-    const adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
-    const kid = parseInt(document.getElementById('inputKidCount').value) || 0;
-    const senior = parseInt(document.getElementById('inputSeniorCount').value) || 0;
-    const totalHeads = adult + kid + senior;
+function setTableMode(mode) {
+        document.getElementById('selectedTableMode').value = mode;
+        let btnB = document.getElementById('btnModeBuffet');
+        let btnA = document.getElementById('btnModeAlacarte');
+        let pkgBox = document.getElementById('buffetPackageContainer');
+        let timeBox = document.getElementById('timeLimitContainer');
 
-    if (totalHeads <= 0) {
-        Swal.fire("แจ้งเตือน", "กรุณาระบุจำนวนลูกค้าอย่างน้อย 1 ท่าน", "warning");
-        return;
-    }
+        if (mode === 'Buffet') {
+            btnB.className = "py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold transition shadow-sm text-sm";
+            btnA.className = "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm text-sm";
+            pkgBox.classList.remove('hidden');
+            timeBox.classList.remove('hidden');
+        } else {
+            btnB.className = "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm text-sm";
+            btnA.className = "py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold transition shadow-sm text-sm";
+            pkgBox.classList.add('hidden');
+            timeBox.classList.add('hidden');
+        }
+    }
 
-    // 3. เรียก API หลังบ้าน (ฟังก์ชัน openTableGS ใน)
-    Swal.fire({ title: "กำลังเปิดโต๊ะ...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-    try {
-        const result = await api("openTableGS", [tableName, mode, totalHeads, packageName, timeLimit]);
-        
-        if (result) {
-            Swal.fire({
-                icon: "success",
-                title: "เปิดโต๊ะสำเร็จ",
-                text: "โต๊ะนี้พร้อมใช้งานแล้วในระบบ POS",
-                timer: 1500
-            });
-            document.getElementById('openTableModeModal').classList.add('hidden');
-            loadTables(); // รีเฟรชหน้าจอ Staff ให้เป็นสีแดง (สถานะไม่ว่าง)
-        }
-    } catch (e) {
-        Swal.fire("ผิดพลาด", "ไม่สามารถเปิดโต๊ะได้: " + e, "error");
-    }
+// ประกาศตัวแปร Global ไว้ด้านบนๆ หรือก่อนฟังก์ชัน
+window.isPrepaidOrder = false;
+
+function adjustHeadCount(type, val) {
+    let inputId = type === 'adult' ? 'inputAdultCount' : type === 'kid' ? 'inputKidCount' : 'inputSeniorCount';
+    let input = document.getElementById(inputId);
+    let v = (parseInt(input.value) || 0) + val;
+    
+    // ผู้ใหญ่ควรมีอย่างน้อย 1 คน (แต่ถ้ากดจนเหลือ 0 ก็ให้เป็น 0 ได้)
+    if (type === 'adult' && v < 1) v = 1; 
+    else if (v < 0) v = 0;
+    
+    input.value = v;
 }
+
+  function adjustTimeLimit(val) {
+        let input = document.getElementById('inputTimeLimit');
+        let v = (parseInt(input.value) || 90) + val;
+        if(v >= 1) input.value = v;
+    }
+
+function setPaymentWorkflow(isPrepaid) {
+    document.getElementById('isPrepaidWorkflow').value = isPrepaid ? "true" : "false";
+    window.isPrepaidOrder = isPrepaid; // บันทึกสถานะไว้ใช้ตอนชำระเงิน
+    
+    let btnPayLater = document.getElementById('btnPayLater');
+    let btnPayNow = document.getElementById('btnPayNow');
+    
+    // สลับสีปุ่มให้ชัดเจน
+    if (isPrepaid) {
+        btnPayNow.className = "py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold transition text-xs shadow-sm";
+        btnPayLater.className = "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
+    } else {
+        btnPayLater.className = "py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold transition text-xs shadow-sm";
+        btnPayNow.className = "py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
+    }
+}
+// 3. ฟังก์ชันกดยืนยันเปิดโต๊ะ (อัปเดตแบบ Real-time ลื่นไหล 0 วินาที)
+function confirmOpenTable() {
+    let mode = document.getElementById('selectedTableMode').value;
+    let tableName = document.getElementById('openTableNameDisplay').innerText;
+    
+    // จัดการตัวแปรจำนวนคน
+    let adultCount = parseInt(document.getElementById('inputAdultCount').value) || 0;
+    let kidCount = parseInt(document.getElementById('inputKidCount').value) || 0;
+    let seniorCount = parseInt(document.getElementById('inputSeniorCount').value) || 0;
+    let headCount = adultCount + kidCount + seniorCount; 
+    
+    // จัดการตัวแปรแพ็กเกจและเวลา
+    let pkgName = mode === 'Buffet' ? document.getElementById('selectBuffetPackage').value : 'A la carte';
+    let pkgPrice = mode === 'Buffet' ? parseFloat(document.getElementById('selectBuffetPackagePrice').value) : 0;
+    
+    let timeInput = document.getElementById('inputTimeLimit');
+    let timeLimit = (mode === 'Buffet' && timeInput && timeInput.value !== "") ? parseInt(timeInput.value) : "ไม่จำกัด";
+
+    // เช็คว่ากดปุ่มชำระเงินรูปแบบไหนมา
+    let isPrepaidInput = document.getElementById('isPrepaidWorkflow');
+    let isPrepaid = isPrepaidInput ? isPrepaidInput.value === "true" : false;
+
+    // 🚀 ปิดหน้าต่างป๊อปอัปทั้งหมด "ทันที" ไม่ต้องรอโหลดเซิร์ฟเวอร์
+    document.getElementById('openTableModeModal').classList.add('hidden');
+    let tableModal = document.getElementById('salesTableModal');
+    if(tableModal) tableModal.classList.add('hidden');
+
+    if (isPrepaid) {
+        // =========================================================
+        // 💳 1. รูปแบบ: จ่ายก่อนกิน (Prepaid) - ตอบสนองทันที
+        // =========================================================
+        window.isPrepaidOrder = true; 
+        
+        // โชว์ชื่อโต๊ะบนหน้า POS ทันที
+        setOrderType('DineIn');
+        document.getElementById('inputTableNo').value = tableName;
+        let displaySelectedTable = document.getElementById('displaySelectedTable');
+        if(displaySelectedTable) displaySelectedTable.innerText = tableName;
+        
+        let serviceContainer = document.getElementById('tableSelectedDisplayContainer');
+        if(serviceContainer) { 
+            serviceContainer.classList.remove('hidden'); 
+            serviceContainer.classList.add('flex'); 
+        }
+
+        // ถ้าเป็นบุฟเฟต์ โยนราคาเข้าตะกร้าด้านขวาทันที!
+        if (mode === 'Buffet') {
+            let adultPrice = pkgPrice; 
+            let kidPrice = pkgPrice / 2; 
+            let seniorPrice = Math.floor(pkgPrice * 0.8);
+
+            cart = []; 
+            if (adultCount > 0) cart.push({ name: `${pkgName} (ผู้ใหญ่) [เวลา ${timeLimit} นาที]`, price: adultPrice, qty: adultCount, total: adultPrice * adultCount });
+            if (kidCount > 0) cart.push({ name: `${pkgName} (เด็ก) [เวลา ${timeLimit} นาที]`, price: kidPrice, qty: kidCount, total: kidPrice * kidCount });
+            if (seniorCount > 0) cart.push({ name: `${pkgName} (ผู้สูงอายุ) [เวลา ${timeLimit} นาที]`, price: seniorPrice, qty: seniorCount, total: seniorPrice * seniorCount });
+            
+            updateCartUI(); // อัปเดตตะกร้าให้ตัวเลขวิ่งทันที
+        }
+
+        showToast("เพิ่มลงตะกร้าแล้ว กดสั่งอาหารเพิ่มหรือชำระเงินได้เลย", "success");
+
+    } else {
+        // =========================================================
+        // 💵 2. รูปแบบ: กินก่อนจ่ายทีหลัง (Pay Later)
+        // =========================================================
+        window.isPrepaidOrder = false;
+
+        // โยนเข้าบิลพัก และพิมพ์ QR ทันที
+        createInitialTableHold(tableName, mode, adultCount, kidCount, seniorCount, pkgName, pkgPrice, timeLimit);
+        showToast("เปิดโต๊ะ " + tableName + " สำเร็จ!", "success");
+        printTableQRReceipt(tableName, mode, pkgName, headCount, timeLimit);
+
+        // ซ่อนกล่องโต๊ะ
+        document.getElementById('inputTableNo').value = ""; 
+        let serviceContainer = document.getElementById('tableSelectedDisplayContainer');
+        if (serviceContainer) {
+            serviceContainer.classList.add('hidden'); 
+            serviceContainer.classList.remove('flex'); 
+        }
+    }
+
+    // 🔄 ส่งข้อมูลไปบันทึกหลังบ้านแบบ "เงียบๆ" (Background Process)
+    // โดยไม่มีการล็อกปุ่ม หรือขึ้นคำว่า "กำลังโหลด..." ให้กวนใจ
+google.script.run.withSuccessHandler(function(updatedTables) {
+    if (updatedTables) {
+        globalTablesList = updatedTables;
+        if(typeof loadTablesData === 'function') loadTablesData(true);
+    }
+}).openTableGS(tableName, mode, headCount, pkgName, timeLimit, isPrepaid);
+}
+
+
     loadTables();
     setInterval(loadTables, 5000);
 </script>
