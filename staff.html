@@ -9,7 +9,7 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
-        body { font-family: 'Kanit', sans-serif; background-color: #fccfed; }
+           body { font-family: 'Kanit', sans-serif; background-color: #fccfed; color: #b32089; margin: 0; }
     </style>
 </head>
   <body class="pb-24">
@@ -265,29 +265,70 @@ setInterval(function() {
     }
 }, 5000);
 
+// ==========================================
+// 1. ระบบจัดการโต๊ะ (อัปเดต UI แบบภาพที่ 2)
+// ==========================================
+
 // ดึงข้อมูลโต๊ะจาก Google Sheets[cite: 2]
-// ดึงข้อมูลโต๊ะจาก Google Sheets
 function loadTableSelector() {
     google.script.run.withSuccessHandler(function(tables) {
-        globalTablesList = tables; // 🟢 เก็บข้อมูลสถานะแพ็กเกจโต๊ะทั้งหมดไว้
-        
+        globalTablesList = tables; 
         let container = document.getElementById('tableSelectorView');
         let html = '';
         
         tables.forEach(table => {
-            let color = "";
+            // กำหนดสีของ "เก้าอี้" และ "ขอบโต๊ะ" ตามสถานะ
+            let chairColor = "";
+            let boxBorder = "";
+            let bgTable = "bg-white";
+
             if (table.status === 'ว่าง' || table.status === '🟢 ว่าง') {
-                color = 'bg-green-100 border-green-300 text-green-700'; 
+                chairColor = 'bg-green-500';      // เก้าอี้สีเขียว
+                boxBorder = 'border-green-200';
             } else if (table.status === '🟡 เรียกเก็บเงิน') {
-                color = 'bg-yellow-100 border-yellow-400 text-yellow-700 animate-pulse'; 
+                chairColor = 'bg-yellow-400 animate-pulse'; // เก้าอี้สีเหลืองกระพริบ
+                boxBorder = 'border-yellow-300';
+                bgTable = 'bg-yellow-50';
             } else {
-                color = 'bg-red-100 border-red-300 text-red-700'; 
+                chairColor = 'bg-red-500';        // เก้าอี้สีแดง (ไม่ว่าง)
+                boxBorder = 'border-red-200';
+                bgTable = 'bg-red-50';            // พื้นหลังโต๊ะอมแดงนิดๆ ให้รู้ว่ามีคน
             }
             
+            // จัดเตรียมข้อมูลที่จะโชว์กลางโต๊ะ
+            let middleContent = '';
+            if (table.status === 'ว่าง' || table.status === '🟢 ว่าง') {
+                middleContent = `<div class="text-sm font-bold text-green-600 mt-2">ว่าง</div>`;
+            } else {
+                // ดึงจำนวนคนและรูปแบบการทานมาแสดง[cite: 2]
+                let headcount = parseInt(table.headCount) || 0;
+                let modeText = table.orderMode === 'Buffet' ? '🥩 บุฟเฟต์' : '🍽️ สั่งแยก';
+                
+                middleContent = `
+                    <div class="text-[11px] text-gray-500 font-bold mb-1">${modeText}</div>
+                    <div class="flex items-center gap-1 text-sm font-black text-gray-700">
+                        <span class="text-lg">👤</span> ${headcount}
+                    </div>
+                `;
+            }
+            
+            // วาดกล่อง UI แบบมีเก้าอี้ 4 ด้าน
             html += `
-            <div onclick="selectTable('${table.name}', '${table.status}')" class="p-4 rounded-xl border-2 ${color} text-center font-bold shadow-sm cursor-pointer active:scale-95 transition">
-                <div class="text-sm">${table.name}</div>
-                <div class="text-[10px]">${table.status}</div>
+            <div class="p-2"> <!-- เว้นระยะให้เก้าอี้ไม่ชนกัน -->
+                <div onclick="selectTable('${table.name}', '${table.status}')" class="relative w-full aspect-square ${bgTable} rounded-2xl shadow-sm border-2 ${boxBorder} flex flex-col items-center justify-center p-2 cursor-pointer active:scale-95 transition">
+                    
+                    <!-- เก้าอี้ 4 ด้าน (ใช้ CSS Absolute วางตำแหน่ง) -->
+                    <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 rounded-sm ${chairColor}"></div>
+                    <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-3 rounded-sm ${chairColor}"></div>
+                    <div class="absolute top-1/2 -left-2 -translate-y-1/2 w-3 h-8 rounded-sm ${chairColor}"></div>
+                    <div class="absolute top-1/2 -right-2 -translate-y-1/2 w-3 h-8 rounded-sm ${chairColor}"></div>
+
+                    <!-- ข้อมูลกลางโต๊ะ -->
+                    <div class="text-xl font-black text-gray-800 tracking-tight">${table.name}</div>
+                    <div class="w-10 h-0.5 bg-gray-300 my-1.5 rounded-full"></div> <!-- เส้นคั่น -->
+                    ${middleContent}
+                    
+                </div>
             </div>`;
         });
         container.innerHTML = html;
@@ -513,59 +554,51 @@ function sendToKitchen() {
     });
 }
 // ==========================================
-// 4. ระบบเคลียร์โต๊ะ (อัปเดตป๊อปอัป SweetAlert2)
+// 4. ระบบเคลียร์โต๊ะ
 // ==========================================
 function clearTable() {
     if (!currentTable) return;
 
-    // ใช้ SweetAlert2 สร้างป๊อปอัปยืนยันแบบสวยงาม
     Swal.fire({
         title: 'เช็คบิลและเคลียร์โต๊ะ?',
         text: `ยืนยันการเคลียร์โต๊ะ ${currentTable} เพื่อให้ลูกค้ารอบใหม่เข้ามาใช้งาน?`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#db2777', // สีชมพู FamePOS
-        cancelButtonColor: '#9ca3af',  // สีเทา
+        confirmButtonColor: '#db2777', 
+        cancelButtonColor: '#9ca3af',  
         confirmButtonText: '✅ ยืนยันเคลียร์โต๊ะ',
         cancelButtonText: 'ยกเลิก',
-        reverseButtons: true // สลับให้ปุ่มยืนยันอยู่ด้านขวา (กดย้ายง่ายกว่า)
+        reverseButtons: true 
     }).then((result) => {
-        // ถ้าพนักงานกดปุ่ม "ยืนยัน"
         if (result.isConfirmed) {
-            
-            // เรียกฟังก์ชันหลังบ้านเพื่อเคลียร์โต๊ะ
             google.script.run
                 .withSuccessHandler(function() {
                     
-                    // 🟢 ใช้ Toast สีชมพูแจ้งเตือนว่าเคลียร์เสร็จแล้ว (เด้งขวาบน)
-                    showToast(`เคลียร์โต๊ะ ${currentTable} เรียบร้อยแล้วครับ`, "success");
+                    // 🟢 เปลี่ยนจาก alert เป็น showToast สีชมพู
+                    showToast(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
                     
-                    // 1. ล้างตะกร้า และ อัปเดตตัวเลขตะกร้า
+                    // ล้างตะกร้า
                     cart = [];
                     updateCartBadge();
                     currentTable = "";
                     
-                    // 2. ซ่อนหน้าเมนูและ Footer
+                    // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
                     document.getElementById('orderView').classList.add('hidden');
                     document.getElementById('orderFooter').classList.add('hidden');
-                    
-                    // 3. ซ่อนปุ่มย้อนกลับ
                     document.getElementById('btnBack').classList.add('hidden');
                     
-                    // 4. เปลี่ยนหัวกลับเป็นยังไม่เลือกโต๊ะ
+                    // 🟢 ปิดกล่องป๊อปอัป "ดูบิลโต๊ะนี้" (แก้บั๊กภาพที่ 2 ที่กล่องค้าง)
+                    document.getElementById('tableOrdersModal').classList.add('hidden');
+                    
+                    // กลับสู่หน้าเลือกโต๊ะ
                     document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
-                    
-                    // 5. โชว์หน้าโต๊ะกลับมา
                     document.getElementById('tableSelectorView').classList.remove('hidden');
-                    
-                    // 6. โหลดสถานะโต๊ะใหม่
                     loadTableSelector(); 
                 })
                 .updateTableStatusGS(currentTable, "ว่าง"); 
         }
     });
 }
-
 // ฟังก์ชันกดย้อนกลับไปหน้าเลือกโต๊ะ
 function goBackToTables() {
     // 1. ซ่อนหน้าสั่งอาหารและ Footer
@@ -845,7 +878,8 @@ function clearCart() {
     cart = [];
     updateCartBadge();
     closeCartModal();
-    alert("ล้างรายการในตะกร้าแล้วครับ");
+    // 🟢 เปลี่ยนจาก alert เป็น showToast
+    showToast("ล้างรายการในตะกร้าแล้วครับ", "info");
 }
 
 // วาดรายการสินค้าลงในตะกร้า
