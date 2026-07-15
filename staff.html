@@ -38,37 +38,53 @@
     </div>
   </div>
 
-  <script>
-// --- ส่วนเชื่อมต่อ (Proxy) ที่ปรับปรุงให้เสถียร ---
-     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+<script>
+// --- ส่วนเชื่อมต่อ (Proxy) เวอร์ชันแก้ไขใหม่ 100% ---
+const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
-window.google = {
+// สร้างออบเจ็กต์สำหรับเก็บสถานะ
+const RunManager = {
+    successCb: null,
+    failureCb: null,
+    
+    // ฟังก์ชันสำหรับ Chain .withSuccessHandler()
+    withSuccessHandler: function(cb) { this.successCb = cb; return this; },
+    withFailureHandler: function(cb) { this.failureCb = cb; return this; },
+    
+    // ฟังก์ชันรัน (ดักจับ method อื่นๆ เช่น getProducts)
+    runMethod: function(methodName, args) {
+        fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: methodName, args: args })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "Success" && this.successCb) this.successCb(data.result);
+            else if (data.status !== "Success" && this.failureCb) this.failureCb(data.message);
+            // ล้างค่าหลังจากทำงานเสร็จ
+            this.successCb = null; this.failureCb = null;
+        })
+        .catch(err => { if(this.failureCb) this.failureCb(err); else console.error(err); });
+    }
+};
+
+// สร้าง Proxy เพื่อดักจับการเรียกใช้คำสั่งทั้งหมด
+const google = {
     script: {
-        run: new Proxy({}, {
+        run: new Proxy(RunManager, {
             get: function(target, prop) {
-                let successCb = null;
-                // ถ้าเรียก withSuccessHandler ให้เก็บ callback ไว้
-                if (prop === 'withSuccessHandler') return (cb) => { successCb = cb; return target; };
-                
-                // ถ้าเรียกชื่อฟังก์ชัน ให้ส่ง request ไปที่ Apps Script
-                return (...args) => {
-                    fetch(API_URL, {
-                        method: "POST",
-                        body: JSON.stringify({ action: prop, args: args })
-                    })
-                    .then(res => res.json())
-                    .then(data => { if(successCb && data.status === "Success") successCb(data.result); });
-                };
+                if (prop in target) return target[prop];
+                return (...args) => target.runMethod(prop, args);
             }
         })
     }
 };
+// ----------------------------------------------------
 
-// --- โค้ด Staff App ---
 let cart = [];
 let allProducts = [];
 
-// ดึงข้อมูลเมื่อโหลดหน้าเว็บ
+// เรียกใช้งาน: google.script.run.withSuccessHandler(...).getProducts() ตอนนี้จะทำงานได้ปกติ!
 google.script.run.withSuccessHandler(data => {
     allProducts = data;
     renderProducts(allProducts);
@@ -77,13 +93,12 @@ google.script.run.withSuccessHandler(data => {
 function renderProducts(data) {
     let list = document.getElementById('product-list');
     list.innerHTML = '';
-    // ตามภาพ: Name=item[1], Category=item[2], Price=item[3], Remaining=item[7], Image=item[8]
     data.forEach(item => {
         if(item[1]) {
-            let name = item[1], price = item[3], cat = item[2], stock = item[7] || 0, img = item[8] || "";
+            let name = item[1], price = item[3], stock = item[7] || 999, img = item[8] || "https://via.placeholder.com/150";
             let isOut = stock <= 0;
             list.innerHTML += `
-                <div class="bg-white p-3 rounded-2xl shadow border ${isOut ? 'opacity-50' : ''} cursor-pointer" 
+                <div class="bg-white p-3 rounded-2xl shadow border ${isOut ? 'opacity-50' : 'cursor-pointer'} active:bg-pink-50" 
                      onclick="${isOut ? '' : `addToCart('${name}', ${price})`}">
                     <img src="${img}" class="w-full h-20 object-cover rounded-lg mb-2" onerror="this.src='https://via.placeholder.com/150'">
                     <div class="font-bold text-sm text-gray-800 truncate">${name}</div>
