@@ -367,7 +367,17 @@ const StaffEngine = {
     orderType:"DineIn"
 
 };
-
+// --- เพิ่มบรรทัดเหล่านี้ที่ด้านบนของส่วน <script> (ก่อนฟังก์ชันต่างๆ) ---
+const productView = document.getElementById('productView');
+const lblCurrentTable = document.getElementById('lblCurrentTable');
+const productGrid = document.getElementById('productGrid');
+const categoryBar = document.getElementById('categoryBar');
+const cartDrawer = document.getElementById('cartDrawer');
+const cartItems = document.getElementById('cartItems');
+const cartCount = document.getElementById('cartCount');
+const cartTotal = document.getElementById('cartTotal');
+const tableGrid = document.getElementById('tableGrid');
+const txtSearch = document.getElementById('txtSearch');
 let cart=[];
 let tables = [];
 StaffEngine.table
@@ -438,29 +448,20 @@ function renderTables()
     freeTables.innerHTML = free;
 }
 
+// แก้ไขฟังก์ชัน openProductPage ให้เหลืออันเดียวและถูกต้อง
 function openProductPage(){
+    // ซ่อน Grid โต๊ะอาหาร (ถ้าคุณโครงสร้างเปลี่ยน ให้เช็คให้แน่ใจว่าปิดส่วนที่แสดงโต๊ะได้ถูกต้อง)
+    const tableContainer = document.getElementById('tableGrid').parentElement; 
+    tableContainer.style.display = "none";
 
-Swal.fire({
-
-title:"ตอนที่ 3",
-
-text:"จะเปิดหน้าเลือกอาหารของพนักงาน",
-
-icon:"info"
-
-});
-
-}
-function openProductPage(){
-
-document.querySelector(".flex.flex-col.h-screen").children[2].style.display="none";
-
-productView.classList.remove("hidden");
-
-lblCurrentTable.innerHTML = StaffEngine.table;
-
-loadProducts();
-
+    // แสดงหน้าสินค้า
+    productView.classList.remove("hidden");
+    
+    // ตั้งค่าโต๊ะปัจจุบัน
+    lblCurrentTable.innerHTML = StaffEngine.table;
+    
+    // โหลดสินค้า
+    loadProducts();
 }
 function backToTables(){
 
