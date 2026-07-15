@@ -42,14 +42,16 @@
         </main>
     </div>
 
-<!-- 4. FOOTER (อัปเดตใหม่เป็น Grid 2 บรรทัด) -->
+<!-- 4. FOOTER (อัปเดตมีปุ่มดูตะกร้า) -->
     <footer id="orderFooter" class="hidden fixed bottom-0 w-full bg-white border-t p-4 grid grid-cols-2 gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <!-- บรรทัดบน: จัดการโต๊ะ -->
         <button onclick="viewTableOrders()" class="bg-blue-50 text-blue-600 border border-blue-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">📋 ดูออเดอร์โต๊ะนี้</button>
         <button onclick="clearTable()" class="bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">✅ เช็คบิล (ว่าง)</button>
         <!-- บรรทัดล่าง: จัดการตะกร้า -->
-        <button onclick="cart=[]; alert('ล้างตะกร้าแล้ว');" class="bg-gray-100 text-gray-600 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">🗑️ ล้างของที่เพิ่งกด</button>
-        <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งเข้าแคชเชียร์ 🔔</button>
+        <button onclick="openCartModal()" class="bg-pink-100 text-pink-700 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition flex justify-center items-center gap-2">
+            🛒 ดูตะกร้า <span id="cartCountBadge" class="bg-pink-500 text-white px-2 py-0.5 rounded-full text-xs">0</span>
+        </button>
+        <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
     </footer>
 
 <!-- MODAL: เปิดโต๊ะแบบ Full Option (เหมือน Cashier) -->
@@ -148,6 +150,36 @@
             <button onclick="document.getElementById('tableOrdersModal').classList.add('hidden')" class="w-full mt-4 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-bold text-lg active:scale-95 transition">
                 ปิดหน้าต่าง
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL: ดูตะกร้าสินค้าที่เพิ่งกด (ก่อนส่ง) -->
+    <div id="cartModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] flex items-end sm:items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <h3 class="text-xl font-bold text-gray-800">🛒 ตะกร้า: <span id="cartTableNameDisplay"></span></h3>
+                <button onclick="closeCartModal()" class="text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+            </div>
+            
+            <!-- พื้นที่แสดงรายการในตะกร้า -->
+            <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[200px]">
+                <!-- รายการจะโผล่ที่นี่ -->
+            </div>
+            
+            <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center mb-4">
+                <span class="text-lg font-bold text-gray-600">ยอดรวมตะกร้านี้:</span>
+                <span id="cartTotalDisplay" class="text-2xl font-black text-pink-600">฿0.00</span>
+            </div>
+
+            <!-- ปุ่มกดยืนยันส่ง หรือ ล้างทิ้ง -->
+            <div class="flex gap-2">
+                <button onclick="clearCart()" class="w-1/3 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-bold text-sm active:scale-95 transition">
+                    🗑️ ล้างทิ้ง
+                </button>
+                <button onclick="sendToKitchen()" class="w-2/3 bg-pink-600 text-white py-3.5 rounded-xl font-bold text-lg shadow-md active:scale-95 transition">
+                    ส่งแคชเชียร์ 🔔
+                </button>
+            </div>
         </div>
     </div>
 
@@ -299,9 +331,10 @@ function renderProductGrid(data) {
 }
 
 // ==========================================
-// 3. ระบบตะกร้า และ ส่งเข้าครัว
+// 6. ระบบตะกร้าสินค้า (ก่อนส่งเข้าแคชเชียร์)
 // ==========================================
 
+// อัปเดตฟังก์ชัน addToCart เดิม ให้เรียกอัปเดตตัวเลขหน้าปุ่มด้วย
 function addToCart(name, price) {
     let existing = cart.find(item => item.name === name);
     if(existing) {
@@ -309,7 +342,11 @@ function addToCart(name, price) {
     } else {
         cart.push({ name: name, price: price, qty: 1 });
     }
-    // เปลี่ยนข้อความบนปุ่มชั่วคราวให้พนักงานรู้ว่าเพิ่มแล้ว
+    
+    // อัปเดตตัวเลขบนปุ่ม
+    updateCartBadge();
+
+    // เอฟเฟกต์ปุ่ม
     let btn = document.querySelector(`button[onclick="addToCart('${name}', ${price})"]`);
     if(btn) {
         let oldText = btn.innerText;
@@ -318,12 +355,11 @@ function addToCart(name, price) {
         setTimeout(() => {
             btn.innerText = oldText;
             btn.classList.replace("bg-green-500", "bg-pink-500");
-        }, 1000);
+        }, 800);
     }
-    console.log("ตะกร้าปัจจุบัน:", cart);
 }
 // ==========================================
-// ส่งออเดอร์เข้าแคชเชียร์ (แจ้งเตือนเหมือน QR)
+// ส่งออเดอร์เข้าแคชเชียร์ (อัปเดตรองรับตะกร้า)
 // ==========================================
 function sendToKitchen() {
     if (cart.length === 0) {
@@ -331,10 +367,10 @@ function sendToKitchen() {
         return;
     }
 
-    // 1. คำนวณยอดรวม (เพราะระบบ QR ของแคชเชียร์ต้องการยอดเงินรวมด้วย)[cite: 5]
+    // 1. คำนวณยอดรวม (เพราะระบบ QR ของแคชเชียร์ต้องการยอดเงินรวมด้วย)
     let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-    // 2. จัดรูปแบบข้อมูลให้ตรงกับที่ระบบ QR เมนูใช้งาน[cite: 5]
+    // 2. จัดรูปแบบข้อมูลให้ตรงกับที่ระบบ QR เมนูใช้งาน
     let orderPayload = { 
         table: currentTable, 
         items: cart.map(item => ({
@@ -345,7 +381,11 @@ function sendToKitchen() {
         total: totalAmount 
     };
 
-    // 3. เปลี่ยนคำสั่งเป็น submitCustomerOrder เพื่อพุ่งไปหาแคชเชียร์[cite: 2]
+    // ป้องกันพนักงานกดปุ่มเบิ้ลตอนเน็ตช้า
+    let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
+    btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
+
+    // 3. เปลี่ยนคำสั่งเป็น submitCustomerOrder เพื่อพุ่งไปหาแคชเชียร์
     fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -357,18 +397,26 @@ function sendToKitchen() {
     })
     .then(res => res.json())
     .then(data => {
+        // คืนค่าปุ่มกลับมา
+        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+
         if(data.status === "Success") {
             alert("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔");
-            cart = []; // ล้างตะกร้าหลังส่งเสร็จ
             
-            // (ทางเลือก) เด้งกลับหน้าเลือกโต๊ะอัตโนมัติ เพื่อให้พนักงานไปดูแลโต๊ะอื่นต่อ
-            goBackToTables(); 
+            // 🟢 จัดการตะกร้าและหน้าจอหลังส่งสำเร็จ 🟢
+            cart = [];             // 1. ล้างตะกร้า
+            updateCartBadge();     // 2. รีเซ็ตตัวเลขบนปุ่มเป็น 0
+            closeCartModal();      // 3. ปิดกล่องป๊อปอัปตะกร้า (ถ้าเปิดอยู่)
+            goBackToTables();      // 4. เด้งกลับหน้าเลือกโต๊ะอัตโนมัติ
+            
         } else {
             alert("เกิดข้อผิดพลาด: " + data.message);
         }
     })
     .catch(err => {
-        alert("การเชื่อมต่อล้มเหลว");
+        // คืนค่าปุ่มกลับมาถ้า error
+        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+        alert("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง");
     });
 }
 
@@ -595,6 +643,77 @@ function submitTableOpen() {
         
         enterOrderView(selectedTable);
     }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit);
+}
+
+// อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
+function updateCartBadge() {
+    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+    document.getElementById('cartCountBadge').innerText = totalItems;
+}
+
+// เปิดหน้าต่างตะกร้า
+function openCartModal() {
+    document.getElementById('cartTableNameDisplay').innerText = currentTable;
+    renderCartItems();
+    document.getElementById('cartModal').classList.remove('hidden');
+}
+
+// ปิดหน้าต่างตะกร้า
+function closeCartModal() {
+    document.getElementById('cartModal').classList.add('hidden');
+}
+
+// ล้างตะกร้าทิ้ง
+function clearCart() {
+    cart = [];
+    updateCartBadge();
+    closeCartModal();
+    alert("ล้างรายการในตะกร้าแล้วครับ");
+}
+
+// วาดรายการสินค้าลงในตะกร้า
+function renderCartItems() {
+    let container = document.getElementById('cartItemsContainer');
+    let html = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+        container.innerHTML = '<div class="text-center py-10 text-gray-400 font-bold">ยังไม่ได้เลือกเมนูครับ 🍽️</div>';
+        document.getElementById('cartTotalDisplay').innerText = "฿0.00";
+        return;
+    }
+
+    cart.forEach((item, index) => {
+        let lineTotal = item.price * item.qty;
+        total += lineTotal;
+        html += `
+        <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
+            <div class="flex-1 pr-2">
+                <div class="font-bold text-gray-800 text-sm">${item.name}</div>
+                <div class="text-pink-600 font-bold text-xs">฿${item.price.toFixed(2)}</div>
+            </div>
+            
+            <!-- ปุ่มบวก/ลบจำนวน -->
+            <div class="flex items-center gap-3 shrink-0">
+                <button onclick="adjustCartQty(${index}, -1)" class="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-600 font-bold hover:bg-gray-100 active:scale-95 transition">-</button>
+                <span class="font-bold w-4 text-center">${item.qty}</span>
+                <button onclick="adjustCartQty(${index}, 1)" class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 font-bold hover:bg-pink-200 active:scale-95 transition">+</button>
+            </div>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+    document.getElementById('cartTotalDisplay').innerText = "฿" + total.toFixed(2);
+}
+
+// ฟังก์ชันปรับเพิ่ม/ลดจำนวนในตะกร้า
+function adjustCartQty(index, amount) {
+    cart[index].qty += amount;
+    if (cart[index].qty <= 0) {
+        cart.splice(index, 1); // ถ้าลดเหลือ 0 ให้ลบทิ้ง
+    }
+    updateCartBadge();
+    renderCartItems(); // วาดตะกร้าใหม่
 }
 </script>
 </body>
