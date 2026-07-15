@@ -116,25 +116,43 @@ function renderTableGrid(tables) {
     let zones = [...new Set(tables.map(t => t.zone))];
     
     zones.forEach(zone => {
-        grid.innerHTML += `<div class="col-span-3 font-bold text-pink-600 mt-2 border-b pb-1">${zone}</div>`;
+        grid.innerHTML += `<div class="col-span-3 font-bold text-pink-600 mt-4 border-b pb-1 text-sm">${zone}</div>`;
         
         tables.filter(t => t.zone === zone).forEach(t => {
             let isAvailable = (t.status === "ว่าง" || t.status === "🟢 ว่าง");
             
-            // 🟢 เปลี่ยน LOGIC ตรงนี้: 
-            // ถ้าว่าง -> ไปหน้าเปิดโต๊ะ | ถ้ามีลูกค้าแล้ว -> ไปหน้าสั่งอาหาร(selectTable)
+            // ถ้าว่าง -> เปิดโต๊ะใหม่ | ถ้าไม่ว่าง -> เลือกโต๊ะนั้นเพื่อสั่งเพิ่ม (Select Table)
             let action = isAvailable ? `openTableModeModal('${t.name}')` : `selectTable('${t.name}')`;
-            let btnClass = isAvailable 
-                ? "bg-green-100 text-green-700"  // โต๊ะว่าง
-                : "bg-orange-100 text-orange-700"; // โต๊ะมีคนนั่งแล้ว (เปลี่ยนสีให้กดได้)
             
+            // แสดงข้อมูลในปุ่ม (ถ้ามีคนนั่ง ให้โชว์จำนวนคนและยอดเงิน)
+            let displayInfo = isAvailable 
+                ? `<span class="text-[10px] text-gray-400">ว่าง</span>` 
+                : `
+                    <div class="flex justify-center items-center gap-1 text-[10px] text-orange-700 font-bold">
+                        <span>👤 ${t.headCount || 0}</span>
+                    </div>`;
+
             grid.innerHTML += `
-                <button onclick="${action}" class="p-4 ${btnClass} rounded-xl font-bold border border-gray-200">
-                    ${t.name}<br>
-                    <span class="text-[10px]">${isAvailable ? 'ว่าง' : 'มีลูกค้า'}</span>
+                <button onclick="${action}" class="p-3 ${isAvailable ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'} rounded-2xl font-bold border flex flex-col items-center transition shadow-sm active:scale-95">
+                    <span class="text-xs text-gray-800">${t.name}</span>
+                    ${displayInfo}
                 </button>`;
         });
     });
+}
+
+function selectTable(name) {
+    document.getElementById('tableNo').value = name;
+    document.getElementById('tableModal').classList.add('hidden');
+    document.getElementById('header-title').innerText = "โต๊ะ: " + name;
+
+    // ดึงข้อมูลบิลและอัปเดตยอดรวม
+    google.script.run.withSuccessHandler(function(res) {
+        // res.total คือยอดรวมปัจจุบัน
+        cart = (typeof res.items === 'string') ? JSON.parse(res.items) : (res.items || []);
+        document.getElementById('totalDisplay').innerText = "฿" + parseFloat(res.total || 0).toFixed(2);
+        renderCart(); // วาดรายการในตะกร้า
+    }).getTableTotalGS(name);
 }
 
     function openTableModeModal(name) {
