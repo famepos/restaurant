@@ -410,10 +410,11 @@ function loadTableSelector() {
 }
 
 // ฟังก์ชันโหลดข้อมูลสินค้า (แก้ให้แค่โหลดมาเก็บไว้ ยังไม่เรนเดอร์จนกว่าจะรู้ว่าเข้าโต๊ะไหน)
-function loadProducts() {
+function loadProducts(callback) {
     google.script.run.withSuccessHandler(function(data) {
-        if (data && data.length > 0) {
+        if (data) {
             allSalesProducts = data;
+            if (callback) callback(); // สั่งให้ทำงานต่อหลังจากโหลดเสร็จ
         }
     }).getProducts();
 }
@@ -439,35 +440,40 @@ function confirmOpenTable() {
 function enterOrderView(name) {
     currentTable = name;
     
-    document.getElementById('tableSelectorView').classList.add('hidden');
-    document.getElementById('orderView').classList.remove('hidden'); 
-    document.getElementById('productGrid').classList.remove('hidden');
-    document.getElementById('orderFooter').classList.remove('hidden');
-    document.getElementById('btnBack').classList.remove('hidden');
-    document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
+    // 1. โหลดข้อมูลสินค้าใหม่จาก Google Sheets ก่อนทุกครั้ง
+    // เพื่อให้ได้สต็อกล่าสุด (Remaining)
+    loadProducts(() => {
+        // เมื่อโหลดเสร็จแล้ว ค่อยทำงานส่วนที่เหลือต่อใน Callback
+        document.getElementById('tableSelectorView').classList.add('hidden');
+        document.getElementById('orderView').classList.remove('hidden'); 
+        document.getElementById('productGrid').classList.remove('hidden');
+        document.getElementById('orderFooter').classList.remove('hidden');
+        document.getElementById('btnBack').classList.remove('hidden');
+        document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
 
-    // 🟢 เช็คว่าโต๊ะที่เข้าเป็นโหมด Buffet หรือไม่
-    let myTable = globalTablesList.find(t => t.name === name);
-    
-    if (myTable && myTable.orderMode === 'Buffet') {
-        isBuffetMode = true;
-        // ดึงหมวดหมู่ที่ฟรีในแพ็กเกจบุฟเฟต์นี้มา
-        google.script.run.withSuccessHandler(function(categories) {
-            let rawCat = categories || "";
-            if (typeof rawCat === "string") {
-                buffetIncludedCategories = rawCat.split('|').map(s => s.trim());
-            } else if (Array.isArray(rawCat)) {
-                buffetIncludedCategories = rawCat.map(s => s.toString().trim());
-            }
-            if (!Array.isArray(buffetIncludedCategories)) buffetIncludedCategories = [];
-            
-            renderProductGrid(); // วาดสินค้าใหม่ด้วยราคาบุฟเฟต์
-        }).getBuffetCategoriesByPackageGS(myTable.packageName);
-    } else {
-        isBuffetMode = false;
-        buffetIncludedCategories = [];
-        renderProductGrid(); // วาดสินค้าด้วยราคาปกติ A la carte
-    }
+        // 🟢 เช็คว่าโต๊ะที่เข้าเป็นโหมด Buffet หรือไม่
+        let myTable = globalTablesList.find(t => t.name === name);
+        
+        if (myTable && myTable.orderMode === 'Buffet') {
+            isBuffetMode = true;
+            // ดึงหมวดหมู่ที่ฟรีในแพ็กเกจบุฟเฟต์นี้มา
+            google.script.run.withSuccessHandler(function(categories) {
+                let rawCat = categories || "";
+                if (typeof rawCat === "string") {
+                    buffetIncludedCategories = rawCat.split('|').map(s => s.trim());
+                } else if (Array.isArray(rawCat)) {
+                    buffetIncludedCategories = rawCat.map(s => s.toString().trim());
+                }
+                if (!Array.isArray(buffetIncludedCategories)) buffetIncludedCategories = [];
+                
+                renderProductGrid(); // วาดสินค้าใหม่ด้วยราคาบุฟเฟต์ + สต็อกล่าสุด
+            }).getBuffetCategoriesByPackageGS(myTable.packageName);
+        } else {
+            isBuffetMode = false;
+            buffetIncludedCategories = [];
+            renderProductGrid(); // วาดสินค้าด้วยราคาปกติ + สต็อกล่าสุด
+        }
+    });
 }
 
 // ฟังก์ชันวาดการ์ดสินค้า (อัปเดต: ถ้าสินค้าหมดจะขึ้นว่า "สินค้าหมด")
@@ -483,8 +489,8 @@ function renderProductGrid() {
         let activePrice = parseFloat(row[3]) || 0;
         let imageUrl = row[8] || "https://via.placeholder.com/150"; 
         
-        // 🟢 ดึงสต็อกจากคอลัมน์ G (index 6)
-        let stock = parseInt(row[6]) || 0;
+        // 🟢 แก้จาก [6] เป็น [7] ให้ตรงกับคอลัมน์ Remaining (คอลัมน์ H)
+        let stock = parseInt(row[7]) || 0; 
         let isOutOfStock = stock <= 0;
 
         // 🟢 กฎของบุฟเฟต์ (ราคา = 0)
