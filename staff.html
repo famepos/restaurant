@@ -12,7 +12,9 @@
         body { font-family: 'Kanit', sans-serif; background-color: #fccfed; }
     </style>
 </head>
-<body class="pb-24">
+  <body class="pb-24">
+    <!-- 🟢 กล่องรับการแจ้งเตือน (Toast Container) แบบเดียวกับ Cashier -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none w-80"></div>
 
 <!-- 1. HEADER -->
     <header class="bg-white p-4 sticky top-0 z-50 shadow-sm flex justify-between items-center">
@@ -243,6 +245,11 @@ let cart = [];
 let currentTable = "โต๊ะ 01"; 
 let allSalesProducts = [];
 
+// 🟢 ตัวแปรสำหรับระบบบุฟเฟต์ (เพิ่มใหม่)
+let globalTablesList = [];
+let isBuffetMode = false;
+let buffetIncludedCategories = [];
+
 // ==========================================
 // 1. ระบบจัดการโต๊ะ (อัปเดต Real-time)
 // ==========================================
@@ -257,21 +264,22 @@ setInterval(function() {
 }, 5000);
 
 // ดึงข้อมูลโต๊ะจาก Google Sheets[cite: 2]
+// ดึงข้อมูลโต๊ะจาก Google Sheets
 function loadTableSelector() {
     google.script.run.withSuccessHandler(function(tables) {
+        globalTablesList = tables; // 🟢 เก็บข้อมูลสถานะแพ็กเกจโต๊ะทั้งหมดไว้
+        
         let container = document.getElementById('tableSelectorView');
         let html = '';
         
         tables.forEach(table => {
-            // เช็คสีตามสถานะโต๊ะ
             let color = "";
             if (table.status === 'ว่าง' || table.status === '🟢 ว่าง') {
-                color = 'bg-green-100 border-green-300 text-green-700'; // สีเขียว = ว่าง
+                color = 'bg-green-100 border-green-300 text-green-700'; 
             } else if (table.status === '🟡 เรียกเก็บเงิน') {
-                // 🟡 โต๊ะไหนเรียกเช็คบิล ให้เป็นสีเหลืองและกระพริบ (animate-pulse)
                 color = 'bg-yellow-100 border-yellow-400 text-yellow-700 animate-pulse'; 
             } else {
-                color = 'bg-red-100 border-red-300 text-red-700'; // สีแดง = มีลูกค้า
+                color = 'bg-red-100 border-red-300 text-red-700'; 
             }
             
             html += `
@@ -282,6 +290,15 @@ function loadTableSelector() {
         });
         container.innerHTML = html;
     }).getTablesData();
+}
+
+// ฟังก์ชันโหลดข้อมูลสินค้า (แก้ให้แค่โหลดมาเก็บไว้ ยังไม่เรนเดอร์จนกว่าจะรู้ว่าเข้าโต๊ะไหน)
+function loadProducts() {
+    google.script.run.withSuccessHandler(function(data) {
+        if (data && data.length > 0) {
+            allSalesProducts = data;
+        }
+    }).getProducts();
 }
 
 
@@ -301,8 +318,7 @@ function confirmOpenTable() {
 // 2. ระบบสั่งอาหาร
 // ==========================================
 
-// เข้าหน้าสั่งอาหาร
-// เข้าหน้าสั่งอาหาร
+// เข้าหน้าสั่งอาหาร (พร้อมเช็คแพ็กเกจบุฟเฟต์)
 function enterOrderView(name) {
     currentTable = name;
     
@@ -310,40 +326,68 @@ function enterOrderView(name) {
     document.getElementById('orderView').classList.remove('hidden'); 
     document.getElementById('productGrid').classList.remove('hidden');
     document.getElementById('orderFooter').classList.remove('hidden');
-    
-    // 🟢 โชว์ปุ่มย้อนกลับ
     document.getElementById('btnBack').classList.remove('hidden');
-    
     document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
-}
-// ฟังก์ชันโหลดข้อมูลสินค้า
-function loadProducts() {
-    google.script.run.withSuccessHandler(function(data) {
-        console.log("ดึงข้อมูลสินค้ามาแล้ว: ", data);
-        if (data && data.length > 0) {
-            allSalesProducts = data;
-            renderProductGrid(allSalesProducts);
-        }
-    }).getProducts();
+
+    // 🟢 เช็คว่าโต๊ะที่เข้าเป็นโหมด Buffet หรือไม่
+    let myTable = globalTablesList.find(t => t.name === name);
+    
+    if (myTable && myTable.orderMode === 'Buffet') {
+        isBuffetMode = true;
+        // ดึงหมวดหมู่ที่ฟรีในแพ็กเกจบุฟเฟต์นี้มา
+        google.script.run.withSuccessHandler(function(categories) {
+            let rawCat = categories || "";
+            if (typeof rawCat === "string") {
+                buffetIncludedCategories = rawCat.split('|').map(s => s.trim());
+            } else if (Array.isArray(rawCat)) {
+                buffetIncludedCategories = rawCat.map(s => s.toString().trim());
+            }
+            if (!Array.isArray(buffetIncludedCategories)) buffetIncludedCategories = [];
+            
+            renderProductGrid(); // วาดสินค้าใหม่ด้วยราคาบุฟเฟต์
+        }).getBuffetCategoriesByPackageGS(myTable.packageName);
+    } else {
+        isBuffetMode = false;
+        buffetIncludedCategories = [];
+        renderProductGrid(); // วาดสินค้าด้วยราคาปกติ A la carte
+    }
 }
 
-// ฟังก์ชันวาดการ์ดสินค้า
-function renderProductGrid(data) {
+// ฟังก์ชันวาดการ์ดสินค้า (เปลี่ยนราคาเป็น 0 หากอยู่ในบุฟเฟต์)
+function renderProductGrid() {
     let grid = document.getElementById('productGrid');
     grid.innerHTML = '';
     
-    data.forEach(function(row) {
-        let name = row[1] || "ไม่มีชื่อ";
-        let price = parseFloat(row[3]) || 0;
+    allSalesProducts.forEach(function(row) {
+        if (!row || !row[1] || row[1] === "ชื่อสินค้า") return;
+        
+        let name = row[1].toString();
+        let cat = (row[2] || "ทั่วไป").toString().trim();
+        let activePrice = parseFloat(row[3]) || 0;
         let imageUrl = row[8] || "https://via.placeholder.com/150"; 
+        
+        // 🟢 กฎของบุฟเฟต์: ถ้าหมวดหมู่นี้อยู่ในแพ็กเกจ ราคา = 0[cite: 5]
+        if (isBuffetMode) {
+            if (buffetIncludedCategories.includes("ALL") || buffetIncludedCategories.includes(cat)) {
+                activePrice = 0; 
+            }
+        }
         
         let card = document.createElement('div');
         card.className = "modern-card p-3 shadow-sm border border-gray-100 flex flex-col bg-white";
+        
+        // ถ้าเป็นของในแพ็กเกจ (0 บาท) ให้โชว์คำว่า ฟรี สีเขียว!
+        let priceHtml = (activePrice === 0 && isBuffetMode) 
+            ? `<p class="text-green-500 font-bold mt-auto text-lg">ฟรี (ในแพ็กเกจ)</p>` 
+            : `<p class="text-pink-600 font-bold mt-auto">฿${activePrice.toFixed(2)}</p>`;
+            
+        let btnColor = (activePrice === 0 && isBuffetMode) ? "bg-green-500" : "bg-pink-500";
+            
         card.innerHTML = `
             <img src="${imageUrl}" class="w-full h-24 object-cover rounded-xl mb-2" onerror="this.src='https://via.placeholder.com/150'">
             <h3 class="font-bold text-sm text-gray-800 line-clamp-1">${name}</h3>
-            <p class="text-pink-600 font-bold mt-auto">฿${price.toFixed(2)}</p>
-            <button onclick="addToCart('${name}', ${price})" class="mt-2 w-full bg-pink-500 text-white font-bold py-2 rounded-xl text-sm active:scale-95 transition">เพิ่มลงตะกร้า</button>
+            ${priceHtml}
+            <button onclick="addToCart('${name}', ${activePrice})" class="mt-2 w-full ${btnColor} text-white font-bold py-2 rounded-xl text-sm active:scale-95 transition">เพิ่มลงตะกร้า</button>
         `;
         grid.appendChild(card);
     });
@@ -378,24 +422,51 @@ function addToCart(name, price) {
     }
 }
 // ==========================================
-// ส่งออเดอร์เข้าแคชเชียร์ (ระบบแจ้งเตือนแบบใหม่)
+// ระบบแจ้งเตือน (Toast) แบบฉบับ FamePOS
+// ==========================================
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return; 
+    
+    const toast = document.createElement('div');
+    
+    // ดีไซน์สีชมพู FamePOS เป๊ะๆ
+    if (type === 'success' || type === 'info') {
+        toast.className = 'flex items-center gap-3 bg-pink-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-base';
+        toast.innerHTML = `<span class="text-xl">✅</span> <span>${message}</span>`;
+    } else {
+        toast.className = 'flex items-center gap-3 bg-red-500 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto font-bold text-base';
+        toast.innerHTML = `<span class="text-xl">❌</span> <span>${message}</span>`;
+    }
+    
+    container.appendChild(toast);
+    
+    // อนิเมชั่นสไลด์เข้า
+    setTimeout(() => { 
+        toast.classList.remove('translate-x-full', 'opacity-0'); 
+        toast.classList.add('translate-x-0', 'opacity-100'); 
+    }, 50);
+
+    // อนิเมชั่นสไลด์ออกหลังผ่านไป 3 วินาที
+    setTimeout(() => { 
+        toast.classList.remove('translate-x-0', 'opacity-100'); 
+        toast.classList.add('translate-x-full', 'opacity-0'); 
+        setTimeout(() => toast.remove(), 300); 
+    }, 3000);
+}
+
+
+// ==========================================
+// ส่งออเดอร์เข้าแคชเชียร์ 
 // ==========================================
 function sendToKitchen() {
     if (cart.length === 0) {
-        Swal.fire({
-            title: "ตะกร้าว่างเปล่า!",
-            text: "กรุณาเลือกเมนูอาหารก่อนกดส่งครับ",
-            icon: "warning",
-            confirmButtonColor: "#db2777",
-            confirmButtonText: "ตกลง"
-        });
+        showToast("ตะกร้าว่างเปล่า! กรุณาเลือกสินค้าก่อนครับ", "error");
         return;
     }
 
-    // 1. คำนวณยอดรวม 
     let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-    // 2. จัดรูปแบบข้อมูลให้ตรงกับระบบ
     let orderPayload = { 
         table: currentTable, 
         items: cart.map(item => ({
@@ -406,11 +477,9 @@ function sendToKitchen() {
         total: totalAmount 
     };
 
-    // ป้องกันพนักงานกดปุ่มเบิ้ล
     let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
     btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
 
-    // 3. ส่งข้อมูลไปหาแคชเชียร์
     fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -422,47 +491,25 @@ function sendToKitchen() {
     })
     .then(res => res.json())
     .then(data => {
-        // คืนค่าปุ่ม
         btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
 
         if(data.status === "Success") {
-            // 🟢 แจ้งเตือนแบบใหม่! สวยงามและปิดตัวเองอัตโนมัติใน 1.5 วินาที
-            Swal.fire({
-                title: "ส่งออเดอร์สำเร็จ!",
-                text: "ส่งรายการอาหารเข้าเครื่องแคชเชียร์เรียบร้อยแล้ว",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false
-            });
+            // 🟢 เรียกใช้แจ้งเตือนสีชมพูของคุณ
+            showToast("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔", "success");
             
-            // ล้างตะกร้าและเด้งกลับหน้าโต๊ะ
             cart = [];             
             updateCartBadge();     
             closeCartModal();      
             goBackToTables();      
-            
         } else {
-            Swal.fire({
-                title: "เกิดข้อผิดพลาด",
-                text: data.message,
-                icon: "error",
-                confirmButtonColor: "#db2777",
-                confirmButtonText: "ตกลง"
-            });
+            showToast(data.message, "error");
         }
     })
     .catch(err => {
         btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-        Swal.fire({
-            title: "การเชื่อมต่อล้มเหลว",
-            text: "โปรดตรวจสอบอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง",
-            icon: "error",
-            confirmButtonColor: "#db2777",
-            confirmButtonText: "ตกลง"
-        });
+        showToast("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง", "error");
     });
 }
-
 // ==========================================
 // 4. ระบบเคลียร์โต๊ะ
 // ==========================================
@@ -513,38 +560,34 @@ function goBackToTables() {
     loadTableSelector(); 
 }
 // ==========================================
-// 5. ดูรายการออเดอร์ปัจจุบันของโต๊ะ
-// ==========================================
-// ==========================================
-// 5. ดูรายการออเดอร์ปัจจุบันของโต๊ะ (อัปเดตรองรับราคาบุฟเฟต์)
+// ดูรายการออเดอร์ปัจจุบันของโต๊ะ (อัปเดตป้องกันยอดเบิ้ล)
 // ==========================================
 function viewTableOrders() {
     if (!currentTable) return;
 
-    // เปลี่ยนชื่อหัวข้อ และแสดงสถานะกำลังโหลด
     document.getElementById('tableOrdersTitle').innerText = "📋 บิล: " + currentTable;
     document.getElementById('tableOrdersContainer').innerHTML = '<div class="flex flex-col items-center py-10"><span class="text-4xl animate-spin mb-2">⏳</span><span class="text-gray-500 font-bold">กำลังดึงข้อมูล...</span></div>';
-    
-    // โชว์หน้าต่างป๊อปอัป
     document.getElementById('tableOrdersModal').classList.remove('hidden');
 
-    // 1. ดึงข้อมูลโต๊ะปัจจุบันก่อน เพื่อดูว่าเป็นบุฟเฟต์หรือไม่
     google.script.run
         .withSuccessHandler(function(tables) {
             let myTable = tables.find(t => t.name === currentTable);
             
-            // 2. ดึงรายการอาหารที่สั่งเพิ่มผ่านมือถือ (QR/Staff)
             google.script.run
                 .withSuccessHandler(function(data) {
                     let html = '';
                     let grandTotal = 0;
+                    
+                    // 🟢 เช็คว่าในบิลที่ดึงมาจากแคชเชียร์ มีแพ็กเกจนี้ส่งไปหรือยัง?
+                    let isPackageInBill = false;
+                    if (data.items && myTable) {
+                        isPackageInBill = data.items.some(i => i.name === myTable.packageName);
+                    }
 
-                    // --- ส่วนที่ 1: คำนวณราคาบุฟเฟต์ (ถ้ามี) ---
-                    if (myTable && myTable.orderMode === 'Buffet') {
+                    // --- ส่วนที่ 1: ถ้าเปิดเป็นบุฟเฟต์ แต่พนักงานยังไม่ได้กด "ส่งแคชเชียร์" ---
+                    if (myTable && myTable.orderMode === 'Buffet' && !isPackageInBill) {
                         let pkgName = myTable.packageName;
                         let headCount = parseInt(myTable.headCount) || 0;
-                        
-                        // หาแพ็กเกจจากตัวแปร buffetPackages ที่เราดึงมาตอนเปิดเว็บ[cite: 7]
                         let pkgInfo = buffetPackages.find(p => p.name === pkgName);
                         let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
                         let buffetTotal = pkgPrice * headCount;
@@ -554,22 +597,29 @@ function viewTableOrders() {
                         html += `
                         <div class="flex justify-between items-center bg-pink-100 p-3 rounded-xl border border-pink-300 mb-2 shadow-sm">
                             <div class="flex-1">
-                                <div class="font-black text-pink-800 text-sm">🥩 ${pkgName}</div>
+                                <div class="font-black text-pink-800 text-sm">🥩 ${pkgName} <span class="text-[10px] text-red-500 bg-white px-1 rounded ml-1 animate-pulse">ยังไม่ส่งแคชเชียร์</span></div>
                                 <div class="text-xs text-pink-600 font-bold">฿${pkgPrice.toFixed(2)} x ${headCount} ท่าน</div>
                             </div>
                             <div class="font-black text-pink-700 text-lg">฿${buffetTotal.toFixed(2)}</div>
                         </div>`;
                     }
 
-                    // --- ส่วนที่ 2: รายการสั่งแยก (A la carte หรือสั่งเพิ่ม) ---
+                    // --- ส่วนที่ 2: รายการในบิลทั้งหมด (ที่ส่งเข้าแคชเชียร์แล้ว) ---
                     if (data.items && data.items.length > 0) {
                         data.items.forEach(item => {
                             let itemTotal = parseFloat(item.price) * parseInt(item.qty);
                             grandTotal += itemTotal;
+                            
+                            // ไฮไลต์ให้สีเด่นขึ้นถ้าเป็นรายการแพ็กเกจบุฟเฟต์
+                            let isPkg = (myTable && item.name === myTable.packageName);
+                            let boxClass = isPkg ? "bg-pink-50 border-pink-200" : "bg-gray-50 border-gray-100";
+                            let textClass = isPkg ? "text-pink-800" : "text-gray-800";
+                            let icon = isPkg ? "🥩 " : "";
+
                             html += `
-                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100 mb-2">
+                            <div class="flex justify-between items-center ${boxClass} p-3 rounded-xl border mb-2">
                                 <div class="flex-1">
-                                    <div class="font-bold text-gray-800 text-sm">${item.name}</div>
+                                    <div class="font-bold ${textClass} text-sm">${icon}${item.name}</div>
                                     <div class="text-xs text-gray-500">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
                                 </div>
                                 <div class="font-bold text-pink-600">฿${itemTotal.toFixed(2)}</div>
@@ -577,13 +627,9 @@ function viewTableOrders() {
                         });
                     } 
                     
-                    // ถ้าระบบไม่ได้เป็นบุฟเฟต์ และไม่มีการสั่งของใดๆ เลย
                     if ((!myTable || myTable.orderMode !== 'Buffet') && (!data.items || data.items.length === 0)) {
                         html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการสั่งอาหารที่ค้างอยู่ครับ 🍽️</div>';
-                    }
-
-                    // --- ส่วนที่ 3: แสดงยอดรวมทั้งหมด ---
-                    if (html !== '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการสั่งอาหารที่ค้างอยู่ครับ 🍽️</div>') {
+                    } else {
                         html += `
                         <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
                             <span class="text-lg font-bold text-gray-600">ยอดรวมสุทธิ:</span>
@@ -594,7 +640,7 @@ function viewTableOrders() {
                     document.getElementById('tableOrdersContainer').innerHTML = html;
                 })
                 .withFailureHandler(function(err) {
-                    document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold text-sm">❌ โหลดข้อมูลรายการอาหารล้มเหลว</div>';
+                    document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold text-sm">❌ โหลดข้อมูลล้มเหลว</div>';
                 })
                 .getTableTotalGS(currentTable);
         })
@@ -694,37 +740,56 @@ function setPaymentWorkflow(isPrepaid) {
     }
 }
 
-// 4. ฟังก์ชันส่งเปิดโต๊ะไปยังระบบ
+// ฟังก์ชันยืนยันเปิดโต๊ะ
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
     let totalHeadCount = adult + kid;
 
-    if (totalHeadCount <= 0) {
-        alert("กรุณาระบุจำนวนลูกค้าอย่างน้อย 1 ท่านครับ");
-        return;
-    }
+    if (totalHeadCount <= 0) return Swal.fire('ข้อผิดพลาด', 'กรุณาระบุจำนวนลูกค้าอย่างน้อย 1 ท่านครับ', 'error');
 
     let pkgName = currentTableMode === 'Buffet' ? (selectedPackage || "-") : "-";
     let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "ไม่จำกัด";
 
-    // เปลี่ยนปุ่มเป็นกำลังโหลด
     let btn = document.querySelector(`button[onclick="submitTableOpen()"]`);
     let originalText = btn.innerText;
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
-    // เรียกฟังก์ชันหลังบ้าน[cite: 2]
-    google.script.run.withSuccessHandler(() => {
+    google.script.run.withSuccessHandler((updatedTables) => {
         document.getElementById('openTableModeModal').classList.add('hidden');
         btn.innerText = originalText;
         btn.disabled = false;
         
-        // ถ้าเป็นแบบ "จ่ายก่อนกิน" ให้เตือนพนักงานบอกให้ลูกค้าไปจ่ายเงิน
-        if (isPrepaidWorkflow) {
-            alert("✅ เปิดโต๊ะสำเร็จ!\n\nระบบเป็นแบบ จ่ายก่อนกิน (Prepaid)\nกรุณาแจ้งให้ลูกค้าไปชำระเงินที่เคาน์เตอร์แคชเชียร์ครับ");
+        globalTablesList = updatedTables; 
+        
+        // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ!
+        cart = []; // ล้างตะกร้าก่อน
+        if (currentTableMode === 'Buffet' && selectedPackage) {
+            let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
+            let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
+            
+            // ดันแพ็กเกจเข้าตะกร้าพนักงาน
+            cart.push({
+                name: selectedPackage,
+                price: pkgPrice,
+                qty: totalHeadCount
+            });
+            updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
+            
+            Swal.fire({
+                title: "เปิดโต๊ะบุฟเฟต์สำเร็จ!",
+                text: "รายการแพ็กเกจถูกเพิ่มลงตะกร้าแล้ว อย่าลืมกด 'ส่งแคชเชียร์ 🔔' นะครับ!",
+                icon: "success",
+                confirmButtonColor: "#db2777"
+            });
         } else {
-            alert(`✅ เปิดโต๊ะ ${selectedTable} สำเร็จแล้ว!`);
+            Swal.fire({
+                title: "เปิดโต๊ะ " + selectedTable + " สำเร็จ!",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false
+            });
         }
         
         enterOrderView(selectedTable);
