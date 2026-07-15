@@ -185,8 +185,47 @@
         Swal.fire("สำเร็จ", "ส่งออเดอร์เข้าครัวแล้ว", "success");
         cart = []; updateCartUI(); closeCart(); backToTables();
     }
+// ฟังก์ชันสำหรับรวบรวมข้อมูลจาก Modal แล้วส่งไปเปิดโต๊ะ
+async function confirmOpenTable() {
+    // 1. ดึงค่าจาก Input ใน Modal
+    const tableName = document.getElementById('openTableNameDisplay').innerText.replace("🪑 เปิดโต๊ะอาหาร: ", "");
+    const mode = document.getElementById('selectedTableMode').value; // 'Buffet' หรือ 'A_la_carte'
+    const packageName = document.getElementById('selectBuffetPackage').value;
+    const timeLimit = document.getElementById('inputTimeLimit').value;
+    
+    // 2. คำนวณจำนวนลูกค้า (รวมผู้ใหญ่ + เด็ก + ผู้สูงอายุ)
+    const adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
+    const kid = parseInt(document.getElementById('inputKidCount').value) || 0;
+    const senior = parseInt(document.getElementById('inputSeniorCount').value) || 0;
+    const totalHeads = adult + kid + senior;
 
+    if (totalHeads <= 0) {
+        Swal.fire("แจ้งเตือน", "กรุณาระบุจำนวนลูกค้าอย่างน้อย 1 ท่าน", "warning");
+        return;
+    }
+
+    // 3. เรียก API หลังบ้าน (ฟังก์ชัน openTableGS ใน)
+    Swal.fire({ title: "กำลังเปิดโต๊ะ...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    try {
+        const result = await api("openTableGS", [tableName, mode, totalHeads, packageName, timeLimit]);
+        
+        if (result) {
+            Swal.fire({
+                icon: "success",
+                title: "เปิดโต๊ะสำเร็จ",
+                text: "โต๊ะนี้พร้อมใช้งานแล้วในระบบ POS",
+                timer: 1500
+            });
+            document.getElementById('openTableModeModal').classList.add('hidden');
+            loadTables(); // รีเฟรชหน้าจอ Staff ให้เป็นสีแดง (สถานะไม่ว่าง)
+        }
+    } catch (e) {
+        Swal.fire("ผิดพลาด", "ไม่สามารถเปิดโต๊ะได้: " + e, "error");
+    }
+}
     loadTables();
+    setInterval(loadTables, 5000);
 </script>
 </body>
 </html>
