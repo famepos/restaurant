@@ -57,6 +57,47 @@
 
   // 1. เพิ่มตัวแปร API ให้ครบ
 const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+// 2. MAGIC PROXY: ตัวเชื่อมให้คำสั่ง google.script.run ใช้งานได้บน Browser
+const google = {
+    script: {
+        get run() {
+            let successCb = null;
+            let failureCb = null;
+            
+            const proxy = new Proxy({}, {
+                get: function(target, prop) {
+                    if (prop === 'withSuccessHandler') {
+                        return function(cb) { successCb = cb; return proxy; };
+                    }
+                    if (prop === 'withFailureHandler') {
+                        return function(cb) { failureCb = cb; return proxy; };
+                    }
+                    return function(...args) {
+                        fetch(API_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "text/plain;charset=utf-8" },
+                            body: JSON.stringify({ action: prop, args: args }),
+                            redirect: "follow"
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.status === "Success" && successCb) {
+                                successCb(data.result);
+                            } else if (data.status !== "Success" && failureCb) {
+                                failureCb(data.message);
+                            }
+                        })
+                        .catch(err => {
+                            if(failureCb) failureCb(err);
+                            else console.error("Fetch Error:", err);
+                        });
+                    };
+                }
+            });
+            return proxy;
+        }
+    }
+};
 
 // 2. ซ่อนหน้าเมนูตอนเริ่มต้น
 document.addEventListener("DOMContentLoaded", function() {
