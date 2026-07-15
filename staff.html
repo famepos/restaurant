@@ -10,6 +10,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
            body { font-family: 'Kanit', sans-serif; background-color: #fccfed; color: #b32089; margin: 0; }
+
+        /* 🟢 โค้ดสำหรับซ่อนแถบ Scrollbar ทั้งแอป แต่ยังเลื่อนได้ปกติ */
+        * {
+            -ms-overflow-style: none;  /* สำหรับ Internet Explorer, Edge */
+            scrollbar-width: none;  /* สำหรับ Firefox */
+        }
+        *::-webkit-scrollbar {
+            display: none; /* สำหรับ Chrome, Safari, Opera */
+        }
     </style>
 </head>
   <body class="pb-24">
@@ -268,8 +277,7 @@ setInterval(function() {
 // ==========================================
 // 1. ระบบจัดการโต๊ะ (อัปเดต UI แบบภาพที่ 2)
 // ==========================================
-
-// ดึงข้อมูลโต๊ะจาก Google Sheets[cite: 2]
+// ดึงข้อมูลโต๊ะจาก Google Sheets และอัปเดตยอดเงิน
 function loadTableSelector() {
     google.script.run.withSuccessHandler(function(tables) {
         globalTablesList = tables; 
@@ -277,62 +285,43 @@ function loadTableSelector() {
         let html = '';
         
         tables.forEach(table => {
-            // กำหนดสีของ "เก้าอี้" และ "ขอบโต๊ะ" ตามสถานะ
-            let chairColor = "";
-            let boxBorder = "";
-            let bgTable = "bg-white";
-
-            if (table.status === 'ว่าง' || table.status === '🟢 ว่าง') {
-                chairColor = 'bg-green-500';      // เก้าอี้สีเขียว
-                boxBorder = 'border-green-200';
-            } else if (table.status === '🟡 เรียกเก็บเงิน') {
-                chairColor = 'bg-yellow-400 animate-pulse'; // เก้าอี้สีเหลืองกระพริบ
-                boxBorder = 'border-yellow-300';
-                bgTable = 'bg-yellow-50';
-            } else {
-                chairColor = 'bg-red-500';        // เก้าอี้สีแดง (ไม่ว่าง)
-                boxBorder = 'border-red-200';
-                bgTable = 'bg-red-50';            // พื้นหลังโต๊ะอมแดงนิดๆ ให้รู้ว่ามีคน
-            }
+            let chairColor = (table.status === 'ว่าง' || table.status === '🟢 ว่าง') ? 'bg-green-500' : 'bg-red-500';
+            let bgTable = (table.status === 'ว่าง' || table.status === '🟢 ว่าง') ? 'bg-white' : 'bg-red-50';
             
-            // จัดเตรียมข้อมูลที่จะโชว์กลางโต๊ะ
+            // ดึงยอดเงินออกมาแสดง (ถ้าไม่มีให้แสดง 0.00)
+            let totalAmount = parseFloat(table.total || 0).toFixed(2);
+            let headcount = parseInt(table.headCount) || 0;
+            
             let middleContent = '';
             if (table.status === 'ว่าง' || table.status === '🟢 ว่าง') {
                 middleContent = `<div class="text-sm font-bold text-green-600 mt-2">ว่าง</div>`;
             } else {
-                // ดึงจำนวนคนและรูปแบบการทานมาแสดง[cite: 2]
-                let headcount = parseInt(table.headCount) || 0;
-                let modeText = table.orderMode === 'Buffet' ? '🥩 บุฟเฟต์' : '🍽️ สั่งแยก';
-                
                 middleContent = `
-                    <div class="text-[11px] text-gray-500 font-bold mb-1">${modeText}</div>
-                    <div class="flex items-center gap-1 text-sm font-black text-gray-700">
-                        <span class="text-lg">👤</span> ${headcount}
+                    <div class="flex items-center justify-center gap-1 text-xs font-bold text-gray-500 my-1">
+                        <span>🪙</span> ${totalAmount}
+                    </div>
+                    <div class="flex items-center justify-center gap-1 text-sm font-black text-gray-700">
+                        <span>👤</span> ${headcount}
                     </div>
                 `;
             }
             
-            // วาดกล่อง UI แบบมีเก้าอี้ 4 ด้าน
             html += `
-            <div class="p-2"> <!-- เว้นระยะให้เก้าอี้ไม่ชนกัน -->
-                <div onclick="selectTable('${table.name}', '${table.status}')" class="relative w-full aspect-square ${bgTable} rounded-2xl shadow-sm border-2 ${boxBorder} flex flex-col items-center justify-center p-2 cursor-pointer active:scale-95 transition">
-                    
-                    <!-- เก้าอี้ 4 ด้าน (ใช้ CSS Absolute วางตำแหน่ง) -->
+            <div class="p-2">
+                <div onclick="selectTable('${table.name}', '${table.status}')" class="relative w-full aspect-square ${bgTable} rounded-2xl shadow-sm border-2 border-gray-200 flex flex-col items-center justify-center p-2 cursor-pointer active:scale-95 transition">
                     <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 rounded-sm ${chairColor}"></div>
                     <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-3 rounded-sm ${chairColor}"></div>
                     <div class="absolute top-1/2 -left-2 -translate-y-1/2 w-3 h-8 rounded-sm ${chairColor}"></div>
                     <div class="absolute top-1/2 -right-2 -translate-y-1/2 w-3 h-8 rounded-sm ${chairColor}"></div>
 
-                    <!-- ข้อมูลกลางโต๊ะ -->
                     <div class="text-xl font-black text-gray-800 tracking-tight">${table.name}</div>
-                    <div class="w-10 h-0.5 bg-gray-300 my-1.5 rounded-full"></div> <!-- เส้นคั่น -->
+                    <div class="w-10 h-0.5 bg-gray-300 my-1 rounded-full"></div>
                     ${middleContent}
-                    
                 </div>
             </div>`;
         });
         container.innerHTML = html;
-    }).getTablesData();
+    }).getTablesData(); // ตรวจสอบให้แน่ใจว่าฟังก์ชัน getTablesData ใน Google Apps Script ส่งค่า 'total' มาด้วยนะครับ
 }
 
 // ฟังก์ชันโหลดข้อมูลสินค้า (แก้ให้แค่โหลดมาเก็บไว้ ยังไม่เรนเดอร์จนกว่าจะรู้ว่าเข้าโต๊ะไหน)
