@@ -101,7 +101,7 @@ const google = {
 
 // เริ่มโหลดทันทีที่หน้าจอทำงาน
 document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById('productGrid').classList.add('hidden');
+    // เอาคำสั่งซ่อน productGrid ออก เพราะเราซ่อนกล่องแม่มันไปแล้ว
     loadTableSelector(); // โหลดหน้าโต๊ะทันที
     loadProducts();      // โหลดสินค้ามารอไว้เลย
 });
@@ -171,13 +171,15 @@ function enterOrderView(name) {
     // 2. โชว์หน้าสั่งอาหาร (orderView)
     document.getElementById('orderView').classList.remove('hidden'); 
     
-    // 3. โชว์ Footer
+    // 🟢 3. บังคับโชว์กริดสินค้า (แก้บั๊กตรงนี้ครับ!)
+    document.getElementById('productGrid').classList.remove('hidden');
+    
+    // 4. โชว์ Footer
     document.getElementById('orderFooter').classList.remove('hidden');
     
-    // 4. เปลี่ยนชื่อโต๊ะบน Header
+    // 5. เปลี่ยนชื่อโต๊ะบน Header
     document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
 }
-
 // ฟังก์ชันโหลดข้อมูลสินค้า
 function loadProducts() {
     google.script.run.withSuccessHandler(function(data) {
