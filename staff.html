@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff App | FamePOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
         body { font-family: 'Kanit', sans-serif; background-color: #fccfed; }
@@ -242,17 +244,35 @@ let currentTable = "โต๊ะ 01";
 let allSalesProducts = [];
 
 // ==========================================
-// 1. ระบบจัดการโต๊ะ
+// 1. ระบบจัดการโต๊ะ (อัปเดต Real-time)
 // ==========================================
 
-// ดึงข้อมูลโต๊ะจาก Google Sheets
+// 🔄 ตั้งเวลาให้ระบบรีเฟรชหน้าโต๊ะอัตโนมัติ ทุกๆ 5 วินาที
+setInterval(function() {
+    let tableSelector = document.getElementById('tableSelectorView');
+    // ให้โหลดข้อมูลใหม่เฉพาะตอนที่พนักงานอยู่หน้าเลือกโต๊ะเท่านั้น (ประหยัดเน็ต)
+    if (!tableSelector.classList.contains('hidden')) {
+        loadTableSelector(); 
+    }
+}, 5000);
+
+// ดึงข้อมูลโต๊ะจาก Google Sheets[cite: 2]
 function loadTableSelector() {
     google.script.run.withSuccessHandler(function(tables) {
         let container = document.getElementById('tableSelectorView');
         let html = '';
         
         tables.forEach(table => {
-            let color = (table.status === 'ว่าง' || table.status === '🟢 ว่าง') ? 'bg-green-100 border-green-300 text-green-700' : 'bg-red-100 border-red-300 text-red-700';
+            // เช็คสีตามสถานะโต๊ะ
+            let color = "";
+            if (table.status === 'ว่าง' || table.status === '🟢 ว่าง') {
+                color = 'bg-green-100 border-green-300 text-green-700'; // สีเขียว = ว่าง
+            } else if (table.status === '🟡 เรียกเก็บเงิน') {
+                // 🟡 โต๊ะไหนเรียกเช็คบิล ให้เป็นสีเหลืองและกระพริบ (animate-pulse)
+                color = 'bg-yellow-100 border-yellow-400 text-yellow-700 animate-pulse'; 
+            } else {
+                color = 'bg-red-100 border-red-300 text-red-700'; // สีแดง = มีลูกค้า
+            }
             
             html += `
             <div onclick="selectTable('${table.name}', '${table.status}')" class="p-4 rounded-xl border-2 ${color} text-center font-bold shadow-sm cursor-pointer active:scale-95 transition">
@@ -263,7 +283,6 @@ function loadTableSelector() {
         container.innerHTML = html;
     }).getTablesData();
 }
-
 
 
 // ฟังก์ชันยืนยันเปิดโต๊ะ
@@ -359,18 +378,24 @@ function addToCart(name, price) {
     }
 }
 // ==========================================
-// ส่งออเดอร์เข้าแคชเชียร์ (อัปเดตรองรับตะกร้า)
+// ส่งออเดอร์เข้าแคชเชียร์ (ระบบแจ้งเตือนแบบใหม่)
 // ==========================================
 function sendToKitchen() {
     if (cart.length === 0) {
-        alert("ตะกร้าว่างเปล่า! กรุณาเลือกสินค้าก่อนครับ");
+        Swal.fire({
+            title: "ตะกร้าว่างเปล่า!",
+            text: "กรุณาเลือกเมนูอาหารก่อนกดส่งครับ",
+            icon: "warning",
+            confirmButtonColor: "#db2777",
+            confirmButtonText: "ตกลง"
+        });
         return;
     }
 
-    // 1. คำนวณยอดรวม (เพราะระบบ QR ของแคชเชียร์ต้องการยอดเงินรวมด้วย)
+    // 1. คำนวณยอดรวม 
     let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-    // 2. จัดรูปแบบข้อมูลให้ตรงกับที่ระบบ QR เมนูใช้งาน
+    // 2. จัดรูปแบบข้อมูลให้ตรงกับระบบ
     let orderPayload = { 
         table: currentTable, 
         items: cart.map(item => ({
@@ -381,11 +406,11 @@ function sendToKitchen() {
         total: totalAmount 
     };
 
-    // ป้องกันพนักงานกดปุ่มเบิ้ลตอนเน็ตช้า
+    // ป้องกันพนักงานกดปุ่มเบิ้ล
     let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
     btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
 
-    // 3. เปลี่ยนคำสั่งเป็น submitCustomerOrder เพื่อพุ่งไปหาแคชเชียร์
+    // 3. ส่งข้อมูลไปหาแคชเชียร์
     fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -397,26 +422,44 @@ function sendToKitchen() {
     })
     .then(res => res.json())
     .then(data => {
-        // คืนค่าปุ่มกลับมา
+        // คืนค่าปุ่ม
         btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
 
         if(data.status === "Success") {
-            alert("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔");
+            // 🟢 แจ้งเตือนแบบใหม่! สวยงามและปิดตัวเองอัตโนมัติใน 1.5 วินาที
+            Swal.fire({
+                title: "ส่งออเดอร์สำเร็จ!",
+                text: "ส่งรายการอาหารเข้าเครื่องแคชเชียร์เรียบร้อยแล้ว",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false
+            });
             
-            // 🟢 จัดการตะกร้าและหน้าจอหลังส่งสำเร็จ 🟢
-            cart = [];             // 1. ล้างตะกร้า
-            updateCartBadge();     // 2. รีเซ็ตตัวเลขบนปุ่มเป็น 0
-            closeCartModal();      // 3. ปิดกล่องป๊อปอัปตะกร้า (ถ้าเปิดอยู่)
-            goBackToTables();      // 4. เด้งกลับหน้าเลือกโต๊ะอัตโนมัติ
+            // ล้างตะกร้าและเด้งกลับหน้าโต๊ะ
+            cart = [];             
+            updateCartBadge();     
+            closeCartModal();      
+            goBackToTables();      
             
         } else {
-            alert("เกิดข้อผิดพลาด: " + data.message);
+            Swal.fire({
+                title: "เกิดข้อผิดพลาด",
+                text: data.message,
+                icon: "error",
+                confirmButtonColor: "#db2777",
+                confirmButtonText: "ตกลง"
+            });
         }
     })
     .catch(err => {
-        // คืนค่าปุ่มกลับมาถ้า error
         btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-        alert("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง");
+        Swal.fire({
+            title: "การเชื่อมต่อล้มเหลว",
+            text: "โปรดตรวจสอบอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง",
+            icon: "error",
+            confirmButtonColor: "#db2777",
+            confirmButtonText: "ตกลง"
+        });
     });
 }
 
