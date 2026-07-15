@@ -6,6 +6,13 @@
     <title>Staff App | FamePOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+      <link rel="icon" type="image/png" href="https://i.postimg.cc/3Nvvc8FR/cc34d0ff-c8c1-4920-bcf7-701793b9dac3.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/3Nvvc8FR/cc34d0ff-c8c1-4920-bcf7-701793b9dac3.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Staff FamePOS">
+  <meta name="mobile-web-app-capable" content="yes">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
@@ -21,21 +28,27 @@
         }
         /* ซ่อนทุกอย่างเวลาสั่งพิมพ์ ยกเว้นตัวใบเปิดโต๊ะ */
 @media print {
-    @page {
-        size: auto; 
-        margin: 0;
+    /* 1. สั่งให้ทุกอย่างใน body หายไปเลย (ไม่จองพื้นที่) */
+    body > *:not(#tableQRPrintContainer) {
+        display: none !important;
     }
-    body * { visibility: hidden; }
-    #tableQRPrintContainer, #tableQRPrintContainer * {
-        visibility: visible;
-    }
+
+    /* 2. แสดงเฉพาะคอนเทนเนอร์พิมพ์ และบังคับให้อยู่ตำแหน่งบนสุด */
     #tableQRPrintContainer {
+        display: flex !important; /* ให้ใช้ flex ตามเดิม */
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 5px !important;
+        break-inside: avoid; /* ป้องกันการขึ้นหน้าใหม่กลางคัน */
+    }
+
+    /* 3. เคลียร์ค่าหน้ากระดาษ */
+    @page {
+        size: auto; 
         margin: 0;
-        padding: 5px;
     }
 }
     </style>
