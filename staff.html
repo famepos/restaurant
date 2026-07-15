@@ -18,6 +18,51 @@
   </div>
 
   <script>
+    // 1. ใส่ API_URL ของคุณ (ตัวเดิมที่ใช้ใน Index.html)
+const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+
+// 2. ตัว Proxy เชื่อมต่อ (ต้องใส่เพื่อให้หน้าเว็บรู้จักคำสั่ง google.script.run)
+const google = {
+    script: {
+        get run() {
+            let successCb = null;
+            let failureCb = null;
+            
+            const proxy = new Proxy({}, {
+                get: function(target, prop) {
+                    if (prop === 'withSuccessHandler') {
+                        return function(cb) { successCb = cb; return proxy; };
+                    }
+                    if (prop === 'withFailureHandler') {
+                        return function(cb) { failureCb = cb; return proxy; };
+                    }
+                    return function(...args) {
+                        fetch(API_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "text/plain;charset=utf-8" },
+                            body: JSON.stringify({ action: prop, args: args }),
+                            redirect: "follow"
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.status === "Success" && successCb) {
+                                successCb(data.result);
+                            } else if (data.status !== "Success" && failureCb) {
+                                failureCb(data.message);
+                            }
+                        })
+                        .catch(err => {
+                            if(failureCb) failureCb(err);
+                            else console.error("Fetch Error:", err);
+                        });
+                    };
+                }
+            });
+            return proxy;
+        }
+    }
+};
+
     let cart = [];
     // โหลดสินค้าจากฐานข้อมูลเดิมของคุณ
     google.script.run.withSuccessHandler(renderProducts).getProducts();
