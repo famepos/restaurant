@@ -19,13 +19,15 @@
 <!-- 1. HEADER -->
     <header class="bg-white p-4 sticky top-0 z-50 shadow-sm flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <!-- 🟢 เพิ่มปุ่มย้อนกลับ (ซ่อนไว้ก่อน) -->
-            <button id="btnBack" onclick="goBackToTables()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-xl font-bold shadow-sm transition active:scale-95">
-                ⬅️ กลับ
+            <!-- 🟢 ปุ่มย้อนกลับ (เปลี่ยนเป็นไอคอน SVG สไตล์ FamePOS) -->
+            <button id="btnBack" onclick="goBackToTables()" class="hidden text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition active:scale-95 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
             </button>
             <h1 class="font-bold text-pink-600 text-xl">Staff Order</h1>
         </div>
-        <div id="selectedTableDisplay" class="bg-pink-100 px-4 py-1 rounded-full font-bold text-pink-700">เลือกโต๊ะ...</div>
+        <div id="selectedTableDisplay" class="bg-pink-100 px-4 py-1 rounded-full font-bold text-pink-700 text-sm">เลือกโต๊ะ...</div>
     </header>
 
     <!-- 2. VIEW: หน้าเลือกโต๊ะ (แสดงตอนเริ่มต้น) -->
@@ -511,34 +513,57 @@ function sendToKitchen() {
     });
 }
 // ==========================================
-// 4. ระบบเคลียร์โต๊ะ
+// 4. ระบบเคลียร์โต๊ะ (อัปเดตป๊อปอัป SweetAlert2)
 // ==========================================
-
 function clearTable() {
     if (!currentTable) return;
 
-    // ใช้ confirm พื้นฐานของ Browser เพื่อป้องกันบั๊ก
-    let isConfirm = confirm(`ยืนยันการเคลียร์โต๊ะ ${currentTable} เพื่อให้ลูกค้าท่านใหม่เข้ามาใช้งาน?`);
-    
-    if (isConfirm) {
-     google.script.run
-            .withSuccessHandler(function() {
-                alert(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`);
-                
-                cart = [];
-                currentTable = "";
-                document.getElementById('orderView').classList.add('hidden');
-                document.getElementById('orderFooter').classList.add('hidden');
-                
-                // 🟢 ซ่อนปุ่มย้อนกลับ
-                document.getElementById('btnBack').classList.add('hidden');
-                
-                document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
-                document.getElementById('tableSelectorView').classList.remove('hidden');
-                loadTableSelector(); 
-            })
-            .updateTableStatusGS(currentTable, "ว่าง");
-    }
+    // ใช้ SweetAlert2 สร้างป๊อปอัปยืนยันแบบสวยงาม
+    Swal.fire({
+        title: 'เช็คบิลและเคลียร์โต๊ะ?',
+        text: `ยืนยันการเคลียร์โต๊ะ ${currentTable} เพื่อให้ลูกค้ารอบใหม่เข้ามาใช้งาน?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#db2777', // สีชมพู FamePOS
+        cancelButtonColor: '#9ca3af',  // สีเทา
+        confirmButtonText: '✅ ยืนยันเคลียร์โต๊ะ',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true // สลับให้ปุ่มยืนยันอยู่ด้านขวา (กดย้ายง่ายกว่า)
+    }).then((result) => {
+        // ถ้าพนักงานกดปุ่ม "ยืนยัน"
+        if (result.isConfirmed) {
+            
+            // เรียกฟังก์ชันหลังบ้านเพื่อเคลียร์โต๊ะ
+            google.script.run
+                .withSuccessHandler(function() {
+                    
+                    // 🟢 ใช้ Toast สีชมพูแจ้งเตือนว่าเคลียร์เสร็จแล้ว (เด้งขวาบน)
+                    showToast(`เคลียร์โต๊ะ ${currentTable} เรียบร้อยแล้วครับ`, "success");
+                    
+                    // 1. ล้างตะกร้า และ อัปเดตตัวเลขตะกร้า
+                    cart = [];
+                    updateCartBadge();
+                    currentTable = "";
+                    
+                    // 2. ซ่อนหน้าเมนูและ Footer
+                    document.getElementById('orderView').classList.add('hidden');
+                    document.getElementById('orderFooter').classList.add('hidden');
+                    
+                    // 3. ซ่อนปุ่มย้อนกลับ
+                    document.getElementById('btnBack').classList.add('hidden');
+                    
+                    // 4. เปลี่ยนหัวกลับเป็นยังไม่เลือกโต๊ะ
+                    document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
+                    
+                    // 5. โชว์หน้าโต๊ะกลับมา
+                    document.getElementById('tableSelectorView').classList.remove('hidden');
+                    
+                    // 6. โหลดสถานะโต๊ะใหม่
+                    loadTableSelector(); 
+                })
+                .updateTableStatusGS(currentTable, "ว่าง"); 
+        }
+    });
 }
 
 // ฟังก์ชันกดย้อนกลับไปหน้าเลือกโต๊ะ
@@ -739,14 +764,16 @@ function setPaymentWorkflow(isPrepaid) {
         btnNow.className = "py-2 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
     }
 }
-
 // ฟังก์ชันยืนยันเปิดโต๊ะ
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
     let totalHeadCount = adult + kid;
 
-    if (totalHeadCount <= 0) return Swal.fire('ข้อผิดพลาด', 'กรุณาระบุจำนวนลูกค้าอย่างน้อย 1 ท่านครับ', 'error');
+    if (totalHeadCount <= 0) {
+        showToast('กรุณาระบุจำนวนลูกค้าอย่างน้อย 1 ท่านครับ', 'error');
+        return;
+    }
 
     let pkgName = currentTableMode === 'Buffet' ? (selectedPackage || "-") : "-";
     let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "ไม่จำกัด";
@@ -777,19 +804,18 @@ function submitTableOpen() {
             });
             updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
             
-            Swal.fire({
-                title: "เปิดโต๊ะบุฟเฟต์สำเร็จ!",
-                text: "รายการแพ็กเกจถูกเพิ่มลงตะกร้าแล้ว อย่าลืมกด 'ส่งแคชเชียร์ 🔔' นะครับ!",
-                icon: "success",
-                confirmButtonColor: "#db2777"
-            });
+            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
+            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
         } else {
-            Swal.fire({
-                title: "เปิดโต๊ะ " + selectedTable + " สำเร็จ!",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false
-            });
+            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
+            showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
+        }
+        
+        if (isPrepaidWorkflow) {
+            // ถ้าระบบจ่ายก่อนกิน ให้แจ้งเตือนบอกพนักงานเพิ่มนิดนึง
+            setTimeout(() => {
+                showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
+            }, 500);
         }
         
         enterOrderView(selectedTable);
