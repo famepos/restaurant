@@ -12,10 +12,44 @@
     <div class="text-center py-10 col-span-2">กำลังโหลดเมนู...</div>
   </div>
 
-  <div class="fixed bottom-0 w-full p-4 bg-white border-t border-gray-200 shadow-2xl flex gap-2">
-    <input type="text" id="tableNo" placeholder="เลขโต๊ะ" class="w-1/3 p-3 border-2 border-pink-200 rounded-xl font-bold focus:border-pink-500 outline-none">
-    <button onclick="sendOrder()" class="flex-1 bg-pink-600 text-white font-bold p-3 rounded-xl hover:bg-pink-700 transition">ส่งเข้าครัว</button>
+<!-- เปลี่ยนจาก input ธรรมดา ให้เป็นช่องเลือกโต๊ะ -->
+<div class="fixed bottom-0 w-full p-4 bg-white border-t border-gray-200 shadow-2xl flex gap-2 z-50">
+  <input type="text" id="tableNo" readonly onclick="openTableModal()" 
+         placeholder="คลิกเลือกโต๊ะ..." 
+         class="w-1/3 p-3 border-2 border-pink-200 rounded-xl font-bold focus:border-pink-500 outline-none text-center cursor-pointer">
+  <button onclick="sendOrder()" class="flex-1 bg-pink-600 text-white font-bold p-3 rounded-xl hover:bg-pink-700 transition">ส่งเข้าครัว</button>
+</div>
+
+<!-- Modal สำหรับเลือกโต๊ะ -->
+<div id="tableModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl relative">
+    <h3 class="text-xl font-bold mb-4 text-pink-700">🪑 เลือกโต๊ะ</h3>
+    <div id="tableGrid" class="grid grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto">
+        <!-- โต๊ะจะโหลดมาโชว์ที่นี่ -->
+    </div>
+    <button onclick="document.getElementById('tableModal').classList.add('hidden')" class="w-full mt-4 py-3 bg-gray-200 rounded-xl font-bold">ปิด</button>
   </div>
+</div>
+
+<!-- ปุ่มเพิ่มสินค้า (แบบลอย) -->
+<button onclick="openProductForm()" class="fixed bottom-20 right-4 bg-blue-600 text-white p-4 rounded-full shadow-lg text-2xl font-bold">+</button>
+
+<!-- หน้าต่าง Modal สำหรับเพิ่ม/แก้ไข -->
+<div id="productFormModal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+        <h3 class="text-xl font-bold mb-4 text-pink-700">เพิ่ม/แก้ไข สินค้า</h3>
+        <input type="hidden" id="prodRowIdx">
+        <div class="space-y-3">
+            <input type="text" id="prodName" placeholder="ชื่อสินค้า" class="w-full p-3 border rounded-xl">
+            <input type="number" id="prodPrice" placeholder="ราคา" class="w-full p-3 border rounded-xl">
+            <input type="number" id="prodStock" placeholder="จำนวนเริ่มต้น" class="w-full p-3 border rounded-xl">
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button onclick="closeProductForm()" class="flex-1 py-3 bg-gray-200 rounded-xl font-bold">ยกเลิก</button>
+            <button onclick="saveProductData()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">บันทึก</button>
+        </div>
+    </div>
+</div>
 
   <script>
     // 1. ใส่ API_URL ของคุณ (ตัวเดิมที่ใช้ใน Index.html)
@@ -105,6 +139,66 @@ const google = {
         document.getElementById('tableNo').value = '';
       }).createKitchenOrderGS(orderData);
     }
+
+    // 1. ฟังก์ชันเปิด Modal และโหลดโต๊ะ
+function openTableModal() {
+    document.getElementById('tableModal').classList.remove('hidden');
+    google.script.run.withSuccessHandler(renderTableGrid).getTablesData();
+}
+
+// 2. ฟังก์ชันวาดตารางโต๊ะ
+function renderTableGrid(tables) {
+    let grid = document.getElementById('tableGrid');
+    grid.innerHTML = '';
+    
+    tables.forEach(table => {
+        // เช็คสถานะ: ถ้าว่าง ให้กดได้ ถ้าไม่ว่างให้สีเทา
+        let isAvailable = (table.status === "ว่าง" || table.status === "🟢 ว่าง");
+        let btnClass = isAvailable 
+            ? "p-4 bg-green-100 text-green-700 rounded-xl font-bold border border-green-200 active:bg-green-200" 
+            : "p-4 bg-gray-100 text-gray-400 rounded-xl font-bold border border-gray-200 cursor-not-allowed";
+        
+        grid.innerHTML += `
+            <button ${isAvailable ? `onclick="selectTable('${table.name}')"` : 'disabled'} class="${btnClass}">
+                ${table.name}
+            </button>`;
+    });
+}
+
+// 3. ฟังก์ชันเมื่อเลือกโต๊ะแล้ว
+function selectTable(name) {
+    document.getElementById('tableNo').value = name;
+    document.getElementById('tableModal').classList.add('hidden');
+}
+function openProductForm() {
+    document.getElementById('productFormModal').classList.remove('hidden');
+}
+
+function closeProductForm() {
+    document.getElementById('productFormModal').classList.add('hidden');
+}
+
+function saveProductData() {
+    let data = {
+        rowIdx: document.getElementById('prodRowIdx').value,
+        name: document.getElementById('prodName').value,
+        price: document.getElementById('prodPrice').value,
+        stockIn: document.getElementById('prodStock').value,
+        category: "ทั่วไป", // หรือจะเพิ่มช่องเลือกหมวดหมู่ก็ได้ครับ
+        barcode: "", 
+        cost: 0,
+        sold: 0,
+        remaining: document.getElementById('prodStock').value
+    };
+
+    // เรียกฟังก์ชัน saveProductGS จากไฟล์ .gs ของคุณ
+    google.script.run.withSuccessHandler(() => {
+        alert("บันทึกสินค้าเรียบร้อย!");
+        closeProductForm();
+        google.script.run.withSuccessHandler(renderProducts).getProducts(); // รีโหลดหน้าจอ
+    }).saveProductGS(data);
+}
+
   </script>
 </body>
 </html>
