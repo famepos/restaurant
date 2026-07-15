@@ -41,41 +41,40 @@
 
 <!-- Modal เปิดโต๊ะ (ฉบับสมบูรณ์: บุฟเฟต์ / สั่งแยก) -->
 <div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2.5rem] w-full max-w-sm p-8 shadow-2xl relative">
-        <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+    <div class="bg-white rounded-[2.5rem] w-full max-w-sm p-6 shadow-2xl relative">
+        <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 text-3xl font-bold">&times;</button>
         
         <div class="text-center mb-6">
             <h2 class="text-xl font-black text-pink-700">🪑 เปิดโต๊ะ: <span id="openTableNameDisplay">-</span></h2>
-            <p class="text-[10px] text-gray-400 font-bold mt-1 uppercase">ระบุโหมด จำนวนลูกค้า</p>
         </div>
 
         <div class="space-y-4">
-            <!-- ปุ่มเลือกโหมด -->
+            <!-- ปุ่มสลับโหมด -->
             <div class="flex p-1 bg-gray-100 rounded-2xl">
-                <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm transition">🥩 ระบบบุฟเฟต์</button>
-                <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs transition">🍽️ สั่งแยก</button>
-            </div>
-            <input type="hidden" id="selectedTableMode" value="Buffet">
-
-            <!-- แพ็กเกจ (จะแสดงเฉพาะโหมดบุฟเฟต์) -->
-            <div id="buffetPackageContainer">
-                <label class="block text-xs font-bold text-gray-400 mb-1">เลือกแพ็กเกจบุฟเฟต์</label>
-                <select id="selectBuffetPackage" class="w-full p-3.5 border-2 border-pink-100 rounded-xl font-bold text-pink-700 text-sm focus:border-pink-300 focus:outline-none bg-white"></select>
+                <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm">🥩 ระบบบุฟเฟต์</button>
+                <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs">🍽️ สั่งแยก</button>
             </div>
 
-            <!-- จำนวนลูกค้า -->
+            <!-- เลือกแพ็กเกจ -->
+            <select id="selectBuffetPackage" class="w-full p-3 border-2 border-pink-100 rounded-xl font-bold text-pink-700 text-sm"></select>
+
+            <!-- จำนวนลูกค้า (ผู้ใหญ่ / เด็ก / ผู้สูงอายุ) -->
             <div class="space-y-2">
-                <div class="flex items-center justify-between bg-gray-50 p-2 rounded-2xl border border-gray-100">
-                    <span class="text-xs font-bold text-gray-700 pl-2">👨 ผู้ใหญ่</span>
-                    <div class="flex items-center bg-white rounded-lg shadow-sm">
-                        <button type="button" onclick="adjustHeadCount('adult', -1)" class="w-8 h-8 font-bold text-gray-500">-</button>
-                        <input type="number" id="inputAdultCount" value="1" class="w-10 text-center font-bold text-pink-600 outline-none">
-                        <button type="button" onclick="adjustHeadCount('adult', 1)" class="w-8 h-8 font-bold text-gray-500">+</button>
-                    </div>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span class="text-sm font-bold">👨 ผู้ใหญ่</span>
+                    <div class="flex items-center gap-2"><button type="button" onclick="adjustHead('adult', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><input type="number" id="inputAdultCount" value="1" class="w-10 text-center font-bold outline-none"><button type="button" onclick="adjustHead('adult', 1)" class="w-8 h-8 bg-gray-100 rounded-lg">+</button></div>
+                </div>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span class="text-sm font-bold">👦 เด็ก</span>
+                    <div class="flex items-center gap-2"><button type="button" onclick="adjustHead('kid', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><input type="number" id="inputKidCount" value="0" class="w-10 text-center font-bold outline-none"><button type="button" onclick="adjustHeadCount('kid', 1)" class="w-8 h-8 bg-gray-100 rounded-lg">+</button></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold">🧓 ผู้สูงวัย</span>
+                    <div class="flex items-center gap-2"><button type="button" onclick="adjustHead('senior', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><input type="number" id="inputSeniorCount" value="0" class="w-10 text-center font-bold outline-none"><button type="button" onclick="adjustHeadCount('senior', 1)" class="w-8 h-8 bg-gray-100 rounded-lg">+</button></div>
                 </div>
             </div>
 
-            <button onclick="confirmOpenTable()" class="w-full mt-4 py-4 bg-[#e91e63] text-white rounded-2xl font-black text-lg shadow-lg active:scale-95 transform transition">
+            <button onclick="confirmOpenTable()" class="w-full mt-4 py-4 bg-pink-600 text-white rounded-2xl font-black text-lg shadow-lg active:scale-95 transition">
                 🚀 ยืนยันเปิดโต๊ะ
             </button>
         </div>
@@ -144,20 +143,26 @@
         document.getElementById('buffetPackageMenu').classList.add('hidden');
     }
 
+// ฟังก์ชันปรับจำนวนคน
+function adjustHead(type, val) {
+    let id = type === 'adult' ? 'inputAdultCount' : (type === 'kid' ? 'inputKidCount' : 'inputSeniorCount');
+    let el = document.getElementById(id);
+    let n = parseInt(el.value) + val;
+    if(n >= 0) el.value = n;
+}
+
+// ฟังก์ชันสลับโหมดสีปุ่ม
 function setTableMode(mode) {
-    document.getElementById('selectedTableMode').value = mode;
     let buffetBtn = document.getElementById('btnModeBuffet');
     let alaBtn = document.getElementById('btnModeAlacarte');
-    let pkgContainer = document.getElementById('buffetPackageContainer');
-
-    if (mode === 'Buffet') {
-        buffetBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm transition";
-        alaBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs transition";
-        pkgContainer.classList.remove('hidden');
+    if(mode === 'Buffet') {
+        buffetBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm";
+        alaBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs";
+        document.getElementById('selectBuffetPackage').classList.remove('hidden');
     } else {
-        buffetBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs transition";
-        alaBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm transition";
-        pkgContainer.classList.add('hidden');
+        buffetBtn.className = "flex-1 py-3 text-gray-500 rounded-xl font-bold text-xs";
+        alaBtn.className = "flex-1 py-3 bg-white text-pink-700 rounded-xl font-bold text-xs shadow-sm";
+        document.getElementById('selectBuffetPackage').classList.add('hidden');
     }
 }
 
