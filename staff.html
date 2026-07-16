@@ -27,14 +27,16 @@
             display: none; /* สำหรับ Chrome, Safari, Opera */
         }
      @media print {
-      /* บังคับให้บอดี้และหน้าต่างพิมพ์ ยืดขยายอัตโนมัติ และปิดแถบเลื่อน */
-      body { height: auto !important; overflow: visible !important; }
-      
-      /* 👉 แก้ไขจุดนี้: ซ่อนทุกอย่าง ยกเว้นตัวที่สั่งพิมพ์ (print-active-view) หรือหน้าใบเสร็จที่กำลังเปิดอยู่ */
-      body > :not(.print-active-view):not(#receiptModal:not(.hidden)) { display: none !important; }
-      
-      /* 👉 ตั้งค่าหน้าต่างพิมพ์ให้เต็มหน้ากระดาษ */
-      .print-active-view, #receiptModal:not(.hidden) { 
+    /* บังคับให้บอดี้และหน้าต่างพิมพ์ ยืดขยายอัตโนมัติ และปิดแถบเลื่อน */
+    body { height: auto !important; overflow: visible !important; }
+    
+    /* 🟢 เพิ่ม :not(#tableQRPrintContainer) เข้าไป เพื่อบอกว่าไม่ต้องซ่อนกล่องนี้ */
+    body > :not(.print-active-view):not(#receiptModal:not(.hidden)):not(#tableQRPrintContainer) { 
+        display: none !important; 
+    }
+    
+    /* 👉 ตั้งค่าหน้าต่างพิมพ์ให้เต็มหน้ากระดาษ */
+    .print-active-view, #receiptModal:not(.hidden), #tableQRPrintContainer { 
         display: block !important; 
         position: absolute !important; 
         left: 0 !important; 
@@ -44,16 +46,13 @@
         background: white !important; 
         padding: 0 !important; 
         overflow: visible !important; 
-      }
-      
-      /* ซ่อนแถบเลื่อน (Scrollbar) ไม่ให้แสดงในงานพิมพ์เด็ดขาด */
-      ::-webkit-scrollbar { display: none !important; }
-      
-      .no-print { display: none !important; }
-      .receipt-slip { box-shadow: none !important; margin: 0 !important; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
-
+      /* ซ่อนแถบเลื่อน (Scrollbar) ไม่ให้แสดงในงานพิมพ์เด็ดขาด */
+::-webkit-scrollbar { display: none !important; }
+    .no-print { display: none !important; }
+    .receipt-slip { box-shadow: none !important; margin: 0 !important; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
     /* (โค้ดพิมพ์อื่นๆ ที่มีอยู่แล้ว) */
 
       /* 👉 เพิ่ม CSS สำหรับพิมพ์บาร์โค้ด 👈 */
