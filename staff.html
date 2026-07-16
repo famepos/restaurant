@@ -358,6 +358,9 @@ let allSalesProducts = [];
 let globalTablesList = [];
 let isBuffetMode = false;
 let buffetIncludedCategories = [];
+let selectedPackageName = "";
+let selectedAdultPrice = 0;
+let selectedChildPrice = 0;
 
 // ==========================================
 // 1. ระบบจัดการโต๊ะ (อัปเดต Real-time)
@@ -874,10 +877,21 @@ function setTableMode(mode) {
     }
 }
 
-function selectBuffetPackage(name, timeLimit) {
-    selectedPackage = name;
+// 1. ฟังก์ชันเลือกแพ็กเกจแล้วเก็บค่าแยก
+function selectBuffetPackage(name, priceAdult, priceChild, time) {
+    // เก็บค่าลงตัวแปร Global เพื่อรอใช้ตอนกดเปิดโต๊ะ
+    selectedPackageName = name;
+    selectedAdultPrice = priceAdult;
+    selectedChildPrice = priceChild;
+    
+    // อัปเดต UI ให้พนักงานเห็นราคาทันที
     document.getElementById('buffetPackageSelectedText').innerText = "🥩 " + name;
-    document.getElementById('inputTimeLimit').value = timeLimit || 90;
+    document.getElementById('inputTimeLimit').value = time;
+    
+    // อัปเดตราคาเด็กที่โชว์ใต้ปุ่ม (ถ้ามี span id นี้ในหน้า staff)
+    let childPriceDisp = document.getElementById('childPriceDisplay');
+    if(childPriceDisp) childPriceDisp.innerText = "ราคา: ฿" + priceChild;
+    
     document.getElementById('buffetPackageMenu').classList.add('hidden');
 }
 
@@ -906,7 +920,7 @@ function setPaymentWorkflow(isPrepaid) {
         btnNow.className = "py-2 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
     }
 }
-// ฟังก์ชันยืนยันเปิดโต๊ะ
+// ฟังก์ชันยืนยันเปิดโต๊ะ (อัปเดต: แยกรายการผู้ใหญ่/เด็ก และดึงราคาตามแพ็กเกจ)
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
@@ -920,6 +934,11 @@ function submitTableOpen() {
     let pkgName = currentTableMode === 'Buffet' ? (selectedPackage || "-") : "-";
     let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "ไม่จำกัด";
 
+    // 🟢 ดึงข้อมูลราคาจากตัวแปร global buffetPackages
+    let pkgInfo = buffetPackages.find(p => p.name === pkgName);
+    let priceAdult = pkgInfo ? parseFloat(pkgInfo.priceAdult) : 0;
+    let priceChild = pkgInfo ? parseFloat(pkgInfo.priceChild) : 0;
+
     let btn = document.querySelector(`button[onclick="submitTableOpen()"]`);
     let originalText = btn.innerText;
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
@@ -932,29 +951,35 @@ function submitTableOpen() {
         
         globalTablesList = updatedTables; 
         
-        // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ!
-        cart = []; // ล้างตะกร้าก่อน
+        // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้า (แยกรายการผู้ใหญ่/เด็ก)
+        cart = []; 
         if (currentTableMode === 'Buffet' && selectedPackage) {
-            let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
-            let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
             
-            // ดันแพ็กเกจเข้าตะกร้าพนักงาน
-            cart.push({
-                name: selectedPackage,
-                price: pkgPrice,
-                qty: totalHeadCount
-            });
+            // เพิ่มรายการผู้ใหญ่
+            if (adult > 0) {
+                cart.push({
+                    name: selectedPackage + " (ผู้ใหญ่)",
+                    price: priceAdult,
+                    qty: adult
+                });
+            }
+            
+            // เพิ่มรายการเด็ก
+            if (kid > 0) {
+                cart.push({
+                    name: selectedPackage + " (เด็ก)",
+                    price: priceChild,
+                    qty: kid
+                });
+            }
+            
             updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
-            
-            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
             showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
         } else {
-            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
             showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
         }
         
         if (isPrepaidWorkflow) {
-            // ถ้าระบบจ่ายก่อนกิน ให้แจ้งเตือนบอกพนักงานเพิ่มนิดนึง
             setTimeout(() => {
                 showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
             }, 500);
@@ -1096,6 +1121,40 @@ function printTableSlip() {
         let menuUrl = "https://famepos.github.io/restaurant/menu.html?table=" + encodeURIComponent(tableInfo.name);
         qrImgElement.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(menuUrl);
     }
+}
+
+// 🔄 ฟังก์ชันดึงแพ็กเกจบุฟเฟต์มาใส่ใน Dropdown ของหน้า Staff
+function loadPackagesForOpenTable() {
+    let btnText = document.getElementById('buffetPackageSelectedText');
+    let menu = document.getElementById('buffetPackageMenu');
+    if(btnText) btnText.innerHTML = "⏳ กำลังโหลดแพ็กเกจ...";
+
+    google.script.run.withSuccessHandler(function(packages) {
+        buffetPackages = packages; // อย่าลืมประกาศ let buffetPackages = []; ไว้ด้านบนสุดด้วยนะครับ
+        if (!packages || packages.length === 0) {
+            if(btnText) btnText.innerHTML = "❌ ไม่มีแพ็กเกจในระบบ";
+            if(menu) menu.innerHTML = '<div class="p-3 text-gray-500 text-sm text-center font-bold">กรุณาไปเพิ่มราคาบุฟเฟต์ในเมนูตั้งค่า</div>';
+            return;
+        }
+
+        let html = '';
+        packages.forEach(pkg => {
+            html += `
+            <div onclick="selectBuffetPackageItem('${pkg.name}', ${pkg.priceAdult}, ${pkg.priceChild}, ${pkg.timeLimit}, this)" 
+                 class="buffet-pkg-item p-4 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">
+                🥩 ${pkg.name} 
+                <span class="text-xs block text-pink-600">ผู้ใหญ่ ฿${pkg.priceAdult} | เด็ก ฿${pkg.priceChild}</span>
+            </div>`;
+        });
+        
+        if(menu) menu.innerHTML = html;
+        
+        // เลือกแพ็กเกจแรกเป็นค่าเริ่มต้น
+        if (packages.length > 0) {
+            let firstElement = menu.querySelector('.buffet-pkg-item');
+            selectBuffetPackageItem(packages[0].name, packages[0].priceAdult, packages[0].priceChild, packages[0].timeLimit, firstElement);
+        }
+    }).getBuffetPackagesGS();
 }
 </script>
 </body>
