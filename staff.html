@@ -352,18 +352,17 @@ const google = {
         }
     }
 };
-// 🟢 วางทับส่วนนี้ใน <script> ของไฟล์ staff.html
+// อัปเดตให้ดึงค่าจากชีตมาแสดงแบบ Dynamic 100%
 document.addEventListener("DOMContentLoaded", function() {
     google.script.run.withSuccessHandler(function(pkgs) {
         buffetPackages = pkgs;
         let menuHtml = '';
         if (pkgs.length > 0) {
             pkgs.forEach(pkg => {
-                // ดึงราคาผู้ใหญ่และเด็ก (เช็คว่ามีราคาเด็กไหม ถ้าไม่มีให้หาร 2)
+                // 🟢 ดึงราคาเด็กตรงๆ จากชีต (ถ้าในชีตเป็น 0 ถึงจะค่อยหาร 2)
                 let pAdult = parseFloat(pkg.price) || 0;
                 let pChild = (pkg.priceChild !== undefined && parseFloat(pkg.priceChild) > 0) ? parseFloat(pkg.priceChild) : (pAdult / 2);
                 
-                // แก้บรรทัดนี้ให้แสดงราคาเด็กด้วย
                 menuHtml += `<div onclick="selectBuffetPackage('${pkg.name}', ${pkg.timeLimit}, ${pAdult}, ${pChild})" class="p-3 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition">
                                 🥩 ${pkg.name} (ผู้ใหญ่ ฿${pAdult} | เด็ก ฿${pChild})
                              </div>`;
@@ -374,9 +373,10 @@ document.addEventListener("DOMContentLoaded", function() {
             selectBuffetPackage(firstPkg.name, firstPkg.timeLimit, parseFloat(firstPkg.price), firstChild);
         } else {
             menuHtml = `<div class="p-3 text-red-500 font-bold text-sm">ยังไม่มีแพ็กเกจในระบบ</div>`;
+            document.getElementById('buffetPackageSelectedText').innerText = "ไม่มีแพ็กเกจบุฟเฟต์";
         }
         document.getElementById('buffetPackageMenu').innerHTML = menuHtml;
-    }).getBuffetPackagesGS();
+    }).getBuffetPackagesGS(); // 🟢 นี่คือฟังก์ชันที่ดึงข้อมูลจากชีต BuffetPackages โดยตรงครับ
     
     loadTableSelector(); 
     loadProducts();      
@@ -807,11 +807,6 @@ function viewTableOrders() {
                     // --- ส่วนที่ 2: รายการในบิลทั้งหมด (ที่ส่งเข้าแคชเชียร์แล้ว) ---
                     if (data.items && data.items.length > 0) {
                         data.items.forEach(item => {
-                            // 🟢 เพิ่มเงื่อนไข: กรองรายการย่อย (ผู้ใหญ่/เด็ก) ออกจากการแสดงผลและไม่นำมาบวกยอดรวม
-                            if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) {
-                                return;
-                            }
-
                             let itemTotal = parseFloat(item.price) * parseInt(item.qty);
                             grandTotal += itemTotal;
                             
