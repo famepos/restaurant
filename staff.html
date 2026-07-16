@@ -626,7 +626,7 @@ function showToast(message, type = 'success') {
 
 
 // ==========================================
-// 2. ส่งออเดอร์เข้าแคชเชียร์ (ดึงบิลที่พักไว้ มาบวกของกินเพิ่ม แล้วส่งกลับ)
+// ส่งออเดอร์เข้าแคชเชียร์ (แก้ไข: ส่งเฉพาะของในตะกร้าเท่านั้น ห้ามดึงของเก่ามารวมเด็ดขาด!)
 // ==========================================
 function sendToKitchen() {
     if (cart.length === 0) {
@@ -637,56 +637,36 @@ function sendToKitchen() {
     let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
     btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
 
-    // 1. ดึงรายการอาหารที่ "พักบิล" ไว้ออกมาก่อน (จะมีรายการผู้ใหญ่/เด็ก รออยู่แล้ว)
+    // 1. คำนวณยอดและเตรียมข้อมูล "เฉพาะสินค้าที่อยู่ในตะกร้าตอนนี้เท่านั้น"
+    let totalAmount = cart.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.qty)), 0);
+    
+    let orderPayload = { 
+        table: currentTable, 
+        items: cart.map(item => ({
+            name: item.name,
+            price: parseFloat(item.price),
+            qty: parseInt(item.qty)
+        })), 
+        total: totalAmount 
+    };
+
+    // 2. ยิงของใหม่ไปให้หลังบ้านต่อท้ายบิลเดิมตรงๆ เลย
     google.script.run
-        .withSuccessHandler(function(existingData) {
-            let existingItems = [];
-            if (existingData && existingData.items) {
-                existingItems = existingData.items;
-            }
-
-            // 2. เอาของในตะกร้า (พวกเนื้อ หมู 0 บาท) ไปต่อท้ายบิลเดิม
-            let newCartPayload = cart.map(item => ({
-                name: item.name,
-                price: parseFloat(item.price),
-                qty: parseInt(item.qty)
-            }));
+        .withSuccessHandler(function() {
+            btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+            showToast("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔", "success");
             
-            let mergedItems = existingItems.concat(newCartPayload);
-            
-            // คำนวณยอดรวมของทั้งบิลใหม่
-            let mergedTotal = mergedItems.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.qty)), 0);
-
-            let orderPayload = { 
-                table: currentTable, 
-                items: mergedItems, 
-                total: mergedTotal 
-            };
-
-            // 3. ส่งบิลที่สมบูรณ์กลับไปอัปเดตที่หลังบ้าน
-            google.script.run
-                .withSuccessHandler(function() {
-                    btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-                    showToast("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔", "success");
-                    
-                    // ล้างตะกร้าทิ้ง พร้อมรับออเดอร์ใหม่
-                    cart = [];             
-                    updateCartBadge();     
-                    closeCartModal();      
-                    goBackToTables(); 
-                })
-                .withFailureHandler(function(err) {
-                    btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-                    showToast("ส่งออเดอร์ล้มเหลว โปรดลองอีกครั้ง", "error");
-                })
-                .submitCustomerOrder(orderPayload);
-                
+            // 3. ล้างตะกร้าให้เกลี้ยง เพื่อเตรียมรับออเดอร์รอบต่อไป
+            cart = [];             
+            updateCartBadge();     
+            closeCartModal();      
+            goBackToTables(); 
         })
         .withFailureHandler(function(err) {
             btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-            showToast("ไม่สามารถดึงออเดอร์เดิมได้ โปรดกดส่งอีกครั้ง", "error");
+            showToast("ส่งออเดอร์ล้มเหลว โปรดลองอีกครั้ง", "error");
         })
-        .getTableTotalGS(currentTable);
+        .submitCustomerOrder(orderPayload);
 }
 // 4. ระบบเคลียร์โต๊ะ (แบบกดแล้วทำงานทันที)
 function clearTable() {
