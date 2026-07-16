@@ -1066,35 +1066,51 @@ function adjustCartQty(index, amount) {
 // ฟังก์ชันสำหรับพิมพ์ใบเปิดโต๊ะ
 function printTableSlip() {
     if (!currentTable) return;
+    
+    // 1. ค้นหาข้อมูลโต๊ะจาก globalTablesList (ซึ่งมีข้อมูลครบถ้วนอยู่แล้ว)
     let tableInfo = globalTablesList.find(t => t.name === currentTable);
-    if (!tableInfo) return;
+    if (!tableInfo) {
+        showToast("ไม่พบข้อมูลโต๊ะในระบบ", "error");
+        return;
+    }
 
-    // เติมข้อมูล
+    // 2. เติมข้อมูล
     document.getElementById('printSlipTable').innerText = tableInfo.name;
-    document.getElementById('printSlipMode').innerText = tableInfo.orderMode || "-";
+    document.getElementById('printSlipMode').innerText = (tableInfo.orderMode === 'Buffet') ? 'บุฟเฟต์' : 'สั่งแยก';
     document.getElementById('printSlipPkg').innerText = tableInfo.packageName || "-";
     document.getElementById('printSlipHead').innerText = tableInfo.headCount || "0";
     
-    // ตั้งเวลา
+    // ตั้งเวลา (ดึงจากข้อมูลโต๊ะถ้ามี หรือคำนวณใหม่)
     let now = new Date();
     document.getElementById('printSlipStartTime').innerText = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'}) + " น.";
-    
-    // คำนวณเวลาหมดรอบ (สมมติว่า endTime มีค่ามาให้)
     document.getElementById('printSlipEndTime').innerText = tableInfo.endTime ? new Date(tableInfo.endTime).toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'}) + " น." : "-";
     
-    // ตั้งค่า QR
-    document.getElementById('printSlipQRImage').src = tableInfo.qrCode || "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(tableInfo.name);
+    // 🟢 3. ดึง QR Code จากฐานข้อมูลโดยตรง (ไม่ต้องสร้างใหม่)
+    let qrImgElement = document.getElementById('printSlipQRImage');
+    
+    // ตรวจสอบว่ามีข้อมูล qrCode หรือไม่ (สมมติว่าชื่อ property คือ qrCode)
+    if (tableInfo.qrCode) {
+        qrImgElement.src = tableInfo.qrCode;
+    } else {
+        // กรณีไม่มี QR ในระบบ (ป้องกันรูปเสีย)
+        qrImgElement.src = ""; 
+        showToast("ไม่พบ QR Code ประจำโต๊ะนี้", "error");
+    }
 
-    // แสดงและพิมพ์
+    // 4. สั่งพิมพ์
     let container = document.getElementById('tableQRPrintContainer');
+    
+    // แสดงกล่อง (ใช้ display: flex ตามที่คุณเซ็ตไว้ใน CSS)
     container.classList.remove('hidden');
-    container.classList.add('flex');
+    container.classList.add('flex', 'print-active-view');
     
-    window.print();
-    
-    // ซ่อนกลับ
-    container.classList.add('hidden');
-    container.classList.remove('flex');
+    // รอสักนิดเพื่อให้รูปโหลดติด แล้วสั่งพิมพ์
+    setTimeout(() => {
+        window.print();
+        // ซ่อนกลับ
+        container.classList.add('hidden');
+        container.classList.remove('flex', 'print-active-view');
+    }, 500);
 }
 </script>
 </body>
