@@ -836,23 +836,6 @@ let isPrepaidWorkflow = false;
 let buffetPackages = [];
 let selectedPackage = null;
 
-// 1. ดึงแพ็กเกจจาก Google Sheets ตอนโหลดเว็บ
-document.addEventListener("DOMContentLoaded", function() {
-    google.script.run.withSuccessHandler(function(pkgs) {
-        buffetPackages = pkgs;
-        let menuHtml = '';
-        if (pkgs.length > 0) {
-            pkgs.forEach(pkg => {
-                menuHtml += `<div onclick="selectBuffetPackage('${pkg.name}', ${pkg.timeLimit})" class="p-3 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition">${pkg.name} (฿${pkg.price})</div>`;
-            });
-            selectBuffetPackage(pkgs[0].name, pkgs[0].timeLimit); // เลือกอันแรกเป็นค่าเริ่มต้น
-        } else {
-            menuHtml = `<div class="p-3 text-red-500 font-bold text-sm">ยังไม่มีแพ็กเกจในระบบ</div>`;
-            document.getElementById('buffetPackageSelectedText').innerText = "ไม่มีแพ็กเกจบุฟเฟต์";
-        }
-        document.getElementById('buffetPackageMenu').innerHTML = menuHtml;
-    }).getBuffetPackagesGS();
-});
 
 // 2. ปรับปรุงฟังก์ชัน selectTable เพื่อเปิด Modal ตัวใหม่
 function selectTable(name, status) {
