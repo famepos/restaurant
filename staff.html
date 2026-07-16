@@ -626,7 +626,7 @@ function showToast(message, type = 'success') {
 
 
 // ==========================================
-// ส่งออเดอร์เข้าแคชเชียร์ 
+// ส่งออเดอร์เข้าแคชเชียร์ (อัปเดต: ดึงของเก่ามารวมร่างก่อน ป้องกันการเซฟทับ)
 // ==========================================
 function sendToKitchen() {
     if (cart.length === 0) {
@@ -634,50 +634,80 @@ function sendToKitchen() {
         return;
     }
 
-    let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-    let orderPayload = { 
-        table: currentTable, 
-        items: cart.map(item => ({
-            name: item.name,
-            price: item.price,
-            qty: item.qty
-        })), 
-        total: totalAmount 
-    };
-
     let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
     btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
 
-    fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ 
-            action: "submitCustomerOrder", 
-            args: [orderPayload] 
-        }),
-        redirect: "follow"
-    })
-    .then(res => res.json())
-    .then(data => {
-        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-
-        if(data.status === "Success") {
-            // 🟢 เรียกใช้แจ้งเตือนสีชมพูของคุณ
-            showToast("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔", "success");
+    // 🟢 1. ดึงข้อมูลบิลเดิมจากหลังบ้านมาก่อน เพื่อเอาของใหม่ไปต่อท้าย (ป้องกันการเซฟทับ)
+    google.script.run
+        .withSuccessHandler(function(existingData) {
+            let existingItems = [];
+            if (existingData && existingData.items) {
+                existingItems = existingData.items;
+            }
             
-            cart = [];             
-            updateCartBadge();     
-            closeCartModal();      
-            goBackToTables();      
-        } else {
-            showToast(data.message, "error");
-        }
-    })
-    .catch(err => {
-        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-        showToast("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง", "error");
-    });
+            let tableInfo = globalTablesList.find(t => t.name === currentTable);
+            
+            // 🛑 2. กรองเอารายการที่เป็นแบบเหมารวม (xจำนวนคน) ทิ้งไป
+            // ป้องกันการเอาแพ็กเกจที่ระบบเสกมาไปเซฟทับของจริง
+            if (tableInfo && tableInfo.orderMode === 'Buffet') {
+                existingItems = existingItems.filter(item => {
+                    let isAutoPackage = item.name.includes(tableInfo.packageName) && item.name.includes("(x");
+                    return !isAutoPackage;
+                });
+            }
+
+            // 🟢 3. เอาของใหม่ในตะกร้า ไปต่อท้ายของเดิมให้สมบูรณ์
+            let newCartPayload = cart.map(item => ({
+                name: item.name,
+                price: parseFloat(item.price),
+                qty: parseInt(item.qty)
+            }));
+            
+            let mergedItems = existingItems.concat(newCartPayload);
+            
+            // คำนวณยอดรวมใหม่ทั้งหมด
+            let mergedTotal = mergedItems.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.qty)), 0);
+
+            let orderPayload = { 
+                table: currentTable, 
+                items: mergedItems, 
+                total: mergedTotal 
+            };
+
+            // 🟢 4. ส่งข้อมูลที่รวมร่างแล้วกลับไปที่แคชเชียร์
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ 
+                    action: "submitCustomerOrder", 
+                    args: [orderPayload] 
+                }),
+                redirect: "follow"
+            })
+            .then(res => res.json())
+            .then(data => {
+                btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+
+                if(data.status === "Success") {
+                    showToast("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔", "success");
+                    cart = [];             
+                    updateCartBadge();     
+                    closeCartModal();      
+                    goBackToTables();      
+                } else {
+                    showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+                showToast("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง", "error");
+            });
+        })
+        .withFailureHandler(function(err) {
+            btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+            showToast("ไม่สามารถดึงข้อมูลเดิมได้ โปรดลองกดส่งอีกครั้ง", "error");
+        })
+        .getTableTotalGS(currentTable);
 }
 
 // 4. ระบบเคลียร์โต๊ะ (แบบกดแล้วทำงานทันที)
