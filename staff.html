@@ -754,17 +754,20 @@ function viewTableOrders() {
                     let html = '';
                     let grandTotal = 0;
                     
-                    // 🟢 เช็คว่าในบิลที่ดึงมาจากแคชเชียร์ มีแพ็กเกจนี้ส่งไปหรือยัง?
+                    // 🟢 แก้ไขการเช็คชื่อแพ็กเกจให้แม่นยำขึ้นด้วย .trim().toLowerCase()
+                    // เพื่อป้องกันปัญหาชื่อไม่ตรงกันจนทำให้ระบบมองว่าเป็นคนละรายการ
                     let isPackageInBill = false;
-                    if (data.items && myTable) {
-                        isPackageInBill = data.items.some(i => i.name === myTable.packageName);
+                    if (data.items && myTable && myTable.packageName) {
+                        isPackageInBill = data.items.some(i => 
+                            i.name.trim().toLowerCase() === myTable.packageName.trim().toLowerCase()
+                        );
                     }
 
-                    // --- ส่วนที่ 1: ถ้าเปิดเป็นบุฟเฟต์ แต่พนักงานยังไม่ได้กด "ส่งแคชเชียร์" ---
+                    // --- ส่วนที่ 1: ถ้าเปิดเป็นบุฟเฟต์ แต่พนักงานยังไม่ได้กด "ส่งแคชเชียร์" หรือยังหาแพ็กเกจไม่เจอในบิล ---
                     if (myTable && myTable.orderMode === 'Buffet' && !isPackageInBill) {
                         let pkgName = myTable.packageName;
                         let headCount = parseInt(myTable.headCount) || 0;
-                        let pkgInfo = buffetPackages.find(p => p.name === pkgName);
+                        let pkgInfo = buffetPackages.find(p => p.name.trim() === pkgName.trim());
                         let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
                         let buffetTotal = pkgPrice * headCount;
                         
@@ -786,8 +789,8 @@ function viewTableOrders() {
                             let itemTotal = parseFloat(item.price) * parseInt(item.qty);
                             grandTotal += itemTotal;
                             
-                            // ไฮไลต์ให้สีเด่นขึ้นถ้าเป็นรายการแพ็กเกจบุฟเฟต์
-                            let isPkg = (myTable && item.name === myTable.packageName);
+                            // เช็คเพื่อใส่สไตล์พิเศษให้กับแพ็กเกจบุฟเฟต์ที่อยู่ในบิลแล้ว
+                            let isPkg = (myTable && item.name.trim().toLowerCase() === myTable.packageName.trim().toLowerCase());
                             let boxClass = isPkg ? "bg-pink-50 border-pink-200" : "bg-gray-50 border-gray-100";
                             let textClass = isPkg ? "text-pink-800" : "text-gray-800";
                             let icon = isPkg ? "🥩 " : "";
@@ -803,6 +806,7 @@ function viewTableOrders() {
                         });
                     } 
                     
+                    // แสดงยอดรวม หรือข้อความถ้าว่าง
                     if ((!myTable || myTable.orderMode !== 'Buffet') && (!data.items || data.items.length === 0)) {
                         html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการสั่งอาหารที่ค้างอยู่ครับ 🍽️</div>';
                     } else {
