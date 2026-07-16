@@ -138,98 +138,96 @@
         <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
     </footer>
 
-<!-- MODAL: เปิดโต๊ะแบบ Full Option (เหมือน Cashier) -->
-    <div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-[2rem] w-full max-w-md p-6 shadow-2xl relative flex flex-col max-h-[90vh] overflow-y-auto">
+<!-- MODAL: เปิดโต๊ะแบบ Full Option -->
+<div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
+        <!-- Header -->
+        <div class="p-6 pb-2 text-center relative">
             <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
-            
-            <div class="text-center mb-4 mt-2">
-                <h2 class="text-2xl font-black text-pink-700">🪑 เปิดโต๊ะ: <span id="modalTableNameDisplay">-</span></h2>
-                <p class="text-xs text-gray-400 mt-0.5">ระบุแพ็กเกจ จำนวนลูกค้า และวิธีชำระเงิน</p>
-            </div>
+            <h2 class="text-2xl font-black text-pink-700">🪑 โต๊ะ: <span id="modalTableNameDisplay">-</span></h2>
+            <p class="text-xs text-gray-400 mt-1">ระบุข้อมูลการเปิดโต๊ะ</p>
+        </div>
 
+        <div class="p-6 pt-2 overflow-y-auto">
             <div class="space-y-4">
-                <!-- 1. เลือกรูปแบบการทาน -->
+                <!-- 1. เลือกรูปแบบ -->
                 <div class="grid grid-cols-2 gap-2">
-                    <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold transition shadow-sm text-sm">🥩 ระบบบุฟเฟต์</button>
-                    <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition shadow-sm text-sm">🍽️ สั่งแยก (A la carte)</button>
+                    <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm">🥩 บุฟเฟต์</button>
+                    <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm">🍽️ สั่งแยก</button>
                 </div>
 
-                <!-- 2. เลือกแพ็กเกจบุฟเฟต์ (ซ่อนถ้าเป็น A la carte) -->
+                <!-- 2. แพ็กเกจ -->
                 <div id="buffetPackageContainer" class="relative">
-                    <button type="button" onclick="document.getElementById('buffetPackageMenu').classList.toggle('hidden')" class="w-full p-3.5 border-2 border-pink-100 rounded-xl bg-white text-left flex justify-between items-center focus:outline-none transition shadow-sm">
-                        <span id="buffetPackageSelectedText" class="text-pink-700 font-bold text-sm">🥩 กำลังโหลดแพ็กเกจ...</span>
+                    <button type="button" onclick="document.getElementById('buffetPackageMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-pink-100 rounded-xl bg-white text-left flex justify-between items-center text-sm">
+                        <span id="buffetPackageSelectedText" class="text-pink-700 font-bold">🥩 เลือกแพ็กเกจ...</span>
                         <span class="text-pink-500 text-xs">▼</span>
                     </button>
-                    <div id="buffetPackageMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border-2 border-pink-100 rounded-xl shadow-lg z-50 overflow-hidden max-h-48 overflow-y-auto">
-                        <!-- รายชื่อแพ็กเกจจะโผล่ที่นี่ -->
-                    </div>
+                    <div id="buffetPackageMenu" class="hidden absolute top-full left-0 mt-1 w-full bg-white border border-pink-100 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto"></div>
                 </div>
 
-                <!-- จำนวนลูกค้า (ปรับใหม่ให้สวยและกะทัดรัด) -->
-<div class="mb-6">
-    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">จำนวนลูกค้า (ท่าน)</label>
-    <div class="grid grid-cols-1 gap-2">
-        
-        <!-- แถว ผู้ใหญ่ -->
-        <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-white p-2 shadow-sm">
-            <span class="pl-2 font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
-            <div class="flex items-center border border-gray-100 rounded-lg overflow-hidden bg-gray-50">
-                <button type="button" onclick="adjustHeadCount('adult', -1)" class="w-10 py-1.5 font-bold text-gray-500 hover:bg-gray-200">-</button>
-                <input type="number" id="inputAdultCount" value="1" min="0" class="w-10 text-center bg-transparent font-bold text-pink-700 outline-none">
-                <button type="button" onclick="adjustHeadCount('adult', 1)" class="w-10 py-1.5 font-bold text-gray-500 hover:bg-gray-200">+</button>
-            </div>
-        </div>
-
-        <!-- แถว เด็ก -->
-        <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-white p-2 shadow-sm">
-            <span class="pl-2 font-bold text-gray-700 text-sm">👦 เด็ก</span>
-            <div class="flex items-center border border-gray-100 rounded-lg overflow-hidden bg-gray-50">
-                <button type="button" onclick="adjustHeadCount('kid', -1)" class="w-10 py-1.5 font-bold text-gray-500 hover:bg-gray-200">-</button>
-                <input type="number" id="inputKidCount" value="0" min="0" class="w-10 text-center bg-transparent font-bold text-pink-700 outline-none">
-                <button type="button" onclick="adjustHeadCount('kid', 1)" class="w-10 py-1.5 font-bold text-gray-500 hover:bg-gray-200">+</button>
-            </div>
-        </div>
-
-        <!-- แถว ฟรี (VIP) -->
-        <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-white p-2 shadow-sm">
-            <span class="pl-2 font-bold text-gray-700 text-sm">🪑 ฟรี (ไม่คิดค่าหัว)</span>
-            <div class="flex items-center border border-gray-100 rounded-lg overflow-hidden bg-gray-50">
-                <button type="button" onclick="adjustHeadCount('free', -1)" class="w-10 py-1.5 font-bold text-gray-500 hover:bg-gray-200">-</button>
-                <input type="number" id="inputFreeCount" value="0" min="0" class="w-10 text-center bg-transparent font-bold text-pink-700 outline-none">
-                <button type="button" onclick="adjustHeadCount('free', 1)" class="w-10 py-1.5 font-bold text-gray-500 hover:bg-gray-200">+</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-                    <!-- เวลา และ ระบบจ่ายเงิน -->
-                    <div class="flex flex-col gap-3">
-                        <div id="timeLimitContainer">
-                            <label class="block text-xs font-bold text-gray-400 mb-1">จำกัดเวลา (นาที)</label>
-                            <div class="flex items-center border border-pink-100 rounded-xl overflow-hidden bg-pink-50">
-                                <button onclick="adjustTimeLimit(-10)" class="w-10 py-2 font-bold text-pink-600">-</button>
-                                <input type="number" id="inputTimeLimit" value="90" class="w-full text-center bg-transparent font-bold text-pink-700 outline-none">
-                                <button onclick="adjustTimeLimit(10)" class="w-10 py-2 font-bold text-pink-600">+</button>
+                <!-- 3. กลุ่มลูกค้า (ทำเป็น Card) -->
+                <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3 tracking-wider">จำนวนลูกค้า (ท่าน)</h3>
+                    <div class="space-y-2">
+                        <!-- ผู้ใหญ่ -->
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
+                            <div class="flex items-center bg-white border rounded-lg overflow-hidden">
+                                <button type="button" onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+                                <input type="number" id="inputAdultCount" value="1" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+                                <button type="button" onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 mb-1">รูปแบบการชำระเงิน</label>
-                            <div class="flex flex-col gap-1.5">
-                                <button id="btnPayLater" onclick="setPaymentWorkflow(false)" class="py-2 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold transition text-xs shadow-sm">💵 กินก่อนจ่ายทีหลัง</button>
-                                <button id="btnPayNow" onclick="setPaymentWorkflow(true)" class="py-2 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm">💳 จ่ายก่อนกิน</button>
+                        <!-- เด็ก -->
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-gray-700 text-sm">👦 เด็ก</span>
+                            <div class="flex items-center bg-white border rounded-lg overflow-hidden">
+                                <button type="button" onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+                                <input type="number" id="inputKidCount" value="0" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+                                <button type="button" onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
+                            </div>
+                        </div>
+                        <!-- ฟรี -->
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-gray-700 text-sm">🪑 ฟรี</span>
+                            <div class="flex items-center bg-white border rounded-lg overflow-hidden">
+                                <button type="button" onclick="adjustHeadCount('free', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+                                <input type="number" id="inputFreeCount" value="0" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+                                <button type="button" onclick="adjustHeadCount('free', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <button onclick="submitTableOpen()" class="w-full mt-6 py-4 bg-pink-600 text-white rounded-2xl font-bold text-lg hover:bg-pink-700 transition shadow-md active:scale-95">
+                <!-- 4. เวลาและชำระเงิน -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div id="timeLimitContainer">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">เวลา (นาที)</label>
+                        <div class="flex items-center border rounded-xl bg-pink-50 overflow-hidden">
+                            <button onclick="adjustTimeLimit(-10)" class="w-8 py-2 font-bold text-pink-600">-</button>
+                            <input type="number" id="inputTimeLimit" value="90" class="w-full text-center bg-transparent font-bold text-pink-700 outline-none text-sm">
+                            <button onclick="adjustTimeLimit(10)" class="w-8 py-2 font-bold text-pink-600">+</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">ชำระเงิน</label>
+                        <div class="flex flex-col gap-1">
+                            <button id="btnPayLater" onclick="setPaymentWorkflow(false)" class="py-2 border bg-pink-50 text-pink-700 rounded-lg font-bold text-[10px]">💵 กินก่อนจ่าย</button>
+                            <button id="btnPayNow" onclick="setPaymentWorkflow(true)" class="py-2 border bg-white text-gray-500 rounded-lg font-bold text-[10px]">💳 จ่ายก่อน</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Button -->
+        <div class="p-4 border-t">
+            <button onclick="submitTableOpen()" class="w-full py-4 bg-pink-600 text-white rounded-2xl font-bold hover:bg-pink-700 transition active:scale-95 shadow-lg">
                 🚀 ยืนยันเปิดโต๊ะ
             </button>
         </div>
     </div>
+</div>
 
     <!-- MODAL: ดูรายการออเดอร์ของโต๊ะ -->
     <div id="tableOrdersModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-end sm:items-center justify-center p-4">
