@@ -27,31 +27,30 @@
             display: none; /* สำหรับ Chrome, Safari, Opera */
         }
         /* ซ่อนทุกอย่างเวลาสั่งพิมพ์ ยกเว้นตัวใบเปิดโต๊ะ */
-<style>
 @media print {
-    @page {
-        size: auto; 
-        margin: 0;
-    }
-    
-    /* ซ่อนทุกอย่าง ยกเว้นตัวที่พิมพ์ */
+    /* 1. สั่งให้ทุกอย่างใน body หายไปเลย (ไม่จองพื้นที่) */
     body > *:not(#tableQRPrintContainer) {
         display: none !important;
     }
 
+    /* 2. แสดงเฉพาะคอนเทนเนอร์พิมพ์ และบังคับให้อยู่ตำแหน่งบนสุด */
     #tableQRPrintContainer {
-        display: flex !important;
+        display: flex !important; /* ให้ใช้ flex ตามเดิม */
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 5px !important;
+        break-inside: avoid; /* ป้องกันการขึ้นหน้าใหม่กลางคัน */
+    }
+
+    /* 3. เคลียร์ค่าหน้ากระดาษ */
+    @page {
+        size: auto; 
         margin: 0;
-        padding: 10px;
-        /* บังคับไม่ให้ขึ้นหน้าใหม่กลางคัน */
-        break-inside: avoid;
     }
 }
-</style>
     </style>
 </head>
   <body class="pb-24">
@@ -243,47 +242,33 @@
     </div>
 
 <!-- คอนเทนเนอร์สำหรับพิมพ์ใบเปิดโต๊ะ -->
-<div id="tableQRPrintContainer" class="hidden flex-col bg-white p-2 text-black w-full" style="font-family: 'Courier New', Courier, monospace;">
-    
-    <!-- Header -->
-    <div class="text-center font-bold mb-2">
-        <h1 class="text-2xl">FamePOS</h1>
-        <p class="text-sm">ใบเปิดโต๊ะ & คิวอาร์สั่งอาหาร</p>
+<div id="tableQRPrintContainer" class="hidden flex-col bg-white p-6 text-black" style="font-family: 'Courier New', monospace; max-width: 300px; margin: auto;">
+    <div class="text-center border-b-2 border-black pb-3 mb-3">
+        <h1 class="text-2xl font-black" id="printSlipStoreName">FamePOS Buffet</h1>
+        <p class="text-xs mt-1 font-bold">ใบเปิดโต๊ะ & คิวอาร์สั่งอาหาร</p>
     </div>
-    
-    <div class="border-t-2 border-black my-2"></div>
-    
-    <!-- แถบดำหมายเลขโต๊ะ -->
-    <div class="bg-black text-white font-bold py-2 px-4 mb-3 text-center text-xl">
-        หมายเลข: โต๊ะ <span id="printSlipTable">-</span>
+    <div class="text-sm space-y-1.5 font-bold mb-4">
+        <div class="flex justify-between text-xl font-black bg-black text-white p-1 text-center justify-center rounded-md"><span>หมายเลข: <span id="printSlipTable">-</span></span></div>
+        <div class="flex justify-between pt-2"><span>รูปแบบ:</span><span id="printSlipMode">-</span></div>
+        <div class="flex justify-between"><span>แพ็กเกจ:</span><span id="printSlipPkg">-</span></div>
+        <div class="flex justify-between"><span>จำนวนลูกค้า:</span><span><span id="printSlipHead">-</span> ท่าน</span></div>
+        
+        <div class="flex justify-between border-t border-dashed border-gray-300 pt-2 mt-2"><span>เวลาเริ่มทาน:</span><span id="printSlipStartTime">-</span></div>
+        <div class="flex justify-between text-pink-600"><span>เวลาหมดรอบ:</span><span id="printSlipEndTime">-</span></div>
     </div>
-    
-    <!-- ข้อมูลรายละเอียด -->
-    <div class="font-bold text-sm space-y-1 mb-2">
-        <div class="flex justify-between"><span>รูปแบบ:</span> <span id="printSlipMode">-</span></div>
-        <div class="flex justify-between"><span>แพ็กเกจ:</span> <span id="printSlipPkg">-</span></div>
-        <div class="flex justify-between"><span>จำนวนลูกค้า:</span> <span id="printSlipHead">-</span> ท่าน</div>
-        <div class="flex justify-between pt-1"><span>เวลาเริ่มทาน:</span> <span id="printSlipStartTime">-</span></div>
-        <!-- สีชมพูสำหรับเวลาหมดรอบ -->
-        <div class="flex justify-between text-pink-600"><span>เวลาหมดรอบ:</span> <span id="printSlipEndTime">-</span></div>
+    <div class="text-center border-t border-b border-dashed border-black py-4 my-2 flex flex-col items-center">
+        <p class="text-xs font-bold mb-2">📸 สแกนคิวอาร์ด้านล่างเพื่อสั่งอาหาร</p>
+        <img id="printSlipQRImage" src="" class="w-48 h-48 object-contain mx-auto">
     </div>
-    
-    <div class="border-t border-dashed border-black my-2"></div>
-    
-    <!-- QR Code -->
-    <div class="text-center py-2">
-        <p class="font-bold mb-1">📸 สแกนคิวอาร์ด้านล่างเพื่อสั่งอาหาร</p>
-        <img id="printSlipQRImage" src="" class="w-48 h-48 mx-auto">
-    </div>
-    
-    <div class="border-t border-dashed border-black my-2"></div>
-    
-    <!-- Footer -->
-    <div class="text-center font-bold text-xs">
+    <div class="text-center text-xs font-bold mt-2 text-gray-500">
         <p>*** โปรดเก็บสลิปใบนี้ไว้เพื่อสั่งอาหาร ***</p>
         <p class="mt-1">Powered by FamePOS</p>
     </div>
 </div>
+
+
+
+
 
 <script>
 // 1. ตัวแปร API (ใส่ลิงก์ของคุณให้ถูกต้อง)
