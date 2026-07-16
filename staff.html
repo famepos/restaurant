@@ -826,7 +826,6 @@ let currentTableMode = 'Buffet';
 let isPrepaidWorkflow = false;
 let buffetPackages = [];
 let selectedPackage = null;
-
 // 1. ดึงแพ็กเกจจาก Google Sheets ตอนโหลดเว็บ
 document.addEventListener("DOMContentLoaded", function() {
     google.script.run.withSuccessHandler(function(pkgs) {
@@ -834,9 +833,14 @@ document.addEventListener("DOMContentLoaded", function() {
         let menuHtml = '';
         if (pkgs.length > 0) {
             pkgs.forEach(pkg => {
-                menuHtml += `<div onclick="selectBuffetPackage('${pkg.name}', ${pkg.timeLimit})" class="p-3 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition">${pkg.name} (฿${pkg.price})</div>`;
+                // 🟢 แก้ไข: เปลี่ยนจาก pkg.price เป็น pkg.priceAdult และ pkg.priceChild
+                menuHtml += `<div onclick="selectBuffetPackage('${pkg.name}', ${pkg.priceAdult}, ${pkg.priceChild}, ${pkg.timeLimit})" 
+                             class="p-3 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition">
+                             🥩 ${pkg.name} (ผู้ใหญ่ ฿${pkg.priceAdult} | เด็ก ฿${pkg.priceChild})
+                             </div>`;
             });
-            selectBuffetPackage(pkgs[0].name, pkgs[0].timeLimit); // เลือกอันแรกเป็นค่าเริ่มต้น
+            // 🟢 แก้ไข: เรียกใช้ฟังก์ชันที่รองรับราคาเด็กด้วย
+            selectBuffetPackage(pkgs[0].name, pkgs[0].priceAdult, pkgs[0].priceChild, pkgs[0].timeLimit);
         } else {
             menuHtml = `<div class="p-3 text-red-500 font-bold text-sm">ยังไม่มีแพ็กเกจในระบบ</div>`;
             document.getElementById('buffetPackageSelectedText').innerText = "ไม่มีแพ็กเกจบุฟเฟต์";
@@ -879,19 +883,16 @@ function setTableMode(mode) {
 
 // 1. ฟังก์ชันเลือกแพ็กเกจแล้วเก็บค่าแยก
 function selectBuffetPackage(name, priceAdult, priceChild, time) {
-    // เก็บค่าลงตัวแปร Global เพื่อรอใช้ตอนกดเปิดโต๊ะ
-    selectedPackageName = name;
-    selectedAdultPrice = priceAdult;
-    selectedChildPrice = priceChild;
-    
-    // อัปเดต UI ให้พนักงานเห็นราคาทันที
+    // 🟢 เก็บค่าราคาเด็กไว้ด้วยเพื่อใช้ตอนเปิดโต๊ะ
     document.getElementById('buffetPackageSelectedText').innerText = "🥩 " + name;
     document.getElementById('inputTimeLimit').value = time;
     
-    // อัปเดตราคาเด็กที่โชว์ใต้ปุ่ม (ถ้ามี span id นี้ในหน้า staff)
-    let childPriceDisp = document.getElementById('childPriceDisplay');
-    if(childPriceDisp) childPriceDisp.innerText = "ราคา: ฿" + priceChild;
+    // หากมีตัวแปร Global หรือ Hidden Input ให้เก็บค่าไว้ที่นี่
+    selectedPackage = name;
+    selectedAdultPrice = priceAdult;
+    selectedChildPrice = priceChild;
     
+    // ปิดเมนู
     document.getElementById('buffetPackageMenu').classList.add('hidden');
 }
 
