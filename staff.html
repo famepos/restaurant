@@ -626,7 +626,7 @@ function showToast(message, type = 'success') {
 
 
 // ==========================================
-// ส่งออเดอร์เข้าแคชเชียร์ (แก้ไข: ส่งเฉพาะตะกร้าล่าสุด ให้หลังบ้านไปต่อท้ายบิลเอง)
+// ส่งออเดอร์เข้าแคชเชียร์ (แก้ไข: ล้างตะกร้า 100% ป้องกันยอดเบิ้ล)
 // ==========================================
 function sendToKitchen() {
     if (cart.length === 0) {
@@ -634,10 +634,11 @@ function sendToKitchen() {
         return;
     }
 
-    // คำนวณยอดเฉพาะของในตะกร้าตอนนี้
-    let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
+    btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
 
-    // แพ็กข้อมูลเฉพาะรายการใหม่ที่เพิ่งกด
+    // 1. คำนวณยอดและจัดเตรียมข้อมูลเฉพาะที่เพิ่งกดลงตะกร้าล่าสุด
+    let totalAmount = cart.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.qty)), 0);
     let orderPayload = { 
         table: currentTable, 
         items: cart.map(item => ({
@@ -648,39 +649,23 @@ function sendToKitchen() {
         total: totalAmount 
     };
 
-    let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
-    btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
-
-    // ยิงเข้าหลังบ้านตรงๆ แบบไม่ต้องไปรวมร่างกับของเก่า
-    fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ 
-            action: "submitCustomerOrder", 
-            args: [orderPayload] 
-        }),
-        redirect: "follow"
-    })
-    .then(res => res.json())
-    .then(data => {
-        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-
-        if(data.status === "Success") {
+    // 2. ใช้ google.script.run แทน fetch เพื่อให้เสถียรและรันคำสั่งล้างตะกร้าได้ชัวร์ๆ
+    google.script.run
+        .withSuccessHandler(function(response) {
+            btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
             showToast("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔", "success");
             
-            // ล้างตะกร้าเพื่อให้พร้อมรับออเดอร์รอบถัดไป
+            // 3. หัวใจสำคัญ: ล้างตะกร้าให้ว่าง และบังคับกลับหน้าแรกทันที
             cart = [];             
             updateCartBadge();     
             closeCartModal();      
-            goBackToTables();      
-        } else {
-            showToast(data.message, "error");
-        }
-    })
-    .catch(err => {
-        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-        showToast("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง", "error");
-    });
+            goBackToTables(); 
+        })
+        .withFailureHandler(function(err) {
+            btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+            showToast("เกิดข้อผิดพลาด: " + err, "error");
+        })
+        .submitCustomerOrder(orderPayload);
 }
 // 4. ระบบเคลียร์โต๊ะ (แบบกดแล้วทำงานทันที)
 function clearTable() {
