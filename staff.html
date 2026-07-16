@@ -730,7 +730,7 @@ function goBackToTables() {
     loadTableSelector(); 
 }
 // ==========================================
-// ดูรายการออเดอร์ปัจจุบันของโต๊ะ (อัปเดตป้องกันยอดเบิ้ล)
+// ดูรายการออเดอร์ปัจจุบันของโต๊ะ (อัปเดต: แยกผู้ใหญ่/เด็ก และแก้ NaN)
 // ==========================================
 function viewTableOrders() {
     if (!currentTable) return;
@@ -747,31 +747,22 @@ function viewTableOrders() {
                 .withSuccessHandler(function(data) {
                     let html = '';
                     let grandTotal = 0;
-                    
-                    // 🟢 เช็คว่าในบิลที่ดึงมาจากแคชเชียร์ มีแพ็กเกจนี้ส่งไปหรือยัง?
-                    let isPackageInBill = false;
-                    if (data.items && myTable) {
-                        isPackageInBill = data.items.some(i => i.name === myTable.packageName);
-                    }
 
-                    // --- ส่วนที่ 1: ถ้าเปิดเป็นบุฟเฟต์ แต่พนักงานยังไม่ได้กด "ส่งแคชเชียร์" ---
-                    if (myTable && myTable.orderMode === 'Buffet' && !isPackageInBill) {
-                        let pkgName = myTable.packageName;
-                        let headCount = parseInt(myTable.headCount) || 0;
-                        let pkgInfo = buffetPackages.find(p => p.name === pkgName);
-                        let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
-                        let buffetTotal = pkgPrice * headCount;
-                        
-                        grandTotal += buffetTotal;
-
-                        html += `
-                        <div class="flex justify-between items-center bg-pink-100 p-3 rounded-xl border border-pink-300 mb-2 shadow-sm">
-                            <div class="flex-1">
-                                <div class="font-black text-pink-800 text-sm">🥩 ${pkgName} <span class="text-[10px] text-red-500 bg-white px-1 rounded ml-1 animate-pulse">ยังไม่ส่งแคชเชียร์</span></div>
-                                <div class="text-xs text-pink-600 font-bold">฿${pkgPrice.toFixed(2)} x ${headCount} ท่าน</div>
-                            </div>
-                            <div class="font-black text-pink-700 text-lg">฿${buffetTotal.toFixed(2)}</div>
-                        </div>`;
+                    // --- ส่วนที่ 1: รายการที่ค้างในตะกร้า (ยังไม่ส่งแคชเชียร์) ---
+                    // ดึงจาก cart โดยตรง จะได้แยก ผู้ใหญ่/เด็ก ชัดเจนและราคาไม่เป็น NaN
+                    if (cart && cart.length > 0) {
+                        cart.forEach(item => {
+                            let itemTotal = item.price * item.qty;
+                            grandTotal += itemTotal;
+                            html += `
+                            <div class="flex justify-between items-center bg-pink-100 p-3 rounded-xl border border-pink-300 mb-2 shadow-sm">
+                                <div class="flex-1">
+                                    <div class="font-black text-pink-800 text-sm">🛒 ${item.name} <span class="text-[10px] text-red-500 bg-white px-1 rounded ml-1 animate-pulse">ยังไม่ส่งแคชเชียร์</span></div>
+                                    <div class="text-xs text-pink-600 font-bold">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
+                                </div>
+                                <div class="font-black text-pink-700 text-lg">฿${itemTotal.toFixed(2)}</div>
+                            </div>`;
+                        });
                     }
 
                     // --- ส่วนที่ 2: รายการในบิลทั้งหมด (ที่ส่งเข้าแคชเชียร์แล้ว) ---
@@ -781,10 +772,10 @@ function viewTableOrders() {
                             grandTotal += itemTotal;
                             
                             // ไฮไลต์ให้สีเด่นขึ้นถ้าเป็นรายการแพ็กเกจบุฟเฟต์
-                            let isPkg = (myTable && item.name === myTable.packageName);
+                            let isPkg = (myTable && item.name.includes(myTable.packageName));
                             let boxClass = isPkg ? "bg-pink-50 border-pink-200" : "bg-gray-50 border-gray-100";
                             let textClass = isPkg ? "text-pink-800" : "text-gray-800";
-                            let icon = isPkg ? "🥩 " : "";
+                            let icon = isPkg ? "🥩 " : "🍽️ ";
 
                             html += `
                             <div class="flex justify-between items-center ${boxClass} p-3 rounded-xl border mb-2">
@@ -797,7 +788,7 @@ function viewTableOrders() {
                         });
                     } 
                     
-                    if ((!myTable || myTable.orderMode !== 'Buffet') && (!data.items || data.items.length === 0)) {
+                    if (cart.length === 0 && (!data.items || data.items.length === 0)) {
                         html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการสั่งอาหารที่ค้างอยู่ครับ 🍽️</div>';
                     } else {
                         html += `
@@ -1127,7 +1118,6 @@ function printTableSlip() {
 }
 
 // 🔄 ฟังก์ชันดึงแพ็กเกจบุฟเฟต์มาใส่ใน Dropdown ของหน้า Staff
-// ในไฟล์ staff.txt
 function loadPackagesForOpenTable() {
     let btnText = document.getElementById('buffetPackageSelectedText');
     let menu = document.getElementById('buffetPackageMenu');
@@ -1142,9 +1132,9 @@ function loadPackagesForOpenTable() {
 
         let html = '';
         packages.forEach(pkg => {
-            // 🟢 แก้ไขตรงนี้ให้ดึง priceAdult และ priceChild
+            // 🟢 แก้ไข: ใช้ชื่อฟังก์ชัน selectBuffetPackage ให้ตรงกับที่สร้างไว้
             html += `
-            <div onclick="selectBuffetPackageItem('${pkg.name}', ${pkg.priceAdult}, ${pkg.priceChild}, ${pkg.timeLimit}, this)" 
+            <div onclick="selectBuffetPackage('${pkg.name}', ${pkg.priceAdult}, ${pkg.priceChild}, ${pkg.timeLimit})" 
                  class="buffet-pkg-item p-4 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">
                 🥩 ${pkg.name} 
                 <span class="text-xs block text-pink-600">ผู้ใหญ่ ฿${pkg.priceAdult} | เด็ก ฿${pkg.priceChild}</span>
@@ -1154,8 +1144,8 @@ function loadPackagesForOpenTable() {
         if(menu) menu.innerHTML = html;
         
         if (packages.length > 0) {
-            let firstElement = menu.querySelector('.buffet-pkg-item');
-            selectBuffetPackageItem(packages[0].name, packages[0].priceAdult, packages[0].priceChild, packages[0].timeLimit, firstElement);
+            // 🟢 แก้ไข: ใช้ชื่อฟังก์ชันให้ตรงกัน
+            selectBuffetPackage(packages[0].name, packages[0].priceAdult, packages[0].priceChild, packages[0].timeLimit);
         }
     }).getBuffetPackagesGS();
 }
