@@ -1124,21 +1124,22 @@ function printTableSlip() {
 }
 
 // 🔄 ฟังก์ชันดึงแพ็กเกจบุฟเฟต์มาใส่ใน Dropdown ของหน้า Staff
+// ในไฟล์ staff.txt
 function loadPackagesForOpenTable() {
     let btnText = document.getElementById('buffetPackageSelectedText');
     let menu = document.getElementById('buffetPackageMenu');
     if(btnText) btnText.innerHTML = "⏳ กำลังโหลดแพ็กเกจ...";
 
     google.script.run.withSuccessHandler(function(packages) {
-        buffetPackages = packages; // อย่าลืมประกาศ let buffetPackages = []; ไว้ด้านบนสุดด้วยนะครับ
+        buffetPackages = packages;
         if (!packages || packages.length === 0) {
-            if(btnText) btnText.innerHTML = "❌ ไม่มีแพ็กเกจในระบบ";
-            if(menu) menu.innerHTML = '<div class="p-3 text-gray-500 text-sm text-center font-bold">กรุณาไปเพิ่มราคาบุฟเฟต์ในเมนูตั้งค่า</div>';
+            if(btnText) btnText.innerHTML = "❌ ไม่มีแพ็กเกจ";
             return;
         }
 
         let html = '';
         packages.forEach(pkg => {
+            // 🟢 แก้ไขตรงนี้ให้ดึง priceAdult และ priceChild
             html += `
             <div onclick="selectBuffetPackageItem('${pkg.name}', ${pkg.priceAdult}, ${pkg.priceChild}, ${pkg.timeLimit}, this)" 
                  class="buffet-pkg-item p-4 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">
@@ -1149,7 +1150,6 @@ function loadPackagesForOpenTable() {
         
         if(menu) menu.innerHTML = html;
         
-        // เลือกแพ็กเกจแรกเป็นค่าเริ่มต้น
         if (packages.length > 0) {
             let firstElement = menu.querySelector('.buffet-pkg-item');
             selectBuffetPackageItem(packages[0].name, packages[0].priceAdult, packages[0].priceChild, packages[0].timeLimit, firstElement);
