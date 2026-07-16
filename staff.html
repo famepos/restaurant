@@ -953,21 +953,31 @@ function submitTableOpen() {
         
         // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ!
         cart = []; // ล้างตะกร้าก่อน
-        if (currentTableMode === 'Buffet' && selectedPackage) {
-            let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
-            let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
-            
-            // ดันแพ็กเกจเข้าตะกร้าพนักงาน
-            cart.push({
-                name: selectedPackage,
-                price: pkgPrice,
-                qty: totalHeadCount
-            });
-            updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
-            
-            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
-            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
-        } else {
+     // แก้ไขส่วนนี้ในฟังก์ชัน submitTableOpen (ประมาณบรรทัดที่ 720)
+if (currentTableMode === 'Buffet' && selectedPackage) {
+    let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
+    let adultPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
+    let kidPrice = pkgInfo ? parseFloat(pkgInfo.kidPrice) : 0; // ดึงราคาเด็กจากข้อมูลที่โหลดมา
+
+    // 🟢 แยกเพิ่มรายการเข้าตะกร้าเป็น 2 บรรทัด
+    if (adult > 0) {
+        cart.push({
+            name: selectedPackage + " (ผู้ใหญ่)", 
+            price: adultPrice, 
+            qty: adult
+        });
+    }
+    if (kid > 0) {
+        cart.push({
+            name: selectedPackage + " (เด็ก)", 
+            price: kidPrice, 
+            qty: kid
+        });
+    }
+    
+    updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
+    showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
+}else {
             // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
             showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
         }
