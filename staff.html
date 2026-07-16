@@ -676,51 +676,37 @@ function sendToKitchen() {
         showToast("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง", "error");
     });
 }
-// ==========================================
-// 4. ระบบเคลียร์โต๊ะ
-// ==========================================
+
+// 4. ระบบเคลียร์โต๊ะ (แบบกดแล้วทำงานทันที)
 function clearTable() {
     if (!currentTable) return;
 
-    Swal.fire({
-        title: 'เช็คบิลและเคลียร์โต๊ะ?',
-        text: `ยืนยันการเคลียร์โต๊ะ ${currentTable} เพื่อให้ลูกค้ารอบใหม่เข้ามาใช้งาน?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#db2777', 
-        cancelButtonColor: '#9ca3af',  
-        confirmButtonText: '✅ ยืนยันเคลียร์โต๊ะ',
-        cancelButtonText: 'ยกเลิก',
-        reverseButtons: true 
-    }).then((result) => {
-        if (result.isConfirmed) {
-            google.script.run
-                .withSuccessHandler(function() {
-                    
-                    // 🟢 เปลี่ยนจาก alert เป็น showToast สีชมพู
-                    showToast(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
-                    
-                    // ล้างตะกร้า
-                    cart = [];
-                    updateCartBadge();
-                    currentTable = "";
-                    
-                    // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
-                    document.getElementById('orderView').classList.add('hidden');
-                    document.getElementById('orderFooter').classList.add('hidden');
-                    document.getElementById('btnBack').classList.add('hidden');
-                    
-                    // 🟢 ปิดกล่องป๊อปอัป "ดูบิลโต๊ะนี้" (แก้บั๊กภาพที่ 2 ที่กล่องค้าง)
-                    document.getElementById('tableOrdersModal').classList.add('hidden');
-                    
-                    // กลับสู่หน้าเลือกโต๊ะ
-                    document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
-                    document.getElementById('tableSelectorView').classList.remove('hidden');
-                    loadTableSelector(); 
-                })
-                .updateTableStatusGS(currentTable, "ว่าง"); 
-        }
-    });
+    // ทำงานทันทีโดยไม่แสดงหน้าต่างยืนยัน
+    google.script.run
+        .withSuccessHandler(function() {
+            
+            // 🟢 แจ้งเตือนหลังจากเคลียร์สำเร็จ
+            showToast(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
+            
+            // ล้างตะกร้า
+            cart = [];
+            updateCartBadge();
+            currentTable = "";
+            
+            // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
+            document.getElementById('orderView').classList.add('hidden');
+            document.getElementById('orderFooter').classList.add('hidden');
+            document.getElementById('btnBack').classList.add('hidden');
+            
+            // 🟢 ปิดกล่องป๊อปอัป "ดูบิลโต๊ะนี้"
+            document.getElementById('tableOrdersModal').classList.add('hidden');
+            
+            // กลับสู่หน้าเลือกโต๊ะ
+            document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
+            document.getElementById('tableSelectorView').classList.remove('hidden');
+            loadTableSelector(); 
+        })
+        .updateTableStatusGS(currentTable, "ว่าง"); 
 }
 // ฟังก์ชันกดย้อนกลับไปหน้าเลือกโต๊ะ
 function goBackToTables() {
