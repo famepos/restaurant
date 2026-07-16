@@ -1,4 +1,4 @@
-อ<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -171,25 +171,35 @@
                     <!-- จำนวนคน -->
                     <div>
                         <label class="block text-xs font-bold text-gray-400 mb-1">จำนวนลูกค้า (ท่าน)</label>
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
-                                <span class="pl-2 font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
-                                <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                                    <button onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-                                    <input type="number" id="inputAdultCount" value="1" class="w-8 text-center font-bold text-pink-700 outline-none">
-                                    <button onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
-                                <span class="pl-2 font-bold text-gray-700 text-sm">👦 เด็ก</span>
-                                <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                                    <button onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-                                    <input type="number" id="inputKidCount" value="0" class="w-8 text-center font-bold text-pink-700 outline-none">
-                                    <button onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+             <div class="space-y-2">
+    <!-- ผู้ใหญ่ -->
+    <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
+        <span class="pl-2 font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
+        <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+            <button onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+            <input type="number" id="inputAdultCount" value="1" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+            <button onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
+        </div>
+    </div>
+    <!-- เด็ก -->
+    <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
+        <span class="pl-2 font-bold text-gray-700 text-sm">👦 เด็ก</span>
+        <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+            <button onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+            <input type="number" id="inputKidCount" value="0" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+            <button onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
+        </div>
+    </div>
+    <!-- โต๊ะฟรี (ไม่คิดค่าหัว) -->
+    <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
+        <span class="pl-2 font-bold text-gray-700 text-sm">🪑 ฟรี (ไม่คิดค่าหัว)</span>
+        <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+            <button onclick="adjustHeadCount('free', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+            <input type="number" id="inputFreeCount" value="0" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+            <button onclick="adjustHeadCount('free', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
+        </div>
+    </div>
+</div>
 
                     <!-- เวลา และ ระบบจ่ายเงิน -->
                     <div class="flex flex-col gap-3">
@@ -344,9 +354,27 @@ const google = {
 
 // เริ่มโหลดทันทีที่หน้าจอทำงาน
 document.addEventListener("DOMContentLoaded", function() {
-    // เอาคำสั่งซ่อน productGrid ออก เพราะเราซ่อนกล่องแม่มันไปแล้ว
-    loadTableSelector(); // โหลดหน้าโต๊ะทันที
-    loadProducts();      // โหลดสินค้ามารอไว้เลย
+    google.script.run.withSuccessHandler(function(pkgs) {
+        buffetPackages = pkgs;
+        let menuHtml = '';
+        if (pkgs.length > 0) {
+            pkgs.forEach(pkg => {
+                // คำนวณราคาเด็ก (ถ้าไม่มีให้หาร 2)
+                let childPrice = pkg.childPrice !== undefined ? parseFloat(pkg.childPrice) : (parseFloat(pkg.price) / 2);
+                menuHtml += `<div onclick="selectBuffetPackage('${pkg.name}', ${pkg.timeLimit}, ${pkg.price}, ${childPrice})" class="p-3 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition">${pkg.name} (ผู้ใหญ่ ฿${pkg.price} | เด็ก ฿${childPrice})</div>`;
+            });
+            // เลือกอันแรกเป็นค่าเริ่มต้น
+            let firstChildPrice = pkgs[0].childPrice !== undefined ? parseFloat(pkgs[0].childPrice) : (parseFloat(pkgs[0].price) / 2);
+            selectBuffetPackage(pkgs[0].name, pkgs[0].timeLimit, pkgs[0].price, firstChildPrice);
+        } else {
+            menuHtml = `<div class="p-3 text-red-500 font-bold text-sm">ยังไม่มีแพ็กเกจในระบบ</div>`;
+            document.getElementById('buffetPackageSelectedText').innerText = "ไม่มีแพ็กเกจบุฟเฟต์";
+        }
+        document.getElementById('buffetPackageMenu').innerHTML = menuHtml;
+    }).getBuffetPackagesGS();
+    
+    loadTableSelector(); 
+    loadProducts();      
 });
 
 // ตัวแปรสำหรับเก็บรายการในตะกร้าและสินค้า
@@ -874,17 +902,24 @@ function setTableMode(mode) {
     }
 }
 
-function selectBuffetPackage(name, timeLimit) {
+function selectBuffetPackage(name, timeLimit, adultPrice, childPrice) {
     selectedPackage = name;
     document.getElementById('buffetPackageSelectedText').innerText = "🥩 " + name;
     document.getElementById('inputTimeLimit').value = timeLimit || 90;
     document.getElementById('buffetPackageMenu').classList.add('hidden');
+    
+    // เก็บตัวแปรราคาไว้ใช้ตอนกดยืนยันเปิดโต๊ะ
+    window.tempAdultPrice = adultPrice;
+    window.tempChildPrice = childPrice;
 }
 
 function adjustHeadCount(type, amount) {
-    let input = type === 'adult' ? document.getElementById('inputAdultCount') : document.getElementById('inputKidCount');
-    let newVal = parseInt(input.value) + amount;
-    if (newVal >= 0) input.value = newVal;
+    let inputId = type === 'adult' ? 'inputAdultCount' : (type === 'kid' ? 'inputKidCount' : 'inputFreeCount');
+    let input = document.getElementById(inputId);
+    if(input) {
+        let newVal = parseInt(input.value) + amount;
+        if (newVal >= 0) input.value = newVal;
+    }
 }
 
 function adjustTimeLimit(amount) {
@@ -910,7 +945,10 @@ function setPaymentWorkflow(isPrepaid) {
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
-    let totalHeadCount = adult + kid;
+    let freeCount = parseInt(document.getElementById('inputFreeCount').value) || 0;
+    
+    // รวมจำนวนคนทั้งหมดเพื่อส่งไปดักเงื่อนไข
+    let totalHeadCount = adult + kid + freeCount;
 
     if (totalHeadCount <= 0) {
         showToast('กรุณาระบุจำนวนลูกค้าอย่างน้อย 1 ท่านครับ', 'error');
@@ -932,36 +970,31 @@ function submitTableOpen() {
         
         globalTablesList = updatedTables; 
         
-        // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ!
         cart = []; // ล้างตะกร้าก่อน
         if (currentTableMode === 'Buffet' && selectedPackage) {
-            let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
-            let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
+            let pAdult = window.tempAdultPrice || 0;
+            let pChild = window.tempChildPrice || 0;
             
-            // ดันแพ็กเกจเข้าตะกร้าพนักงาน
-            cart.push({
-                name: selectedPackage,
-                price: pkgPrice,
-                qty: totalHeadCount
-            });
-            updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
+            // แตกรายการลงตะกร้าตามราคาจริง
+            if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่) [${timeLimit} นาที]`, price: pAdult, qty: adult });
+            if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก) [${timeLimit} นาที]`, price: pChild, qty: kid });
+            if (freeCount > 0) cart.push({ name: `${selectedPackage} (ทานฟรี) [${timeLimit} นาที]`, price: 0, qty: freeCount });
             
-            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
+            updateCartBadge(); 
             showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
         } else {
-            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
             showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
         }
         
         if (isPrepaidWorkflow) {
-            // ถ้าระบบจ่ายก่อนกิน ให้แจ้งเตือนบอกพนักงานเพิ่มนิดนึง
             setTimeout(() => {
                 showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
             }, 500);
         }
         
         enterOrderView(selectedTable);
-    }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit);
+        // สังเกตว่าส่ง parameter ครบตามที่อัปเดตไว้ล่าสุด (รวม adult, kid, freeCount)
+    }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
 }
 
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
