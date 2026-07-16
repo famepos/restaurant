@@ -626,7 +626,7 @@ function showToast(message, type = 'success') {
 
 
 // ==========================================
-// ส่งออเดอร์เข้าแคชเชียร์ (Ultimate Fix: ดึงของเก่ามารวมร่าง + ล้างตะกร้าทิ้ง)
+// 2. ส่งออเดอร์เข้าแคชเชียร์ (ดึงบิลที่พักไว้ มาบวกของกินเพิ่ม แล้วส่งกลับ)
 // ==========================================
 function sendToKitchen() {
     if (cart.length === 0) {
@@ -637,27 +637,15 @@ function sendToKitchen() {
     let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
     btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
 
-    // 1. แอบไปดึงรายการอาหารเดิมที่เคยสั่งไว้แล้ว ออกมาจากฐานข้อมูลก่อน
+    // 1. ดึงรายการอาหารที่ "พักบิล" ไว้ออกมาก่อน (จะมีรายการผู้ใหญ่/เด็ก รออยู่แล้ว)
     google.script.run
         .withSuccessHandler(function(existingData) {
             let existingItems = [];
             if (existingData && existingData.items) {
                 existingItems = existingData.items;
             }
-            
-            let tableInfo = globalTablesList.find(t => t.name === currentTable);
-            
-            // 2. กรองเอารายการ "เหมารวม (x...)" ที่ระบบหลังบ้านชอบแอบเสกมาเองทิ้งไป!
-            // เพื่อรักษาเฉพาะรายการ "ผู้ใหญ่" และ "เด็ก" ของแท้เอาไว้
-            if (tableInfo && tableInfo.orderMode === 'Buffet') {
-                existingItems = existingItems.filter(item => {
-                    // เช็คว่าชื่อมีคำว่า "(x" ไหม (เช่น บุฟเฟต์ทะเล (x3))
-                    let isAutoPackage = item.name.includes(tableInfo.packageName) && item.name.includes("(x");
-                    return !isAutoPackage;
-                });
-            }
 
-            // 3. เอาของใหม่ในตะกร้า ไปต่อท้ายของเดิมให้ครบถ้วน
+            // 2. เอาของในตะกร้า (พวกเนื้อ หมู 0 บาท) ไปต่อท้ายบิลเดิม
             let newCartPayload = cart.map(item => ({
                 name: item.name,
                 price: parseFloat(item.price),
@@ -675,13 +663,13 @@ function sendToKitchen() {
                 total: mergedTotal 
             };
 
-            // 4. ส่งรายการที่รวมร่างแล้ว กลับไปเซฟลงฐานข้อมูล (ใช้ google.script.run เพื่อให้เสถียร 100%)
+            // 3. ส่งบิลที่สมบูรณ์กลับไปอัปเดตที่หลังบ้าน
             google.script.run
                 .withSuccessHandler(function() {
                     btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
                     showToast("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔", "success");
                     
-                    // 5. สำคัญที่สุด: ล้างตะกร้าทิ้งทันที เพื่อป้องกันปัญหาเบิ้ล
+                    // ล้างตะกร้าทิ้ง พร้อมรับออเดอร์ใหม่
                     cart = [];             
                     updateCartBadge();     
                     closeCartModal();      
@@ -933,7 +921,7 @@ function setPaymentWorkflow(isPrepaid) {
     }
 }
 // ==========================================
-// ฟังก์ชันยืนยันเปิดโต๊ะ (แก้ไข: ให้หลังบ้านจัดการบิลตั้งต้น ไม่ต้องยัดลงตะกร้า)
+// 1. ฟังก์ชันยืนยันเปิดโต๊ะ (ยิงแพ็กเกจไป "พักบิล" ที่แคชเชียร์ทันที)
 // ==========================================
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
@@ -948,6 +936,11 @@ function submitTableOpen() {
     let pkgName = currentTableMode === 'Buffet' ? (selectedPackage || "-") : "-";
     let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "ไม่จำกัด";
 
+    // ดึงข้อมูลราคาแพ็กเกจ
+    let pkgInfo = buffetPackages.find(p => p.name === pkgName);
+    let priceAdult = pkgInfo ? parseFloat(pkgInfo.priceAdult) : 0;
+    let priceChild = pkgInfo ? parseFloat(pkgInfo.priceChild) : 0;
+
     let btn = document.querySelector(`button[onclick="submitTableOpen()"]`);
     let originalText = btn.innerText;
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
@@ -960,12 +953,25 @@ function submitTableOpen() {
         
         globalTablesList = updatedTables; 
         
-        // 🟢 แก้ไขตรงนี้: ล้างตะกร้าให้ว่างเปล่า 100% 
-        // ไม่ต้องเอาแพ็กเกจผู้ใหญ่/เด็กมายัดใส่ตะกร้าแล้ว ปล่อยให้บิลตั้งต้นเป็นหน้าที่ของระบบหลังบ้าน
+        // 🟢 หัวใจสำคัญ: สร้างแพ็กเกจและยิงไป "พักบิล" ที่แคชเชียร์ทันทีแบบเงียบๆ
+        let initialItems = [];
+        if (currentTableMode === 'Buffet' && selectedPackage) {
+            if (adult > 0) initialItems.push({ name: selectedPackage + " (ผู้ใหญ่)", price: priceAdult, qty: adult });
+            if (kid > 0) initialItems.push({ name: selectedPackage + " (เด็ก)", price: priceChild, qty: kid });
+            
+            if (initialItems.length > 0) {
+                let initialTotal = initialItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                let orderPayload = { table: selectedTable, items: initialItems, total: initialTotal };
+                // ส่งข้อมูลไปเซฟเป็นบิลตั้งต้นทันที
+                google.script.run.submitCustomerOrder(orderPayload);
+            }
+        }
+        
+        // ล้างตะกร้าให้ว่าง (ตะกร้าจะเอาไว้ใส่แค่ของกิน 0 บาทเท่านั้น)
         cart = []; 
         updateCartBadge();
         
-        showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ! สั่งอาหารได้เลย", "success");
+        showToast("เปิดโต๊ะสำเร็จ! แพ็กเกจถูกส่งไปพักบิลเรียบร้อย", "success");
         
         if (isPrepaidWorkflow) {
             setTimeout(() => {
