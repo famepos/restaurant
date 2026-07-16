@@ -807,6 +807,11 @@ function viewTableOrders() {
                     // --- ส่วนที่ 2: รายการในบิลทั้งหมด (ที่ส่งเข้าแคชเชียร์แล้ว) ---
                     if (data.items && data.items.length > 0) {
                         data.items.forEach(item => {
+                            // 🟢 เพิ่มเงื่อนไข: กรองรายการย่อย (ผู้ใหญ่/เด็ก) ออกจากการแสดงผลและไม่นำมาบวกยอดรวม
+                            if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) {
+                                return;
+                            }
+
                             let itemTotal = parseFloat(item.price) * parseInt(item.qty);
                             grandTotal += itemTotal;
                             
