@@ -893,14 +893,17 @@ function selectBuffetPackage(name, timeLimit) {
     document.getElementById('inputTimeLimit').value = timeLimit || 90;
     document.getElementById('buffetPackageMenu').classList.add('hidden');
 
-    // ค้นหาข้อมูลแพ็กเกจ
+    // 🟢 ดึงข้อมูลแพ็กเกจจากตัวแปร global
     let pkg = buffetPackages.find(p => p.name === name);
     
     if (pkg) {
-        // อัปเดตราคาที่หน้าจอ
-        // ใช้ pkg.price สำหรับผู้ใหญ่ และ pkg.kidPrice สำหรับเด็ก (ตามที่ดึงมาจาก GS)
+        // อัปเดตราคาที่หน้าจอโดยตรงจากข้อมูลแพ็กเกจ
         document.getElementById('displayPriceAdult').innerText = "฿" + (pkg.price || "0");
         document.getElementById('displayPriceKid').innerText = "฿" + (pkg.kidPrice || "0");
+    } else {
+        // กรณีหาไม่เจอ (ป้องกันบัค)
+        document.getElementById('displayPriceAdult').innerText = "฿0";
+        document.getElementById('displayPriceKid').innerText = "฿0";
     }
 }
 
@@ -941,10 +944,15 @@ function submitTableOpen() {
     }
 
     let pkgName = currentTableMode === 'Buffet' ? (selectedPackage || "-") : "-";
-    let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "ไม่จำกัด";
+    let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "90";
+
+    // ก่อนบันทึก เช็คราคาแพ็กเกจล่าสุดจากตัวแปร global
+    let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
+    let adultPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
+    let kidPrice = pkgInfo ? parseFloat(pkgInfo.kidPrice) : 0;
 
     let btn = document.querySelector(`button[onclick="submitTableOpen()"]`);
-    let originalText = btn.innerText;
+    let originalText = btn.innerText; // 🟢 เพิ่มบรรทัดนี้ครับ! เพื่อเก็บชื่อปุ่มเดิมไว้
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
@@ -955,34 +963,29 @@ function submitTableOpen() {
         
         globalTablesList = updatedTables; 
         
-        // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ!
-        cart = []; // ล้างตะกร้าก่อน
-     // แก้ไขส่วนนี้ในฟังก์ชัน submitTableOpen (ประมาณบรรทัดที่ 720)
-if (currentTableMode === 'Buffet' && selectedPackage) {
-    let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
-    let adultPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
-    let kidPrice = pkgInfo ? parseFloat(pkgInfo.kidPrice) : 0; // ดึงราคาเด็กจากข้อมูลที่โหลดมา
-
-    // 🟢 แยกเพิ่มรายการเข้าตะกร้าเป็น 2 บรรทัด
-    if (adult > 0) {
-        cart.push({
-            name: selectedPackage + " (ผู้ใหญ่)", 
-            price: adultPrice, 
-            qty: adult
-        });
-    }
-    if (kid > 0) {
-        cart.push({
-            name: selectedPackage + " (เด็ก)", 
-            price: kidPrice, 
-            qty: kid
-        });
-    }
-    
-    updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
-    showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
-}else {
-            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
+        // จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ
+        cart = []; 
+        
+        if (currentTableMode === 'Buffet' && selectedPackage) {
+            // แยกเพิ่มรายการเข้าตะกร้าเป็น 2 บรรทัด
+            if (adult > 0) {
+                cart.push({
+                    name: selectedPackage + " (ผู้ใหญ่)", 
+                    price: adultPrice, 
+                    qty: adult
+                });
+            }
+            if (kid > 0) {
+                cart.push({
+                    name: selectedPackage + " (เด็ก)", 
+                    price: kidPrice, 
+                    qty: kid
+                });
+            }
+            
+            updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
+            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
+        } else {
             showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
         }
         
