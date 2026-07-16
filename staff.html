@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+อ<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -358,9 +358,6 @@ let allSalesProducts = [];
 let globalTablesList = [];
 let isBuffetMode = false;
 let buffetIncludedCategories = [];
-let selectedPackageName = "";
-let selectedAdultPrice = 0;
-let selectedChildPrice = 0;
 
 // ==========================================
 // 1. ระบบจัดการโต๊ะ (อัปเดต Real-time)
@@ -626,7 +623,7 @@ function showToast(message, type = 'success') {
 
 
 // ==========================================
-// ส่งออเดอร์เข้าแคชเชียร์ (แก้ไข: ส่งเฉพาะของในตะกร้าเท่านั้น ห้ามดึงของเก่ามารวมเด็ดขาด!)
+// ส่งออเดอร์เข้าแคชเชียร์ 
 // ==========================================
 function sendToKitchen() {
     if (cart.length === 0) {
@@ -634,40 +631,52 @@ function sendToKitchen() {
         return;
     }
 
-    let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
-    btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
+    let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-    // 1. คำนวณยอดและเตรียมข้อมูล "เฉพาะสินค้าที่อยู่ในตะกร้าตอนนี้เท่านั้น"
-    let totalAmount = cart.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.qty)), 0);
-    
     let orderPayload = { 
         table: currentTable, 
         items: cart.map(item => ({
             name: item.name,
-            price: parseFloat(item.price),
-            qty: parseInt(item.qty)
+            price: item.price,
+            qty: item.qty
         })), 
         total: totalAmount 
     };
 
-    // 2. ยิงของใหม่ไปให้หลังบ้านต่อท้ายบิลเดิมตรงๆ เลย
-    google.script.run
-        .withSuccessHandler(function() {
-            btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+    let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
+    btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
+
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ 
+            action: "submitCustomerOrder", 
+            args: [orderPayload] 
+        }),
+        redirect: "follow"
+    })
+    .then(res => res.json())
+    .then(data => {
+        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+
+        if(data.status === "Success") {
+            // 🟢 เรียกใช้แจ้งเตือนสีชมพูของคุณ
             showToast("ส่งออเดอร์เข้าแคชเชียร์เรียบร้อย! 🔔", "success");
             
-            // 3. ล้างตะกร้าให้เกลี้ยง เพื่อเตรียมรับออเดอร์รอบต่อไป
             cart = [];             
             updateCartBadge();     
             closeCartModal();      
-            goBackToTables(); 
-        })
-        .withFailureHandler(function(err) {
-            btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-            showToast("ส่งออเดอร์ล้มเหลว โปรดลองอีกครั้ง", "error");
-        })
-        .submitCustomerOrder(orderPayload);
+            goBackToTables();      
+        } else {
+            showToast(data.message, "error");
+        }
+    })
+    .catch(err => {
+        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+        showToast("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง", "error");
+    });
 }
+
 // 4. ระบบเคลียร์โต๊ะ (แบบกดแล้วทำงานทันที)
 function clearTable() {
     if (!currentTable) return;
@@ -718,7 +727,7 @@ function goBackToTables() {
     loadTableSelector(); 
 }
 // ==========================================
-// ดูรายการออเดอร์ปัจจุบันของโต๊ะ (อัปเดต: แยกผู้ใหญ่/เด็ก และแก้ NaN)
+// ดูรายการออเดอร์ปัจจุบันของโต๊ะ (อัปเดตป้องกันยอดเบิ้ล)
 // ==========================================
 function viewTableOrders() {
     if (!currentTable) return;
@@ -735,22 +744,31 @@ function viewTableOrders() {
                 .withSuccessHandler(function(data) {
                     let html = '';
                     let grandTotal = 0;
+                    
+                    // 🟢 เช็คว่าในบิลที่ดึงมาจากแคชเชียร์ มีแพ็กเกจนี้ส่งไปหรือยัง?
+                    let isPackageInBill = false;
+                    if (data.items && myTable) {
+                        isPackageInBill = data.items.some(i => i.name === myTable.packageName);
+                    }
 
-                    // --- ส่วนที่ 1: รายการที่ค้างในตะกร้า (ยังไม่ส่งแคชเชียร์) ---
-                    // ดึงจาก cart โดยตรง จะได้แยก ผู้ใหญ่/เด็ก ชัดเจนและราคาไม่เป็น NaN
-                    if (cart && cart.length > 0) {
-                        cart.forEach(item => {
-                            let itemTotal = item.price * item.qty;
-                            grandTotal += itemTotal;
-                            html += `
-                            <div class="flex justify-between items-center bg-pink-100 p-3 rounded-xl border border-pink-300 mb-2 shadow-sm">
-                                <div class="flex-1">
-                                    <div class="font-black text-pink-800 text-sm">🛒 ${item.name} <span class="text-[10px] text-red-500 bg-white px-1 rounded ml-1 animate-pulse">ยังไม่ส่งแคชเชียร์</span></div>
-                                    <div class="text-xs text-pink-600 font-bold">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
-                                </div>
-                                <div class="font-black text-pink-700 text-lg">฿${itemTotal.toFixed(2)}</div>
-                            </div>`;
-                        });
+                    // --- ส่วนที่ 1: ถ้าเปิดเป็นบุฟเฟต์ แต่พนักงานยังไม่ได้กด "ส่งแคชเชียร์" ---
+                    if (myTable && myTable.orderMode === 'Buffet' && !isPackageInBill) {
+                        let pkgName = myTable.packageName;
+                        let headCount = parseInt(myTable.headCount) || 0;
+                        let pkgInfo = buffetPackages.find(p => p.name === pkgName);
+                        let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
+                        let buffetTotal = pkgPrice * headCount;
+                        
+                        grandTotal += buffetTotal;
+
+                        html += `
+                        <div class="flex justify-between items-center bg-pink-100 p-3 rounded-xl border border-pink-300 mb-2 shadow-sm">
+                            <div class="flex-1">
+                                <div class="font-black text-pink-800 text-sm">🥩 ${pkgName} <span class="text-[10px] text-red-500 bg-white px-1 rounded ml-1 animate-pulse">ยังไม่ส่งแคชเชียร์</span></div>
+                                <div class="text-xs text-pink-600 font-bold">฿${pkgPrice.toFixed(2)} x ${headCount} ท่าน</div>
+                            </div>
+                            <div class="font-black text-pink-700 text-lg">฿${buffetTotal.toFixed(2)}</div>
+                        </div>`;
                     }
 
                     // --- ส่วนที่ 2: รายการในบิลทั้งหมด (ที่ส่งเข้าแคชเชียร์แล้ว) ---
@@ -760,10 +778,10 @@ function viewTableOrders() {
                             grandTotal += itemTotal;
                             
                             // ไฮไลต์ให้สีเด่นขึ้นถ้าเป็นรายการแพ็กเกจบุฟเฟต์
-                            let isPkg = (myTable && item.name.includes(myTable.packageName));
+                            let isPkg = (myTable && item.name === myTable.packageName);
                             let boxClass = isPkg ? "bg-pink-50 border-pink-200" : "bg-gray-50 border-gray-100";
                             let textClass = isPkg ? "text-pink-800" : "text-gray-800";
-                            let icon = isPkg ? "🥩 " : "🍽️ ";
+                            let icon = isPkg ? "🥩 " : "";
 
                             html += `
                             <div class="flex justify-between items-center ${boxClass} p-3 rounded-xl border mb-2">
@@ -776,7 +794,7 @@ function viewTableOrders() {
                         });
                     } 
                     
-                    if (cart.length === 0 && (!data.items || data.items.length === 0)) {
+                    if ((!myTable || myTable.orderMode !== 'Buffet') && (!data.items || data.items.length === 0)) {
                         html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการสั่งอาหารที่ค้างอยู่ครับ 🍽️</div>';
                     } else {
                         html += `
@@ -805,6 +823,7 @@ let currentTableMode = 'Buffet';
 let isPrepaidWorkflow = false;
 let buffetPackages = [];
 let selectedPackage = null;
+
 // 1. ดึงแพ็กเกจจาก Google Sheets ตอนโหลดเว็บ
 document.addEventListener("DOMContentLoaded", function() {
     google.script.run.withSuccessHandler(function(pkgs) {
@@ -812,14 +831,9 @@ document.addEventListener("DOMContentLoaded", function() {
         let menuHtml = '';
         if (pkgs.length > 0) {
             pkgs.forEach(pkg => {
-                // 🟢 แก้ไข: เปลี่ยนจาก pkg.price เป็น pkg.priceAdult และ pkg.priceChild
-                menuHtml += `<div onclick="selectBuffetPackage('${pkg.name}', ${pkg.priceAdult}, ${pkg.priceChild}, ${pkg.timeLimit})" 
-                             class="p-3 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition">
-                             🥩 ${pkg.name} (ผู้ใหญ่ ฿${pkg.priceAdult} | เด็ก ฿${pkg.priceChild})
-                             </div>`;
+                menuHtml += `<div onclick="selectBuffetPackage('${pkg.name}', ${pkg.timeLimit})" class="p-3 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition">${pkg.name} (฿${pkg.price})</div>`;
             });
-            // 🟢 แก้ไข: เรียกใช้ฟังก์ชันที่รองรับราคาเด็กด้วย
-            selectBuffetPackage(pkgs[0].name, pkgs[0].priceAdult, pkgs[0].priceChild, pkgs[0].timeLimit);
+            selectBuffetPackage(pkgs[0].name, pkgs[0].timeLimit); // เลือกอันแรกเป็นค่าเริ่มต้น
         } else {
             menuHtml = `<div class="p-3 text-red-500 font-bold text-sm">ยังไม่มีแพ็กเกจในระบบ</div>`;
             document.getElementById('buffetPackageSelectedText').innerText = "ไม่มีแพ็กเกจบุฟเฟต์";
@@ -860,18 +874,10 @@ function setTableMode(mode) {
     }
 }
 
-// 1. ฟังก์ชันเลือกแพ็กเกจแล้วเก็บค่าแยก
-function selectBuffetPackage(name, priceAdult, priceChild, time) {
-    // 🟢 เก็บค่าราคาเด็กไว้ด้วยเพื่อใช้ตอนเปิดโต๊ะ
-    document.getElementById('buffetPackageSelectedText').innerText = "🥩 " + name;
-    document.getElementById('inputTimeLimit').value = time;
-    
-    // หากมีตัวแปร Global หรือ Hidden Input ให้เก็บค่าไว้ที่นี่
+function selectBuffetPackage(name, timeLimit) {
     selectedPackage = name;
-    selectedAdultPrice = priceAdult;
-    selectedChildPrice = priceChild;
-    
-    // ปิดเมนู
+    document.getElementById('buffetPackageSelectedText').innerText = "🥩 " + name;
+    document.getElementById('inputTimeLimit').value = timeLimit || 90;
     document.getElementById('buffetPackageMenu').classList.add('hidden');
 }
 
@@ -900,9 +906,7 @@ function setPaymentWorkflow(isPrepaid) {
         btnNow.className = "py-2 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
     }
 }
-// ==========================================
-// 1. ฟังก์ชันยืนยันเปิดโต๊ะ (ยิงแพ็กเกจไป "พักบิล" ที่แคชเชียร์ทันที)
-// ==========================================
+// ฟังก์ชันยืนยันเปิดโต๊ะ
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
@@ -916,11 +920,6 @@ function submitTableOpen() {
     let pkgName = currentTableMode === 'Buffet' ? (selectedPackage || "-") : "-";
     let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "ไม่จำกัด";
 
-    // ดึงข้อมูลราคาแพ็กเกจ
-    let pkgInfo = buffetPackages.find(p => p.name === pkgName);
-    let priceAdult = pkgInfo ? parseFloat(pkgInfo.priceAdult) : 0;
-    let priceChild = pkgInfo ? parseFloat(pkgInfo.priceChild) : 0;
-
     let btn = document.querySelector(`button[onclick="submitTableOpen()"]`);
     let originalText = btn.innerText;
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
@@ -933,27 +932,29 @@ function submitTableOpen() {
         
         globalTablesList = updatedTables; 
         
-        // 🟢 หัวใจสำคัญ: สร้างแพ็กเกจและยิงไป "พักบิล" ที่แคชเชียร์ทันทีแบบเงียบๆ
-        let initialItems = [];
+        // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ!
+        cart = []; // ล้างตะกร้าก่อน
         if (currentTableMode === 'Buffet' && selectedPackage) {
-            if (adult > 0) initialItems.push({ name: selectedPackage + " (ผู้ใหญ่)", price: priceAdult, qty: adult });
-            if (kid > 0) initialItems.push({ name: selectedPackage + " (เด็ก)", price: priceChild, qty: kid });
+            let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
+            let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
             
-            if (initialItems.length > 0) {
-                let initialTotal = initialItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                let orderPayload = { table: selectedTable, items: initialItems, total: initialTotal };
-                // ส่งข้อมูลไปเซฟเป็นบิลตั้งต้นทันที
-                google.script.run.submitCustomerOrder(orderPayload);
-            }
+            // ดันแพ็กเกจเข้าตะกร้าพนักงาน
+            cart.push({
+                name: selectedPackage,
+                price: pkgPrice,
+                qty: totalHeadCount
+            });
+            updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
+            
+            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
+            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
+        } else {
+            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
+            showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
         }
         
-        // ล้างตะกร้าให้ว่าง (ตะกร้าจะเอาไว้ใส่แค่ของกิน 0 บาทเท่านั้น)
-        cart = []; 
-        updateCartBadge();
-        
-        showToast("เปิดโต๊ะสำเร็จ! แพ็กเกจถูกส่งไปพักบิลเรียบร้อย", "success");
-        
         if (isPrepaidWorkflow) {
+            // ถ้าระบบจ่ายก่อนกิน ให้แจ้งเตือนบอกพนักงานเพิ่มนิดนึง
             setTimeout(() => {
                 showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
             }, 500);
@@ -962,6 +963,7 @@ function submitTableOpen() {
         enterOrderView(selectedTable);
     }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit);
 }
+
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
 function updateCartBadge() {
     let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -1094,39 +1096,6 @@ function printTableSlip() {
         let menuUrl = "https://famepos.github.io/restaurant/menu.html?table=" + encodeURIComponent(tableInfo.name);
         qrImgElement.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(menuUrl);
     }
-}
-
-// 🔄 ฟังก์ชันดึงแพ็กเกจบุฟเฟต์มาใส่ใน Dropdown ของหน้า Staff
-function loadPackagesForOpenTable() {
-    let btnText = document.getElementById('buffetPackageSelectedText');
-    let menu = document.getElementById('buffetPackageMenu');
-    if(btnText) btnText.innerHTML = "⏳ กำลังโหลดแพ็กเกจ...";
-
-    google.script.run.withSuccessHandler(function(packages) {
-        buffetPackages = packages;
-        if (!packages || packages.length === 0) {
-            if(btnText) btnText.innerHTML = "❌ ไม่มีแพ็กเกจ";
-            return;
-        }
-
-        let html = '';
-        packages.forEach(pkg => {
-            // 🟢 แก้ไข: ใช้ชื่อฟังก์ชัน selectBuffetPackage ให้ตรงกับที่สร้างไว้
-            html += `
-            <div onclick="selectBuffetPackage('${pkg.name}', ${pkg.priceAdult}, ${pkg.priceChild}, ${pkg.timeLimit})" 
-                 class="buffet-pkg-item p-4 hover:bg-pink-50 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">
-                🥩 ${pkg.name} 
-                <span class="text-xs block text-pink-600">ผู้ใหญ่ ฿${pkg.priceAdult} | เด็ก ฿${pkg.priceChild}</span>
-            </div>`;
-        });
-        
-        if(menu) menu.innerHTML = html;
-        
-        if (packages.length > 0) {
-            // 🟢 แก้ไข: ใช้ชื่อฟังก์ชันให้ตรงกัน
-            selectBuffetPackage(packages[0].name, packages[0].priceAdult, packages[0].priceChild, packages[0].timeLimit);
-        }
-    }).getBuffetPackagesGS();
 }
 </script>
 </body>
