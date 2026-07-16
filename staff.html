@@ -956,41 +956,19 @@ function submitTableOpen() {
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
-    google.script.run.withSuccessHandler((updatedTables) => {
+google.script.run.withSuccessHandler((updatedTables) => {
         document.getElementById('openTableModeModal').classList.add('hidden');
         btn.innerText = originalText;
         btn.disabled = false;
         
         globalTablesList = updatedTables; 
         
-        // จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ
-        cart = []; 
-        
-        if (currentTableMode === 'Buffet' && selectedPackage) {
-            // แยกเพิ่มรายการเข้าตะกร้าเป็น 2 บรรทัด
-            if (adult > 0) {
-                cart.push({
-                    name: selectedPackage + " (ผู้ใหญ่)", 
-                    price: adultPrice, 
-                    qty: adult
-                });
-            }
-            if (kid > 0) {
-                cart.push({
-                    name: selectedPackage + " (เด็ก)", 
-                    price: kidPrice, 
-                    qty: kid
-                });
-            }
-            
-            updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
-            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
-        } else {
-            showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
-        }
+        // 🟢 ให้คงไว้แค่การแจ้งเตือนและการเข้าหน้าสั่งอาหาร
+        cart = []; // เคลียร์ตะกร้าเปล่าๆ ไว้
+        updateCartBadge();
+        showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
         
         if (isPrepaidWorkflow) {
-            // ถ้าระบบจ่ายก่อนกิน ให้แจ้งเตือนบอกพนักงานเพิ่มนิดนึง
             setTimeout(() => {
                 showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
             }, 500);
