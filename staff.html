@@ -172,22 +172,31 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-400 mb-1">จำนวนลูกค้า (ท่าน)</label>
                         <div class="space-y-2">
-                            <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
-                                <span class="pl-2 font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
-                                <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                                    <button onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-                                    <input type="number" id="inputAdultCount" value="1" class="w-8 text-center font-bold text-pink-700 outline-none">
-                                    <button onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
-                                <span class="pl-2 font-bold text-gray-700 text-sm">👦 เด็ก</span>
-                                <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                                    <button onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-                                    <input type="number" id="inputKidCount" value="0" class="w-8 text-center font-bold text-pink-700 outline-none">
-                                    <button onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-                                </div>
-                            </div>
+                            <!-- ค้นหาบรรทัดที่มี inputAdultCount และเพิ่มบรรทัดนี้ต่อท้าย -->
+<div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
+    <div class="flex flex-col">
+        <span class="pl-2 font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
+        <span id="displayPriceAdult" class="pl-2 text-pink-600 font-bold text-[10px]">฿0.00</span>
+    </div>
+    <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+        <button onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+        <input type="number" id="inputAdultCount" value="1" class="w-8 text-center font-bold text-pink-700 outline-none">
+        <button onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
+    </div>
+</div>
+
+<!-- ค้นหาบรรทัดที่มี inputKidCount และเพิ่มบรรทัดนี้ต่อท้าย -->
+<div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
+    <div class="flex flex-col">
+        <span class="pl-2 font-bold text-gray-700 text-sm">👦 เด็ก</span>
+        <span id="displayPriceKid" class="pl-2 text-pink-600 font-bold text-[10px]">฿0.00</span>
+    </div>
+    <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+        <button onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+        <input type="number" id="inputKidCount" value="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+        <button onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
+    </div>
+</div>
                         </div>
                     </div>
 
@@ -879,6 +888,16 @@ function selectBuffetPackage(name, timeLimit) {
     document.getElementById('buffetPackageSelectedText').innerText = "🥩 " + name;
     document.getElementById('inputTimeLimit').value = timeLimit || 90;
     document.getElementById('buffetPackageMenu').classList.add('hidden');
+
+    // ค้นหาข้อมูลแพ็กเกจที่เลือกจากตัวแปร buffetPackages
+    let pkg = buffetPackages.find(p => p.name === name);
+    
+    // อัปเดตราคาที่หน้าจอ (ปรับชื่อ key ให้ตรงกับโครงสร้างข้อมูล Google Sheets ของคุณ)
+    // หากข้อมูลใน Sheets ของคุณใช้ชื่อฟิลด์อื่น (เช่น priceAdult, priceChild) ให้แก้ไขตรงนี้ครับ
+    if (pkg) {
+        document.getElementById('displayPriceAdult').innerText = "฿" + (pkg.priceAdult || pkg.price || "0.00");
+        document.getElementById('displayPriceKid').innerText = "฿" + (pkg.priceChild || pkg.price || "0.00");
+    }
 }
 
 function adjustHeadCount(type, amount) {
