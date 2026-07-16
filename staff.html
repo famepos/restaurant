@@ -1066,45 +1066,38 @@ function adjustCartQty(index, amount) {
 // ฟังก์ชันสำหรับพิมพ์ใบเปิดโต๊ะ
 function printTableSlip() {
     if (!currentTable) return;
-    
-    // 1. ค้นหาข้อมูลโต๊ะจาก globalTablesList (ซึ่งมีข้อมูลครบถ้วนอยู่แล้ว)
     let tableInfo = globalTablesList.find(t => t.name === currentTable);
-    if (!tableInfo) {
-        showToast("ไม่พบข้อมูลโต๊ะในระบบ", "error");
-        return;
-    }
+    if (!tableInfo) return;
 
-    // 2. เติมข้อมูล
+    // เติมข้อมูลข้อความ
     document.getElementById('printSlipTable').innerText = tableInfo.name;
-    document.getElementById('printSlipMode').innerText = (tableInfo.orderMode === 'Buffet') ? 'บุฟเฟต์' : 'สั่งแยก';
+    document.getElementById('printSlipMode').innerText = tableInfo.orderMode || "-";
     document.getElementById('printSlipPkg').innerText = tableInfo.packageName || "-";
     document.getElementById('printSlipHead').innerText = tableInfo.headCount || "0";
     
-    // ตั้งเวลา (ดึงจากข้อมูลโต๊ะถ้ามี หรือคำนวณใหม่)
+    // ตั้งเวลา
     let now = new Date();
     document.getElementById('printSlipStartTime').innerText = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'}) + " น.";
     document.getElementById('printSlipEndTime').innerText = tableInfo.endTime ? new Date(tableInfo.endTime).toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'}) + " น." : "-";
     
-    // 🟢 3. ดึง QR Code จากฐานข้อมูลโดยตรง (ไม่ต้องสร้างใหม่)
+    // 🟢 ระบบดึง QR Code (ถ้าในชีตไม่มี ให้สร้างใหม่ทันที)
     let qrImgElement = document.getElementById('printSlipQRImage');
-    
-    // ตรวจสอบว่ามีข้อมูล qrCode หรือไม่ (สมมติว่าชื่อ property คือ qrCode)
-    if (tableInfo.qrCode) {
+    if (tableInfo.qrCode && tableInfo.qrCode.trim() !== "") {
         qrImgElement.src = tableInfo.qrCode;
     } else {
-        // กรณีไม่มี QR ในระบบ (ป้องกันรูปเสีย)
-        qrImgElement.src = ""; 
-        showToast("ไม่พบ QR Code ประจำโต๊ะนี้", "error");
+        // Fallback: ถ้า QR ในชีตว่าง ให้สร้างใหม่จากชื่อโต๊ะ
+        let menuUrl = "https://famepos.github.io/restaurant/menu.html?table=" + encodeURIComponent(tableInfo.name);
+        qrImgElement.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(menuUrl);
     }
 
-    // 4. สั่งพิมพ์
+    // สั่งพิมพ์
     let container = document.getElementById('tableQRPrintContainer');
     
-    // แสดงกล่อง (ใช้ display: flex ตามที่คุณเซ็ตไว้ใน CSS)
+    // เพิ่ม class 'print-active-view' เพื่อให้ CSS @media print มองเห็น
     container.classList.remove('hidden');
     container.classList.add('flex', 'print-active-view');
     
-    // รอสักนิดเพื่อให้รูปโหลดติด แล้วสั่งพิมพ์
+    // หน่วงเวลาให้รูปโหลดเสร็จแล้วค่อยสั่งพิมพ์
     setTimeout(() => {
         window.print();
         // ซ่อนกลับ
