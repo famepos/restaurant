@@ -752,20 +752,20 @@ function viewTableOrders() {
             let html = '';
             let grandTotal = 0;
             
-            // 🟢 แก้ไข: เช็คว่าใน data.items มีรายการที่เป็นบุฟเฟต์อยู่แล้วหรือไม่
-            // ถ้ามีรายการที่ชื่อประกอบด้วย "ผู้ใหญ่", "เด็ก" หรือชื่อแพ็กเกจ ถือว่ามีบุฟเฟต์ในบิลแล้ว
+            // 🟢 แก้ไข: เช็คว่าในบิลมีรายการที่ขึ้นต้นด้วยชื่อแพ็กเกจหรือไม่ (ป้องกันแสดงซ้ำ)
             let isPackageInBill = false;
-            if (data.items && data.items.length > 0) {
+            if (data.items && myTable && myTable.packageName) {
                 isPackageInBill = data.items.some(i => 
-                    i.name.includes("ผู้ใหญ่") || i.name.includes("เด็ก") || (myTable && i.name.includes(myTable.packageName))
+                    i.name.trim().toLowerCase().startsWith(myTable.packageName.trim().toLowerCase())
                 );
             }
 
-            // --- ส่วนที่ 1: แสดงข้อมูลแบบ "ยังไม่ส่งแคชเชียร์" (จะแสดงก็ต่อเมื่อยังไม่มีรายการบุฟเฟต์ในบิลเท่านั้น!) ---
+            // --- ส่วนที่ 1: แสดงข้อมูลแบบ "ยังไม่ส่งแคชเชียร์" (แยกผู้ใหญ่/เด็ก) ---
             if (myTable && myTable.orderMode === 'Buffet' && !isPackageInBill) {
                 let pkgName = myTable.packageName;
                 let pkgInfo = buffetPackages.find(p => p.name.trim() === pkgName.trim());
                 
+                // ใช้ข้อมูลจาก input ในหน้าเปิดโต๊ะ (ถ้าโต๊ะนี้เปิดค้างไว้ ค่าพวกนี้จะอยู่ใน myTable แล้ว)
                 let adultCount = parseInt(myTable.adultCount) || (parseInt(myTable.headCount) || 0);
                 let kidCount = parseInt(myTable.kidCount) || 0;
                 
@@ -790,7 +790,7 @@ function viewTableOrders() {
                 }
             }
 
-            // --- ส่วนที่ 2: รายการในบิลทั้งหมด (รายการที่ถูกส่งเข้าแคชเชียร์ไปแล้ว) ---
+            // --- ส่วนที่ 2: รายการในบิลทั้งหมด (ที่ส่งเข้าแคชเชียร์แล้ว) ---
             if (data.items && data.items.length > 0) {
                 data.items.forEach(item => {
                     let itemTotal = parseFloat(item.price) * parseInt(item.qty);
@@ -807,10 +807,12 @@ function viewTableOrders() {
                 });
             } 
             
+            // สรุปยอด
             if (grandTotal === 0) {
                 html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการอาหารครับ 🍽️</div>';
             } else {
-                html += `<div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
+                html += `
+                <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
                     <span class="text-lg font-bold text-gray-600">ยอดรวมสุทธิ:</span>
                     <span class="text-3xl font-black text-pink-600">฿${grandTotal.toFixed(2)}</span>
                 </div>`;
