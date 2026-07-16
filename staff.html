@@ -952,31 +952,33 @@ function submitTableOpen() {
         
         globalTablesList = updatedTables; 
         
-        // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้า (แยกรายการผู้ใหญ่/เด็ก)
-        cart = []; 
-        if (currentTableMode === 'Buffet' && selectedPackage) {
-            
-            // เพิ่มรายการผู้ใหญ่
-            if (adult > 0) {
-                cart.push({
-                    name: selectedPackage + " (ผู้ใหญ่)",
-                    price: priceAdult,
-                    qty: adult
-                });
-            }
-            
-            // เพิ่มรายการเด็ก
-            if (kid > 0) {
-                cart.push({
-                    name: selectedPackage + " (เด็ก)",
-                    price: priceChild,
-                    qty: kid
-                });
-            }
-            
-            updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
-            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
-        } else {
+      // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้า (แยกรายการผู้ใหญ่/เด็ก)
+cart = []; 
+if (currentTableMode === 'Buffet' && selectedPackage) {
+    
+    // เพิ่มรายการผู้ใหญ่
+    if (adult > 0) {
+        cart.push({
+            name: selectedPackage + " (ผู้ใหญ่)",
+            price: priceAdult,
+            qty: adult,
+            total: priceAdult * adult // 🟢 เพิ่มบรรทัดนี้: คำนวณยอดรวมรายบรรทัด
+        });
+    }
+    
+    // เพิ่มรายการเด็ก
+    if (kid > 0) {
+        cart.push({
+            name: selectedPackage + " (เด็ก)",
+            price: priceChild,
+            qty: kid,
+            total: priceChild * kid // 🟢 เพิ่มบรรทัดนี้: คำนวณยอดรวมรายบรรทัด
+        });
+    }
+    
+    updateCartBadge();
+    showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
+} else {
             showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
         }
         
