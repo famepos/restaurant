@@ -643,7 +643,7 @@ function sendToKitchen() {
     let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
     let orderPayload = { 
-        table: currentTable, 
+        table: currentTable, // 🟢 ส่งชื่อโต๊ะไป (สำคัญมาก!)
         items: cart.map(item => ({
             name: item.name,
             price: item.price,
