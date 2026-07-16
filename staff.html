@@ -172,11 +172,11 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-400 mb-1">จำนวนลูกค้า (ท่าน)</label>
                         <div class="space-y-2">
-                            <!-- ค้นหาบรรทัดที่มี inputAdultCount และเพิ่มบรรทัดนี้ต่อท้าย -->
+         <!-- แถวผู้ใหญ่ -->
 <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
     <div class="flex flex-col">
         <span class="pl-2 font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
-        <span id="displayPriceAdult" class="pl-2 text-pink-600 font-bold text-[10px]">฿0.00</span>
+        <span id="displayPriceAdult" class="pl-2 text-pink-600 font-bold text-[10px]">฿0</span>
     </div>
     <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
         <button onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
@@ -185,11 +185,11 @@
     </div>
 </div>
 
-<!-- ค้นหาบรรทัดที่มี inputKidCount และเพิ่มบรรทัดนี้ต่อท้าย -->
+<!-- แถวเด็ก -->
 <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
     <div class="flex flex-col">
         <span class="pl-2 font-bold text-gray-700 text-sm">👦 เด็ก</span>
-        <span id="displayPriceKid" class="pl-2 text-pink-600 font-bold text-[10px]">฿0.00</span>
+        <span id="displayPriceKid" class="pl-2 text-pink-600 font-bold text-[10px]">฿0</span>
     </div>
     <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
         <button onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
@@ -889,14 +889,14 @@ function selectBuffetPackage(name, timeLimit) {
     document.getElementById('inputTimeLimit').value = timeLimit || 90;
     document.getElementById('buffetPackageMenu').classList.add('hidden');
 
-    // ค้นหาข้อมูลแพ็กเกจที่เลือกจากตัวแปร buffetPackages
+    // ค้นหาข้อมูลแพ็กเกจ
     let pkg = buffetPackages.find(p => p.name === name);
     
-    // อัปเดตราคาที่หน้าจอ (ปรับชื่อ key ให้ตรงกับโครงสร้างข้อมูล Google Sheets ของคุณ)
-    // หากข้อมูลใน Sheets ของคุณใช้ชื่อฟิลด์อื่น (เช่น priceAdult, priceChild) ให้แก้ไขตรงนี้ครับ
     if (pkg) {
-        document.getElementById('displayPriceAdult').innerText = "฿" + (pkg.priceAdult || pkg.price || "0.00");
-        document.getElementById('displayPriceKid').innerText = "฿" + (pkg.priceChild || pkg.price || "0.00");
+        // อัปเดตราคาที่หน้าจอ
+        // ใช้ pkg.price สำหรับผู้ใหญ่ และ pkg.kidPrice สำหรับเด็ก (ตามที่ดึงมาจาก GS)
+        document.getElementById('displayPriceAdult').innerText = "฿" + (pkg.price || "0");
+        document.getElementById('displayPriceKid').innerText = "฿" + (pkg.kidPrice || "0");
     }
 }
 
