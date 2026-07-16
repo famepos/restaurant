@@ -172,31 +172,22 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-400 mb-1">จำนวนลูกค้า (ท่าน)</label>
                         <div class="space-y-2">
-         <!-- แถวผู้ใหญ่ -->
-<div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
-    <div class="flex flex-col">
-        <span class="pl-2 font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
-        <span id="displayPriceAdult" class="pl-2 text-pink-600 font-bold text-[10px]">฿0</span>
-    </div>
-    <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-        <button onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-        <input type="number" id="inputAdultCount" value="1" class="w-8 text-center font-bold text-pink-700 outline-none">
-        <button onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-    </div>
-</div>
-
-<!-- แถวเด็ก -->
-<div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
-    <div class="flex flex-col">
-        <span class="pl-2 font-bold text-gray-700 text-sm">👦 เด็ก</span>
-        <span id="displayPriceKid" class="pl-2 text-pink-600 font-bold text-[10px]">฿0</span>
-    </div>
-    <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-        <button onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-        <input type="number" id="inputKidCount" value="0" class="w-8 text-center font-bold text-pink-700 outline-none">
-        <button onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-    </div>
-</div>
+                            <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
+                                <span class="pl-2 font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
+                                <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                    <button onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+                                    <input type="number" id="inputAdultCount" value="1" class="w-8 text-center font-bold text-pink-700 outline-none">
+                                    <button onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between border border-gray-200 rounded-xl bg-gray-50 p-1">
+                                <span class="pl-2 font-bold text-gray-700 text-sm">👦 เด็ก</span>
+                                <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                    <button onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+                                    <input type="number" id="inputKidCount" value="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+                                    <button onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -643,7 +634,7 @@ function sendToKitchen() {
     let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
     let orderPayload = { 
-        table: currentTable, // 🟢 ส่งชื่อโต๊ะไป (สำคัญมาก!)
+        table: currentTable, 
         items: cart.map(item => ({
             name: item.name,
             price: item.price,
@@ -745,82 +736,85 @@ function viewTableOrders() {
     document.getElementById('tableOrdersContainer').innerHTML = '<div class="flex flex-col items-center py-10"><span class="text-4xl animate-spin mb-2">⏳</span><span class="text-gray-500 font-bold">กำลังดึงข้อมูล...</span></div>';
     document.getElementById('tableOrdersModal').classList.remove('hidden');
 
-    google.script.run.withSuccessHandler(function(tables) {
-        let myTable = tables.find(t => t.name === currentTable);
-        
-        google.script.run.withSuccessHandler(function(data) {
-            let html = '';
-            let grandTotal = 0;
+    google.script.run
+        .withSuccessHandler(function(tables) {
+            let myTable = tables.find(t => t.name === currentTable);
             
-            // 🟢 แก้ไข: เช็คว่าในบิลมีรายการที่ขึ้นต้นด้วยชื่อแพ็กเกจหรือไม่ (ป้องกันแสดงซ้ำ)
-            let isPackageInBill = false;
-            if (data.items && myTable && myTable.packageName) {
-                isPackageInBill = data.items.some(i => 
-                    i.name.trim().toLowerCase().startsWith(myTable.packageName.trim().toLowerCase())
-                );
-            }
-
-            // --- ส่วนที่ 1: แสดงข้อมูลแบบ "ยังไม่ส่งแคชเชียร์" (แยกผู้ใหญ่/เด็ก) ---
-            if (myTable && myTable.orderMode === 'Buffet' && !isPackageInBill) {
-                let pkgName = myTable.packageName;
-                let pkgInfo = buffetPackages.find(p => p.name.trim() === pkgName.trim());
-                
-                // ใช้ข้อมูลจาก input ในหน้าเปิดโต๊ะ (ถ้าโต๊ะนี้เปิดค้างไว้ ค่าพวกนี้จะอยู่ใน myTable แล้ว)
-                let adultCount = parseInt(myTable.adultCount) || (parseInt(myTable.headCount) || 0);
-                let kidCount = parseInt(myTable.kidCount) || 0;
-                
-                let adultPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
-                let kidPrice = pkgInfo ? parseFloat(pkgInfo.kidPrice) : 0;
-                
-                if (adultCount > 0) {
-                    let totalA = adultPrice * adultCount;
-                    grandTotal += totalA;
-                    html += `<div class="flex justify-between items-center bg-pink-100 p-3 rounded-xl border border-pink-300 mb-2 shadow-sm">
-                        <div class="flex-1"><div class="font-bold text-pink-800 text-sm">🥩 ${pkgName} (ผู้ใหญ่)</div>
-                        <div class="text-xs text-pink-600 font-bold">฿${adultPrice} x ${adultCount} ท่าน</div></div>
-                        <div class="font-bold text-pink-700">฿${totalA.toFixed(2)}</div></div>`;
-                }
-                if (kidCount > 0) {
-                    let totalK = kidPrice * kidCount;
-                    grandTotal += totalK;
-                    html += `<div class="flex justify-between items-center bg-pink-50 p-3 rounded-xl border border-pink-200 mb-2">
-                        <div class="flex-1"><div class="font-bold text-pink-700 text-sm">👶 ${pkgName} (เด็ก)</div>
-                        <div class="text-xs text-pink-500 font-bold">฿${kidPrice} x ${kidCount} ท่าน</div></div>
-                        <div class="font-bold text-pink-600">฿${totalK.toFixed(2)}</div></div>`;
-                }
-            }
-
-            // --- ส่วนที่ 2: รายการในบิลทั้งหมด (ที่ส่งเข้าแคชเชียร์แล้ว) ---
-            if (data.items && data.items.length > 0) {
-                data.items.forEach(item => {
-                    let itemTotal = parseFloat(item.price) * parseInt(item.qty);
-                    grandTotal += itemTotal;
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    let html = '';
+                    let grandTotal = 0;
                     
-                    html += `
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100 mb-2">
-                        <div class="flex-1">
-                            <div class="font-bold text-gray-800 text-sm">${item.name}</div>
-                            <div class="text-xs text-gray-500">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
-                        </div>
-                        <div class="font-bold text-gray-700">฿${itemTotal.toFixed(2)}</div>
-                    </div>`;
-                });
-            } 
-            
-            // สรุปยอด
-            if (grandTotal === 0) {
-                html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการอาหารครับ 🍽️</div>';
-            } else {
-                html += `
-                <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
-                    <span class="text-lg font-bold text-gray-600">ยอดรวมสุทธิ:</span>
-                    <span class="text-3xl font-black text-pink-600">฿${grandTotal.toFixed(2)}</span>
-                </div>`;
-            }
-            
-            document.getElementById('tableOrdersContainer').innerHTML = html;
-        }).getTableTotalGS(currentTable);
-    }).getTablesData();
+                    // 🟢 เช็คว่าในบิลที่ดึงมาจากแคชเชียร์ มีแพ็กเกจนี้ส่งไปหรือยัง?
+                    let isPackageInBill = false;
+                    if (data.items && myTable) {
+                        isPackageInBill = data.items.some(i => i.name === myTable.packageName);
+                    }
+
+                    // --- ส่วนที่ 1: ถ้าเปิดเป็นบุฟเฟต์ แต่พนักงานยังไม่ได้กด "ส่งแคชเชียร์" ---
+                    if (myTable && myTable.orderMode === 'Buffet' && !isPackageInBill) {
+                        let pkgName = myTable.packageName;
+                        let headCount = parseInt(myTable.headCount) || 0;
+                        let pkgInfo = buffetPackages.find(p => p.name === pkgName);
+                        let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
+                        let buffetTotal = pkgPrice * headCount;
+                        
+                        grandTotal += buffetTotal;
+
+                        html += `
+                        <div class="flex justify-between items-center bg-pink-100 p-3 rounded-xl border border-pink-300 mb-2 shadow-sm">
+                            <div class="flex-1">
+                                <div class="font-black text-pink-800 text-sm">🥩 ${pkgName} <span class="text-[10px] text-red-500 bg-white px-1 rounded ml-1 animate-pulse">ยังไม่ส่งแคชเชียร์</span></div>
+                                <div class="text-xs text-pink-600 font-bold">฿${pkgPrice.toFixed(2)} x ${headCount} ท่าน</div>
+                            </div>
+                            <div class="font-black text-pink-700 text-lg">฿${buffetTotal.toFixed(2)}</div>
+                        </div>`;
+                    }
+
+                    // --- ส่วนที่ 2: รายการในบิลทั้งหมด (ที่ส่งเข้าแคชเชียร์แล้ว) ---
+                    if (data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            let itemTotal = parseFloat(item.price) * parseInt(item.qty);
+                            grandTotal += itemTotal;
+                            
+                            // ไฮไลต์ให้สีเด่นขึ้นถ้าเป็นรายการแพ็กเกจบุฟเฟต์
+                            let isPkg = (myTable && item.name === myTable.packageName);
+                            let boxClass = isPkg ? "bg-pink-50 border-pink-200" : "bg-gray-50 border-gray-100";
+                            let textClass = isPkg ? "text-pink-800" : "text-gray-800";
+                            let icon = isPkg ? "🥩 " : "";
+
+                            html += `
+                            <div class="flex justify-between items-center ${boxClass} p-3 rounded-xl border mb-2">
+                                <div class="flex-1">
+                                    <div class="font-bold ${textClass} text-sm">${icon}${item.name}</div>
+                                    <div class="text-xs text-gray-500">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
+                                </div>
+                                <div class="font-bold text-pink-600">฿${itemTotal.toFixed(2)}</div>
+                            </div>`;
+                        });
+                    } 
+                    
+                    if ((!myTable || myTable.orderMode !== 'Buffet') && (!data.items || data.items.length === 0)) {
+                        html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการสั่งอาหารที่ค้างอยู่ครับ 🍽️</div>';
+                    } else {
+                        html += `
+                        <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
+                            <span class="text-lg font-bold text-gray-600">ยอดรวมสุทธิ:</span>
+                            <span class="text-3xl font-black text-pink-600">฿${grandTotal.toFixed(2)}</span>
+                        </div>`;
+                    }
+                    
+                    document.getElementById('tableOrdersContainer').innerHTML = html;
+                })
+                .withFailureHandler(function(err) {
+                    document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold text-sm">❌ โหลดข้อมูลล้มเหลว</div>';
+                })
+                .getTableTotalGS(currentTable);
+        })
+        .withFailureHandler(function(err) {
+            document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold text-sm">❌ โหลดข้อมูลโต๊ะล้มเหลว</div>';
+        })
+        .getTablesData();
 }
 // ==========================================
 // 6. ระบบเปิดโต๊ะ Full Option (Buffet / A La Carte)
@@ -885,19 +879,6 @@ function selectBuffetPackage(name, timeLimit) {
     document.getElementById('buffetPackageSelectedText').innerText = "🥩 " + name;
     document.getElementById('inputTimeLimit').value = timeLimit || 90;
     document.getElementById('buffetPackageMenu').classList.add('hidden');
-
-    // 🟢 ดึงข้อมูลแพ็กเกจจากตัวแปร global
-    let pkg = buffetPackages.find(p => p.name === name);
-    
-    if (pkg) {
-        // อัปเดตราคาที่หน้าจอโดยตรงจากข้อมูลแพ็กเกจ
-        document.getElementById('displayPriceAdult').innerText = "฿" + (pkg.price || "0");
-        document.getElementById('displayPriceKid').innerText = "฿" + (pkg.kidPrice || "0");
-    } else {
-        // กรณีหาไม่เจอ (ป้องกันบัค)
-        document.getElementById('displayPriceAdult').innerText = "฿0";
-        document.getElementById('displayPriceKid').innerText = "฿0";
-    }
 }
 
 function adjustHeadCount(type, amount) {
@@ -937,31 +918,43 @@ function submitTableOpen() {
     }
 
     let pkgName = currentTableMode === 'Buffet' ? (selectedPackage || "-") : "-";
-    let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "90";
-
-    // ก่อนบันทึก เช็คราคาแพ็กเกจล่าสุดจากตัวแปร global
-    let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
-    let adultPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
-    let kidPrice = pkgInfo ? parseFloat(pkgInfo.kidPrice) : 0;
+    let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "ไม่จำกัด";
 
     let btn = document.querySelector(`button[onclick="submitTableOpen()"]`);
-    let originalText = btn.innerText; // 🟢 เพิ่มบรรทัดนี้ครับ! เพื่อเก็บชื่อปุ่มเดิมไว้
+    let originalText = btn.innerText;
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
-google.script.run.withSuccessHandler((updatedTables) => {
+    google.script.run.withSuccessHandler((updatedTables) => {
         document.getElementById('openTableModeModal').classList.add('hidden');
         btn.innerText = originalText;
         btn.disabled = false;
         
         globalTablesList = updatedTables; 
         
-        // 🟢 ให้คงไว้แค่การแจ้งเตือนและการเข้าหน้าสั่งอาหาร
-        cart = []; // เคลียร์ตะกร้าเปล่าๆ ไว้
-        updateCartBadge();
-        showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
+        // 🟢 1. จัดการยัดแพ็กเกจบุฟเฟต์ลงตะกร้าของ Staff อัตโนมัติ!
+        cart = []; // ล้างตะกร้าก่อน
+        if (currentTableMode === 'Buffet' && selectedPackage) {
+            let pkgInfo = buffetPackages.find(p => p.name === selectedPackage);
+            let pkgPrice = pkgInfo ? parseFloat(pkgInfo.price) : 0;
+            
+            // ดันแพ็กเกจเข้าตะกร้าพนักงาน
+            cart.push({
+                name: selectedPackage,
+                price: pkgPrice,
+                qty: totalHeadCount
+            });
+            updateCartBadge(); // อัปเดตตัวเลขบนปุ่มตะกร้า
+            
+            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
+            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
+        } else {
+            // 🟢 ใช้ Toast แจ้งเตือนมุมขวาบนแบบสวยๆ แล้วหายไปเอง
+            showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
+        }
         
         if (isPrepaidWorkflow) {
+            // ถ้าระบบจ่ายก่อนกิน ให้แจ้งเตือนบอกพนักงานเพิ่มนิดนึง
             setTimeout(() => {
                 showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
             }, 500);
@@ -1000,7 +993,6 @@ function clearCart() {
 
 // วาดรายการสินค้าลงในตะกร้า
 function renderCartItems() {
-  console.log("ตะกร้าปัจจุบันมีอะไรบ้าง:", cart);
     let container = document.getElementById('cartItemsContainer');
     let html = '';
     let total = 0;
