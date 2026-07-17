@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS: Table & Cart Integration</title>
     <script src="https://cdn.tailwindcss.com"></script>
+<style>
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
 </head>
 <body class="bg-gray-100 h-screen flex overflow-hidden font-sans">
 
@@ -69,9 +72,128 @@
             </button>
         </div>
     </div>
+<!-- ================= 🪑 MODAL เปิดโต๊ะ (ซ่อนไว้เป็นค่าเริ่มต้น) ================= -->
+    <div id="openTableModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
+        <div class="bg-white w-[90%] max-w-[500px] rounded-[2rem] shadow-2xl relative flex flex-col overflow-hidden animate-[scaleIn_0.2s_ease-out]">
+            
+            <!-- ปุ่มปิด -->
+            <button onclick="closeTableModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center font-bold transition">✕</button>
 
-    <!-- ================= โค้ดควบคุมการทำงาน (เชื่อมฐานข้อมูลจริง) ================= -->
-<!-- ================= โค้ดควบคุมการทำงานผ่าน API (SUPER doPost) ================= -->
+            <!-- Header -->
+            <div class="pt-8 pb-4 px-8 text-center border-b border-gray-100">
+                <h2 class="text-2xl font-black text-gray-800 flex items-center justify-center gap-2">
+                    <span class="text-3xl">🪑</span> เปิดโต๊ะอาหาร: <span id="modalTableName" class="text-pink-600">โต๊ะ 3</span>
+                </h2>
+                <p class="text-gray-500 text-sm mt-1">ระบุแพ็กเกจ จำนวนลูกค้า และวิธีชำระเงิน</p>
+            </div>
+
+            <div class="p-8 pt-6 space-y-6 bg-gray-50/50">
+                
+                <!-- เลือกประเภทการทาน -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btnModeBuffet" onclick="setOrderMode('buffet')" class="py-3 px-4 rounded-2xl border-2 border-pink-500 bg-pink-50 text-pink-600 font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                        🥩 ระบบบุฟเฟต์
+                    </button>
+                    <button id="btnModeAalacarte" onclick="setOrderMode('alacarte')" class="py-3 px-4 rounded-2xl border-2 border-gray-200 bg-white text-gray-500 font-bold transition hover:bg-gray-50 flex items-center justify-center gap-2">
+                        🍽️ สั่งแยก (A la carte)
+                    </button>
+                </div>
+
+                <!-- เลือกแพ็กเกจบุฟเฟต์ (ซ่อนเมื่อเป็นสั่งแยก) -->
+                <div id="buffetPackageSection" class="relative">
+                    <select id="buffetPackageSelect" class="w-full appearance-none bg-white border-2 border-pink-200 text-pink-700 font-bold py-3.5 px-4 pr-8 rounded-2xl focus:outline-none focus:border-pink-500 shadow-sm transition">
+                        <option value="299">🥩 บุฟเฟต์หมูกระทะ (฿299 / 90นาที)</option>
+                        <option value="399">🥩 บุฟเฟต์ทะเลเผา (฿399 / 120นาที)</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-pink-500">
+                        ▼
+                    </div>
+                </div>
+
+                <!-- ข้อมูลลูกค้า & ชำระเงิน -->
+                <div class="grid grid-cols-2 gap-8">
+                    
+                    <!-- ฝั่งซ้าย: จำนวนลูกค้า -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-gray-500">จำนวนลูกค้า (ท่าน)</h3>
+                        
+                        <!-- ผู้ใหญ่ -->
+                        <div class="flex items-center justify-between bg-white border border-gray-100 p-2 rounded-2xl shadow-sm">
+                            <div class="leading-tight pl-2">
+                                <p class="font-bold text-gray-800 text-sm">🧑 ผู้ใหญ่</p>
+                                <p class="text-[10px] text-pink-500 font-medium">ราคาเต็ม</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button onclick="updateCount('adultCount', -1)" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition active:scale-90">-</button>
+                                <span id="adultCount" class="font-bold text-pink-600 w-4 text-center">1</span>
+                                <button onclick="updateCount('adultCount', 1)" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition active:scale-90">+</button>
+                            </div>
+                        </div>
+
+                        <!-- เด็ก -->
+                        <div class="flex items-center justify-between bg-white border border-gray-100 p-2 rounded-2xl shadow-sm">
+                            <div class="leading-tight pl-2">
+                                <p class="font-bold text-gray-800 text-sm">👦 เด็ก</p>
+                                <p class="text-[10px] text-pink-500 font-medium">50% (ครึ่งราคา)</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button onclick="updateCount('childCount', -1)" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition active:scale-90">-</button>
+                                <span id="childCount" class="font-bold text-pink-600 w-4 text-center">0</span>
+                                <button onclick="updateCount('childCount', 1)" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition active:scale-90">+</button>
+                            </div>
+                        </div>
+
+                        <!-- ผู้สูงวัย -->
+                        <div class="flex items-center justify-between bg-white border border-gray-100 p-2 rounded-2xl shadow-sm">
+                            <div class="leading-tight pl-2">
+                                <p class="font-bold text-gray-800 text-sm">🧓 ผู้สูงวัย</p>
+                                <p class="text-[10px] text-pink-500 font-medium">ลด 20%</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button onclick="updateCount('seniorCount', -1)" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition active:scale-90">-</button>
+                                <span id="seniorCount" class="font-bold text-pink-600 w-4 text-center">0</span>
+                                <button onclick="updateCount('seniorCount', 1)" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition active:scale-90">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ฝั่งขวา: เวลา & ชำระเงิน -->
+                    <div class="space-y-6">
+                        
+                        <!-- เวลาจำกัด (ซ่อนเมื่อเป็นสั่งแยก) -->
+                        <div id="timeLimitSection" class="space-y-2">
+                            <h3 class="text-sm font-bold text-gray-500">จำกัดเวลา (นาที)</h3>
+                            <div class="flex items-center justify-between bg-white border border-gray-100 p-3 rounded-2xl shadow-sm">
+                                <button onclick="updateCount('timeCount', -10)" class="w-8 h-8 rounded-full bg-pink-50 hover:bg-pink-100 text-pink-600 font-bold flex items-center justify-center transition active:scale-90">-</button>
+                                <span id="timeCount" class="font-black text-pink-600 text-lg w-10 text-center">90</span>
+                                <button onclick="updateCount('timeCount', 10)" class="w-8 h-8 rounded-full bg-pink-50 hover:bg-pink-100 text-pink-600 font-bold flex items-center justify-center transition active:scale-90">+</button>
+                            </div>
+                        </div>
+
+                        <!-- วิธีชำระเงิน -->
+                        <div class="space-y-2">
+                            <h3 class="text-sm font-bold text-gray-500">รูปแบบการชำระเงิน</h3>
+                            <button id="btnPayPostpaid" onclick="setPaymentMode('postpaid')" class="w-full py-2.5 rounded-xl border-2 border-pink-500 bg-white text-gray-800 font-bold text-sm shadow-sm transition flex items-center justify-center gap-2 mb-2">
+                                💵 กินก่อนจ่ายทีหลัง
+                            </button>
+                            <button id="btnPayPrepaid" onclick="setPaymentMode('prepaid')" class="w-full py-2.5 rounded-xl border border-gray-200 bg-white text-gray-500 font-bold text-sm shadow-sm transition hover:bg-gray-50 flex items-center justify-center gap-2">
+                                💳 จ่ายก่อนกิน (Prepaid)
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ปุ่มยืนยัน -->
+                <button onclick="confirmOpenTable()" class="w-full bg-pink-600 hover:bg-pink-700 active:scale-95 text-white font-bold py-4 rounded-2xl text-lg shadow-lg transition mt-4 flex items-center justify-center gap-2">
+                    🚀 ยืนยันเปิดโต๊ะ & พิมพ์คิวอาร์สั่งอาหาร
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    
+    <!-- ================= โค้ดควบคุมการทำงานผ่าน API (SUPER doPost) ================= -->
 <script>
     // 🔴 นำ URL ของเว็บแอป (ที่ลงท้ายด้วย /exec) มาวางในเครื่องหมายคำพูดด้านล่างนี้
     const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec"; 
@@ -125,6 +247,9 @@
         });
     }
 
+// ==========================================
+    // ⚙️ อัปเดตฟังก์ชันการวาดโต๊ะ
+    // ==========================================
     function renderTablesUI(tablesData) {
         const grid = document.getElementById('tableGrid');
         if(!grid) return;
@@ -139,9 +264,10 @@
             let cardHTML = '';
 
             if (isAvailable) {
+                // 🎯 เมื่อเป็นโต๊ะว่าง ให้เรียกฟังก์ชัน openTableModal แทน
                 cardHTML = `
-                <div onclick="selectTable('${tId}')" 
-                     class="bg-white border-2 ${isSelected ? 'border-pink-500' : 'border-transparent'} rounded-xl p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition min-h-[7rem]">
+                <div onclick="openTableModal('${tId}', '${t.name}')" 
+                     class="bg-white border-2 border-transparent rounded-xl p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md hover:border-pink-200 transition min-h-[7rem]">
                     <span class="font-bold text-gray-500">${t.name}</span>
                 </div>`;
             } else {
@@ -149,6 +275,7 @@
                 let priceClass  = isSelected ? 'text-pink-600'    : 'text-green-600';
                 let totalAmount = t.totalAmount ? parseFloat(t.totalAmount) : 0;
                 
+                // โต๊ะไม่ว่าง ทำงานเหมือนเดิม (ดึงข้อมูลใส่ตะกร้า)
                 cardHTML = `
                 <div onclick="selectTable('${tId}')" 
                      class="bg-white border-2 ${borderClass} rounded-xl p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition min-h-[7rem]">
@@ -162,6 +289,103 @@
             }
             grid.innerHTML += cardHTML;
         });
+    }
+
+    // ==========================================
+    // 🪑 ฟังก์ชันควบคุมการเปิดโต๊ะ (Modal Logic)
+    // ==========================================
+    let targetOpenTableId = null;
+
+    function openTableModal(tableId, tableName) {
+        targetOpenTableId = tableId;
+        document.getElementById('modalTableName').innerText = tableName;
+        document.getElementById('openTableModal').classList.remove('hidden');
+        
+        // Reset ค่าให้เป็นเริ่มต้น
+        setOrderMode('buffet');
+        setPaymentMode('postpaid');
+        document.getElementById('adultCount').innerText = '1';
+        document.getElementById('childCount').innerText = '0';
+        document.getElementById('seniorCount').innerText = '0';
+        document.getElementById('timeCount').innerText = '90';
+    }
+
+    function closeTableModal() {
+        document.getElementById('openTableModal').classList.add('hidden');
+        targetOpenTableId = null;
+    }
+
+    function setOrderMode(mode) {
+        const btnBuffet = document.getElementById('btnModeBuffet');
+        const btnAla = document.getElementById('btnModeAalacarte');
+        const pkgSec = document.getElementById('buffetPackageSection');
+        const timeSec = document.getElementById('timeLimitSection');
+
+        if(mode === 'buffet') {
+            btnBuffet.className = "py-3 px-4 rounded-2xl border-2 border-pink-500 bg-pink-50 text-pink-600 font-bold transition flex items-center justify-center gap-2 shadow-sm";
+            btnAla.className = "py-3 px-4 rounded-2xl border-2 border-gray-200 bg-white text-gray-500 font-bold transition hover:bg-gray-50 flex items-center justify-center gap-2";
+            pkgSec.classList.remove('hidden');
+            timeSec.classList.remove('hidden');
+        } else {
+            btnAla.className = "py-3 px-4 rounded-2xl border-2 border-pink-500 bg-pink-50 text-pink-600 font-bold transition flex items-center justify-center gap-2 shadow-sm";
+            btnBuffet.className = "py-3 px-4 rounded-2xl border-2 border-gray-200 bg-white text-gray-500 font-bold transition hover:bg-gray-50 flex items-center justify-center gap-2";
+            pkgSec.classList.add('hidden'); // ซ่อนแพ็กเกจ
+            timeSec.classList.add('hidden'); // ซ่อนเวลาจำกัด
+        }
+    }
+
+    function setPaymentMode(mode) {
+        const btnPost = document.getElementById('btnPayPostpaid');
+        const btnPre = document.getElementById('btnPayPrepaid');
+
+        if(mode === 'postpaid') {
+            btnPost.className = "w-full py-2.5 rounded-xl border-2 border-pink-500 bg-white text-gray-800 font-bold text-sm shadow-sm transition flex items-center justify-center gap-2 mb-2";
+            btnPre.className = "w-full py-2.5 rounded-xl border border-gray-200 bg-white text-gray-500 font-bold text-sm shadow-sm transition hover:bg-gray-50 flex items-center justify-center gap-2";
+        } else {
+            btnPre.className = "w-full py-2.5 rounded-xl border-2 border-pink-500 bg-white text-gray-800 font-bold text-sm shadow-sm transition flex items-center justify-center gap-2";
+            btnPost.className = "w-full py-2.5 rounded-xl border border-gray-200 bg-white text-gray-500 font-bold text-sm shadow-sm transition hover:bg-gray-50 flex items-center justify-center gap-2 mb-2";
+        }
+    }
+
+    function updateCount(elementId, change) {
+        let el = document.getElementById(elementId);
+        let current = parseInt(el.innerText);
+        let minVal = (elementId === 'adultCount' || elementId === 'timeCount') ? 1 : 0;
+        
+        let newVal = current + change;
+        if(newVal >= minVal) {
+            el.innerText = newVal;
+        }
+    }
+
+    // กดปุ่มยืนยันเปิดโต๊ะ
+    function confirmOpenTable() {
+        if(!targetOpenTableId) return;
+
+        // รวบรวมข้อมูลทั้งหมดในหน้าต่าง
+        const orderData = {
+            tableId: targetOpenTableId,
+            mode: document.getElementById('buffetPackageSection').classList.contains('hidden') ? 'alacarte' : 'buffet',
+            packageId: document.getElementById('buffetPackageSelect').value,
+            adults: parseInt(document.getElementById('adultCount').innerText),
+            children: parseInt(document.getElementById('childCount').innerText),
+            seniors: parseInt(document.getElementById('seniorCount').innerText),
+            timeLimit: parseInt(document.getElementById('timeCount').innerText),
+            payment: document.getElementById('btnPayPrepaid').classList.contains('border-pink-500') ? 'prepaid' : 'postpaid'
+        };
+
+        console.log("ส่งข้อมูลเปิดโต๊ะ:", orderData);
+        alert("ส่งคำสั่งเปิดโต๊ะ: " + targetOpenTableId + " เรียบร้อย!");
+        
+        // 🔴 เมื่อคุณสร้างฟังก์ชันหลังบ้านเสร็จ ให้เรียกใช้ API ตรงนี้ครับ
+        /* 
+        callBackend('openNewTableGS', [orderData], function(res) {
+            closeTableModal();
+            loadTablesRealtime();
+        }); 
+        */
+
+        closeTableModal();
     }
 
     function selectTable(tableId) {
