@@ -260,11 +260,19 @@ function renderKitchenCards() {
         if (buffer.trim()) rawItems.push(buffer.trim());
 
         const groupedItems = {};
-        rawItems.forEach(itemStr => {
+     rawItems.forEach(itemStr => {
             let qtyMatch = itemStr.match(/\(x(\d+)\)/);
             let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
             let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
             let mainName = baseName.replace(/\[.*?\]/g, "").trim();
+
+            // --- 📢 แทรกโค้ดตัวกรองตรงนี้ครับ ---
+            if (mainName.includes("(ผู้ใหญ่)") || 
+                mainName.includes("(เด็ก)") || 
+                mainName.includes("(เปิดโต๊ะฟรี)")) {
+                return; // ถ้าเจอชื่อเหล่านี้ ให้ข้ามการแสดงผลไปเลย
+            }
+            
             if (!groupedItems[mainName]) groupedItems[mainName] = { name: mainName, qty: 0 };
             groupedItems[mainName].qty += qty;
         });
@@ -439,7 +447,7 @@ function speakOrderReady(order) {
     let text = "";
     
     // แยกตรรกะการพูดตามประเภทออเดอร์
-    if (order.orderType === "ทานที่ร้าน") {
+    if (order.orderType === "โต๊ะ") {
         text = `ออเดอร์ โต๊ะที่ ${order.tableNo} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
     } 
     else if (order.orderType === "กลับบ้าน") {
