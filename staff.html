@@ -913,7 +913,7 @@ function setPaymentWorkflow(isPrepaid) {
         btnNow.className = "py-2 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
     }
 }
-// ฟังก์ชันยืนยันเปิดโต๊ะ
+// ฟังก์ชันยืนยันเปิดโต๊ะ (อัปเดต: ส่งยอดเข้าแคชเชียร์อัตโนมัติ)
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
@@ -935,6 +935,7 @@ function submitTableOpen() {
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
+    // 1. บันทึกการเปิดโต๊ะลงฐานข้อมูล (Tables)
     google.script.run.withSuccessHandler((updatedTables) => {
         document.getElementById('openTableModeModal').classList.add('hidden');
         btn.innerText = originalText;
@@ -942,30 +943,57 @@ function submitTableOpen() {
         
         globalTablesList = updatedTables; 
         
-        cart = []; // ล้างตะกร้าก่อน
+        // ล้างตะกร้าให้ว่าง (ไม่ต้องให้พนักงานกดย้ำส่งเองแล้ว)
+        cart = []; 
+        updateCartBadge(); 
+
         if (currentTableMode === 'Buffet' && selectedPackage) {
             let pAdult = window.tempAdultPrice || 0;
             let pChild = window.tempChildPrice || 0;
             
-            // แตกรายการลงตะกร้าตามราคาจริง
-            if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่) [${timeLimit} นาที]`, price: pAdult, qty: adult });
-            if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก) [${timeLimit} นาที]`, price: pChild, qty: kid });
-            if (freeCount > 0) cart.push({ name: `${selectedPackage} (ทานฟรี) [${timeLimit} นาที]`, price: 0, qty: freeCount });
+            // 🌟 2. รวบรวมค่าหัวเพื่อเตรียมส่งให้แคชเชียร์อัตโนมัติ
+            let initialItems = [];
+            let initialTotal = 0;
+
+            if (adult > 0) {
+                let amt = pAdult * adult;
+                initialItems.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
+                initialTotal += amt;
+            }
+            if (kid > 0) {
+                let amt = pChild * kid;
+                initialItems.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
+                initialTotal += amt;
+            }
+            if (freeCount > 0) {
+                initialItems.push({ name: `${selectedPackage} (เปิดโต๊ะฟรี)`, price: 0, qty: freeCount });
+            }
+
+            // 🌟 3. ยิงออเดอร์เข้าแคชเชียร์ (QROrders) ทันที!
+            if (initialItems.length > 0) {
+                let orderPayload = { 
+                    table: selectedTable, 
+                    items: initialItems, 
+                    total: initialTotal 
+                };
+
+                google.script.run.withSuccessHandler(function() {
+                    showToast("ส่งราคาแพ็กเกจไปที่แคชเชียร์เรียบร้อย! ✅", "success");
+                    
+                    if (isPrepaidWorkflow) {
+                        setTimeout(() => {
+                            showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
+                        }, 500);
+                    }
+                    enterOrderView(selectedTable);
+                }).submitCustomerOrder(orderPayload);
+            }
             
-            updateCartBadge(); 
-            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
         } else {
             showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
+            enterOrderView(selectedTable);
         }
         
-        if (isPrepaidWorkflow) {
-            setTimeout(() => {
-                showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
-            }, 500);
-        }
-        
-        enterOrderView(selectedTable);
-        // สังเกตว่าส่ง parameter ครบตามที่อัปเดตไว้ล่าสุด (รวม adult, kid, freeCount)
     }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
 }
 
