@@ -442,12 +442,13 @@
         }
     }
 
-    // กดปุ่มยืนยันเปิดโต๊ะ
-// กดปุ่มยืนยันเปิดโต๊ะ
+// ==========================================
+    // 1. อัปเดตฟังก์ชันยืนยันเปิดโต๊ะ
+    // ==========================================
     function confirmOpenTable() {
         if(!targetOpenTableId) return;
 
-        // รวบรวมข้อมูลทั้งหมดในหน้าต่าง
+        const tableName = document.getElementById('modalTableName').innerText;
         const orderData = {
             tableId: targetOpenTableId,
             mode: document.getElementById('buffetPackageSection').classList.contains('hidden') ? 'alacarte' : 'buffet',
@@ -459,24 +460,15 @@
             payment: document.getElementById('btnPayPrepaid').classList.contains('border-pink-500') ? 'prepaid' : 'postpaid'
         };
 
-        // แสดงข้อมูลใน Console (สำหรับการตรวจสอบของนักพัฒนา)
         console.log("ส่งข้อมูลเปิดโต๊ะ:", orderData);
         
-        // ==========================================
-        // ❌ เอา alert() ที่เด้งเตือนออกแล้ว
-        // ==========================================
+        // 🎯 [เพิ่มใหม่] ตั้งค่าให้ระบบรู้ว่าตอนนี้กำลังทำงานกับโต๊ะไหนอยู่
+        currentSelectedTableId = targetOpenTableId; 
 
-        // 🔴 เมื่อฟังก์ชันหลังบ้าน (Google Script) ของคุณพร้อม ให้เอาเครื่องหมาย /* */ ออกเพื่อใช้งาน
-        /* 
-        document.getElementById('cartItems').innerHTML = `<div class="h-full flex items-center justify-center text-pink-500 animate-pulse font-bold">กำลังส่งคำสั่งเปิดโต๊ะ...</div>`;
-        callBackend('openNewTableGS', [orderData], function(res) {
-            closeTableModal();
-            loadTablesRealtime(); // สั่งรีเฟรชหน้าจอโต๊ะอัตโนมัติ
-        }); 
-        */
-
-        // ปิดหน้าต่าง Modal ทันทีแบบเนียนๆ (ถ้าต่อ API แล้ว ให้ย้ายบรรทัดนี้ไปไว้ใน callBackend ด้านบนครับ)
         closeTableModal();
+        
+        // สั่งเปิดหน้าเมนูอาหารทันที
+        openMenuForTable(targetOpenTableId, tableName);
     }
 
     function selectTable(tableId) {
@@ -599,21 +591,40 @@
     });
 
 // ==========================================
-    // 🔄 ควบคุมการสลับหน้าจอ (อัปเดต)
+    // 2. อัปเดตฟังก์ชันควบคุมการสลับหน้าจอ
     // ==========================================
     function openMenuForTable(tableId, tableName) {
-        document.getElementById('tableGrid').classList.add('hidden');
-        document.getElementById('menuModeContainer').classList.remove('hidden');
+        // 🎯 [เพิ่มใหม่] ล็อกเป้าหมายโต๊ะให้ตะกร้า
+        currentSelectedTableId = tableId;
+
+        // สลับหน้าจอ (ซ่อนผังโต๊ะ -> โชว์หน้าเมนู)
+        const tableGrid = document.getElementById('tableGrid');
+        const menuContainer = document.getElementById('menuModeContainer');
+        
+        if(tableGrid) tableGrid.classList.add('hidden');
+        if(menuContainer) menuContainer.classList.remove('hidden');
+        
+        // สลับปุ่มด้านล่างตะกร้า
         document.getElementById('btnCheckout').classList.add('hidden'); 
         document.getElementById('btnSaveOrder').classList.remove('hidden'); 
         document.getElementById('saveBtnTableName').innerText = tableName;
         
-        draftNewItems = []; // เคลียร์ของใหม่ทุกครั้งที่เปิดโต๊ะ
+        // เคลียร์ของใหม่ที่เคยจิ้มค้างไว้
+        draftNewItems = []; 
         renderMenuUI(allProducts); // วาดเมนู
         
-        // อัปเดตตะกร้า
+        // 🎯 [เพิ่มใหม่] วาดตะกร้า (ถ้าเป็นโต๊ะใหม่เพิ่งเปิด ให้สร้างข้อมูลจำลองไปก่อน)
         let selected = allTablesData.find(t => t.id === tableId || t.name === tableId);
-        if(selected) renderCartUI(selected);
+        if(!selected) {
+            selected = { 
+                id: tableId, 
+                name: tableName, 
+                customerName: tableName, 
+                totalAmount: 0, 
+                items: [] 
+            };
+        }
+        renderCartUI(selected);
     }
 // ==========================================
     // 🛒 ระบบตะกร้า และ Draft Order
