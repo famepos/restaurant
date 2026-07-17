@@ -80,6 +80,24 @@
     </style>
 </head>
   <body class="pb-24">
+
+    <!-- LOGIN SCREEN -->
+<div id="loginScreen" class="fixed inset-0 bg-[#fccfed] z-[9999] flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
+        <!-- Logo -->
+        <img src="https://i.postimg.cc/3Nvvc8FR/cc34d0ff-c8c1-4920-bcf7-701793b9dac3.png" class="w-20 h-20 mx-auto mb-6 rounded-full shadow-lg">
+        <h2 class="text-2xl font-black text-pink-700 mb-2">Staff Login</h2>
+        <p class="text-gray-400 text-sm mb-6">เข้าสู่ระบบเพื่อเริ่มทำงาน</p>
+        
+        <input type="text" id="username" placeholder="ชื่อผู้ใช้ หรือ เบอร์โทร" class="w-full p-4 mb-3 border-2 border-pink-100 rounded-2xl focus:border-pink-500 outline-none transition">
+        <input type="password" id="password" placeholder="รหัสผ่าน" class="w-full p-4 mb-6 border-2 border-pink-100 rounded-2xl focus:border-pink-500 outline-none transition">
+        
+        <button id="btnLogin" onclick="doLogin()" class="w-full bg-pink-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition hover:bg-pink-700">
+            เข้าสู่ระบบ 🚀
+        </button>
+    </div>
+</div>
+
     <!-- 🟢 กล่องรับการแจ้งเตือน (Toast Container) แบบเดียวกับ Cashier -->
     <div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none w-80"></div>
 
@@ -303,15 +321,7 @@
     </div>
 </div>
 
-<!-- MODAL สำหรับพิมพ์ใบเสร็จโอนเงิน -->
-<div id="printReceiptModal" class="hidden fixed inset-0 bg-white z-[200] p-6 flex flex-col items-center">
-    <h2 class="text-2xl font-black text-pink-600 mb-4">ใบเสร็จรับเงิน</h2>
-    <div id="receiptContent" class="w-full max-w-sm border-2 border-dashed border-gray-400 p-4 mb-4">
-        <!-- ข้อมูลบิลจะถูกใส่ที่นี่ -->
-    </div>
-    <button onclick="window.print()" class="w-full bg-pink-600 text-white py-3 rounded-xl font-bold">พิมพ์ใบเสร็จ</button>
-    <button onclick="closePrintModal()" class="mt-2 text-gray-400 underline">ปิดหน้าต่าง</button>
-</div>
+
 
 
 
@@ -681,7 +691,8 @@ function sendToKitchen() {
             price: item.price,
             qty: item.qty
         })), 
-        total: totalAmount 
+        total: totalAmount ,
+        staffName: currentStaffName
     };
 
     let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
@@ -1106,45 +1117,32 @@ function printTableSlip() {
     }
 }
 
-function confirmPayment(method) {
-    if(!confirm("ยืนยันการชำระเงินด้วย " + method + " ?")) return;
+let currentStaffName = ""; // ตัวแปรเก็บชื่อพนักงานที่ล็อกอินอยู่
 
-    google.script.run.withSuccessHandler(function(response) {
-        if (response.action === "PRINT_RECEIPT") {
-            showToast("ปิดโต๊ะเรียบร้อย!", "success");
-            // เรียกฟังก์ชันเตรียมพิมพ์ใบเสร็จที่นี่
-            prepareReceiptForPrint(currentReceiptTable);
-        } else if (response.action === "NOTIFY_CASHIER") {
-            Swal.fire({
-                title: 'รอดำเนินการ',
-                text: 'แจ้งแคชเชียร์แล้ว กรุณานำเงินสดไปส่งที่จุดแคชเชียร์ครับ',
-                icon: 'info',
-                confirmButtonColor: '#db2777'
-            });
-            document.getElementById('receiptModal').classList.add('hidden');
-            goBackToTables();
+function doLogin() {
+    let u = document.getElementById('username').value;
+    let p = document.getElementById('password').value;
+    let btn = document.getElementById('btnLogin');
+    
+    if(!u || !p) {
+        showToast("กรุณากรอกข้อมูลให้ครบครับ", "error");
+        return;
+    }
+
+    btn.innerText = "กำลังตรวจสอบ... ⏳";
+    btn.disabled = true;
+
+    google.script.run.withSuccessHandler(function(res) {
+        if(res.status === "Success") {
+            currentStaffName = res.name; // เก็บชื่อพนักงานไว้
+            document.getElementById('loginScreen').classList.add('hidden'); // ซ่อนหน้า Login
+            showToast("ยินดีต้อนรับคุณ " + res.name, "success");
+        } else {
+            btn.innerText = "เข้าสู่ระบบ 🚀";
+            btn.disabled = false;
+            showToast("ชื่อหรือรหัสผ่านไม่ถูกต้อง", "error");
         }
-    }).closeTableGS(currentReceiptTable, method);
-}
-
-function prepareReceiptForPrint(tableName) {
-    // ดึงข้อมูลบิลมาแสดงใน Modal พิมพ์
-    google.script.run.withSuccessHandler(function(data) {
-        let html = `<div class="text-center font-bold">บิลโต๊ะ: ${tableName}</div><br>`;
-        data.items.forEach(item => {
-            html += `<div class="flex justify-between"><span>${item.name} x${item.qty}</span><span>${item.total}</span></div>`;
-        });
-        html += `<hr class="my-2"><div class="flex justify-between font-bold"><span>รวมสุทธิ</span><span>${data.total}</span></div>`;
-        
-        document.getElementById('receiptContent').innerHTML = html;
-        document.getElementById('printReceiptModal').classList.remove('hidden');
-    }).getTableTotalGS(tableName);
-}
-
-function closePrintModal() {
-    document.getElementById('printReceiptModal').classList.add('hidden');
-    goBackToTables();
-    loadTableSelector();
+    }).checkLoginGS(u, p);
 }
 </script>
 </body>
