@@ -322,7 +322,22 @@
     </div>
 </div>
 
+<!-- ปรับโครงสร้าง Modal ให้ดึง receiptContent มาใส่ข้างใน -->
+<div id="receiptModal" class="hidden fixed inset-0 bg-white z-[50] overflow-y-auto">
+    <!-- ส่วนควบคุมด้านบน -->
+    <div class="p-4 flex justify-between items-center border-b sticky top-0 bg-white z-50">
+        <button onclick="document.getElementById('receiptModal').classList.add('hidden')" class="px-5 py-2 bg-gray-200 rounded-xl font-bold">← กลับ</button>
+        <h2 class="font-bold text-xl">ตัวอย่างใบเสร็จ</h2>
+        <button onclick="window.print()" class="px-5 py-2 bg-pink-600 text-white rounded-xl font-bold">🖨️ พิมพ์</button>
+    </div>
 
+    <!-- 🟢 นำ receiptContent มาวางตรงนี้เลย เพื่อให้หน้าจอเหมือนใบพิมพ์ 100% -->
+    <div class="flex justify-center p-4">
+        <div id="receiptContent" class="receipt-slip slip-80mm flex flex-col">
+            <!-- ข้อมูลใบเสร็จทั้งหมดจะมาแสดงตรงนี้ -->
+        </div>
+    </div>
+</div>
 
 
 
@@ -1138,24 +1153,27 @@ function doLogin() {
 
 // 1. เปิดหน้าต่างใบเสร็จ
 function openReceipt(tableName) {
-    document.getElementById('tableOrdersModal').classList.add('hidden'); // ปิดหน้ารายการ
-    let modal = document.getElementById('receiptModal');
-    let container = document.getElementById('receiptItemsContainer');
-    document.getElementById('receiptTableName').innerText = "โต๊ะ: " + tableName;
+    document.getElementById('tableOrdersModal').classList.add('hidden');
     
-    // ดึงข้อมูลยอดรวมจาก Function เดิมของคุณ
+    // ดึงยอดและข้อมูลบิล
     google.script.run.withSuccessHandler(function(data) {
-        let html = '';
+        // เติมข้อมูลเข้า ID ใน receiptContent โดยตรง
+        document.getElementById('slipOrderId').innerText = "รอระบบรันเลข..."; // หรือเลข OrderId
+        document.getElementById('slipGrandTotal').innerText = "฿" + parseFloat(data.total).toLocaleString(undefined, {minimumFractionDigits: 2});
+        
+        // วนลูปวาดรายการสินค้าลงใน slipItems (ใช้โครงสร้างเดียวกับที่พิมพ์)
+        let itemsHtml = "";
         data.items.forEach(item => {
             if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) return;
-            html += `<div class="flex justify-between text-sm font-bold text-gray-700 py-1">
-                        <span>${item.name} x${item.qty}</span>
-                        <span>฿${(parseFloat(item.price) * item.qty).toFixed(2)}</span>
-                     </div>`;
+            itemsHtml += `<div class="flex justify-between text-xs py-1">
+                            <span>${item.name} x${item.qty}</span>
+                            <span>${(parseFloat(item.price) * item.qty).toFixed(2)}</span>
+                          </div>`;
         });
-        container.innerHTML = html;
-        document.getElementById('receiptTotal').innerText = "฿" + data.total.toLocaleString(undefined, {minimumFractionDigits: 2});
-        modal.classList.remove('hidden');
+        document.getElementById('slipItems').innerHTML = itemsHtml;
+        
+        // แสดง Modal
+        document.getElementById('receiptModal').classList.remove('hidden');
     }).getTableTotalGS(tableName);
 }
 
