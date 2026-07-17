@@ -949,26 +949,24 @@ google.script.run.withSuccessHandler((updatedTables) => {
     
     globalTablesList = updatedTables; 
     
-    if (currentTableMode === 'Buffet' && selectedPackage) {
-        let pAdult = window.tempAdultPrice || 0;
-        let pChild = window.tempChildPrice || 0;
-        
-        // 1. สร้างรายการแพ็กเกจ
-        let packageItems = [];
-        if (adult > 0) packageItems.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
-        if (kid > 0) packageItems.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
-        if (freeCount > 0) packageItems.push({ name: `${selectedPackage} (ทานฟรี)`, price: 0, qty: freeCount });
-        
-        // 2. เรียกฟังก์ชันส่งอัตโนมัติ
-        autoRegisterPackage(packageItems);
-        
-        // 3. ไม่ต้องเอาแพ็กเกจใส่ cart หลัก (เพื่อป้องกันคนกดซ้ำ) 
-        // หรือถ้าอยากให้โชว์ในตะกร้า ก็เอาใส่ cart ได้ แต่ต้องระวังเรื่องการส่งซ้ำ
-        cart = []; 
-        updateCartBadge();
-        
-        showToast("เปิดโต๊ะบุฟเฟต์แล้ว! ระบบบันทึกแพ็กเกจเรียบร้อย", "success");
-    } else {
+// ตรงนี้คือส่วนที่คุณแก้ไขใน submitTableOpen
+if (currentTableMode === 'Buffet' && selectedPackage) {
+    let pAdult = window.tempAdultPrice || 0;
+    let pChild = window.tempChildPrice || 0;
+    
+    let packageItems = [];
+    if (adult > 0) packageItems.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
+    if (kid > 0) packageItems.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
+    if (freeCount > 0) packageItems.push({ name: `${selectedPackage} (ทานฟรี)`, price: 0, qty: freeCount });
+    
+    // 🟢 แก้บรรทัดนี้: ส่ง selectedTable เข้าไปคู่กับ packageItems
+    autoRegisterPackage(selectedTable, packageItems); 
+    
+    cart = []; 
+    updateCartBadge();
+    
+    showToast("เปิดโต๊ะบุฟเฟต์แล้ว!", "success");
+} else {
         cart = [];
         showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
     }
@@ -1173,16 +1171,16 @@ function confirmPayment(method) {
     }).closeTableGS(currentTable, method);
 }
 // ฟังก์ชันส่งเฉพาะแพ็กเกจ (Auto-register)
-function autoRegisterPackage(packageItems) {
+// แก้จากเดิม
+function autoRegisterPackage(tableName, packageItems) { // 👈 เพิ่ม tableName ตรงนี้
     let total = packageItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
     
     let orderPayload = { 
-        table: currentTable, 
+        table: tableName, // 👈 ใช้ชื่อโต๊ะที่ส่งมา (อย่าใช้ currentTable เพื่อความชัวร์)
         items: packageItems, 
         total: total,
         staffName: currentStaffName
     };
-
     // ส่งเข้า API ทันที
     fetch(API_URL, {
         method: "POST",
