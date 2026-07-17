@@ -34,7 +34,7 @@
             </div>
             <div class="flex gap-2">
                 <button class="bg-orange-100 text-orange-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">📜 ประวัติ</button>
-                <button class="bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">⏱️ ปิดกะ</button>
+                <!-- เอาปุ่ม ปิดกะ ออกแล้ว -->
             </div>
         </div>
 
@@ -46,15 +46,10 @@
                 <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-medium text-sm transition">🗑️ ล้างบิล</button>
             </div>
             
-            <!-- 🎯 เพิ่มปุ่ม บวกรายการพิเศษ & เรียกคิว ตามภาพ 2 -->
-            <div class="grid grid-cols-2 gap-2">
-                <button class="border-2 border-pink-200 text-pink-600 hover:bg-pink-50 py-2 rounded-lg font-bold text-sm transition flex items-center justify-center gap-1">
-                    <span class="text-lg leading-none">⊕</span> บวกรายการพิเศษ
-                </button>
-                <button class="bg-purple-100 hover:bg-purple-200 text-purple-700 py-2 rounded-lg font-bold text-sm transition flex items-center justify-center gap-1">
-                    📯 เรียกคิว
-                </button>
-            </div>
+            <!-- ปรับให้ บวกรายการพิเศษ กว้างเต็มบรรทัด (เอาปุ่มเรียกคิวออก) -->
+            <button class="w-full border-2 border-pink-200 text-pink-600 hover:bg-pink-50 py-2 rounded-lg font-bold text-sm transition flex items-center justify-center gap-1">
+                <span class="text-lg leading-none">⊕</span> บวกรายการพิเศษ
+            </button>
         </div>
 
         <!-- รูปแบบการบริการ -->
@@ -93,7 +88,6 @@
 
     <!-- ================= โค้ดควบคุมการทำงาน (JavaScript) ================= -->
     <script>
-        // 1. ฐานข้อมูลจำลอง (อัปเดตโครงสร้าง items ให้มี รูป, ราคา, จำนวน)
         const mockTablesData = [
             { id: "T1", name: "โต๊ะนอก 1", status: "ไม่ว่าง", pax: 2, totalAmount: 1478.00, customerName: "", items: [] },
             { id: "T2", name: "โต๊ะนอก 2", status: "ว่าง", pax: 0, totalAmount: 0, customerName: "", items: [] },
@@ -110,7 +104,6 @@
 
         let currentSelectedTableId = null;
 
-        // 2. ฟังก์ชันวาดโต๊ะฝั่งซ้าย
         function renderTables() {
             const grid = document.getElementById('tableGrid');
             grid.innerHTML = ''; 
@@ -147,18 +140,15 @@
             });
         }
 
-        // 3. ฟังก์ชันเมื่อกดเลือกโต๊ะ และวาดรายการอาหารในตะกร้า
         function selectTable(tableId) {
             currentSelectedTableId = tableId;
             renderTables(); 
             
             const selectedTable = mockTablesData.find(t => t.id === tableId);
             
-            // อัปเดต Header ตะกร้า
             document.getElementById('cartTableName').innerHTML = `🪑 โต๊ะ: <span class="text-pink-600">${selectedTable.customerName ? selectedTable.customerName : selectedTable.name}</span>`;
             document.getElementById('cartTotalDisplay').innerText = `฿${selectedTable.totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
-            // วาดรายการอาหารแบบภาพที่ 2
             const cartItemsDiv = document.getElementById('cartItems');
             if (selectedTable.items.length === 0) {
                 cartItemsDiv.innerHTML = `<div class="h-full flex items-center justify-center">ยังไม่มีรายการอาหาร</div>`;
@@ -168,21 +158,15 @@
                     let itemTotal = item.price * item.qty;
                     itemsHTML += `
                     <div class="flex items-center justify-between bg-white border border-gray-100 p-2.5 rounded-2xl shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)]">
-                        
-                        <!-- 1. รูปและชื่อ -->
                         <div class="flex items-center gap-3 w-5/12 overflow-hidden">
                             <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-red-100 shrink-0">
                             <span class="font-bold text-gray-800 text-sm truncate">${item.name}</span>
                         </div>
-                        
-                        <!-- 2. ควบคุมจำนวน -->
                         <div class="flex items-center justify-center gap-2 w-3/12">
                             <button class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold hover:bg-gray-200 transition pb-1">-</button>
                             <span class="font-bold text-pink-600 w-4 text-center text-sm">${item.qty}</span>
                             <button class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold hover:bg-pink-200 transition pb-1">+</button>
                         </div>
-
-                        <!-- 3. ราคาและปุ่มลบ -->
                         <div class="flex items-center justify-end gap-2 w-4/12 pr-1">
                             <span class="font-bold text-pink-600 text-sm whitespace-nowrap">฿${itemTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                             <button class="text-red-400 hover:text-red-600 font-bold ml-1 text-lg leading-none transition">×</button>
@@ -199,10 +183,8 @@
             alert("กำลังทำรายการชำระเงิน...");
         }
 
-        // โหลดข้อมูลอัตโนมัติเมื่อเปิดหน้า
         document.addEventListener("DOMContentLoaded", () => {
             renderTables();
-            // จำลองการกดเลือก "คุณส้ม" ทันทีเพื่อให้เห็นตัวอย่าง
             selectTable("T4");
         });
 
