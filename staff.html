@@ -261,35 +261,62 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // ==========================================
-// ⚙️ ฟังก์ชันดึงและวาดตารางโต๊ะ (เชื่อมต่อกับตะกร้าฝั่งขวา)
+// ⚙️ ฟังก์ชันดึงและวาดตารางโต๊ะ (อัปเดตให้แสดง ยอดรวม, จำนวนคน, ชื่อลูกค้า)
 // ==========================================
 window.loadStaffTables = function() {
     if(typeof google !== 'undefined') {
         google.script.run.withSuccessHandler(function(tables) {
             let html = '';
-            tables.forEach(t => {
-                // คำนวณสีพื้นหลังตามสถานะ
-                let bgColor = (t.status === 'ว่าง' || t.status === '🟢 ว่าง') ? 'bg-white border-emerald-400 hover:border-emerald-500' : 
-                              (t.status === 'ไม่ว่าง' || t.status === '🔴 ไม่ว่าง' || t.status.includes('ไม่ว่าง')) ? 'bg-red-50 border-red-400 hover:border-red-500' : 
-                              t.status === '🟡 เรียกเก็บเงิน' ? 'bg-amber-50 border-amber-400 animate-pulse' :
-                              t.status === '🟡 รอชำระเงินสด' ? 'bg-orange-50 border-orange-400' : 'bg-gray-100 border-gray-400';
-                
-                let textColor = (t.status === 'ว่าง' || t.status === '🟢 ว่าง') ? 'text-emerald-600' : 
-                                (t.status === 'ไม่ว่าง' || t.status === '🔴 ไม่ว่าง' || t.status.includes('ไม่ว่าง')) ? 'text-red-600' : 
-                                t.status === '🟡 เรียกเก็บเงิน' ? 'text-amber-600' :
-                                t.status === '🟡 รอชำระเงินสด' ? 'text-orange-600' : 'text-gray-600';
+            
+            // อ่านค่าโต๊ะที่กำลังเลือกอยู่ฝั่งตะกร้า (ถ้ามี)
+            let activeTable = document.getElementById('inputTableNo') ? document.getElementById('inputTableNo').value : '';
 
-                let displayStatus = (t.status === 'ว่าง' || t.status === '🟢 ว่าง') ? '🟢 ว่าง' : t.status;
+            tables.forEach(t => {
+                // 1. เช็คว่าโต๊ะว่างหรือไม่
+                let isAvailable = (t.status === 'ว่าง' || t.status === '🟢 ว่าง');
                 
-                html += `
-                <div onclick="handleStaffTableClick('${t.name}', '${t.status}')" class="modern-card p-5 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-1 hover:shadow-lg transition-all border-l-8 ${bgColor} rounded-2xl h-32 relative">
-                    <h3 class="font-black text-xl text-gray-800 mb-2 truncate w-full text-center">${t.name}</h3>
-                    <span class="font-bold text-xs px-3 py-1 rounded-lg bg-white/90 shadow-sm ${textColor}">${displayStatus}</span>
-                </div>`;
+                // 2. กำหนดชื่อที่จะแสดง (ถ้ามีชื่อลูกค้าให้แสดงชื่อลูกค้า ถ้าไม่มีให้โชว์ชื่อโต๊ะ)
+                let displayName = t.customerName ? t.customerName : t.name;
+
+                if (isAvailable) {
+                    // 🟥 กรณีโต๊ะว่าง: แสดงแค่ชื่อโต๊ะ กรอบสีเทาใส
+                    html += `
+                    <div onclick="handleStaffTableClick('${t.name}', '${t.status}')" 
+                         class="bg-white border-2 border-transparent rounded-lg p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition min-h-[6rem]">
+                        <span class="font-bold text-gray-600">${t.name}</span>
+                    </div>`;
+                } else {
+                    // 🟩 กรณีโต๊ะมีลูกค้า: เช็คว่าถูกคลิกอยู่หรือไม่ (เพื่อเปลี่ยนสีกรอบ)
+                    let isSelected = (activeTable === t.name);
+                    let borderClass = isSelected ? 'border-pink-500' : 'border-green-500';
+                    let priceClass  = isSelected ? 'text-red-500'    : 'text-green-600';
+                    let bgHover     = isSelected ? ''                : 'hover:bg-green-50';
+
+                    // ไอคอนจำนวนคน (Pax)
+                    let paxSvg = `<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>`;
+                    if(t.pax === 1 || !t.pax) {
+                         paxSvg = `<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`;
+                    }
+
+                    // สร้างหน้าตาโต๊ะที่กำลังทานอยู่ พร้อมยอดเงิน
+                    html += `
+                    <div onclick="handleStaffTableClick('${t.name}', '${t.status}')" 
+                         class="bg-white border-2 ${borderClass} rounded-lg p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer ${bgHover} transition min-h-[6rem] relative">
+                        <span class="font-bold text-gray-800 text-center w-full truncate">${displayName}</span>
+                        <span class="text-gray-500 text-sm mt-1 flex items-center">
+                            ${paxSvg}
+                            ${t.pax || 1}
+                        </span>
+                        <span class="${priceClass} font-semibold mt-2">฿${parseFloat(t.totalAmount || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                    </div>`;
+                }
             });
-            let grid = document.getElementById('staffTableGrid');
+            
+            // นำโค้ด HTML ไปใส่ใน Grid ผังโต๊ะ
+            let grid = document.querySelector('.grid.grid-cols-5.gap-4') || document.getElementById('staffTableGrid');
             if(grid) grid.innerHTML = html;
-        }).getTablesData();
+
+        }).getTablesData(); 
     }
 };
 
