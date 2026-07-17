@@ -5,189 +5,230 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS: Table & Cart Integration</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Prompt', sans-serif; }
-    </style>
 </head>
-<body class="bg-gray-100 h-screen flex overflow-hidden">
+<body class="bg-gray-100 h-screen flex overflow-hidden font-sans">
 
     <!-- ================= ฝั่งซ้าย: แผนผังโต๊ะ ================= -->
     <div class="w-[70%] h-full p-6 flex flex-col">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-xl font-bold text-gray-700">แผนผังโต๊ะ</h1>
-            <button class="bg-white border px-4 py-2 rounded shadow-sm text-sm hover:bg-gray-50 transition">รีเฟรช ↻</button>
+            <button class="bg-white border px-4 py-2 rounded shadow text-sm hover:bg-gray-50">รีเฟรช ↻</button>
         </div>
 
-        <!-- Grid โต๊ะ -->
-        <div id="tableGrid" class="grid grid-cols-5 gap-4 overflow-y-auto pb-10 content-start">
+        <!-- Grid โต๊ะ (ถูกสร้างด้วย JavaScript ด้านล่าง) -->
+        <div id="tableGrid" class="grid grid-cols-5 gap-4 overflow-y-auto pb-10">
             <!-- โต๊ะจะถูกโหลดมาใส่ตรงนี้ -->
         </div>
     </div>
 
     <!-- ================= ฝั่งขวา: ตะกร้าสินค้า ================= -->
     <div class="w-[30%] h-full bg-white border-l shadow-2xl flex flex-col relative">
-        <!-- Header ตะกร้า -->
         <div class="flex items-center justify-between p-4 border-b">
             <div class="flex items-center space-x-2 text-pink-600 font-bold text-lg">
                 <span>🛒 ตะกร้าสินค้า</span>
             </div>
-            <div class="flex gap-2">
-                <button class="bg-orange-100 text-orange-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">📜 ประวัติ</button>
-                <!-- เอาปุ่ม ปิดกะ ออกแล้ว -->
-            </div>
         </div>
 
-        <!-- เมนูจัดการบิล -->
-        <div class="p-4 space-y-3 pb-2">
+        <div class="p-4 space-y-3">
             <div class="grid grid-cols-3 gap-2">
-                <button class="bg-purple-100 hover:bg-purple-200 text-purple-700 py-2 rounded-lg font-medium text-sm transition">⏸️ พักบิล</button>
-                <button class="bg-orange-100 hover:bg-orange-200 text-orange-700 py-2 rounded-lg font-medium text-sm transition">📋 เรียกบิล</button>
-                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-medium text-sm transition">🗑️ ล้างบิล</button>
+                <button class="bg-purple-100 hover:bg-purple-200 text-purple-700 py-2 rounded font-medium text-sm transition">⏸️ พักบิล</button>
+                <button class="bg-orange-100 hover:bg-orange-200 text-orange-700 py-2 rounded font-medium text-sm transition">📋 เรียกบิล</button>
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded font-medium text-sm transition">🗑️ ล้างบิล</button>
             </div>
-            
-            <!-- ปรับให้ บวกรายการพิเศษ กว้างเต็มบรรทัด (เอาปุ่มเรียกคิวออก) -->
-            <button class="w-full border-2 border-pink-200 text-pink-600 hover:bg-pink-50 py-2 rounded-lg font-bold text-sm transition flex items-center justify-center gap-1">
-                <span class="text-lg leading-none">⊕</span> บวกรายการพิเศษ
-            </button>
         </div>
 
-        <!-- รูปแบบการบริการ -->
         <div class="px-4 pb-2">
-            <div class="bg-gray-50 border rounded-xl p-3">
-                <p class="text-xs text-gray-500 mb-2 flex items-center gap-1">📋 รูปแบบการบริการ</p>
+            <div class="bg-gray-50 border rounded-lg p-3">
+                <p class="text-xs text-gray-500 mb-2">รูปแบบการบริการ</p>
                 <div class="grid grid-cols-3 gap-2 mb-3">
-                    <button class="border-2 border-pink-400 text-pink-600 rounded-full py-1.5 text-sm font-bold bg-white shadow-sm flex justify-center items-center gap-1">🍽️ โต๊ะ</button>
-                    <button class="border border-gray-200 text-gray-600 rounded-full py-1.5 text-sm bg-white hover:bg-gray-50 transition flex justify-center items-center gap-1">🛍️ กลับบ้าน</button>
-                    <button class="border border-gray-200 text-gray-600 rounded-full py-1.5 text-sm bg-white hover:bg-gray-50 transition flex justify-center items-center gap-1">🛵 ส่งของ</button>
+                    <button class="border-2 border-pink-400 text-pink-600 rounded-full py-1 text-sm font-bold bg-white">🍽️ โต๊ะ</button>
+                    <button class="border border-gray-200 text-gray-600 rounded-full py-1 text-sm bg-white opacity-50 cursor-not-allowed">🛍️ กลับบ้าน</button>
                 </div>
                 
                 <div class="flex justify-between items-center bg-pink-50 rounded-lg p-2 border border-pink-100">
-                    <span id="cartTableName" class="text-pink-800 font-bold flex items-center gap-2">🪑 โต๊ะ: -</span>
-                    <button class="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded-md text-sm font-medium transition shadow-sm">เปลี่ยนโต๊ะ</button>
+                    <!-- แสดงชื่อโต๊ะที่ถูกเลือก -->
+                    <span id="cartTableName" class="text-pink-800 font-bold">🪑 กรุณาเลือกโต๊ะ</span>
+                    <button class="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded text-sm font-medium transition">เปลี่ยนโต๊ะ</button>
                 </div>
             </div>
         </div>
 
         <!-- พื้นที่แสดงรายการอาหาร -->
-        <div id="cartItems" class="flex-1 overflow-y-auto p-4 flex flex-col text-gray-400 bg-gray-50/50">
-            <div class="h-full flex items-center justify-center">ยังไม่มีรายการอาหาร</div>
+        <div id="cartItems" class="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-center text-gray-400">
+            <p>ยังไม่มีรายการอาหาร</p>
         </div>
 
         <!-- Footer ชำระเงิน -->
         <div class="p-4 border-t mt-auto bg-white">
-            <div class="flex justify-between items-end mb-4 px-2">
-                <span class="text-2xl font-black text-pink-600">รวม</span>
-                <span id="cartTotalDisplay" class="text-3xl font-black text-pink-600">฿0.00</span>
+            <div class="flex justify-between items-end mb-4">
+                <span class="text-xl font-bold text-pink-600">รวม</span>
+                <span id="cartTotalDisplay" class="text-3xl font-bold text-pink-600">฿0.00</span>
             </div>
-            <button onclick="payBill()" class="w-full bg-pink-500 hover:bg-pink-600 active:scale-95 text-white font-bold py-4 rounded-2xl text-xl shadow-lg transition">
+            <button onclick="payBill()" class="w-full bg-pink-500 hover:bg-pink-600 active:scale-95 text-white font-bold py-4 rounded-xl text-xl shadow-lg transition">
                 ชำระเงิน
             </button>
         </div>
     </div>
 
-    <!-- ================= โค้ดควบคุมการทำงาน (JavaScript) ================= -->
-    <script>
-        const mockTablesData = [
-            { id: "T1", name: "โต๊ะนอก 1", status: "ไม่ว่าง", pax: 2, totalAmount: 1478.00, customerName: "", items: [] },
-            { id: "T2", name: "โต๊ะนอก 2", status: "ว่าง", pax: 0, totalAmount: 0, customerName: "", items: [] },
-            { id: "T3", name: "โต๊ะ 3", status: "ว่าง", pax: 0, totalAmount: 0, customerName: "", items: [] },
-            { 
-                id: "T4", name: "โต๊ะ 16", status: "ไม่ว่าง", pax: 1, totalAmount: 236.00, customerName: "คุณส้ม", 
-                items: [
-                    { name: "เนื้อริบอาย", price: 59.00, qty: 2, image: "https://placehold.co/100x100/fee2e2/dc2626?text=Meat" },
-                    { name: "เนื้อเสือร้องไห้", price: 59.00, qty: 1, image: "https://placehold.co/100x100/fee2e2/dc2626?text=Meat" },
-                    { name: "เซี่ยงจี๊", price: 59.00, qty: 1, image: "https://placehold.co/100x100/fee2e2/dc2626?text=Meat" }
-                ] 
-            }
-        ];
+    <!-- ================= โค้ดควบคุมการทำงาน (เชื่อมฐานข้อมูลจริง) ================= -->
+<script>
+    let currentSelectedTableId = null;
+    let autoRefreshTimer = null;
 
-        let currentSelectedTableId = null;
+    // 1. ดึงข้อมูลโต๊ะทั้งหมดจาก Google Sheets
+    function loadTablesRealtime() {
+        if (typeof google === 'undefined') {
+            console.warn("ไม่ได้รันบน Google Apps Script - โหลดข้อมูลไม่ได้");
+            return;
+        }
 
-        function renderTables() {
-            const grid = document.getElementById('tableGrid');
-            grid.innerHTML = ''; 
-
-            mockTablesData.forEach(t => {
-                const isSelected = currentSelectedTableId === t.id;
-                const isAvailable = (t.status === 'ว่าง');
-                const displayName = t.customerName ? t.customerName : t.name;
-
-                let cardHTML = '';
-
-                if (isAvailable) {
-                    cardHTML = `
-                    <div onclick="selectTable('${t.id}')" 
-                         class="bg-white border-2 ${isSelected ? 'border-pink-500' : 'border-transparent'} rounded-xl p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition min-h-[7rem]">
-                        <span class="font-bold text-gray-500">${t.name}</span>
-                    </div>`;
+        google.script.run.withSuccessHandler(function(tablesData) {
+            renderTablesUI(tablesData);
+            
+            // หากมีโต๊ะที่เลือกอยู่ ให้อัปเดตข้อมูลตะกร้าด้วย
+            if (currentSelectedTableId) {
+                let selected = tablesData.find(t => t.id === currentSelectedTableId || t.name === currentSelectedTableId);
+                if (selected) {
+                    renderCartUI(selected);
                 } else {
-                    let borderClass = isSelected ? 'border-pink-500' : 'border-green-400';
-                    let priceClass  = isSelected ? 'text-pink-600'    : 'text-green-600';
-                    
-                    cardHTML = `
-                    <div onclick="selectTable('${t.id}')" 
-                         class="bg-white border-2 ${borderClass} rounded-xl p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition min-h-[7rem]">
-                        <span class="font-bold text-gray-800">${displayName}</span>
-                        <span class="text-gray-400 text-xs mt-1 flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
-                            ${t.pax}
-                        </span>
-                        <span class="${priceClass} font-bold mt-2 text-sm">฿${t.totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
-                    </div>`;
+                    currentSelectedTableId = null; // ถ้าระบบหาโต๊ะไม่เจอแล้ว ให้ล้างค่า
                 }
-                grid.innerHTML += cardHTML;
-            });
-        }
-
-        function selectTable(tableId) {
-            currentSelectedTableId = tableId;
-            renderTables(); 
-            
-            const selectedTable = mockTablesData.find(t => t.id === tableId);
-            
-            document.getElementById('cartTableName').innerHTML = `🪑 โต๊ะ: <span class="text-pink-600">${selectedTable.customerName ? selectedTable.customerName : selectedTable.name}</span>`;
-            document.getElementById('cartTotalDisplay').innerText = `฿${selectedTable.totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-
-            const cartItemsDiv = document.getElementById('cartItems');
-            if (selectedTable.items.length === 0) {
-                cartItemsDiv.innerHTML = `<div class="h-full flex items-center justify-center">ยังไม่มีรายการอาหาร</div>`;
-            } else {
-                let itemsHTML = '<div class="w-full space-y-3">';
-                selectedTable.items.forEach(item => {
-                    let itemTotal = item.price * item.qty;
-                    itemsHTML += `
-                    <div class="flex items-center justify-between bg-white border border-gray-100 p-2.5 rounded-2xl shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)]">
-                        <div class="flex items-center gap-3 w-5/12 overflow-hidden">
-                            <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-red-100 shrink-0">
-                            <span class="font-bold text-gray-800 text-sm truncate">${item.name}</span>
-                        </div>
-                        <div class="flex items-center justify-center gap-2 w-3/12">
-                            <button class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold hover:bg-gray-200 transition pb-1">-</button>
-                            <span class="font-bold text-pink-600 w-4 text-center text-sm">${item.qty}</span>
-                            <button class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold hover:bg-pink-200 transition pb-1">+</button>
-                        </div>
-                        <div class="flex items-center justify-end gap-2 w-4/12 pr-1">
-                            <span class="font-bold text-pink-600 text-sm whitespace-nowrap">฿${itemTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
-                            <button class="text-red-400 hover:text-red-600 font-bold ml-1 text-lg leading-none transition">×</button>
-                        </div>
-                    </div>`;
-                });
-                itemsHTML += '</div>';
-                cartItemsDiv.innerHTML = itemsHTML;
             }
-        }
+        }).getTablesData(); // 👈 เรียกฟังก์ชันในไฟล์ .gs
+    }
 
-        function payBill() {
-            if(!currentSelectedTableId) return alert("กรุณาเลือกโต๊ะก่อนชำระเงิน!");
-            alert("กำลังทำรายการชำระเงิน...");
-        }
+    // 2. วาดหน้าจอแผนผังโต๊ะ
+    function renderTablesUI(tablesData) {
+        const grid = document.getElementById('tableGrid');
+        grid.innerHTML = ''; 
 
-        document.addEventListener("DOMContentLoaded", () => {
-            renderTables();
-            selectTable("T4");
+        tablesData.forEach(t => {
+            const tId = t.id || t.name; // ใช้ ID หรือชื่อโต๊ะเป็น Key
+            const isSelected = currentSelectedTableId === tId;
+            const isAvailable = (t.status === 'ว่าง' || t.status === '🟢 ว่าง');
+            const displayName = t.customerName ? t.customerName : t.name;
+
+            let cardHTML = '';
+
+            if (isAvailable) {
+                cardHTML = `
+                <div onclick="selectTable('${tId}')" 
+                     class="bg-white border-2 ${isSelected ? 'border-pink-500' : 'border-transparent'} rounded-xl p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition min-h-[7rem]">
+                    <span class="font-bold text-gray-500">${t.name}</span>
+                </div>`;
+            } else {
+                let borderClass = isSelected ? 'border-pink-500' : 'border-green-400';
+                let priceClass  = isSelected ? 'text-pink-600'    : 'text-green-600';
+                let totalAmount = t.totalAmount ? parseFloat(t.totalAmount) : 0;
+                
+                cardHTML = `
+                <div onclick="selectTable('${tId}')" 
+                     class="bg-white border-2 ${borderClass} rounded-xl p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition min-h-[7rem]">
+                    <span class="font-bold text-gray-800 truncate w-full text-center">${displayName}</span>
+                    <span class="text-gray-400 text-xs mt-1 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
+                        ${t.pax || 1}
+                    </span>
+                    <span class="${priceClass} font-bold mt-2 text-sm">฿${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                </div>`;
+            }
+            grid.innerHTML += cardHTML;
         });
+    }
 
-    </script>
+    // 3. กดเลือกโต๊ะ
+    function selectTable(tableId) {
+        currentSelectedTableId = tableId;
+        
+        // ขึ้นสถานะกำลังโหลด
+        document.getElementById('cartTableName').innerHTML = `🪑 โต๊ะ: <span class="text-gray-400 animate-pulse">กำลังโหลด...</span>`;
+        document.getElementById('cartItems').innerHTML = `<div class="h-full flex items-center justify-center text-pink-500 animate-pulse font-bold">กำลังดึงข้อมูล...</div>`;
+        
+        loadTablesRealtime(); // ดึงข้อมูลใหม่ทันทีที่กด
+    }
+
+    // 4. วาดตะกร้าสินค้า
+    function renderCartUI(selectedTable) {
+        let totalAmount = selectedTable.totalAmount ? parseFloat(selectedTable.totalAmount) : 0;
+        document.getElementById('cartTableName').innerHTML = `🪑 โต๊ะ: <span class="text-pink-600">${selectedTable.customerName ? selectedTable.customerName : selectedTable.name}</span>`;
+        document.getElementById('cartTotalDisplay').innerText = `฿${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+        const cartItemsDiv = document.getElementById('cartItems');
+        if (!selectedTable.items || selectedTable.items.length === 0) {
+            cartItemsDiv.innerHTML = `<div class="h-full flex items-center justify-center">ยังไม่มีรายการอาหาร</div>`;
+        } else {
+            let itemsHTML = '<div class="w-full space-y-3">';
+            selectedTable.items.forEach(item => {
+                let itemTotal = parseFloat(item.price) * parseInt(item.qty);
+                let itemImage = item.image || "https://placehold.co/100x100/fee2e2/dc2626?text=Food"; // ถ้าระบบไม่มีรูปให้ใช้รูปจำลอง
+                
+                itemsHTML += `
+                <div class="flex items-center justify-between bg-white border border-gray-100 p-2.5 rounded-2xl shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] transition-all hover:border-pink-200">
+                    <div class="flex items-center gap-3 w-5/12 overflow-hidden">
+                        <img src="${itemImage}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-red-100 shrink-0">
+                        <span class="font-bold text-gray-800 text-sm truncate" title="${item.name}">${item.name}</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2 w-3/12">
+                        <button onclick="changeQty('${item.name}', -1)" class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold hover:bg-gray-200 transition pb-1 active:scale-90">-</button>
+                        <span class="font-bold text-pink-600 w-4 text-center text-sm">${item.qty}</span>
+                        <button onclick="changeQty('${item.name}', 1)" class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold hover:bg-pink-200 transition pb-1 active:scale-90">+</button>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 w-4/12 pr-1">
+                        <span class="font-bold text-pink-600 text-sm whitespace-nowrap">฿${itemTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                        <button onclick="deleteItem('${item.name}')" class="text-red-400 hover:text-red-600 font-bold ml-1 text-lg leading-none transition active:scale-90">×</button>
+                    </div>
+                </div>`;
+            });
+            itemsHTML += '</div>';
+            cartItemsDiv.innerHTML = itemsHTML;
+        }
+    }
+
+    // ==========================================
+    // ⚙️ ฟังก์ชัน อัปเดตข้อมูล (บวก/ลบ/ลบรายการ) ส่งไปหา .gs
+    // ==========================================
+    
+    function changeQty(itemName, changeAmt) {
+        if(!currentSelectedTableId) return;
+        
+        // ปิดปุ่มชั่วคราวกันกดรัว
+        document.getElementById('cartItems').style.opacity = '0.5';
+        
+        google.script.run.withSuccessHandler(function(response) {
+            document.getElementById('cartItems').style.opacity = '1';
+            loadTablesRealtime(); // รีเฟรชข้อมูลใหม่
+        }).updateItemQtyGS(currentSelectedTableId, itemName, changeAmt); // 👈 ส่งไปเซฟลง Sheets
+    }
+
+    function deleteItem(itemName) {
+        if(!currentSelectedTableId) return;
+        if(confirm(`ต้องการลบ ${itemName} ออกจากโต๊ะหรือไม่?`)) {
+            document.getElementById('cartItems').style.opacity = '0.5';
+            google.script.run.withSuccessHandler(function(response) {
+                document.getElementById('cartItems').style.opacity = '1';
+                loadTablesRealtime(); 
+            }).deleteItemGS(currentSelectedTableId, itemName); // 👈 ส่งไปลบใน Sheets
+        }
+    }
+
+    function payBill() {
+        if(!currentSelectedTableId) return alert("กรุณาเลือกโต๊ะก่อนชำระเงิน!");
+        // เรียกฟังก์ชันชำระเงินเดิมของคุณได้เลย
+        if(typeof window.renderPaymentButtons === 'function') {
+            // โค้ดเปิด Popup ชำระเงินของคุณ
+        } else {
+            alert("เตรียมเปิดหน้าต่างชำระเงินของโต๊ะ: " + currentSelectedTableId);
+        }
+    }
+
+    // เริ่มทำงานเมื่อเปิดหน้าเว็บ
+    document.addEventListener("DOMContentLoaded", () => {
+        loadTablesRealtime();
+        
+        // 🔄 ระบบ Real-time Polling: สั่งให้อัปเดตข้อมูลอัตโนมัติทุกๆ 4 วินาที
+        autoRefreshTimer = setInterval(loadTablesRealtime, 4000); 
+    });
+
+</script>
 </body>
 </html>
