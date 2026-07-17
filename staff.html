@@ -117,6 +117,216 @@
         </div>
         
     </div>
+    <!-- ============================================================== -->
+<!-- 🛠️ โค้ดแปลงร่างเป็น STAFF APP (รวมหน้าผังโต๊ะ + ตะกร้าสินค้า) 🛠️ -->
+<!-- ============================================================== -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // 1. ซ่อนเมนูด้านซ้ายที่ไม่เกี่ยวข้องกับพนักงาน Staff ออก
+    let hiddenNavs = ['nav-products', 'nav-inventory', 'nav-expiry', 'nav-dashboard', 'nav-expense', 'nav-settings', 'nav-shift', 'nav-cds'];
+    hiddenNavs.forEach(id => {
+        let el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
+
+    // 2. เปลี่ยนชื่อเมนูหลักเป็น "จัดการโต๊ะ"
+    let navSales = document.getElementById('nav-sales');
+    if(navSales) navSales.innerHTML = '<span class="text-xl">🪑</span> <span class="hidden lg:block font-bold">จัดการโต๊ะ (Staff)</span>';
+
+    // 3. 🎯 แปลงโฉมพื้นที่ฝั่งซ้าย (ดึงตารางโต๊ะมาใส่แทนที่ค้นหาสินค้า)
+    let leftPanel = document.querySelector('#salesView .flex-1.p-4') || document.querySelector('#salesView > div.flex-1');
+    if(leftPanel) {
+        // ล้างพื้นที่ฝั่งซ้ายเดิมทิ้ง
+        leftPanel.innerHTML = `
+            <div class="flex justify-between items-center mb-6 bg-white p-5 rounded-3xl shadow-sm border border-pink-100 shrink-0">
+                <div>
+                    <h1 class="text-3xl font-black text-pink-800 flex items-center gap-2">
+                        <span class="text-4xl">🪑</span> จัดการโต๊ะ (Staff Order)
+                    </h1>
+                    <p class="text-gray-500 text-sm mt-1 font-medium">กดเลือกโต๊ะเพื่อเปิดบิล จัดการออเดอร์ หรือเรียกเก็บเงิน</p>
+                </div>
+                <button onclick="loadStaffTables()" class="px-6 py-3 bg-pink-50 text-pink-700 border-2 border-pink-200 font-bold rounded-2xl hover:bg-pink-100 shadow-sm active:scale-95 transition flex items-center gap-2">
+                    🔄 อัปเดตผังโต๊ะ
+                </button>
+            </div>
+            
+            <!-- พื้นที่แสดงผังโต๊ะ -->
+            <div id="staffTableGrid" class="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 content-start pb-10 pr-2">
+                <div class="col-span-full text-center py-12 text-gray-400 font-bold text-lg animate-pulse">⏳ กำลังโหลดข้อมูลโต๊ะ...</div>
+            </div>
+        `;
+    }
+
+    // 4. 🎯 ปรับแต่งพื้นที่ตะกร้าฝั่งขวา (ซ่อนปุ่มกลับบ้าน/ส่งของ)
+    let btnTakeAway = document.getElementById('btnOrderTakeAway');
+    let btnDelivery = document.getElementById('btnOrderDelivery');
+    if(btnTakeAway) btnTakeAway.style.display = 'none';
+    if(btnDelivery) btnDelivery.style.display = 'none';
+
+    // 5. โหลดข้อมูลผังโต๊ะทันที และสั่งให้โหลดใหม่ทุก 10 วินาที
+    setTimeout(loadStaffTables, 500);
+    setInterval(loadStaffTables, 10000);
+
+    // ==========================================
+    // ⚙️ อัปเดต Logic การทำงานของ Staff App
+    // ==========================================
+
+    // ❌ ปิดการส่งออเดอร์เข้าจอครัว (KDS) แบบ 100%
+    window.isKitchenDisplayEnabled = function() { return false; };
+
+    // 💳 กำหนดปุ่มชำระเงินให้เหลือแค่ โอนเงิน และ เงินสด
+    window.renderPaymentButtons = function() {
+        var container = document.getElementById('paymentMethodContainer');
+        if(!container) return;
+        container.innerHTML = `
+            <button onclick="setPaymentType('โอนเงิน')" id="btnโอนเงิน" class="flex-1 min-w-[80px] p-4 rounded-xl border-2 border-pink-500 text-pink-600 font-bold bg-pink-50 transition text-lg shadow-sm">📱 โอนเงิน (ปิดบิล)</button>
+            <button onclick="setPaymentType('เงินสด')" id="btnเงินสด" class="flex-1 min-w-[80px] p-4 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition hover:bg-gray-50 text-lg shadow-sm">💵 เงินสด (แจ้งแคชเชียร์)</button>
+        `;
+        setPaymentType('โอนเงิน'); 
+    };
+
+    // ⚙️ Logic เมื่อพนักงานกดปุ่ม "เงินสด" ให้เปลี่ยนปุ่มยืนยัน
+    window.setPaymentType = function(type) {
+        selectedPayment = type;
+        ['โอนเงิน', 'เงินสด'].forEach(id => {
+            let btn = document.getElementById('btn' + id);
+            if(btn) {
+                btn.className = (id === type) 
+                    ? "flex-1 min-w-[80px] p-4 rounded-xl border-2 border-pink-500 text-pink-600 font-black bg-pink-50 transition shadow-sm text-lg"
+                    : "flex-1 min-w-[80px] p-4 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition hover:bg-gray-50 text-lg";
+            }
+        });
+
+        let cashSec = document.getElementById('cashSection');
+        let numpad = document.getElementById('numpadSection');
+        let btnConfirm = document.getElementById('btnConfirm');
+
+        if(numpad) {
+            numpad.querySelectorAll('button:not(#btnConfirm)').forEach(b => { b.style.opacity = "1"; b.style.pointerEvents = "auto"; });
+        }
+
+        if (type === 'เงินสด') {
+            currentCash = "0"; 
+            if(cashSec) cashSec.classList.add('hidden'); // ซ่อนช่องทอนเงิน
+            if(typeof qrTimerInterval !== 'undefined') clearInterval(qrTimerInterval);
+            let qModal = document.getElementById('qrModal'); if(qModal) qModal.classList.add('hidden');
+
+            // เปลี่ยนปุ่มยืนยัน
+            if(btnConfirm) {
+                btnConfirm.innerHTML = "🛎️ แจ้งแคชเชียร์เก็บเงินสด";
+                btnConfirm.className = "col-span-3 mt-2 p-5 bg-orange-500 text-white rounded-2xl font-black text-xl hover:bg-orange-600 transition shadow-lg active:scale-95";
+                btnConfirm.onclick = requestCashierBill; 
+            }
+            if(numpad) { numpad.style.opacity = "0.3"; numpad.style.pointerEvents = "none"; }
+        } 
+        else if (type === 'โอนเงิน') {
+            currentCash = "0";
+            if(cashSec) cashSec.classList.add('hidden'); 
+            if(typeof openQRModal === 'function') openQRModal();
+            if(numpad) { numpad.style.opacity = "0.3"; numpad.style.pointerEvents = "none"; }
+
+            // คืนค่าปุ่มยืนยัน
+            if(btnConfirm) {
+                btnConfirm.innerHTML = "ยืนยันการโอนเงิน (Enter)";
+                btnConfirm.className = "col-span-3 mt-2 p-5 bg-pink-500 text-white rounded-2xl font-black text-xl hover:bg-pink-600 transition shadow-lg active:scale-95";
+                btnConfirm.onclick = confirmPayment; 
+            }
+        }
+        if(typeof calculateChange === 'function') calculateChange();
+    };
+
+    // 🛎️ ส่งสถานะ "รอชำระเงินสด" ไปให้แคชเชียร์
+    window.requestCashierBill = function() {
+        let tableNo = document.getElementById('inputTableNo').value.trim();
+        if (!tableNo) return showToast("ไม่พบหมายเลขโต๊ะ", "error");
+
+        let btnConfirm = document.getElementById('btnConfirm');
+        if(btnConfirm) { btnConfirm.innerHTML = "⏳ กำลังแจ้งแคชเชียร์..."; btnConfirm.disabled = true; }
+
+        google.script.run.withSuccessHandler(function() {
+            showToast("ส่งสถานะให้แคชเชียร์แล้ว!", "success");
+            document.getElementById('paymentModal').classList.add('hidden');
+            
+            // ล้างหน้าจอ
+            cart = []; if(typeof updateCartUI === 'function') updateCartUI();
+            document.getElementById('inputTableNo').value = '';
+            document.getElementById('displaySelectedTable').innerText = '-';
+            document.getElementById('tableSelectedDisplayContainer').classList.add('hidden');
+            
+            if(btnConfirm) { btnConfirm.disabled = false; }
+            loadStaffTables(); // รีเฟรชผังโต๊ะ
+        }).updateTableStatusGS(tableNo, "🟡 รอชำระเงินสด");
+    };
+});
+
+// ==========================================
+// ⚙️ ฟังก์ชันดึงและวาดตารางโต๊ะ (เชื่อมต่อกับตะกร้าฝั่งขวา)
+// ==========================================
+window.loadStaffTables = function() {
+    if(typeof google !== 'undefined') {
+        google.script.run.withSuccessHandler(function(tables) {
+            let html = '';
+            tables.forEach(t => {
+                // คำนวณสีพื้นหลังตามสถานะ
+                let bgColor = (t.status === 'ว่าง' || t.status === '🟢 ว่าง') ? 'bg-white border-emerald-400 hover:border-emerald-500' : 
+                              (t.status === 'ไม่ว่าง' || t.status === '🔴 ไม่ว่าง' || t.status.includes('ไม่ว่าง')) ? 'bg-red-50 border-red-400 hover:border-red-500' : 
+                              t.status === '🟡 เรียกเก็บเงิน' ? 'bg-amber-50 border-amber-400 animate-pulse' :
+                              t.status === '🟡 รอชำระเงินสด' ? 'bg-orange-50 border-orange-400' : 'bg-gray-100 border-gray-400';
+                
+                let textColor = (t.status === 'ว่าง' || t.status === '🟢 ว่าง') ? 'text-emerald-600' : 
+                                (t.status === 'ไม่ว่าง' || t.status === '🔴 ไม่ว่าง' || t.status.includes('ไม่ว่าง')) ? 'text-red-600' : 
+                                t.status === '🟡 เรียกเก็บเงิน' ? 'text-amber-600' :
+                                t.status === '🟡 รอชำระเงินสด' ? 'text-orange-600' : 'text-gray-600';
+
+                let displayStatus = (t.status === 'ว่าง' || t.status === '🟢 ว่าง') ? '🟢 ว่าง' : t.status;
+                
+                html += `
+                <div onclick="handleStaffTableClick('${t.name}', '${t.status}')" class="modern-card p-5 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-1 hover:shadow-lg transition-all border-l-8 ${bgColor} rounded-2xl h-32 relative">
+                    <h3 class="font-black text-xl text-gray-800 mb-2 truncate w-full text-center">${t.name}</h3>
+                    <span class="font-bold text-xs px-3 py-1 rounded-lg bg-white/90 shadow-sm ${textColor}">${displayStatus}</span>
+                </div>`;
+            });
+            let grid = document.getElementById('staffTableGrid');
+            if(grid) grid.innerHTML = html;
+        }).getTablesData();
+    }
+};
+
+window.handleStaffTableClick = function(tableName, status) {
+    // 1. ตั้งค่าฝั่งตะกร้าสินค้า
+    document.getElementById('inputTableNo').value = tableName;
+    document.getElementById('displaySelectedTable').innerText = tableName;
+    let tBox = document.getElementById('tableSelectedDisplayContainer');
+    if(tBox) { tBox.classList.remove('hidden'); tBox.classList.add('flex'); }
+    if(typeof setOrderType === 'function') setOrderType('DineIn', document.getElementById('btnOrderDineIn'), true);
+
+    // 2. ถ่ายโอนข้อมูล/เปิดการทำงาน
+    if (status === 'ว่าง' || status === '🟢 ว่าง') {
+        cart = []; if(typeof updateCartUI === 'function') updateCartUI();
+        let modeModal = document.getElementById('openTableModeModal');
+        if(modeModal) {
+            document.getElementById('openTableNameDisplay').innerText = tableName;
+            modeModal.classList.remove('hidden');
+        }
+    } else {
+        if(typeof showToast === 'function') showToast("กำลังดึงบิลโต๊ะ " + tableName, "info", true);
+        if(typeof google !== 'undefined') {
+            google.script.run.withSuccessHandler(function(res) {
+                if (res && res.items && res.items.length > 0) {
+                    cart = res.items;
+                    if(typeof updateCartUI === 'function') updateCartUI();
+                    showToast("ดึงข้อมูลสำเร็จ!", "success", true);
+                } else {
+                    cart = [];
+                    if(typeof updateCartUI === 'function') updateCartUI();
+                    showToast("โต๊ะนี้ยังไม่มีการสั่งอาหาร", "warning");
+                }
+            }).getTableTotalGS(tableName);
+        }
+    }
+};
+</script>
 
 </body>
 </html>
