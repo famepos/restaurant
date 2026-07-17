@@ -1100,34 +1100,82 @@ function printTableSlip() {
         qrImgElement.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(menuUrl);
     }
 }
+// ใน staff.html
 function requestBill() {
-    if (!currentTable) return;
-    
-    // ถามยืนยันก่อน
-    Swal.fire({
-        title: 'เรียกเก็บเงินโต๊ะ ' + currentTable + '?',
-        text: "ระบบจะแจ้งเตือนแคชเชียร์ให้เตรียมบิลทันที",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#db2777',
-        cancelButtonColor: '#d1d5db',
-        confirmButtonText: 'ใช่ เรียกเลย!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // ยิงไปที่ Backend (ฟังก์ชัน requestBillGS ใน code.txt)
-            google.script.run.withSuccessHandler(function(res) {
-                if (res === "Success") {
-                    showToast("แจ้งแคชเชียร์แล้วครับ!", "success");
-                    // เปลี่ยนปุ่มเป็นสถานะรอ
-                    let btn = event.target;
-                    btn.innerText = "⏳ รอแคชเชียร์...";
-                    btn.disabled = true;
-                } else {
-                    showToast("ผิดพลาด: " + res, "error");
-                }
-            }).requestBillGS(currentTable);
-        }
-    });
+    // 1. ตรวจสอบว่าเลือกโต๊ะหรือยัง
+    if (!currentTable || currentTable === "ไม่ระบุ") {
+        showToast("กรุณาเลือกโต๊ะก่อนครับ", "error");
+        return;
+    }
+
+    // 2. จัดการ UI ปุ่มทันที (ป้องกันการกดซ้ำ)
+    let btn = document.getElementById('btnCallBill');
+    let originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = "⏳ กำลังแจ้ง...";
+    btn.classList.add("opacity-50");
+
+    // 3. ยิงคำสั่งไปหลังบ้าน (เรียกฟังก์ชัน requestBillGS จาก code.txt)
+    google.script.run
+        .withSuccessHandler(function(res) {
+            if (res === "Success") {
+                // 4. แจ้งเตือนด้วย Toast (ไม่เด้ง Modal)
+                showToast("แจ้งแคชเชียร์แล้วครับ!", "success");
+                
+                // เปลี่ยนปุ่มเป็นสถานะสำเร็จ
+                btn.innerHTML = "✅ เรียกสำเร็จ";
+                
+                // รีเซ็ตปุ่มกลับมาหลังผ่านไป 10 วินาที
+                setTimeout(() => { 
+                    btn.innerHTML = originalText; 
+                    btn.disabled = false; 
+                    btn.classList.remove("opacity-50");
+                }, 10000);
+            } else {
+                showToast("ผิดพลาด: " + res, "error");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.classList.remove("opacity-50");
+            }
+        })
+        .withFailureHandler(function(err) {
+            showToast("การเชื่อมต่อล้มเหลว", "error");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.classList.remove("opacity-50");
+        })
+        .requestBillGS(currentTable); // เรียกใช้ฟังก์ชันจาก code.txt[cite: 2]
+}
+function callForBill() {
+    if (currentTable === "ไม่ระบุ") {
+        showToast("ไม่ทราบหมายเลขโต๊ะ", "error");
+        return;
+    }
+
+    // 1. เปลี่ยนข้อความปุ่มทันทีเพื่อบอกว่ากำลังทำงาน (ไม่ต้องมี Modal)
+    let btn = document.getElementById('btnCallBill'); // แก้ ID ให้ตรงกับปุ่มของคุณ
+    let originalText = btn.innerHTML;
+    btn.innerHTML = "⏳ กำลังเรียก...";
+    btn.disabled = true;
+
+    // 2. ยิงคำสั่งไปหลังบ้าน
+    google.script.run
+        .withSuccessHandler(function(res) {
+            if (res === "Success") {
+                showToast("แจ้งแคชเชียร์เรียบร้อย! 🔔", "success");
+                btn.innerHTML = "✅ เรียกสำเร็จ";
+                // รีเซ็ตปุ่มกลับมาหลังจาก 10 วินาที
+                setTimeout(() => { 
+                    btn.innerHTML = originalText; 
+                    btn.disabled = false; 
+                }, 10000);
+            } else {
+                showToast("ผิดพลาด: " + res, "error");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        })
+        .requestBillGS(currentTable);
 }
 </script>
 </body>
