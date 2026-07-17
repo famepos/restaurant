@@ -71,41 +71,67 @@
     </div>
 
     <!-- ================= โค้ดควบคุมการทำงาน (เชื่อมฐานข้อมูลจริง) ================= -->
+<!-- ================= โค้ดควบคุมการทำงานผ่าน API (SUPER doPost) ================= -->
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
-    
+    // 🔴 นำ URL ของเว็บแอป (ที่ลงท้ายด้วย /exec) มาวางในเครื่องหมายคำพูดด้านล่างนี้
+    const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec"; 
+
     let currentSelectedTableId = null;
     let autoRefreshTimer = null;
 
-    // 1. ดึงข้อมูลโต๊ะทั้งหมดจาก Google Sheets
-    function loadTablesRealtime() {
-        if (typeof google === 'undefined') {
-            console.warn("ไม่ได้รันบน Google Apps Script - โหลดข้อมูลไม่ได้");
-            return;
-        }
+    // ==========================================
+    // 🚀 ฟังก์ชันตัวกลางสำหรับคุยกับ SUPER doPost
+    // ==========================================
+    function callBackend(actionName, argsArray, onSuccessCallback) {
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: actionName, args: argsArray })
+            // หมายเหตุ: ไม่ต้องใส่ Header content-type เพื่อหลีกเลี่ยงปัญหา CORS Preflight
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === "Success") {
+                if(onSuccessCallback) onSuccessCallback(data.result);
+            } else {
+                console.error("Backend Error:", data.message);
+                if(actionName === 'getTablesData') {
+                    document.getElementById('cartItems').innerHTML = `<div class="h-full flex items-center justify-center text-red-500 font-bold">Error: ${data.message}</div>`;
+                }
+            }
+        })
+        .catch(error => {
+            console.error("Network Fetch Error:", error);
+        });
+    }
 
-        google.script.run.withSuccessHandler(function(tablesData) {
+    // ==========================================
+    // ⚙️ ระบบดึงข้อมูลและอัปเดตหน้าจอ (เรียกผ่าน API)
+    // ==========================================
+
+    function loadTablesRealtime() {
+        // ใช้ callBackend เรียกฟังก์ชัน getTablesData ฝั่งหลังบ้าน
+        callBackend('getTablesData', [], function(tablesData) {
             renderTablesUI(tablesData);
             
-            // หากมีโต๊ะที่เลือกอยู่ ให้อัปเดตข้อมูลตะกร้าด้วย
+            // อัปเดตตะกร้าสินค้าถ้ามีโต๊ะถูกเลือกอยู่
             if (currentSelectedTableId) {
                 let selected = tablesData.find(t => t.id === currentSelectedTableId || t.name === currentSelectedTableId);
                 if (selected) {
                     renderCartUI(selected);
                 } else {
-                    currentSelectedTableId = null; // ถ้าระบบหาโต๊ะไม่เจอแล้ว ให้ล้างค่า
+                    currentSelectedTableId = null; 
                 }
             }
-        }).getTablesData(); // 👈 เรียกฟังก์ชันในไฟล์ .gs
+        });
     }
 
-    // 2. วาดหน้าจอแผนผังโต๊ะ
     function renderTablesUI(tablesData) {
         const grid = document.getElementById('tableGrid');
+        if(!grid) return;
         grid.innerHTML = ''; 
 
         tablesData.forEach(t => {
-            const tId = t.id || t.name; // ใช้ ID หรือชื่อโต๊ะเป็น Key
+            const tId = t.id || t.name; 
             const isSelected = currentSelectedTableId === tId;
             const isAvailable = (t.status === 'ว่าง' || t.status === '🟢 ว่าง');
             const displayName = t.customerName ? t.customerName : t.name;
@@ -138,18 +164,13 @@
         });
     }
 
-    // 3. กดเลือกโต๊ะ
     function selectTable(tableId) {
         currentSelectedTableId = tableId;
-        
-        // ขึ้นสถานะกำลังโหลด
         document.getElementById('cartTableName').innerHTML = `🪑 โต๊ะ: <span class="text-gray-400 animate-pulse">กำลังโหลด...</span>`;
         document.getElementById('cartItems').innerHTML = `<div class="h-full flex items-center justify-center text-pink-500 animate-pulse font-bold">กำลังดึงข้อมูล...</div>`;
-        
-        loadTablesRealtime(); // ดึงข้อมูลใหม่ทันทีที่กด
+        loadTablesRealtime(); 
     }
 
-    // 4. วาดตะกร้าสินค้า
     function renderCartUI(selectedTable) {
         let totalAmount = selectedTable.totalAmount ? parseFloat(selectedTable.totalAmount) : 0;
         document.getElementById('cartTableName').innerHTML = `🪑 โต๊ะ: <span class="text-pink-600">${selectedTable.customerName ? selectedTable.customerName : selectedTable.name}</span>`;
@@ -162,7 +183,7 @@
             let itemsHTML = '<div class="w-full space-y-3">';
             selectedTable.items.forEach(item => {
                 let itemTotal = parseFloat(item.price) * parseInt(item.qty);
-                let itemImage = item.image || "https://placehold.co/100x100/fee2e2/dc2626?text=Food"; // ถ้าระบบไม่มีรูปให้ใช้รูปจำลอง
+                let itemImage = item.image || "https://placehold.co/100x100/fee2e2/dc2626?text=Food"; 
                 
                 itemsHTML += `
                 <div class="flex items-center justify-between bg-white border border-gray-100 p-2.5 rounded-2xl shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] transition-all hover:border-pink-200">
@@ -187,47 +208,41 @@
     }
 
     // ==========================================
-    // ⚙️ ฟังก์ชัน อัปเดตข้อมูล (บวก/ลบ/ลบรายการ) ส่งไปหา .gs
+    // ⚙️ ส่งคำสั่งอัปเดตไปหาหลังบ้าน
     // ==========================================
-    
     function changeQty(itemName, changeAmt) {
         if(!currentSelectedTableId) return;
-        
-        // ปิดปุ่มชั่วคราวกันกดรัว
         document.getElementById('cartItems').style.opacity = '0.5';
         
-        google.script.run.withSuccessHandler(function(response) {
+        // ส่งคำสั่งอัปเดตจำนวนไปหา doPost
+        callBackend('updateItemQtyGS', [currentSelectedTableId, itemName, changeAmt], function(response) {
             document.getElementById('cartItems').style.opacity = '1';
-            loadTablesRealtime(); // รีเฟรชข้อมูลใหม่
-        }).updateItemQtyGS(currentSelectedTableId, itemName, changeAmt); // 👈 ส่งไปเซฟลง Sheets
+            loadTablesRealtime(); 
+        });
     }
 
     function deleteItem(itemName) {
         if(!currentSelectedTableId) return;
         if(confirm(`ต้องการลบ ${itemName} ออกจากโต๊ะหรือไม่?`)) {
             document.getElementById('cartItems').style.opacity = '0.5';
-            google.script.run.withSuccessHandler(function(response) {
+            
+            // ส่งคำสั่งลบไปหา doPost
+            callBackend('deleteItemGS', [currentSelectedTableId, itemName], function(response) {
                 document.getElementById('cartItems').style.opacity = '1';
                 loadTablesRealtime(); 
-            }).deleteItemGS(currentSelectedTableId, itemName); // 👈 ส่งไปลบใน Sheets
+            });
         }
     }
 
     function payBill() {
         if(!currentSelectedTableId) return alert("กรุณาเลือกโต๊ะก่อนชำระเงิน!");
-        // เรียกฟังก์ชันชำระเงินเดิมของคุณได้เลย
-        if(typeof window.renderPaymentButtons === 'function') {
-            // โค้ดเปิด Popup ชำระเงินของคุณ
-        } else {
-            alert("เตรียมเปิดหน้าต่างชำระเงินของโต๊ะ: " + currentSelectedTableId);
-        }
+        alert("เตรียมเปิดระบบชำระเงินสำหรับ: " + currentSelectedTableId);
     }
 
-    // เริ่มทำงานเมื่อเปิดหน้าเว็บ
+    // เริ่มทำงาน
     document.addEventListener("DOMContentLoaded", () => {
         loadTablesRealtime();
-        
-        // 🔄 ระบบ Real-time Polling: สั่งให้อัปเดตข้อมูลอัตโนมัติทุกๆ 4 วินาที
+        // อัปเดตข้อมูลอัตโนมัติทุกๆ 4 วินาที
         autoRefreshTimer = setInterval(loadTablesRealtime, 4000); 
     });
 
