@@ -785,67 +785,62 @@ function viewTableOrders() {
     if (!currentTable) return;
 
     document.getElementById('tableOrdersTitle').innerText = "📋 บิล: " + currentTable;
-    document.getElementById('tableOrdersContainer').innerHTML = '<div class="flex flex-col items-center py-10"><span class="text-4xl animate-spin mb-2">⏳</span><span class="text-gray-500 font-bold">กำลังดึงข้อมูล...</span></div>';
+    document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10"><span class="animate-spin text-2xl">⏳</span><br>กำลังดึงข้อมูล...</div>';
     document.getElementById('tableOrdersModal').classList.remove('hidden');
 
+    // 1. เรียกดึงยอดบิล
     google.script.run
-        .withSuccessHandler(function(tables) {
-            let myTable = tables.find(t => t.name === currentTable);
+        .withSuccessHandler(function(data) {
+            console.log("Data received from getTableTotalGS:", data); // 👈 ดูใน Console (F12) ว่า data หน้าตาเป็นยังไง
             
-            google.script.run
-                .withSuccessHandler(function(data) {
-                    let html = '';
-                    let grandTotal = 0;
-                    
-                    // --- รายการในบิลทั้งหมด (ดึงมาจากแคชเชียร์) ---
-                    if (data.items && data.items.length > 0) {
-                        data.items.forEach(item => {
-                            // 🟢 กรองรายการย่อย (ผู้ใหญ่/เด็ก) ออกจากการแสดงผลและไม่นำมาบวกยอดรวม
-                            if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) {
-                                return;
-                            }
+            if (!data || data.error) {
+                document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold">❌ Error: ' + (data ? data.error : "ไม่พบข้อมูล") + '</div>';
+                return;
+            }
 
-                            let itemTotal = parseFloat(item.price) * parseInt(item.qty);
-                            grandTotal += itemTotal;
-                            
-                            // ไฮไลต์ถ้าเป็นรายการแพ็กเกจหลัก (ถ้ามี)
-                            let isPkg = (myTable && item.name === myTable.packageName);
-                            let boxClass = isPkg ? "bg-pink-50 border-pink-200" : "bg-gray-50 border-gray-100";
-                            let textClass = isPkg ? "text-pink-800" : "text-gray-800";
-                            let icon = isPkg ? "🥩 " : "";
+            let html = '';
+            let grandTotal = 0;
+            
+            // 2. แสดงรายการ
+            if (data.items && data.items.length > 0) {
+                data.items.forEach(item => {
+                    // กรองข้อมูล (ถ้ามี)
+                    if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) return;
 
-                            html += `
-                            <div class="flex justify-between items-center ${boxClass} p-3 rounded-xl border mb-2">
-                                <div class="flex-1">
-                                    <div class="font-bold ${textClass} text-sm">${icon}${item.name}</div>
-                                    <div class="text-xs text-gray-500">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
-                                </div>
-                                <div class="font-bold text-pink-600">฿${itemTotal.toFixed(2)}</div>
-                            </div>`;
-                        });
-                    } 
+                    let itemTotal = parseFloat(item.price) * parseInt(item.qty);
+                    grandTotal += itemTotal;
                     
-                    if (grandTotal === 0) {
-                        html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการสั่งอาหารครับ 🍽️</div>';
-                    } else {
-                        html += `
-                        <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
-                            <span class="text-lg font-bold text-gray-600">ยอดรวมสุทธิ:</span>
-                            <span class="text-3xl font-black text-pink-600">฿${grandTotal.toFixed(2)}</span>
-                        </div>`;
-                    }
-                    
-                    document.getElementById('tableOrdersContainer').innerHTML = html;
-                })
-                .withFailureHandler(function(err) {
-                    document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold text-sm">❌ โหลดข้อมูลล้มเหลว</div>';
-                })
-                .getTableTotalGS(currentTable);
+                    html += `
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100 mb-2">
+                        <div class="flex-1">
+                            <div class="font-bold text-gray-800 text-sm">${item.name}</div>
+                            <div class="text-xs text-gray-500">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
+                        </div>
+                        <div class="font-bold text-pink-600">฿${itemTotal.toFixed(2)}</div>
+                    </div>`;
+                });
+            } else {
+                html = '<div class="text-center py-10 text-gray-400 font-bold">ยังไม่มีรายการสั่งอาหารครับ</div>';
+            }
+            
+            // 3. ใส่ยอดรวม
+            html += `
+            <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
+                <span class="text-lg font-bold text-gray-600">ยอดรวมสุทธิ:</span>
+                <span class="text-3xl font-black text-pink-600">฿${parseFloat(data.total || grandTotal).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            </div>
+            
+            <!-- 🟢 เพิ่มปุ่มเรียกเก็บเงินตรงนี้ -->
+            <button onclick="openReceipt('${currentTable}')" class="w-full mt-4 bg-pink-600 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition">
+                💳 เรียกเก็บเงิน
+            </button>`;
+            
+            document.getElementById('tableOrdersContainer').innerHTML = html;
         })
         .withFailureHandler(function(err) {
-            document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold text-sm">❌ โหลดข้อมูลโต๊ะล้มเหลว</div>';
+            document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold">❌ Error: ' + err + '</div>';
         })
-        .getTablesData();
+        .getTableTotalGS(currentTable);
 }
 // ==========================================
 // 6. ระบบเปิดโต๊ะ Full Option (Buffet / A La Carte)
@@ -1143,6 +1138,41 @@ function doLogin() {
             showToast("ชื่อหรือรหัสผ่านไม่ถูกต้อง", "error");
         }
     }).checkLoginGS(u, p);
+}
+
+// 1. เปิดหน้าต่างใบเสร็จ
+function openReceipt(tableName) {
+    document.getElementById('tableOrdersModal').classList.add('hidden'); // ปิดหน้ารายการ
+    let modal = document.getElementById('receiptModal');
+    let container = document.getElementById('receiptItemsContainer');
+    document.getElementById('receiptTableName').innerText = "โต๊ะ: " + tableName;
+    
+    // ดึงข้อมูลยอดรวมจาก Function เดิมของคุณ
+    google.script.run.withSuccessHandler(function(data) {
+        let html = '';
+        data.items.forEach(item => {
+            if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) return;
+            html += `<div class="flex justify-between text-sm font-bold text-gray-700 py-1">
+                        <span>${item.name} x${item.qty}</span>
+                        <span>฿${(parseFloat(item.price) * item.qty).toFixed(2)}</span>
+                     </div>`;
+        });
+        container.innerHTML = html;
+        document.getElementById('receiptTotal').innerText = "฿" + data.total.toLocaleString(undefined, {minimumFractionDigits: 2});
+        modal.classList.remove('hidden');
+    }).getTableTotalGS(tableName);
+}
+
+// 2. ยืนยันการชำระเงิน
+function confirmPayment(method) {
+    if(!confirm("ยืนยันการชำระเงินด้วย " + method + " สำหรับ " + currentTable + " ?")) return;
+    
+    // ส่งค่าไปปิดโต๊ะ
+    google.script.run.withSuccessHandler(function() {
+        showToast("ชำระเงินสำเร็จ!", "success");
+        document.getElementById('receiptModal').classList.add('hidden');
+        goBackToTables();
+    }).closeTableGS(currentTable, method);
 }
 </script>
 </body>
