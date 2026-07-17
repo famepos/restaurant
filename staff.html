@@ -80,24 +80,6 @@
     </style>
 </head>
   <body class="pb-24">
-
-    <!-- LOGIN SCREEN -->
-<div id="loginScreen" class="fixed inset-0 bg-[#fccfed] z-[9999] flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
-        <!-- Logo -->
-        <img src="https://i.postimg.cc/3Nvvc8FR/cc34d0ff-c8c1-4920-bcf7-701793b9dac3.png" class="w-20 h-20 mx-auto mb-6 rounded-full shadow-lg">
-        <h2 class="text-2xl font-black text-pink-700 mb-2">Staff Login</h2>
-        <p class="text-gray-400 text-sm mb-6">เข้าสู่ระบบเพื่อเริ่มทำงาน</p>
-        
-        <input type="text" id="username" placeholder="ชื่อผู้ใช้ หรือ เบอร์โทร" class="w-full p-4 mb-3 border-2 border-pink-100 rounded-2xl focus:border-pink-500 outline-none transition">
-        <input type="password" id="password" placeholder="รหัสผ่าน" class="w-full p-4 mb-6 border-2 border-pink-100 rounded-2xl focus:border-pink-500 outline-none transition">
-        
-        <button id="btnLogin" onclick="doLogin()" class="w-full bg-pink-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition hover:bg-pink-700">
-            เข้าสู่ระบบ 🚀
-        </button>
-    </div>
-</div>
-
     <!-- 🟢 กล่องรับการแจ้งเตือน (Toast Container) แบบเดียวกับ Cashier -->
     <div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none w-80"></div>
 
@@ -146,16 +128,18 @@
 
 <!-- 4. FOOTER (อัปเดตมีปุ่มดูตะกร้า) -->
     <footer id="orderFooter" class="hidden fixed bottom-0 w-full bg-white border-t p-4 grid grid-cols-2 gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-    <!-- บรรทัดบน -->
-    <button onclick="viewTableOrders()" class="bg-blue-50 text-blue-600 border border-blue-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">📋 บิลโต๊ะนี้</button>
-    <button onclick="clearTable()" class="bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">🗑️ ล้างโต๊ะ (ว่าง)</button>
-    
-    <!-- บรรทัดล่าง -->
-    <button onclick="openCartModal()" class="bg-pink-100 text-pink-700 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition flex justify-center items-center gap-2">
-        🛒 ตะกร้า <span id="cartCountBadge" class="bg-pink-500 text-white px-2 py-0.5 rounded-full text-xs">0</span>
-    </button>
-    <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
-</footer>
+        <!-- บรรทัดบน: จัดการโต๊ะ -->
+        <button onclick="viewTableOrders()" class="bg-blue-50 text-blue-600 border border-blue-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">📋 ดูออเดอร์โต๊ะนี้</button>
+        <button onclick="clearTable()" class="bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">✅ เช็คบิล (ว่าง)</button>
+        <!-- บรรทัดล่าง: จัดการตะกร้า -->
+        <button onclick="openCartModal()" class="bg-pink-100 text-pink-700 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition flex justify-center items-center gap-2">
+            🛒 ดูตะกร้า <span id="cartCountBadge" class="bg-pink-500 text-white px-2 py-0.5 rounded-full text-xs">0</span>
+        </button>
+        <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
+        <button onclick="requestBill()" class="bg-amber-500 text-white py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">
+    🛎️ เรียกเก็บเงิน
+</button>
+    </footer>
 
 <!-- MODAL: เปิดโต๊ะแบบ Full Option -->
 <div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -322,22 +306,7 @@
     </div>
 </div>
 
-<!-- ปรับโครงสร้าง Modal ให้ดึง receiptContent มาใส่ข้างใน -->
-<div id="receiptModal" class="hidden fixed inset-0 bg-white z-[50] overflow-y-auto">
-    <!-- ส่วนควบคุมด้านบน -->
-    <div class="p-4 flex justify-between items-center border-b sticky top-0 bg-white z-50">
-        <button onclick="document.getElementById('receiptModal').classList.add('hidden')" class="px-5 py-2 bg-gray-200 rounded-xl font-bold">← กลับ</button>
-        <h2 class="font-bold text-xl">ตัวอย่างใบเสร็จ</h2>
-        <button onclick="window.print()" class="px-5 py-2 bg-pink-600 text-white rounded-xl font-bold">🖨️ พิมพ์</button>
-    </div>
 
-    <!-- 🟢 นำ receiptContent มาวางตรงนี้เลย เพื่อให้หน้าจอเหมือนใบพิมพ์ 100% -->
-    <div class="flex justify-center p-4">
-        <div id="receiptContent" class="receipt-slip slip-80mm flex flex-col">
-            <!-- ข้อมูลใบเสร็จทั้งหมดจะมาแสดงตรงนี้ -->
-        </div>
-    </div>
-</div>
 
 
 
@@ -707,8 +676,7 @@ function sendToKitchen() {
             price: item.price,
             qty: item.qty
         })), 
-        total: totalAmount ,
-        staffName: currentStaffName
+        total: totalAmount 
     };
 
     let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
@@ -749,24 +717,28 @@ function sendToKitchen() {
 function clearTable() {
     if (!currentTable) return;
 
-    // เพิ่มการยืนยันก่อนล้าง (ป้องกันพนักงานกดผิด)
-    if (!confirm("ยืนยันการล้างโต๊ะ " + currentTable + " ? ข้อมูลออเดอร์จะหายไป")) return;
-
+    // ทำงานทันทีโดยไม่แสดงหน้าต่างยืนยัน
     google.script.run
         .withSuccessHandler(function() {
-            showToast(`โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
             
-            // ล้างตะกร้า, รีเซ็ตชื่อโต๊ะ
+            // 🟢 แจ้งเตือนหลังจากเคลียร์สำเร็จ
+            showToast(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
+            
+            // ล้างตะกร้า
             cart = [];
+            updateCartBadge();
             currentTable = "";
             
-            // ซ่อนหน้าสั่งอาหารและ Modal ทั้งหมด
+            // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
             document.getElementById('orderView').classList.add('hidden');
             document.getElementById('orderFooter').classList.add('hidden');
             document.getElementById('btnBack').classList.add('hidden');
-            document.getElementById('tableOrdersModal').classList.add('hidden'); // ปิดหน้าต่างบิลถ้าเปิดค้างไว้
+            
+            // 🟢 ปิดกล่องป๊อปอัป "ดูบิลโต๊ะนี้"
+            document.getElementById('tableOrdersModal').classList.add('hidden');
             
             // กลับสู่หน้าเลือกโต๊ะ
+            document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
             document.getElementById('tableSelectorView').classList.remove('hidden');
             loadTableSelector(); 
         })
@@ -797,62 +769,67 @@ function viewTableOrders() {
     if (!currentTable) return;
 
     document.getElementById('tableOrdersTitle').innerText = "📋 บิล: " + currentTable;
-    document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10"><span class="animate-spin text-2xl">⏳</span><br>กำลังดึงข้อมูล...</div>';
+    document.getElementById('tableOrdersContainer').innerHTML = '<div class="flex flex-col items-center py-10"><span class="text-4xl animate-spin mb-2">⏳</span><span class="text-gray-500 font-bold">กำลังดึงข้อมูล...</span></div>';
     document.getElementById('tableOrdersModal').classList.remove('hidden');
 
-    // 1. เรียกดึงยอดบิล
     google.script.run
-        .withSuccessHandler(function(data) {
-            console.log("Data received from getTableTotalGS:", data); // 👈 ดูใน Console (F12) ว่า data หน้าตาเป็นยังไง
+        .withSuccessHandler(function(tables) {
+            let myTable = tables.find(t => t.name === currentTable);
             
-            if (!data || data.error) {
-                document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold">❌ Error: ' + (data ? data.error : "ไม่พบข้อมูล") + '</div>';
-                return;
-            }
-
-            let html = '';
-            let grandTotal = 0;
-            
-            // 2. แสดงรายการ
-            if (data.items && data.items.length > 0) {
-                data.items.forEach(item => {
-                    // กรองข้อมูล (ถ้ามี)
-                    if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) return;
-
-                    let itemTotal = parseFloat(item.price) * parseInt(item.qty);
-                    grandTotal += itemTotal;
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    let html = '';
+                    let grandTotal = 0;
                     
-                    html += `
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100 mb-2">
-                        <div class="flex-1">
-                            <div class="font-bold text-gray-800 text-sm">${item.name}</div>
-                            <div class="text-xs text-gray-500">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
-                        </div>
-                        <div class="font-bold text-pink-600">฿${itemTotal.toFixed(2)}</div>
-                    </div>`;
-                });
-            } else {
-                html = '<div class="text-center py-10 text-gray-400 font-bold">ยังไม่มีรายการสั่งอาหารครับ</div>';
-            }
-            
-            // 3. ใส่ยอดรวม
-            html += `
-            <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
-                <span class="text-lg font-bold text-gray-600">ยอดรวมสุทธิ:</span>
-                <span class="text-3xl font-black text-pink-600">฿${parseFloat(data.total || grandTotal).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-            </div>
-            
-            <!-- 🟢 เพิ่มปุ่มเรียกเก็บเงินตรงนี้ -->
-            <button onclick="openReceipt('${currentTable}')" class="w-full mt-4 bg-pink-600 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition">
-                💳 เรียกเก็บเงิน
-            </button>`;
-            
-            document.getElementById('tableOrdersContainer').innerHTML = html;
+                    // --- รายการในบิลทั้งหมด (ดึงมาจากแคชเชียร์) ---
+                    if (data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            // 🟢 กรองรายการย่อย (ผู้ใหญ่/เด็ก) ออกจากการแสดงผลและไม่นำมาบวกยอดรวม
+                            if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) {
+                                return;
+                            }
+
+                            let itemTotal = parseFloat(item.price) * parseInt(item.qty);
+                            grandTotal += itemTotal;
+                            
+                            // ไฮไลต์ถ้าเป็นรายการแพ็กเกจหลัก (ถ้ามี)
+                            let isPkg = (myTable && item.name === myTable.packageName);
+                            let boxClass = isPkg ? "bg-pink-50 border-pink-200" : "bg-gray-50 border-gray-100";
+                            let textClass = isPkg ? "text-pink-800" : "text-gray-800";
+                            let icon = isPkg ? "🥩 " : "";
+
+                            html += `
+                            <div class="flex justify-between items-center ${boxClass} p-3 rounded-xl border mb-2">
+                                <div class="flex-1">
+                                    <div class="font-bold ${textClass} text-sm">${icon}${item.name}</div>
+                                    <div class="text-xs text-gray-500">฿${parseFloat(item.price).toFixed(2)} x ${item.qty}</div>
+                                </div>
+                                <div class="font-bold text-pink-600">฿${itemTotal.toFixed(2)}</div>
+                            </div>`;
+                        });
+                    } 
+                    
+                    if (grandTotal === 0) {
+                        html = '<div class="text-center py-10 text-gray-400 font-bold text-sm">ยังไม่มีรายการสั่งอาหารครับ 🍽️</div>';
+                    } else {
+                        html += `
+                        <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center">
+                            <span class="text-lg font-bold text-gray-600">ยอดรวมสุทธิ:</span>
+                            <span class="text-3xl font-black text-pink-600">฿${grandTotal.toFixed(2)}</span>
+                        </div>`;
+                    }
+                    
+                    document.getElementById('tableOrdersContainer').innerHTML = html;
+                })
+                .withFailureHandler(function(err) {
+                    document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold text-sm">❌ โหลดข้อมูลล้มเหลว</div>';
+                })
+                .getTableTotalGS(currentTable);
         })
         .withFailureHandler(function(err) {
-            document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold">❌ Error: ' + err + '</div>';
+            document.getElementById('tableOrdersContainer').innerHTML = '<div class="text-center py-10 text-red-500 font-bold text-sm">❌ โหลดข้อมูลโต๊ะล้มเหลว</div>';
         })
-        .getTableTotalGS(currentTable);
+        .getTablesData();
 }
 // ==========================================
 // 6. ระบบเปิดโต๊ะ Full Option (Buffet / A La Carte)
@@ -956,37 +933,38 @@ function submitTableOpen() {
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
-    // ปรับปรุงใน submitTableOpen
-google.script.run.withSuccessHandler((updatedTables) => {
-    document.getElementById('openTableModeModal').classList.add('hidden');
-    btn.innerText = originalText;
-    btn.disabled = false;
-    
-    globalTablesList = updatedTables; 
-    
-// ตรงนี้คือส่วนที่คุณแก้ไขใน submitTableOpen
-if (currentTableMode === 'Buffet' && selectedPackage) {
-    let pAdult = window.tempAdultPrice || 0;
-    let pChild = window.tempChildPrice || 0;
-    
-    let packageItems = [];
-    if (adult > 0) packageItems.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
-    if (kid > 0) packageItems.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
-    if (freeCount > 0) packageItems.push({ name: `${selectedPackage} (ทานฟรี)`, price: 0, qty: freeCount });
-    
-    // 🟢 แก้บรรทัดนี้: ส่ง selectedTable เข้าไปคู่กับ packageItems
-    autoRegisterPackage(selectedTable, packageItems); 
-    
-    cart = []; 
-    updateCartBadge();
-    
-    showToast("เปิดโต๊ะบุฟเฟต์แล้ว!", "success");
-} else {
-        cart = [];
-        showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
-    }
-enterOrderView(selectedTable);
-}).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
+    google.script.run.withSuccessHandler((updatedTables) => {
+        document.getElementById('openTableModeModal').classList.add('hidden');
+        btn.innerText = originalText;
+        btn.disabled = false;
+        
+        globalTablesList = updatedTables; 
+        
+        cart = []; // ล้างตะกร้าก่อน
+        if (currentTableMode === 'Buffet' && selectedPackage) {
+            let pAdult = window.tempAdultPrice || 0;
+            let pChild = window.tempChildPrice || 0;
+            
+            // แตกรายการลงตะกร้าตามราคาจริง
+            if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่) [${timeLimit} นาที]`, price: pAdult, qty: adult });
+            if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก) [${timeLimit} นาที]`, price: pChild, qty: kid });
+            if (freeCount > 0) cart.push({ name: `${selectedPackage} (ทานฟรี) [${timeLimit} นาที]`, price: 0, qty: freeCount });
+            
+            updateCartBadge(); 
+            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
+        } else {
+            showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
+        }
+        
+        if (isPrepaidWorkflow) {
+            setTimeout(() => {
+                showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
+            }, 500);
+        }
+        
+        enterOrderView(selectedTable);
+        // สังเกตว่าส่ง parameter ครบตามที่อัปเดตไว้ล่าสุด (รวม adult, kid, freeCount)
+    }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
 }
 
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
@@ -1122,92 +1100,32 @@ function printTableSlip() {
         qrImgElement.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(menuUrl);
     }
 }
-
-let currentStaffName = ""; // ตัวแปรเก็บชื่อพนักงานที่ล็อกอินอยู่
-
-function doLogin() {
-    let u = document.getElementById('username').value;
-    let p = document.getElementById('password').value;
-    let btn = document.getElementById('btnLogin');
+function requestBill() {
+    if (!currentTable) return;
     
-    if(!u || !p) {
-        showToast("กรุณากรอกข้อมูลให้ครบครับ", "error");
-        return;
-    }
-
-    btn.innerText = "กำลังตรวจสอบ... ⏳";
-    btn.disabled = true;
-
-    google.script.run.withSuccessHandler(function(res) {
-        if(res.status === "Success") {
-            currentStaffName = res.name; // เก็บชื่อพนักงานไว้
-            document.getElementById('loginScreen').classList.add('hidden'); // ซ่อนหน้า Login
-            showToast("ยินดีต้อนรับคุณ " + res.name, "success");
-        } else {
-            btn.innerText = "เข้าสู่ระบบ 🚀";
-            btn.disabled = false;
-            showToast("ชื่อหรือรหัสผ่านไม่ถูกต้อง", "error");
-        }
-    }).checkLoginGS(u, p);
-}
-
-// 1. เปิดหน้าต่างใบเสร็จ
-function openReceipt(tableName) {
-    document.getElementById('tableOrdersModal').classList.add('hidden');
-    
-    // ดึงยอดและข้อมูลบิล
-    google.script.run.withSuccessHandler(function(data) {
-        // เติมข้อมูลเข้า ID ใน receiptContent โดยตรง
-        document.getElementById('slipOrderId').innerText = "รอระบบรันเลข..."; // หรือเลข OrderId
-        document.getElementById('slipGrandTotal').innerText = "฿" + parseFloat(data.total).toLocaleString(undefined, {minimumFractionDigits: 2});
-        
-        // วนลูปวาดรายการสินค้าลงใน slipItems (ใช้โครงสร้างเดียวกับที่พิมพ์)
-        let itemsHtml = "";
-        data.items.forEach(item => {
-            if (item.name.includes("(ผู้ใหญ่)") || item.name.includes("(เด็ก)")) return;
-            itemsHtml += `<div class="flex justify-between text-xs py-1">
-                            <span>${item.name} x${item.qty}</span>
-                            <span>${(parseFloat(item.price) * item.qty).toFixed(2)}</span>
-                          </div>`;
-        });
-        document.getElementById('slipItems').innerHTML = itemsHtml;
-        
-        // แสดง Modal
-        document.getElementById('receiptModal').classList.remove('hidden');
-    }).getTableTotalGS(tableName);
-}
-
-// 2. ยืนยันการชำระเงิน
-function confirmPayment(method) {
-    if(!confirm("ยืนยันการชำระเงินด้วย " + method + " สำหรับ " + currentTable + " ?")) return;
-    
-    // ส่งค่าไปปิดโต๊ะ
-    google.script.run.withSuccessHandler(function() {
-        showToast("ชำระเงินสำเร็จ!", "success");
-        document.getElementById('receiptModal').classList.add('hidden');
-        goBackToTables();
-    }).closeTableGS(currentTable, method);
-}
-// ฟังก์ชันส่งเฉพาะแพ็กเกจ (Auto-register)
-// แก้จากเดิม
-function autoRegisterPackage(tableName, packageItems) { // 👈 เพิ่ม tableName ตรงนี้
-    let total = packageItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    
-    let orderPayload = { 
-        table: tableName, // 👈 ใช้ชื่อโต๊ะที่ส่งมา (อย่าใช้ currentTable เพื่อความชัวร์)
-        items: packageItems, 
-        total: total,
-        staffName: currentStaffName
-    };
-    // ส่งเข้า API ทันที
-    fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "submitCustomerOrder", args: [orderPayload] }),
-        redirect: "follow"
-    }).then(res => res.json()).then(data => {
-        if(data.status === "Success") {
-            console.log("แพ็กเกจถูกบันทึกเรียบร้อย");
+    // ถามยืนยันก่อน
+    Swal.fire({
+        title: 'เรียกเก็บเงินโต๊ะ ' + currentTable + '?',
+        text: "ระบบจะแจ้งเตือนแคชเชียร์ให้เตรียมบิลทันที",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#db2777',
+        cancelButtonColor: '#d1d5db',
+        confirmButtonText: 'ใช่ เรียกเลย!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ยิงไปที่ Backend (ฟังก์ชัน requestBillGS ใน code.txt)
+            google.script.run.withSuccessHandler(function(res) {
+                if (res === "Success") {
+                    showToast("แจ้งแคชเชียร์แล้วครับ!", "success");
+                    // เปลี่ยนปุ่มเป็นสถานะรอ
+                    let btn = event.target;
+                    btn.innerText = "⏳ รอแคชเชียร์...";
+                    btn.disabled = true;
+                } else {
+                    showToast("ผิดพลาด: " + res, "error");
+                }
+            }).requestBillGS(currentTable);
         }
     });
 }
