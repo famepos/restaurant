@@ -972,9 +972,9 @@ google.script.run.withSuccessHandler((updatedTables) => {
         cart = [];
         showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
     }
-    
-    enterOrderView(selectedTable);
+enterOrderView(selectedTable);
 }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
+}
 
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
 function updateCartBadge() {
