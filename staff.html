@@ -67,9 +67,38 @@
                 <span class="text-xl font-bold text-pink-600">รวม</span>
                 <span id="cartTotalDisplay" class="text-3xl font-bold text-pink-600">฿0.00</span>
             </div>
-            <button onclick="payBill()" class="w-full bg-pink-500 hover:bg-pink-600 active:scale-95 text-white font-bold py-4 rounded-xl text-xl shadow-lg transition">
-                ชำระเงิน
+          <!-- ================= ปุ่มกดด้านล่างตะกร้า (เปลี่ยนอัตโนมัติตามสถานะ) ================= -->
+    <div id="cartActionButtons" class="mt-4 flex flex-col gap-2">
+        <!-- ปุ่มที่ 1: บันทึกออเดอร์เข้าครัว (สเตปที่ 4 ของเรา) -->
+        <button id="btnSaveOrder" onclick="saveOrderToTable()" class="hidden w-full bg-pink-600 hover:bg-pink-700 active:scale-95 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md transition flex items-center justify-center gap-2">
+            📝 บันทึกไปที่: <span id="saveBtnTableName" class="text-white">...</span>
+        </button>
+
+        <!-- ปุ่มที่ 2: ชำระเงิน/ปิดโต๊ะ (สเตปที่ 6-7 ของเรา) -->
+        <button id="btnCheckout" onclick="processCheckout()" class="w-full bg-green-500 hover:bg-green-600 active:scale-95 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md transition flex items-center justify-center gap-2">
+            💳 ชำระเงิน / ปิดโต๊ะ
+        </button>
+    </div>
+        </div>
+    </div>
+
+    <!-- ================= 🍔 หน้าต่างรายการอาหาร (ซ่อนไว้ก่อน จะโชว์ตอนเลือกโต๊ะ) ================= -->
+    <div id="menuModeContainer" class="hidden flex-col h-full animate-[scaleIn_0.2s_ease-out]">
+        <!-- แถบด้านบน: ปุ่มย้อนกลับ และ ค้นหา -->
+        <div class="flex justify-between items-center mb-4 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+            <button onclick="backToTables()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded-xl flex items-center gap-2 transition active:scale-95">
+                ◀ กลับไปผังโต๊ะ
             </button>
+            <h2 class="text-xl font-black text-gray-800">รายการอาหาร</h2>
+            <div class="w-1/3">
+                <input type="text" placeholder="🔍 ค้นหาเมนู..." class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 px-4 rounded-xl focus:outline-none focus:border-pink-400 focus:bg-white transition">
+            </div>
+        </div>
+
+        <!-- พื้นที่แสดงเมนูอาหาร -->
+        <div id="menuGrid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pb-4">
+            <!-- (รายการอาหารจะถูกดึงมาแสดงตรงนี้ด้วย Javascript ภายหลัง) -->
+            <div class="h-32 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex items-center justify-center text-gray-400 font-bold">กำลังรอเชื่อมต่อเมนู...</div>
         </div>
     </div>
 <!-- ================= 🪑 MODAL เปิดโต๊ะ (ซ่อนไว้เป็นค่าเริ่มต้น) ================= -->
@@ -359,6 +388,7 @@
     }
 
     // กดปุ่มยืนยันเปิดโต๊ะ
+// กดปุ่มยืนยันเปิดโต๊ะ
     function confirmOpenTable() {
         if(!targetOpenTableId) return;
 
@@ -374,17 +404,23 @@
             payment: document.getElementById('btnPayPrepaid').classList.contains('border-pink-500') ? 'prepaid' : 'postpaid'
         };
 
+        // แสดงข้อมูลใน Console (สำหรับการตรวจสอบของนักพัฒนา)
         console.log("ส่งข้อมูลเปิดโต๊ะ:", orderData);
-        alert("ส่งคำสั่งเปิดโต๊ะ: " + targetOpenTableId + " เรียบร้อย!");
         
-        // 🔴 เมื่อคุณสร้างฟังก์ชันหลังบ้านเสร็จ ให้เรียกใช้ API ตรงนี้ครับ
+        // ==========================================
+        // ❌ เอา alert() ที่เด้งเตือนออกแล้ว
+        // ==========================================
+
+        // 🔴 เมื่อฟังก์ชันหลังบ้าน (Google Script) ของคุณพร้อม ให้เอาเครื่องหมาย /* */ ออกเพื่อใช้งาน
         /* 
+        document.getElementById('cartItems').innerHTML = `<div class="h-full flex items-center justify-center text-pink-500 animate-pulse font-bold">กำลังส่งคำสั่งเปิดโต๊ะ...</div>`;
         callBackend('openNewTableGS', [orderData], function(res) {
             closeTableModal();
-            loadTablesRealtime();
+            loadTablesRealtime(); // สั่งรีเฟรชหน้าจอโต๊ะอัตโนมัติ
         }); 
         */
 
+        // ปิดหน้าต่าง Modal ทันทีแบบเนียนๆ (ถ้าต่อ API แล้ว ให้ย้ายบรรทัดนี้ไปไว้ใน callBackend ด้านบนครับ)
         closeTableModal();
     }
 
@@ -470,6 +506,40 @@
         autoRefreshTimer = setInterval(loadTablesRealtime, 4000); 
     });
 
+// ==========================================
+    // 🔄 ระบบสลับหน้าจอ (ผังโต๊ะ <--> เมนูอาหาร)
+    // ==========================================
+
+    // ฟังก์ชันเปิดหน้าเมนูอาหารสำหรับโต๊ะนั้นๆ
+    function openMenuForTable(tableId, tableName) {
+        // 1. ซ่อนผังโต๊ะ โชว์หน้าเมนู
+        document.getElementById('tableGrid').classList.add('hidden');
+        document.getElementById('menuModeContainer').classList.remove('hidden');
+        
+        // 2. จัดการปุ่มฝั่งตะกร้า
+        document.getElementById('btnCheckout').classList.add('hidden'); // ซ่อนปุ่มชำระเงินไว้ก่อนตอนกำลังสั่งอาหาร
+        document.getElementById('btnSaveOrder').classList.remove('hidden'); // โชว์ปุ่มบันทึกเข้าครัว
+        document.getElementById('saveBtnTableName').innerText = tableName;
+        
+        // (เดี๋ยวสเตปหน้า เราจะดึงข้อมูลเมนูอาหารมาใส่ใน menuGrid ตรงนี้ครับ)
+    }
+
+// ฟังก์ชันกดปุ่ม "กลับไปผังโต๊ะ"
+    function backToTables() {
+        // สลับหน้าจอกลับ
+        document.getElementById('tableGrid').classList.remove('hidden');
+        document.getElementById('menuModeContainer').classList.add('hidden');
+        
+        // เคลียร์ตะกร้าและคืนค่าปุ่มชำระเงิน
+        currentSelectedTableId = null;
+        document.getElementById('cartTableName').innerHTML = `🪑 โต๊ะ: <span class="text-gray-400">ยังไม่ได้เลือก</span>`;
+        document.getElementById('cartTotalDisplay').innerText = `฿0.00`;
+        document.getElementById('cartItems').innerHTML = `<div class="h-full flex items-center justify-center text-gray-400 font-bold">คลิกเลือกโต๊ะเพื่อดูหรือสั่งอาหาร</div>`;
+        
+        document.getElementById('btnSaveOrder').classList.add('hidden');
+        document.getElementById('btnCheckout').classList.remove('hidden');
+    }
+    
 </script>
 </body>
 </html>
