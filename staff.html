@@ -303,7 +303,15 @@
     </div>
 </div>
 
-
+<!-- MODAL สำหรับพิมพ์ใบเสร็จโอนเงิน -->
+<div id="printReceiptModal" class="hidden fixed inset-0 bg-white z-[200] p-6 flex flex-col items-center">
+    <h2 class="text-2xl font-black text-pink-600 mb-4">ใบเสร็จรับเงิน</h2>
+    <div id="receiptContent" class="w-full max-w-sm border-2 border-dashed border-gray-400 p-4 mb-4">
+        <!-- ข้อมูลบิลจะถูกใส่ที่นี่ -->
+    </div>
+    <button onclick="window.print()" class="w-full bg-pink-600 text-white py-3 rounded-xl font-bold">พิมพ์ใบเสร็จ</button>
+    <button onclick="closePrintModal()" class="mt-2 text-gray-400 underline">ปิดหน้าต่าง</button>
+</div>
 
 
 
@@ -1096,6 +1104,47 @@ function printTableSlip() {
         let menuUrl = "https://famepos.github.io/restaurant/menu.html?table=" + encodeURIComponent(tableInfo.name);
         qrImgElement.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(menuUrl);
     }
+}
+
+function confirmPayment(method) {
+    if(!confirm("ยืนยันการชำระเงินด้วย " + method + " ?")) return;
+
+    google.script.run.withSuccessHandler(function(response) {
+        if (response.action === "PRINT_RECEIPT") {
+            showToast("ปิดโต๊ะเรียบร้อย!", "success");
+            // เรียกฟังก์ชันเตรียมพิมพ์ใบเสร็จที่นี่
+            prepareReceiptForPrint(currentReceiptTable);
+        } else if (response.action === "NOTIFY_CASHIER") {
+            Swal.fire({
+                title: 'รอดำเนินการ',
+                text: 'แจ้งแคชเชียร์แล้ว กรุณานำเงินสดไปส่งที่จุดแคชเชียร์ครับ',
+                icon: 'info',
+                confirmButtonColor: '#db2777'
+            });
+            document.getElementById('receiptModal').classList.add('hidden');
+            goBackToTables();
+        }
+    }).closeTableGS(currentReceiptTable, method);
+}
+
+function prepareReceiptForPrint(tableName) {
+    // ดึงข้อมูลบิลมาแสดงใน Modal พิมพ์
+    google.script.run.withSuccessHandler(function(data) {
+        let html = `<div class="text-center font-bold">บิลโต๊ะ: ${tableName}</div><br>`;
+        data.items.forEach(item => {
+            html += `<div class="flex justify-between"><span>${item.name} x${item.qty}</span><span>${item.total}</span></div>`;
+        });
+        html += `<hr class="my-2"><div class="flex justify-between font-bold"><span>รวมสุทธิ</span><span>${data.total}</span></div>`;
+        
+        document.getElementById('receiptContent').innerHTML = html;
+        document.getElementById('printReceiptModal').classList.remove('hidden');
+    }).getTableTotalGS(tableName);
+}
+
+function closePrintModal() {
+    document.getElementById('printReceiptModal').classList.add('hidden');
+    goBackToTables();
+    loadTableSelector();
 }
 </script>
 </body>
