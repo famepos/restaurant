@@ -146,15 +146,16 @@
 
 <!-- 4. FOOTER (อัปเดตมีปุ่มดูตะกร้า) -->
     <footer id="orderFooter" class="hidden fixed bottom-0 w-full bg-white border-t p-4 grid grid-cols-2 gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-        <!-- บรรทัดบน: จัดการโต๊ะ -->
-        <button onclick="viewTableOrders()" class="bg-blue-50 text-blue-600 border border-blue-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">📋 ดูออเดอร์โต๊ะนี้</button>
-        <button onclick="clearTable()" class="bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">✅ เช็คบิล (ว่าง)</button>
-        <!-- บรรทัดล่าง: จัดการตะกร้า -->
-        <button onclick="openCartModal()" class="bg-pink-100 text-pink-700 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition flex justify-center items-center gap-2">
-            🛒 ดูตะกร้า <span id="cartCountBadge" class="bg-pink-500 text-white px-2 py-0.5 rounded-full text-xs">0</span>
-        </button>
-        <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
-    </footer>
+    <!-- บรรทัดบน -->
+    <button onclick="viewTableOrders()" class="bg-blue-50 text-blue-600 border border-blue-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">📋 บิลโต๊ะนี้</button>
+    <button onclick="clearTable()" class="bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">🗑️ ล้างโต๊ะ (ว่าง)</button>
+    
+    <!-- บรรทัดล่าง -->
+    <button onclick="openCartModal()" class="bg-pink-100 text-pink-700 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition flex justify-center items-center gap-2">
+        🛒 ตะกร้า <span id="cartCountBadge" class="bg-pink-500 text-white px-2 py-0.5 rounded-full text-xs">0</span>
+    </button>
+    <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
+</footer>
 
 <!-- MODAL: เปิดโต๊ะแบบ Full Option -->
 <div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -733,28 +734,24 @@ function sendToKitchen() {
 function clearTable() {
     if (!currentTable) return;
 
-    // ทำงานทันทีโดยไม่แสดงหน้าต่างยืนยัน
+    // เพิ่มการยืนยันก่อนล้าง (ป้องกันพนักงานกดผิด)
+    if (!confirm("ยืนยันการล้างโต๊ะ " + currentTable + " ? ข้อมูลออเดอร์จะหายไป")) return;
+
     google.script.run
         .withSuccessHandler(function() {
+            showToast(`โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
             
-            // 🟢 แจ้งเตือนหลังจากเคลียร์สำเร็จ
-            showToast(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
-            
-            // ล้างตะกร้า
+            // ล้างตะกร้า, รีเซ็ตชื่อโต๊ะ
             cart = [];
-            updateCartBadge();
             currentTable = "";
             
-            // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
+            // ซ่อนหน้าสั่งอาหารและ Modal ทั้งหมด
             document.getElementById('orderView').classList.add('hidden');
             document.getElementById('orderFooter').classList.add('hidden');
             document.getElementById('btnBack').classList.add('hidden');
-            
-            // 🟢 ปิดกล่องป๊อปอัป "ดูบิลโต๊ะนี้"
-            document.getElementById('tableOrdersModal').classList.add('hidden');
+            document.getElementById('tableOrdersModal').classList.add('hidden'); // ปิดหน้าต่างบิลถ้าเปิดค้างไว้
             
             // กลับสู่หน้าเลือกโต๊ะ
-            document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
             document.getElementById('tableSelectorView').classList.remove('hidden');
             loadTableSelector(); 
         })
@@ -944,39 +941,40 @@ function submitTableOpen() {
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
-    google.script.run.withSuccessHandler((updatedTables) => {
-        document.getElementById('openTableModeModal').classList.add('hidden');
-        btn.innerText = originalText;
-        btn.disabled = false;
+    // ปรับปรุงใน submitTableOpen
+google.script.run.withSuccessHandler((updatedTables) => {
+    document.getElementById('openTableModeModal').classList.add('hidden');
+    btn.innerText = originalText;
+    btn.disabled = false;
+    
+    globalTablesList = updatedTables; 
+    
+    if (currentTableMode === 'Buffet' && selectedPackage) {
+        let pAdult = window.tempAdultPrice || 0;
+        let pChild = window.tempChildPrice || 0;
         
-        globalTablesList = updatedTables; 
+        // 1. สร้างรายการแพ็กเกจ
+        let packageItems = [];
+        if (adult > 0) packageItems.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
+        if (kid > 0) packageItems.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
+        if (freeCount > 0) packageItems.push({ name: `${selectedPackage} (ทานฟรี)`, price: 0, qty: freeCount });
         
-        cart = []; // ล้างตะกร้าก่อน
-        if (currentTableMode === 'Buffet' && selectedPackage) {
-            let pAdult = window.tempAdultPrice || 0;
-            let pChild = window.tempChildPrice || 0;
-            
-            // แตกรายการลงตะกร้าตามราคาจริง
-            if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่) [${timeLimit} นาที]`, price: pAdult, qty: adult });
-            if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก) [${timeLimit} นาที]`, price: pChild, qty: kid });
-            if (freeCount > 0) cart.push({ name: `${selectedPackage} (ทานฟรี) [${timeLimit} นาที]`, price: 0, qty: freeCount });
-            
-            updateCartBadge(); 
-            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
-        } else {
-            showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
-        }
+        // 2. เรียกฟังก์ชันส่งอัตโนมัติ
+        autoRegisterPackage(packageItems);
         
-        if (isPrepaidWorkflow) {
-            setTimeout(() => {
-                showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
-            }, 500);
-        }
+        // 3. ไม่ต้องเอาแพ็กเกจใส่ cart หลัก (เพื่อป้องกันคนกดซ้ำ) 
+        // หรือถ้าอยากให้โชว์ในตะกร้า ก็เอาใส่ cart ได้ แต่ต้องระวังเรื่องการส่งซ้ำ
+        cart = []; 
+        updateCartBadge();
         
-        enterOrderView(selectedTable);
-        // สังเกตว่าส่ง parameter ครบตามที่อัปเดตไว้ล่าสุด (รวม adult, kid, freeCount)
-    }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
-}
+        showToast("เปิดโต๊ะบุฟเฟต์แล้ว! ระบบบันทึกแพ็กเกจเรียบร้อย", "success");
+    } else {
+        cart = [];
+        showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
+    }
+    
+    enterOrderView(selectedTable);
+}).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
 
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
 function updateCartBadge() {
@@ -1173,6 +1171,29 @@ function confirmPayment(method) {
         document.getElementById('receiptModal').classList.add('hidden');
         goBackToTables();
     }).closeTableGS(currentTable, method);
+}
+// ฟังก์ชันส่งเฉพาะแพ็กเกจ (Auto-register)
+function autoRegisterPackage(packageItems) {
+    let total = packageItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    
+    let orderPayload = { 
+        table: currentTable, 
+        items: packageItems, 
+        total: total,
+        staffName: currentStaffName
+    };
+
+    // ส่งเข้า API ทันที
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "submitCustomerOrder", args: [orderPayload] }),
+        redirect: "follow"
+    }).then(res => res.json()).then(data => {
+        if(data.status === "Success") {
+            console.log("แพ็กเกจถูกบันทึกเรียบร้อย");
+        }
+    });
 }
 </script>
 </body>
