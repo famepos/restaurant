@@ -79,226 +79,235 @@
       .bc-price { font-size: 14px; font-weight: bold; margin-top: 2px;}
     </style>
 </head>
-<body class="h-screen flex overflow-hidden bg-gray-50 text-gray-800">
-    <!-- 🟢 กล่องรับการแจ้งเตือน (Toast Container) -->
+  <body class="pb-24">
+    <!-- 🟢 กล่องรับการแจ้งเตือน (Toast Container) แบบเดียวกับ Cashier -->
     <div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none w-80"></div>
 
-    <!-- ================= ฝั่งซ้าย: พื้นที่หลัก (70%) ================= -->
-    <div class="w-[70%] h-full flex flex-col border-r shadow-lg relative bg-gray-50">
-        
-        <!-- HEADER -->
-        <header class="bg-white p-4 sticky top-0 z-50 shadow-sm flex justify-between items-center">
-            <!-- ฝั่งซ้าย: ปุ่มย้อนกลับ + ชื่อหน้า -->
-            <div class="flex items-center gap-3">
-                <button id="btnBack" onclick="goBackToTables()" class="hidden text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 px-4 py-2 rounded-xl transition active:scale-95 shadow-sm font-bold flex items-center gap-2">
-                    ◀ กลับไปผังโต๊ะ
-                </button>
-                <h1 class="font-bold text-pink-600 text-xl">Staff Order</h1>
-            </div>
-
-            <!-- ฝั่งขวา: พิมพ์สลิป + สถานะโต๊ะ -->
-            <div class="flex items-center gap-2">
-                <button onclick="printTableSlip()" class="text-pink-500 hover:bg-pink-100 p-2 rounded-lg transition active:scale-90" title="พิมพ์ใบเปิดโต๊ะ">
-                    🖨️ พิมพ์ใบเปิดโต๊ะ
-                </button>
-                <div id="selectedTableDisplay" class="bg-pink-100 px-4 py-1.5 rounded-full font-bold text-pink-700 text-sm">เลือกโต๊ะ...</div>
-            </div>
-        </header>
-
-        <!-- VIEW 1: หน้าเลือกโต๊ะ -->
-        <div id="tableSelectorView" class="flex-1 p-4 grid grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto pb-10">
-            <!-- โต๊ะจะถูกโหลดมาแสดงที่นี่ -->
-        </div>
-
-        <!-- VIEW 2: หน้าสั่งอาหาร -->
-        <div id="orderView" class="hidden flex-col h-full overflow-hidden">
-            <!-- Category Filter -->
-            <div class="flex overflow-x-auto p-4 gap-2 bg-white border-b">
-                <button class="bg-pink-600 text-white px-6 py-2 rounded-xl font-bold">ทั้งหมด</button>
-                <!-- หมวดหมู่อื่นๆ สามารถเพิ่มตรงนี้ได้ -->
-            </div>
-
-            <!-- Product Grid -->
-            <main id="productGrid" class="flex-1 grid grid-cols-3 lg:grid-cols-4 gap-4 p-4 overflow-y-auto pb-10">
-                <!-- การ์ดสินค้าจะถูกโหลดที่นี่ -->
-            </main>
-        </div>
+<!-- 1. HEADER ที่ปรับปรุงการจัดวางแล้ว -->
+<header class="bg-white p-4 sticky top-0 z-50 shadow-sm flex justify-between items-center">
+    
+    <!-- ฝั่งซ้าย: ปุ่มย้อนกลับ + ชื่อหน้า -->
+    <div class="flex items-center gap-3">
+        <button id="btnBack" onclick="goBackToTables()" class="hidden text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition active:scale-95 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <h1 class="font-bold text-pink-600 text-xl">Staff Order</h1>
     </div>
 
-    <!-- ================= ฝั่งขวา: ตะกร้าสินค้า (30%) ================= -->
-    <div class="w-[30%] h-full bg-white shadow-2xl flex flex-col relative">
-        
-        <!-- ส่วนหัวตะกร้า -->
-        <div class="flex items-center justify-between p-4 border-b">
-            <div class="flex items-center space-x-2 text-pink-600 font-bold text-lg">
-                <span>🛒 ตะกร้า: <span id="cartTableNameDisplay" class="text-gray-800">ยังไม่เลือกโต๊ะ</span></span>
-            </div>
-            <!-- Badge ซ่อนไว้ก่อนเพราะเราเห็นของในตะกร้าชัดเจนแล้ว แต่เก็บไว้ไม่ให้ JS Error -->
-            <span id="cartCountBadge" class="hidden">0</span>
-        </div>
+    <!-- 🟢 ฝั่งขวา: รวมกลุ่ม ปุ่มพิมพ์ และ ชื่อโต๊ะ ไว้ด้วยกัน -->
+    <div class="flex items-center gap-2">
+        <button onclick="printTableSlip()" class="text-pink-500 hover:bg-pink-100 p-1.5 rounded-lg transition active:scale-90" title="พิมพ์ใบเปิดโต๊ะ">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+        </button>
+        <div id="selectedTableDisplay" class="bg-pink-100 px-4 py-1 rounded-full font-bold text-pink-700 text-sm">เลือกโต๊ะ...</div>
+    </div>
+    
+</header>
 
-        <!-- พื้นที่แสดงรายการในตะกร้า -->
-        <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 space-y-2">
-            <div class="h-full flex items-center justify-center text-gray-400 font-bold">ยังไม่ได้เลือกเมนูครับ 🍽️</div>
-        </div>
-
-        <!-- Footer จัดการบิลและตะกร้า -->
-        <div class="p-4 border-t bg-gray-50">
-            <div class="flex justify-between items-end mb-4 border-b-2 border-dashed border-gray-200 pb-3">
-                <span class="text-xl font-bold text-gray-600">ยอดรวม</span>
-                <span id="cartTotalDisplay" class="text-3xl font-black text-pink-600">฿0.00</span>
-            </div>
-
-            <!-- ปุ่มจัดการโต๊ะ -->
-            <div class="grid grid-cols-2 gap-2 mb-3">
-                <button onclick="viewTableOrders()" class="bg-blue-50 text-blue-600 border border-blue-200 py-2.5 rounded-xl font-bold shadow-sm active:scale-95 transition text-sm">📋 บิลโต๊ะนี้</button>
-                <button onclick="clearTable()" class="bg-red-50 text-red-600 border border-red-200 py-2.5 rounded-xl font-bold shadow-sm active:scale-95 transition text-sm">✅ เช็คบิล (ว่าง)</button>
-            </div>
-            
-            <!-- ปุ่มส่งออเดอร์ -->
-            <div class="flex gap-2">
-                <button onclick="clearCart()" class="w-1/3 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-bold text-sm active:scale-95 transition">🗑️ ล้างบิล</button>
-                <button onclick="sendToKitchen()" class="w-2/3 bg-pink-600 hover:bg-pink-700 text-white py-3.5 rounded-xl font-bold text-lg shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
-            </div>
-        </div>
+    <!-- 2. VIEW: หน้าเลือกโต๊ะ (แสดงตอนเริ่มต้น) -->
+    <div id="tableSelectorView" class="p-4 grid grid-cols-3 gap-3">
+        <!-- โต๊ะจะถูกโหลดมาแสดงที่นี่ -->
     </div>
 
-    <!-- ================= MODALS (วางไว้นอก Grid) ================= -->
-    <!-- MODAL: เปิดโต๊ะแบบ Full Option -->
-    <!-- (ใช้โค้ดเดิมของคุณทั้งหมด) -->
-    <div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
-            <!-- Header -->
-            <div class="p-6 pb-2 text-center relative">
-                <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
-                <h2 class="text-2xl font-black text-pink-700">🪑 โต๊ะ: <span id="modalTableNameDisplay">-</span></h2>
-                <p class="text-xs text-gray-400 mt-1">ระบุข้อมูลการเปิดโต๊ะ</p>
-            </div>
-            
-            <div class="p-6 pt-2 overflow-y-auto">
-                <div class="space-y-4">
-                    <!-- 1. เลือกรูปแบบ -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm">🥩 บุฟเฟต์</button>
-                        <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm">🍽️ สั่งแยก</button>
-                    </div>
+    <!-- 3. VIEW: หน้าสั่งอาหาร (ซ่อนไว้ก่อน) -->
+    <div id="orderView" class="hidden">
+        <!-- Category Filter -->
+        <div class="flex overflow-x-auto p-4 gap-2">
+            <button class="bg-pink-600 text-white px-4 py-2 rounded-xl font-bold">ทั้งหมด</button>
+        </div>
 
-                    <!-- 2. แพ็กเกจ -->
-                    <div id="buffetPackageContainer" class="relative">
-                        <button type="button" onclick="document.getElementById('buffetPackageMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-pink-100 rounded-xl bg-white text-left flex justify-between items-center text-sm">
-                            <span id="buffetPackageSelectedText" class="text-pink-700 font-bold">🥩 เลือกแพ็กเกจ...</span>
-                            <span class="text-pink-500 text-xs">▼</span>
-                        </button>
-                        <div id="buffetPackageMenu" class="hidden absolute top-full left-0 mt-1 w-full bg-white border border-pink-100 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto"></div>
-                    </div>
+        <!-- Product Grid -->
+        <main id="productGrid" class="grid grid-cols-2 gap-4 p-4">
+            <!-- การ์ดสินค้า -->
+        </main>
+    </div>
 
-                    <!-- 3. กลุ่มลูกค้า -->
-                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                        <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3 tracking-wider">จำนวนลูกค้า (ท่าน)</h3>
-                        <div class="space-y-2">
-                            <!-- ผู้ใหญ่ -->
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
-                                <div class="flex items-center bg-white border rounded-lg overflow-hidden">
-                                    <button type="button" onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-                                    <input type="number" id="inputAdultCount" value="1" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
-                                    <button type="button" onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-                                </div>
-                            </div>
-                            <!-- เด็ก -->
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-gray-700 text-sm">👦 เด็ก</span>
-                                <div class="flex items-center bg-white border rounded-lg overflow-hidden">
-                                    <button type="button" onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-                                    <input type="number" id="inputKidCount" value="0" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
-                                    <button type="button" onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-                                </div>
-                            </div>
-                            <!-- ฟรี -->
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-gray-700 text-sm">🪑 ฟรี</span>
-                                <div class="flex items-center bg-white border rounded-lg overflow-hidden">
-                                    <button type="button" onclick="adjustHeadCount('free', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
-                                    <input type="number" id="inputFreeCount" value="0" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
-                                    <button type="button" onclick="adjustHeadCount('free', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
-                                </div>
+<!-- 4. FOOTER (อัปเดตมีปุ่มดูตะกร้า) -->
+    <footer id="orderFooter" class="hidden fixed bottom-0 w-full bg-white border-t p-4 grid grid-cols-2 gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <!-- บรรทัดบน: จัดการโต๊ะ -->
+        <button onclick="viewTableOrders()" class="bg-blue-50 text-blue-600 border border-blue-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">📋 ดูออเดอร์โต๊ะนี้</button>
+        <button onclick="clearTable()" class="bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition">✅ เช็คบิล (ว่าง)</button>
+        <!-- บรรทัดล่าง: จัดการตะกร้า -->
+        <button onclick="openCartModal()" class="bg-pink-100 text-pink-700 py-3 rounded-xl font-bold shadow-sm active:scale-95 transition flex justify-center items-center gap-2">
+            🛒 ดูตะกร้า <span id="cartCountBadge" class="bg-pink-500 text-white px-2 py-0.5 rounded-full text-xs">0</span>
+        </button>
+        <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
+    </footer>
+
+<!-- MODAL: เปิดโต๊ะแบบ Full Option -->
+<div id="openTableModeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
+        <!-- Header -->
+        <div class="p-6 pb-2 text-center relative">
+            <button onclick="document.getElementById('openTableModeModal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
+            <h2 class="text-2xl font-black text-pink-700">🪑 โต๊ะ: <span id="modalTableNameDisplay">-</span></h2>
+            <p class="text-xs text-gray-400 mt-1">ระบุข้อมูลการเปิดโต๊ะ</p>
+        </div>
+
+        <div class="p-6 pt-2 overflow-y-auto">
+            <div class="space-y-4">
+                <!-- 1. เลือกรูปแบบ -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="btnModeBuffet" onclick="setTableMode('Buffet')" class="py-3 border-2 border-pink-500 bg-pink-50 text-pink-700 rounded-xl font-bold text-sm">🥩 บุฟเฟต์</button>
+                    <button type="button" id="btnModeAlacarte" onclick="setTableMode('A_la_carte')" class="py-3 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold text-sm">🍽️ สั่งแยก</button>
+                </div>
+
+                <!-- 2. แพ็กเกจ -->
+                <div id="buffetPackageContainer" class="relative">
+                    <button type="button" onclick="document.getElementById('buffetPackageMenu').classList.toggle('hidden')" class="w-full p-3 border-2 border-pink-100 rounded-xl bg-white text-left flex justify-between items-center text-sm">
+                        <span id="buffetPackageSelectedText" class="text-pink-700 font-bold">🥩 เลือกแพ็กเกจ...</span>
+                        <span class="text-pink-500 text-xs">▼</span>
+                    </button>
+                    <div id="buffetPackageMenu" class="hidden absolute top-full left-0 mt-1 w-full bg-white border border-pink-100 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto"></div>
+                </div>
+
+                <!-- 3. กลุ่มลูกค้า (ทำเป็น Card) -->
+                <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3 tracking-wider">จำนวนลูกค้า (ท่าน)</h3>
+                    <div class="space-y-2">
+                        <!-- ผู้ใหญ่ -->
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-gray-700 text-sm">👨 ผู้ใหญ่</span>
+                            <div class="flex items-center bg-white border rounded-lg overflow-hidden">
+                                <button type="button" onclick="adjustHeadCount('adult', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+                                <input type="number" id="inputAdultCount" value="1" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+                                <button type="button" onclick="adjustHeadCount('adult', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- 4. เวลาและชำระเงิน -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div id="timeLimitContainer">
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">เวลา (นาที)</label>
-                            <div class="flex items-center border rounded-xl bg-pink-50 overflow-hidden">
-                                <button onclick="adjustTimeLimit(-10)" class="w-8 py-2 font-bold text-pink-600">-</button>
-                                <input type="number" id="inputTimeLimit" value="90" class="w-full text-center bg-transparent font-bold text-pink-700 outline-none text-sm">
-                                <button onclick="adjustTimeLimit(10)" class="w-8 py-2 font-bold text-pink-600">+</button>
+                        <!-- เด็ก -->
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-gray-700 text-sm">👦 เด็ก</span>
+                            <div class="flex items-center bg-white border rounded-lg overflow-hidden">
+                                <button type="button" onclick="adjustHeadCount('kid', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+                                <input type="number" id="inputKidCount" value="0" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+                                <button type="button" onclick="adjustHeadCount('kid', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">ชำระเงิน</label>
-                            <div class="flex flex-col gap-1">
-                                <button id="btnPayLater" onclick="setPaymentWorkflow(false)" class="py-2 border bg-pink-50 text-pink-700 rounded-lg font-bold text-[10px]">💵 กินก่อนจ่าย</button>
-                                <button id="btnPayNow" onclick="setPaymentWorkflow(true)" class="py-2 border bg-white text-gray-500 rounded-lg font-bold text-[10px]">💳 จ่ายก่อน</button>
+                        <!-- ฟรี -->
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-gray-700 text-sm">🪑 ฟรี</span>
+                            <div class="flex items-center bg-white border rounded-lg overflow-hidden">
+                                <button type="button" onclick="adjustHeadCount('free', -1)" class="w-8 py-1 font-bold text-gray-500">-</button>
+                                <input type="number" id="inputFreeCount" value="0" min="0" class="w-8 text-center font-bold text-pink-700 outline-none">
+                                <button type="button" onclick="adjustHeadCount('free', 1)" class="w-8 py-1 font-bold text-gray-500">+</button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="p-4 border-t">
-                <button onclick="submitTableOpen()" class="w-full py-4 bg-pink-600 text-white rounded-2xl font-bold hover:bg-pink-700 transition active:scale-95 shadow-lg">
-                    🚀 ยืนยันเปิดโต๊ะ
-                </button>
+
+                <!-- 4. เวลาและชำระเงิน -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div id="timeLimitContainer">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">เวลา (นาที)</label>
+                        <div class="flex items-center border rounded-xl bg-pink-50 overflow-hidden">
+                            <button onclick="adjustTimeLimit(-10)" class="w-8 py-2 font-bold text-pink-600">-</button>
+                            <input type="number" id="inputTimeLimit" value="90" class="w-full text-center bg-transparent font-bold text-pink-700 outline-none text-sm">
+                            <button onclick="adjustTimeLimit(10)" class="w-8 py-2 font-bold text-pink-600">+</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">ชำระเงิน</label>
+                        <div class="flex flex-col gap-1">
+                            <button id="btnPayLater" onclick="setPaymentWorkflow(false)" class="py-2 border bg-pink-50 text-pink-700 rounded-lg font-bold text-[10px]">💵 กินก่อนจ่าย</button>
+                            <button id="btnPayNow" onclick="setPaymentWorkflow(true)" class="py-2 border bg-white text-gray-500 rounded-lg font-bold text-[10px]">💳 จ่ายก่อน</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- MODAL: ดูรายการออเดอร์ของโต๊ะ (ใช้โค้ดเดิมของคุณ) -->
+        <!-- Footer Button -->
+        <div class="p-4 border-t">
+            <button onclick="submitTableOpen()" class="w-full py-4 bg-pink-600 text-white rounded-2xl font-bold hover:bg-pink-700 transition active:scale-95 shadow-lg">
+                🚀 ยืนยันเปิดโต๊ะ
+            </button>
+        </div>
+    </div>
+</div>
+
+    <!-- MODAL: ดูรายการออเดอร์ของโต๊ะ -->
     <div id="tableOrdersModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-end sm:items-center justify-center p-4">
         <div class="bg-white p-6 rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[80vh]">
             <div class="flex justify-between items-center border-b pb-3 mb-3">
                 <h3 id="tableOrdersTitle" class="text-xl font-bold text-gray-800">📋 รายการอาหาร</h3>
                 <button onclick="document.getElementById('tableOrdersModal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
             </div>
+            
+            <!-- พื้นที่แสดงรายการอาหาร -->
             <div id="tableOrdersContainer" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[200px]">
                 <p class="text-center py-10 text-gray-400 font-bold">กำลังโหลด...</p>
             </div>
+            
             <button onclick="document.getElementById('tableOrdersModal').classList.add('hidden')" class="w-full mt-4 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-bold text-lg active:scale-95 transition">
                 ปิดหน้าต่าง
             </button>
         </div>
     </div>
 
-    <!-- คอนเทนเนอร์พิมพ์บาร์โค้ด (ซ่อนไว้เสมอ ใช้สำหรับสั่งพิมพ์) -->
-    <div id="tableQRPrintContainer" class="hidden flex-col bg-white p-6 text-black" style="font-family: 'Courier New', monospace; max-width: 300px; margin: auto;">
-        <!-- โค้ดเดิมของคุณทั้งหมด -->
-        <div class="text-center border-b-2 border-black pb-3 mb-3">
-            <h1 class="text-2xl font-black" id="printSlipStoreName">FamePOS Buffet</h1>
-            <p class="text-xs mt-1 font-bold">ใบเปิดโต๊ะ & คิวอาร์สั่งอาหาร</p>
-        </div>
-        <div class="text-sm space-y-1.5 font-bold mb-4">
-            <div class="flex justify-between text-xl font-black bg-black text-white p-1 text-center justify-center rounded-md"><span>หมายเลข: <span id="printSlipTable">-</span></span></div>
-            <div class="flex justify-between pt-2"><span>รูปแบบ:</span><span id="printSlipMode">-</span></div>
-            <div class="flex justify-between"><span>แพ็กเกจ:</span><span id="printSlipPkg">-</span></div>
-            <div class="flex justify-between"><span>จำนวนลูกค้า:</span><span><span id="printSlipHead">-</span> ท่าน</span></div>
-            <div class="flex justify-between border-t border-dashed border-gray-300 pt-2 mt-2"><span>เวลาเริ่มทาน:</span><span id="printSlipStartTime">-</span></div>
-            <div class="flex justify-between text-pink-600"><span>เวลาหมดรอบ:</span><span id="printSlipEndTime">-</span></div>
-        </div>
-        <div class="text-center border-t border-b border-dashed border-black py-4 my-2 flex flex-col items-center">
-            <p class="text-xs font-bold mb-2">📸 สแกนคิวอาร์ด้านล่างเพื่อสั่งอาหาร</p>
-            <img id="printSlipQRImage" src="" class="w-48 h-48 object-contain mx-auto">
-        </div>
-        <div class="text-center text-xs font-bold mt-2 text-gray-500">
-            <p>*** โปรดเก็บสลิปใบนี้ไว้เพื่อสั่งอาหาร ***</p>
-            <p class="mt-1">Powered by FamePOS</p>
+    <!-- MODAL: ดูตะกร้าสินค้าที่เพิ่งกด (ก่อนส่ง) -->
+    <div id="cartModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] flex items-end sm:items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <h3 class="text-xl font-bold text-gray-800">🛒 ตะกร้า: <span id="cartTableNameDisplay"></span></h3>
+                <button onclick="closeCartModal()" class="text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+            </div>
+            
+            <!-- พื้นที่แสดงรายการในตะกร้า -->
+            <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[200px]">
+                <!-- รายการจะโผล่ที่นี่ -->
+            </div>
+            
+            <div class="mt-4 border-t-2 border-dashed border-gray-200 pt-3 flex justify-between items-center mb-4">
+                <span class="text-lg font-bold text-gray-600">ยอดรวมตะกร้านี้:</span>
+                <span id="cartTotalDisplay" class="text-2xl font-black text-pink-600">฿0.00</span>
+            </div>
+
+            <!-- ปุ่มกดยืนยันส่ง หรือ ล้างทิ้ง -->
+            <div class="flex gap-2">
+                <button onclick="clearCart()" class="w-1/3 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-bold text-sm active:scale-95 transition">
+                    🗑️ ล้างทิ้ง
+                </button>
+                <button onclick="sendToKitchen()" class="w-2/3 bg-pink-600 text-white py-3.5 rounded-xl font-bold text-lg shadow-md active:scale-95 transition">
+                    ส่งแคชเชียร์ 🔔
+                </button>
+            </div>
         </div>
     </div>
 
+<!-- คอนเทนเนอร์สำหรับพิมพ์ใบเปิดโต๊ะ -->
+<div id="tableQRPrintContainer" class="hidden flex-col bg-white p-6 text-black" style="font-family: 'Courier New', monospace; max-width: 300px; margin: auto;">
+    <div class="text-center border-b-2 border-black pb-3 mb-3">
+        <h1 class="text-2xl font-black" id="printSlipStoreName">FamePOS Buffet</h1>
+        <p class="text-xs mt-1 font-bold">ใบเปิดโต๊ะ & คิวอาร์สั่งอาหาร</p>
+    </div>
+    <div class="text-sm space-y-1.5 font-bold mb-4">
+        <div class="flex justify-between text-xl font-black bg-black text-white p-1 text-center justify-center rounded-md"><span>หมายเลข: <span id="printSlipTable">-</span></span></div>
+        <div class="flex justify-between pt-2"><span>รูปแบบ:</span><span id="printSlipMode">-</span></div>
+        <div class="flex justify-between"><span>แพ็กเกจ:</span><span id="printSlipPkg">-</span></div>
+        <div class="flex justify-between"><span>จำนวนลูกค้า:</span><span><span id="printSlipHead">-</span> ท่าน</span></div>
+        
+        <div class="flex justify-between border-t border-dashed border-gray-300 pt-2 mt-2"><span>เวลาเริ่มทาน:</span><span id="printSlipStartTime">-</span></div>
+        <div class="flex justify-between text-pink-600"><span>เวลาหมดรอบ:</span><span id="printSlipEndTime">-</span></div>
+    </div>
+    <div class="text-center border-t border-b border-dashed border-black py-4 my-2 flex flex-col items-center">
+        <p class="text-xs font-bold mb-2">📸 สแกนคิวอาร์ด้านล่างเพื่อสั่งอาหาร</p>
+        <img id="printSlipQRImage" src="" class="w-48 h-48 object-contain mx-auto">
+    </div>
+    <div class="text-center text-xs font-bold mt-2 text-gray-500">
+        <p>*** โปรดเก็บสลิปใบนี้ไว้เพื่อสั่งอาหาร ***</p>
+        <p class="mt-1">Powered by FamePOS</p>
+    </div>
+</div>
+
+
+
+
+
 <script>
-// (ใส่สคริปต์เดิมของคุณทั้งหมดที่อยู่ใต้แท็กนี้ลงไปได้เลย)
-// แต่ขอให้คุณเพิ่มคำสั่ง renderCartItems() ลงไปใน 3 ฟังก์ชันนี้ เพื่อให้ตะกร้าอัปเดตแบบเรียลไทม์ครับ!
 // 1. ตัวแปร API (ใส่ลิงก์ของคุณให้ถูกต้อง)
 const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
 
@@ -473,12 +482,6 @@ function confirmOpenTable() {
     google.script.run.withSuccessHandler(() => {
         document.getElementById('openTableModal').classList.add('hidden');
         enterOrderView(selectedTable);
-
-        // 🟢 เพิ่มคำสั่งตรงนี้: เมื่อเปิดโต๊ะเสร็จ ให้แอบกดปุ่ม 🔔 ส่งแคชเชียร์อัตโนมัติ
-        if (typeof cart !== 'undefined' && cart.length > 0) {
-            sendToKitchen();
-        }
-
     }).openTableGS(selectedTable, 'A_la_carte', count, '', '');
 }
 
@@ -496,13 +499,10 @@ function enterOrderView(name) {
         // เมื่อโหลดเสร็จแล้ว ค่อยทำงานส่วนที่เหลือต่อใน Callback
         document.getElementById('tableSelectorView').classList.add('hidden');
         document.getElementById('orderView').classList.remove('hidden'); 
-        document.getElementById('orderView').classList.add('flex');
         document.getElementById('productGrid').classList.remove('hidden');
-        //document.getElementById('orderFooter').classList.remove('hidden');
+        document.getElementById('orderFooter').classList.remove('hidden');
         document.getElementById('btnBack').classList.remove('hidden');
         document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
-        document.getElementById('cartTableNameDisplay').innerText = name;
-      
 
         // 🟢 เช็คว่าโต๊ะที่เข้าเป็นโหมด Buffet หรือไม่
         let myTable = globalTablesList.find(t => t.name === name);
@@ -525,7 +525,6 @@ function enterOrderView(name) {
             isBuffetMode = false;
             buffetIncludedCategories = [];
             renderProductGrid(); // วาดสินค้าด้วยราคาปกติ + สต็อกล่าสุด
-              renderCartItems();
         }
     });
 }
@@ -610,9 +609,6 @@ function addToCart(name, price) {
     
     updateCartBadge();
     
-    // 🟢 เพิ่มบรรทัดนี้ เพื่อสั่งให้ตะกร้าวาดใหม่ทันที
-    renderCartItems(); 
-    
     let btn = document.querySelector(`button[onclick="addToCart('${name}', ${price})"]`);
     if(btn) {
         let oldText = btn.innerText;
@@ -658,6 +654,7 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
+
 // ==========================================
 // ส่งออเดอร์เข้าแคชเชียร์ 
 // ==========================================
@@ -701,13 +698,7 @@ function sendToKitchen() {
             
             cart = [];             
             updateCartBadge();     
-            
-            // 👉 1. ให้ลบ หรือ ใส่ // หน้าบรรทัด closeCartModal() ทิ้งไปเลยครับ
-            // closeCartModal();      
-            
-            // 👉 2. ให้เพิ่มบรรทัดนี้ลงไปแทน เพื่อสั่งล้างตะกร้าทางขวา
-            renderCartItems();     
-            
+            closeCartModal();      
             goBackToTables();      
         } else {
             showToast(data.message, "error");
@@ -723,26 +714,27 @@ function sendToKitchen() {
 function clearTable() {
     if (!currentTable) return;
 
-    // 1. ล้างตะกร้าในฝั่งไคลเอนต์ให้หมดก่อนทันที
-    cart = []; 
-    updateCartBadge();
-    
-    // 2. แจ้งระบบหลังบ้านให้เคลียร์โต๊ะ
+    // ทำงานทันทีโดยไม่แสดงหน้าต่างยืนยัน
     google.script.run
         .withSuccessHandler(function() {
+            
+            // 🟢 แจ้งเตือนหลังจากเคลียร์สำเร็จ
             showToast(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
             
-            // 3. รีเซ็ตตัวแปรสำคัญ
+            // ล้างตะกร้า
+            cart = [];
+            updateCartBadge();
             currentTable = "";
-            isBuffetMode = false; // รีเซ็ตโหมดบุฟเฟต์ด้วย
             
-            // 4. ซ่อนหน้าสั่งอาหาร
+            // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
             document.getElementById('orderView').classList.add('hidden');
-            document.getElementById('orderView').classList.remove('flex');
+            document.getElementById('orderFooter').classList.add('hidden');
             document.getElementById('btnBack').classList.add('hidden');
+            
+            // 🟢 ปิดกล่องป๊อปอัป "ดูบิลโต๊ะนี้"
             document.getElementById('tableOrdersModal').classList.add('hidden');
             
-            // 5. กลับสู่หน้าเลือกโต๊ะ
+            // กลับสู่หน้าเลือกโต๊ะ
             document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
             document.getElementById('tableSelectorView').classList.remove('hidden');
             loadTableSelector(); 
@@ -753,8 +745,7 @@ function clearTable() {
 function goBackToTables() {
     // 1. ซ่อนหน้าสั่งอาหารและ Footer
     document.getElementById('orderView').classList.add('hidden');
-    document.getElementById('orderView').classList.remove('flex');
-    //document.getElementById('orderFooter').classList.add('hidden');
+    document.getElementById('orderFooter').classList.add('hidden');
     
     // 2. ซ่อนปุ่มย้อนกลับ
     document.getElementById('btnBack').classList.add('hidden');
@@ -917,9 +908,7 @@ function setPaymentWorkflow(isPrepaid) {
         btnNow.className = "py-2 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
     }
 }
-// ==========================================
-// ฟังก์ชันยืนยันเปิดโต๊ะ (อัปเดต: ส่งแพ็กเกจเข้าแคชเชียร์อัตโนมัติ)
-// ==========================================
+// ฟังก์ชันยืนยันเปิดโต๊ะ
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
@@ -948,37 +937,20 @@ function submitTableOpen() {
         
         globalTablesList = updatedTables; 
         
-        // 🟢 ส่วนที่แก้ไข: จัดการตะกร้าและส่งแคชเชียร์อัตโนมัติ
+        cart = []; // ล้างตะกร้าก่อน
         if (currentTableMode === 'Buffet' && selectedPackage) {
-            
-            // 1. ดึงราคาที่แอบเก็บไว้ตอนเลือกแพ็กเกจ
             let pAdult = window.tempAdultPrice || 0;
             let pChild = window.tempChildPrice || 0;
             
-            // 2. ล้างตะกร้าเก่า แล้วยัดแพ็กเกจลงไปแทน
-            cart = [];
-            if (adult > 0) cart.push({ name: pkgName + " (ผู้ใหญ่)", price: pAdult, qty: adult });
-            if (kid > 0) cart.push({ name: pkgName + " (เด็ก)", price: pChild, qty: kid });
+            // แตกรายการลงตะกร้าตามราคาจริง
+            if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่) [${timeLimit} นาที]`, price: pAdult, qty: adult });
+            if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก) [${timeLimit} นาที]`, price: pChild, qty: kid });
+            if (freeCount > 0) cart.push({ name: `${selectedPackage} (ทานฟรี) [${timeLimit} นาที]`, price: 0, qty: freeCount });
             
-            // 3. กำหนดชื่อโต๊ะให้ตรงกับที่เปิด
-            currentTable = selectedTable;
-            
-            showToast("เปิดโต๊ะสำเร็จ! ระบบกำลังส่งแพ็กเกจเข้าแคชเชียร์... 🚀", "success");
-            
-            // 4. สั่งส่งเข้าแคชเชียร์ทันทีโดยไม่ต้องกด 🔔
-            if (cart.length > 0) {
-                sendToKitchen(); 
-            } else {
-                enterOrderView(selectedTable);
-            }
-            
-        } else {
-            // กรณีเปิดโต๊ะแบบ A la carte (สั่งแยก) ให้ทำงานตามปกติ
-            cart = []; 
             updateCartBadge(); 
-            renderCartItems();
+            showToast("เปิดโต๊ะบุฟเฟต์แล้ว! อย่าลืมกด 'ส่งแคชเชียร์ 🔔'", "success");
+        } else {
             showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
-            enterOrderView(selectedTable);
         }
         
         if (isPrepaidWorkflow) {
@@ -987,8 +959,11 @@ function submitTableOpen() {
             }, 500);
         }
         
+        enterOrderView(selectedTable);
+        // สังเกตว่าส่ง parameter ครบตามที่อัปเดตไว้ล่าสุด (รวม adult, kid, freeCount)
     }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
 }
+
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
 function updateCartBadge() {
     let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -1011,7 +986,7 @@ function closeCartModal() {
 function clearCart() {
     cart = [];
     updateCartBadge();
-    //closeCartModal();
+    closeCartModal();
     // 🟢 เปลี่ยนจาก alert เป็น showToast
     showToast("ล้างรายการในตะกร้าแล้วครับ", "info");
 }
