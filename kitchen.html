@@ -161,34 +161,6 @@ function fetchKitchenOrders() {
 
           let filteredOrders = orders.filter(o => o.timestamp >= startOfDay && o.timestamp <= endOfDay);
 
-          // 🛑 เพิ่มโค้ดดักออเดอร์ "แพ็กเกจ" ตรงนี้ (ดักก่อนระบบจะเอายอดไปนับโชว์บนหน้าจอ)
-          filteredOrders = filteredOrders.filter(order => {
-              const skipWords = ["บุฟเฟต์", "บุฟเฟ่ต์", "แพ็กเกจ", "ผู้ใหญ่", "เด็ก", "ราคา"];
-              let hasRealFood = false;
-              
-              // แยกรายการสินค้าเพื่อตรวจสอบ
-              const rawItems = []; let buffer = ""; let bracket = 0;
-              for (let ch of order.items) {
-                  if (ch === "[") bracket++; if (ch === "]") bracket--;
-                  if (ch === "," && bracket === 0) { rawItems.push(buffer.trim()); buffer = ""; } else { buffer += ch; }
-              }
-              if (buffer.trim()) rawItems.push(buffer.trim());
-
-              // ตรวจสอบว่าในบิลนี้ มีอาหารอื่นที่ไม่ใช่แพ็กเกจปนมาด้วยหรือไม่
-              rawItems.forEach(itemStr => {
-                  let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
-                  let mainName = baseName.replace(/\[.*?\]/g, "").trim();
-                  const isPackage = skipWords.some(word => mainName.includes(word));
-                  
-                  if (!isPackage) {
-                      hasRealFood = true; // เจออาหารที่ต้องปรุงจริงๆ
-                  }
-              });
-              
-              // ถ้าในบิลไม่มีอาหารจริงเลย (มีแต่แพ็กเกจ) จะไม่เก็บข้อมูลนี้เข้าระบบ KDS เลย (ตัวเลขจะไม่นับ)
-              return hasRealFood; 
-          });
-
           // 🔔 ตรวจสอบว่ามีออเดอร์ใหม่เพิ่มขึ้นมาหรือไม่ (ถ้ามีและไม่ใช่การโหลดครั้งแรก ให้เล่นเสียง)
           if (filteredOrders.length > activeOrdersList.length && activeOrdersList.length > 0) {
             playSound('doorbell.mp3');
@@ -288,27 +260,14 @@ function renderKitchenCards() {
         if (buffer.trim()) rawItems.push(buffer.trim());
 
         const groupedItems = {};
- rawItems.forEach(itemStr => {
+        rawItems.forEach(itemStr => {
             let qtyMatch = itemStr.match(/\(x(\d+)\)/);
             let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
             let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
             let mainName = baseName.replace(/\[.*?\]/g, "").trim();
-
-            // 🛑 1. เพิ่มโค้ดดักจับคำที่เกี่ยวกับแพ็กเกจตรงนี้
-            // (คุณสามารถเพิ่มคำอื่นๆ ที่ใช้ในชื่อแพ็กเกจลงไปในเครื่องหมาย "" ได้เลยครับ)
-            const skipWords = ["บุฟเฟต์", "บุฟเฟ่ต์", "แพ็กเกจ", "ผู้ใหญ่", "เด็ก", "ราคา","Premium"];
-            const isPackage = skipWords.some(word => mainName.includes(word));
-            
-            if (isPackage) return; // ถ้าชื่อสินค้ามีคำพวกนี้ ให้ข้ามไป ไม่ต้องแสดงบนจอครัว
-
             if (!groupedItems[mainName]) groupedItems[mainName] = { name: mainName, qty: 0 };
             groupedItems[mainName].qty += qty;
         });
-
-        // 🛑 2. ถ้าในบิลนั้นมีแค่แพ็กเกจอย่างเดียว (โดนดักทิ้งไปหมดแล้ว) ไม่ต้องสร้างการ์ดให้รกจอ
-        if (Object.keys(groupedItems).length === 0) {
-            return; 
-        }
 
         let itemsHtml = "";
         Object.values(groupedItems).forEach(item => {
@@ -434,74 +393,87 @@ function showToast(message, type = "success") {
 
     fetchKitchenOrders();
     setInterval(fetchKitchenOrders, 15000); // รีเฟรชทุกๆ 15 วินาที
-// ==========================================
+    // ==========================================
 // 🔊 ระบบฟังก์ชันเสียง สำหรับหน้าจอครัว
 // ==========================================
 
-// 1. ฟังก์ชันเล่นไฟล์เสียง (ดึงจาก GitHub)
-function playSound(filename) {
-    // ตรวจสอบการตั้งค่าเปิด-ปิดเสียงก่อนเล่น
-    let settings = JSON.parse(localStorage.getItem('famepos_sound_settings')) || { master: true };
-    if (!settings.master) return; 
-
-    // Mapping ไฟล์เสียงกับ Setting Key เพื่อเช็คว่าเปิดใช้งานเสียงนั้นหรือไม่
-    const soundMap = {
-        'scanner.mp3': 'scanner',
-        'cashier.mp3': 'cashier',
-        'bellding.mp3': 'bellding',
-        'doorbell.mp3': 'doorbell',
-        'new-notification.mp3': 'noti',
-        'success.mp3': 'success',
-        'discard.mp3': 'discard',
-        'error.mp3': 'error'
-    };
-
-    let key = soundMap[filename];
-    if (key && settings[key] === false) return; // ถ้าปิดเสียงตัวนั้นไว้ ให้หยุด
-
-    try {
-        const baseUrl = "https://famepos.github.io/restaurant/";
-        const audio = new Audio(baseUrl + filename);
-        audio.play().catch(e => console.warn("Audio play blocked:", e));
-    } catch(e) { console.log(e); }
+// 1. ฟังก์ชันเล่นไฟล์เสียงทั่วไป
+function testPlaySound(url) {
+    if (!url) return;
+    let audio = new Audio(url);
+    audio.play().catch(e => console.log("Audio play blocked: ", e));
 }
 
 // 2. ฟังก์ชันบอทพูดภาษาไทย (Text-to-Speech)
-function speakOrderReady(order) {
-    // ตรวจสอบการตั้งค่าเปิด-ปิดเสียงก่อนพูด
-    let settings = JSON.parse(localStorage.getItem('famepos_sound_settings')) || { master: true, bellding: true };
-    if (!settings.master || !settings.bellding) return;
-
+function speakThai(text) {
     if (!('speechSynthesis' in window)) return;
     
-    // หยุดเสียงที่กำลังพูดค้างอยู่ เพื่อเริ่มประโยคใหม่ทันที
+    // หยุดเสียงที่กำลังพูดอยู่ (ถ้ามี) เพื่อไม่ให้พูดซ้อนกัน
     window.speechSynthesis.cancel();
+    
+    let msg = new SpeechSynthesisUtterance();
+    msg.text = text;
+    msg.lang = 'th-TH'; // บังคับเสียงภาษาไทย
+    msg.rate = 0.8;     // ความเร็วในการพูด (ปรับได้ 0.1 - 2.0)
+    msg.pitch = 1.1;    // ระดับเสียงสูง-ต่ำ
 
+    window.speechSynthesis.speak(msg);
+}
+
+// 3. ศูนย์กลางสั่งการเล่นเสียง (รองรับการตั้งค่าจาก LocalStorage)
+function triggerAudioEvent(event, data = {}) {
+    // โหลดการตั้งค่าเปิด-ปิดเสียง (ถ้าไม่มีค่า ให้ถือว่าเปิดไว้ก่อน)
+    let audioSettings = JSON.parse(localStorage.getItem('famepos_audio_settings')) || { 
+        orderReady: true, 
+        newOrder: true 
+    };
+
+    if (!audioSettings[event]) return; // ถ้าสวิตช์ปิดไว้ ให้ข้ามไปเลย
+
+    switch (event) {
+        case 'newOrder':
+            speakThai("ออเดอร์ใหม่เข้ามาแล้วจ้า");
+            break;
+            
+        case 'orderReady':
+            let orderReadyText = "ออเดอร์พร้อมเสิร์ฟแล้วค่ะ";
+            if (data.type === 'ทานที่ร้าน' && data.table) {
+                orderReadyText = `ออเดอร์ โต๊ะที่ ${data.table} พร้อมเสิร์ฟแล้วค่ะ`;
+            } else if (data.queue) {
+                orderReadyText = `ออเดอร์กลับบ้าน คิวที่ ${data.queue} พร้อมเสิร์ฟแล้วค่ะ`;
+            }
+            speakThai(orderReadyText);
+            break;
+    }
+}
+function playSound(filename) {
+    // 💡 เปลี่ยนตรงนี้: ใส่ URL ที่ GitHub Pages ของคุณใช้งานอยู่
+    // สมมติว่า URL เว็บของคุณคือ https://famepos.github.io/restaurant/
+    const baseUrl = "https://famepos.github.io/restaurant/"; 
+    
+    const audio = new Audio(baseUrl + filename);
+    audio.play().catch(e => console.warn("Audio blocked or file not found:", e));
+}
+
+function speakOrderReady(order) {
     let text = "";
     
-    // แยกตรรกะการพูดตามประเภทออเดอร์
-    if (order.orderType === "โต๊ะ") {
+    // จัดรูปแบบข้อความตามเงื่อนไขที่คุณต้องการ
+    if (order.orderType === "ทานที่ร้าน") {
         text = `ออเดอร์ โต๊ะที่ ${order.tableNo} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
     } 
     else if (order.orderType === "กลับบ้าน") {
-        // ใช้เลขคิวจาก order.queueNo (ถ้ามีเลขคิว)
-        let queueNum = order.queueNo.replace("คิว:", "").trim();
-        text = `ออเดอร์กลับบ้าน คิวที่ ${queueNum} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
+        text = `ออเดอร์ กลับบ้าน คิวที่ ${order.queueNo} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
     } 
-    else if (order.orderType === "เดลิเวอรี่") {
-        // ดึงชื่อแอปจาก queueSubInfo (เช่น LineMan หรือ Grab)
-        let subInfo = order.queueSubInfo || "";
-        text = `ออเดอร์ ${subInfo} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
-    }
-    else {
-        text = "ออเดอร์พร้อมเสิร์ฟแล้วค่ะ";
+    else { // กรณี ส่งของ / เดลิเวอรี่
+        let appName = order.deliveryApp || "เดลิเวอรี่";
+        let deliveryId = order.deliveryId || "";
+        text = `ออเดอร์ ${appName} ${deliveryId} อาหารพร้อมเสิร์ฟแล้วค่ะ`;
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'th-TH';
-    utterance.rate = 0.9; // ปรับความเร็วเสียงให้ฟังง่าย
-    utterance.pitch = 1.0;
-    
+    utterance.lang = 'th-TH'; // ตั้งค่าเป็นภาษาไทย
+    utterance.rate = 1.0;      // ความเร็วเสียง (ปรับเพิ่มได้)
     window.speechSynthesis.speak(utterance);
 }
 
