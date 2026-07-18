@@ -159,7 +159,16 @@ function fetchKitchenOrders() {
           let startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime();
           let endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).getTime();
 
-          let filteredOrders = orders.filter(o => o.timestamp >= startOfDay && o.timestamp <= endOfDay);
+          // 🛠️ แก้ไขการกรอง: กรองทั้งเวลาของ "วันนี้" และ "สถานะที่ครัวต้องทำ"
+          let filteredOrders = orders.filter(o => {
+              let isToday = o.timestamp >= startOfDay && o.timestamp <= endOfDay;
+              
+              // กำหนดสถานะที่อนุญาตให้แสดงบนจอครัว
+              let allowedStatuses = ["Pending", "รับออเดอร์แล้ว", "กำลังทำ"];
+              let status = o.status || "Pending"; 
+              
+              return isToday && allowedStatuses.includes(status);
+          });
 
           // 🔔 ตรวจสอบว่ามีออเดอร์ใหม่เพิ่มขึ้นมาหรือไม่ (ถ้ามีและไม่ใช่การโหลดครั้งแรก ให้เล่นเสียง)
           if (filteredOrders.length > activeOrdersList.length && activeOrdersList.length > 0) {
