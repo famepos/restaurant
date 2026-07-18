@@ -14,30 +14,29 @@
 <!-- ================= ฝั่งซ้าย: พื้นที่หลัก (70%) ================= -->
 <div class="w-[70%] h-full bg-gray-50 flex flex-col">
     
-    <!-- ส่วนหัว (Header ผังโต๊ะ) ... โค้ดเดิมของคุณ ... -->
-
-    <!-- พื้นที่ 1: ผังโต๊ะ -->
+<!-- ผังโต๊ะเดิมของคุณ -->
     <div id="tableGrid" class="grid grid-cols-5 gap-4 overflow-y-auto pb-10">
-        <!-- โต๊ะ ... -->
+        <!-- โต๊ะจะถูกโหลดมาใส่ตรงนี้ -->
     </div>
 
-    <!-- 🎯 พื้นที่ 2: เมนูอาหาร (ต้องย้ายมาวางตรงนี้ ต่อจาก tableGrid ทันที!) -->
-    <div id="menuModeContainer" class="hidden flex-col h-full p-4 overflow-y-auto">
-        <!-- ปุ่มกลับไปผังโต๊ะ และช่องค้นหา -->
+    <!-- 🎯 วางโค้ดหน้าต่างเมนูอาหาร ตรงนี้เลยครับ! -->
+    <div id="menuModeContainer" class="hidden flex-col h-full p-4 overflow-y-auto w-full">
+        <!-- แถบด้านบน: ปุ่มกลับ และ หัวข้อ -->
         <div class="flex justify-between items-center mb-4">
-            <button onclick="location.reload()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+            <button onclick="closeMenuMode()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition active:scale-95">
                 ◀ กลับไปผังโต๊ะ
             </button>
-            <h2 class="text-xl font-bold text-gray-800">รายการอาหาร</h2>
+            <div class="relative">
+                <input type="text" placeholder="ค้นหาเมนู..." class="pl-10 pr-4 py-2 border rounded-full focus:outline-none focus:border-pink-400">
+                <span class="absolute left-3 top-2.5 opacity-50">🔍</span>
+            </div>
         </div>
         
-        <!-- Grid เมนูอาหาร -->
+        <!-- พื้นที่แสดงเมนูอาหาร -->
         <div id="menuGrid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             <!-- เมนูจะถูกสร้างที่นี่ -->
         </div>
     </div>
-
-</div>
 
 <!-- ================= ฝั่งขวา: ตะกร้าสินค้า (30%) ================= -->
 <div class="w-[30%] h-full bg-white border-l shadow-2xl flex flex-col relative">
@@ -594,7 +593,39 @@
         });
         grid.innerHTML = html;
     }
-    
+
+    // ==========================================
+    // 🔙 ฟังก์ชันกดปุ่ม "กลับไปผังโต๊ะ"
+    // ==========================================
+    function closeMenuMode() {
+        // ซ่อนหน้าเมนู โชว์หน้าโต๊ะ
+        document.getElementById('menuModeContainer').classList.add('hidden');
+        document.getElementById('tableGrid').classList.remove('hidden');
+        
+        // สลับปุ่มด้านล่างตะกร้าให้กลับเป็นปุ่ม "ชำระเงิน"
+        document.getElementById('btnSaveOrder').classList.add('hidden');
+        document.getElementById('btnCheckout').classList.remove('hidden');
+        
+        // ล้างตะกร้า (สมมติว่ายกเลิกการสั่งชั่วคราว)
+        draftNewItems = [];
+        currentSelectedTableId = null;
+        
+        document.getElementById('cartTableName').innerHTML = `🪑 กรุณาเลือกโต๊ะ`;
+        document.getElementById('cartItems').innerHTML = `<div class="h-full flex items-center justify-center text-gray-400 font-bold">ยังไม่มีรายการอาหาร</div>`;
+        document.getElementById('cartTotalDisplay').innerText = `฿0.00`;
+    }
+
+    // ==========================================
+    // 🚧 สร้างฟังก์ชันรอไว้ก่อน ป้องกัน Error สีแดง
+    // ==========================================
+    function processCheckout() {
+        alert("กำลังพัฒนาระบบชำระเงิน...");
+    }
+
+    function saveOrderToTable() {
+        alert("กำลังพัฒนาระบบบันทึกออเดอร์...");
+    }
+
 </script>
 </body>
 </html>
