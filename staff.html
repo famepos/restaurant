@@ -723,28 +723,26 @@ function sendToKitchen() {
 function clearTable() {
     if (!currentTable) return;
 
-    // ทำงานทันทีโดยไม่แสดงหน้าต่างยืนยัน
+    // 1. ล้างตะกร้าในฝั่งไคลเอนต์ให้หมดก่อนทันที
+    cart = []; 
+    updateCartBadge();
+    
+    // 2. แจ้งระบบหลังบ้านให้เคลียร์โต๊ะ
     google.script.run
         .withSuccessHandler(function() {
-            
-            // 🟢 แจ้งเตือนหลังจากเคลียร์สำเร็จ
             showToast(`เคลียร์โต๊ะ ${currentTable} ว่างแล้วครับ`, "success");
             
-            // ล้างตะกร้า
-            cart = [];
-            updateCartBadge();
+            // 3. รีเซ็ตตัวแปรสำคัญ
             currentTable = "";
+            isBuffetMode = false; // รีเซ็ตโหมดบุฟเฟต์ด้วย
             
-            // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
+            // 4. ซ่อนหน้าสั่งอาหาร
             document.getElementById('orderView').classList.add('hidden');
             document.getElementById('orderView').classList.remove('flex');
-            //document.getElementById('orderFooter').classList.add('hidden');
             document.getElementById('btnBack').classList.add('hidden');
-            
-            // 🟢 ปิดกล่องป๊อปอัป "ดูบิลโต๊ะนี้"
             document.getElementById('tableOrdersModal').classList.add('hidden');
             
-            // กลับสู่หน้าเลือกโต๊ะ
+            // 5. กลับสู่หน้าเลือกโต๊ะ
             document.getElementById('selectedTableDisplay').innerText = "เลือกโต๊ะ...";
             document.getElementById('tableSelectorView').classList.remove('hidden');
             loadTableSelector(); 
