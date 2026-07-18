@@ -908,15 +908,12 @@ function setPaymentWorkflow(isPrepaid) {
         btnNow.className = "py-2 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
     }
 }
-// ฟังก์ชันยืนยันเปิดโต๊ะ
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
     let freeCount = parseInt(document.getElementById('inputFreeCount').value) || 0;
     
-    // รวมจำนวนคนทั้งหมดเพื่อส่งไปดักเงื่อนไข
     let totalHeadCount = adult + kid + freeCount;
-
     if (totalHeadCount <= 0) {
         showToast('กรุณาระบุจำนวนลูกค้าอย่างน้อย 1 ท่านครับ', 'error');
         return;
@@ -930,33 +927,37 @@ function submitTableOpen() {
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
-// แก้ไขส่วนนี้ในฟังก์ชัน submitTableOpen
-google.script.run.withSuccessHandler((updatedTables) => {
-    document.getElementById('openTableModeModal').classList.add('hidden');
-    btn.innerText = originalText;
-    btn.disabled = false;
-    
-    globalTablesList = updatedTables; 
-    
-    cart = []; 
-    if (currentTableMode === 'Buffet' && selectedPackage) {
-        let pAdult = window.tempAdultPrice || 0;
-        let pChild = window.tempChildPrice || 0;
+    google.script.run.withSuccessHandler((updatedTables) => {
+        document.getElementById('openTableModeModal').classList.add('hidden');
+        btn.innerText = originalText;
+        btn.disabled = false;
         
-        // 1. เพิ่มรายการลงตะกร้าเพื่อเก็บข้อมูลลง DB เท่านั้น ไม่ใช่เพื่อส่งครัว
-        if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
-        if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
+        globalTablesList = updatedTables; 
         
-        updateCartBadge(); 
-        showToast("เปิดโต๊ะบุฟเฟต์แล้ว", "success");
+        // 🛑 เคลียร์ตะกร้าให้ว่างสนิททุกครั้งก่อนใส่รายการเปิดโต๊ะ
+        cart = []; 
         
-        // 2. 🔥 แก้ไขตรงนี้: แทนที่จะส่งแคชเชียร์/ครัวทันที ให้แค่ "บันทึกบิลเปิดโต๊ะ" 
-        // โดยใช้การเรียกฟังก์ชันอื่นแทนการเรียก sendToKitchen()
-        saveTableOpeningData(); 
-    }
-    
-    enterOrderView(selectedTable);
-}).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);}
+        if (currentTableMode === 'Buffet' && selectedPackage) {
+            let pAdult = window.tempAdultPrice || 0;
+            let pChild = window.tempChildPrice || 0;
+            
+            // ใส่รายการลงตะกร้าตามจำนวนที่ระบุใน input
+            if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
+            if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
+            if (freeCount > 0) cart.push({ name: `${selectedPackage} (ทานฟรี)`, price: 0, qty: freeCount });
+            
+            updateCartBadge(); 
+            showToast("เปิดโต๊ะบุฟเฟต์แล้ว", "success");
+            
+            // บันทึกลงบิลโดยไม่ผ่านครัว
+            saveTableOpeningData(); 
+        }
+        
+        // เข้าหน้าสั่งอาหาร (อย่าลืมตรวจสอบว่าใน enterOrderView ไม่มีการ push เพิ่มเติม)
+        enterOrderView(selectedTable);
+        
+    }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
+}
 
 // ในฟังก์ชัน submitTableOpen()
 function saveTableOpeningData() {
