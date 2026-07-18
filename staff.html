@@ -98,10 +98,6 @@
 
     <!-- 🟢 ฝั่งขวา: รวมกลุ่ม ปุ่มพิมพ์ และ ชื่อโต๊ะ ไว้ด้วยกัน -->
     <div class="flex items-center gap-2">
-<!-- ใน footer ของ staff.html -->
-<button id="btnCallBill" onclick="requestBill()" class="...">
-    🛎️ เรียกเก็บเงิน
-</button>
         <button onclick="printTableSlip()" class="text-pink-500 hover:bg-pink-100 p-1.5 rounded-lg transition active:scale-90" title="พิมพ์ใบเปิดโต๊ะ">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -140,7 +136,6 @@
             🛒 ดูตะกร้า <span id="cartCountBadge" class="bg-pink-500 text-white px-2 py-0.5 rounded-full text-xs">0</span>
         </button>
         <button onclick="sendToKitchen()" class="bg-pink-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">ส่งแคชเชียร์ 🔔</button>
-
     </footer>
 
 <!-- MODAL: เปิดโต๊ะแบบ Full Option -->
@@ -913,7 +908,7 @@ function setPaymentWorkflow(isPrepaid) {
         btnNow.className = "py-2 border-2 border-gray-100 text-gray-500 bg-white rounded-xl font-bold transition text-xs shadow-sm";
     }
 }
-// ฟังก์ชันยืนยันเปิดโต๊ะ (อัปเดต: ส่งยอดเข้าแคชเชียร์อัตโนมัติ)
+// ฟังก์ชันยืนยันเปิดโต๊ะ
 function submitTableOpen() {
     let adult = parseInt(document.getElementById('inputAdultCount').value) || 0;
     let kid = parseInt(document.getElementById('inputKidCount').value) || 0;
@@ -935,66 +930,49 @@ function submitTableOpen() {
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
-    // 1. บันทึกการเปิดโต๊ะลงฐานข้อมูล (Tables)
-    google.script.run.withSuccessHandler((updatedTables) => {
-        document.getElementById('openTableModeModal').classList.add('hidden');
-        btn.innerText = originalText;
-        btn.disabled = false;
+// แก้ไขส่วนนี้ในฟังก์ชัน submitTableOpen
+google.script.run.withSuccessHandler((updatedTables) => {
+    document.getElementById('openTableModeModal').classList.add('hidden');
+    btn.innerText = originalText;
+    btn.disabled = false;
+    
+    globalTablesList = updatedTables; 
+    
+    cart = []; 
+    if (currentTableMode === 'Buffet' && selectedPackage) {
+        let pAdult = window.tempAdultPrice || 0;
+        let pChild = window.tempChildPrice || 0;
         
-        globalTablesList = updatedTables; 
+        // 1. เพิ่มรายการลงตะกร้าเพื่อเก็บข้อมูลลง DB เท่านั้น ไม่ใช่เพื่อส่งครัว
+        if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
+        if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
         
-        // ล้างตะกร้าให้ว่าง (ไม่ต้องให้พนักงานกดย้ำส่งเองแล้ว)
-        cart = []; 
         updateCartBadge(); 
-
-        if (currentTableMode === 'Buffet' && selectedPackage) {
-            let pAdult = window.tempAdultPrice || 0;
-            let pChild = window.tempChildPrice || 0;
-            
-            // 🌟 2. รวบรวมค่าหัวเพื่อเตรียมส่งให้แคชเชียร์อัตโนมัติ
-            let initialItems = [];
-            let initialTotal = 0;
-
-            if (adult > 0) {
-                let amt = pAdult * adult;
-                initialItems.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
-                initialTotal += amt;
-            }
-            if (kid > 0) {
-                let amt = pChild * kid;
-                initialItems.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
-                initialTotal += amt;
-            }
-            if (freeCount > 0) {
-                initialItems.push({ name: `${selectedPackage} (เปิดโต๊ะฟรี)`, price: 0, qty: freeCount });
-            }
-
-            // 🌟 3. ยิงออเดอร์เข้าแคชเชียร์ (QROrders) ทันที!
-            if (initialItems.length > 0) {
-                let orderPayload = { 
-                    table: selectedTable, 
-                    items: initialItems, 
-                    total: initialTotal 
-                };
-
-                google.script.run.withSuccessHandler(function() {
-                    showToast("ส่งราคาแพ็กเกจไปที่แคชเชียร์เรียบร้อย! ✅", "success");
-                    
-                    if (isPrepaidWorkflow) {
-                        setTimeout(() => {
-                            showToast("ระบบจ่ายก่อนกิน (Prepaid) ให้ลูกค้าชำระที่แคชเชียร์ด้วยนะครับ", "info");
-                        }, 500);
-                    }
-                    enterOrderView(selectedTable);
-                }).submitCustomerOrder(orderPayload);
-            }
-            
-        } else {
-            showToast("เปิดโต๊ะ " + selectedTable + " สำเร็จ!", "success");
-            enterOrderView(selectedTable);
-        }
+        showToast("เปิดโต๊ะบุฟเฟต์แล้ว", "success");
         
-    }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
+        // 2. 🔥 แก้ไขตรงนี้: แทนที่จะส่งแคชเชียร์/ครัวทันที ให้แค่ "บันทึกบิลเปิดโต๊ะ" 
+        // โดยใช้การเรียกฟังก์ชันอื่นแทนการเรียก sendToKitchen()
+        saveTableOpeningData(); 
+    }
+    
+    enterOrderView(selectedTable);
+}).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);}
+
+function saveTableOpeningData() {
+    let openingPayload = { 
+        table: currentTable, 
+        items: cart, 
+        isOpeningOnly: true // 🟢 Flag สำคัญ: บอกหลังบ้านว่า "เปิดโต๊ะเฉยๆ ไม่ต้องส่งเข้าครัว"
+    };
+
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ 
+            action: "submitCustomerOrder", 
+            args: [openingPayload] 
+        })
+    });
 }
 
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
@@ -1129,83 +1107,6 @@ function printTableSlip() {
         let menuUrl = "https://famepos.github.io/restaurant/menu.html?table=" + encodeURIComponent(tableInfo.name);
         qrImgElement.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(menuUrl);
     }
-}
-// ใน staff.html
-function requestBill() {
-    // 1. ตรวจสอบว่าเลือกโต๊ะหรือยัง
-    if (!currentTable || currentTable === "ไม่ระบุ") {
-        showToast("กรุณาเลือกโต๊ะก่อนครับ", "error");
-        return;
-    }
-
-    // 2. จัดการ UI ปุ่มทันที (ป้องกันการกดซ้ำ)
-    let btn = document.getElementById('btnCallBill');
-    let originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = "⏳ กำลังแจ้ง...";
-    btn.classList.add("opacity-50");
-
-    // 3. ยิงคำสั่งไปหลังบ้าน (เรียกฟังก์ชัน requestBillGS จาก code.txt)
-    google.script.run
-        .withSuccessHandler(function(res) {
-            if (res === "Success") {
-                // 4. แจ้งเตือนด้วย Toast (ไม่เด้ง Modal)
-                showToast("แจ้งแคชเชียร์แล้วครับ!", "success");
-                
-                // เปลี่ยนปุ่มเป็นสถานะสำเร็จ
-                btn.innerHTML = "✅ เรียกสำเร็จ";
-                
-                // รีเซ็ตปุ่มกลับมาหลังผ่านไป 10 วินาที
-                setTimeout(() => { 
-                    btn.innerHTML = originalText; 
-                    btn.disabled = false; 
-                    btn.classList.remove("opacity-50");
-                }, 10000);
-            } else {
-                showToast("ผิดพลาด: " + res, "error");
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                btn.classList.remove("opacity-50");
-            }
-        })
-        .withFailureHandler(function(err) {
-            showToast("การเชื่อมต่อล้มเหลว", "error");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            btn.classList.remove("opacity-50");
-        })
-        .requestBillGS(currentTable); // เรียกใช้ฟังก์ชันจาก code.txt[cite: 2]
-}
-function callForBill() {
-    if (currentTable === "ไม่ระบุ") {
-        showToast("ไม่ทราบหมายเลขโต๊ะ", "error");
-        return;
-    }
-
-    // 1. เปลี่ยนข้อความปุ่มทันทีเพื่อบอกว่ากำลังทำงาน (ไม่ต้องมี Modal)
-    let btn = document.getElementById('btnCallBill'); // แก้ ID ให้ตรงกับปุ่มของคุณ
-    let originalText = btn.innerHTML;
-    btn.innerHTML = "⏳ กำลังเรียก...";
-    btn.disabled = true;
-
-    // 2. ยิงคำสั่งไปหลังบ้าน
-    google.script.run
-        .withSuccessHandler(function(res) {
-            if (res === "Success") {
-                showToast("แจ้งแคชเชียร์เรียบร้อย! 🔔", "success");
-                btn.innerHTML = "✅ เรียกสำเร็จ";
-                // รีเซ็ตปุ่มกลับมาหลังจาก 10 วินาที
-                setTimeout(() => { 
-                    btn.innerHTML = originalText; 
-                    btn.disabled = false; 
-                }, 10000);
-            } else {
-                showToast("ผิดพลาด: " + res, "error");
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        })
-        .requestBillGS(currentTable);
 }
 </script>
 </body>
