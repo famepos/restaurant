@@ -652,7 +652,6 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-
 // ==========================================
 // ส่งออเดอร์เข้าแคชเชียร์ 
 // ==========================================
@@ -696,7 +695,13 @@ function sendToKitchen() {
             
             cart = [];             
             updateCartBadge();     
-            closeCartModal();      
+            
+            // 👉 1. ให้ลบ หรือ ใส่ // หน้าบรรทัด closeCartModal() ทิ้งไปเลยครับ
+            // closeCartModal();      
+            
+            // 👉 2. ให้เพิ่มบรรทัดนี้ลงไปแทน เพื่อสั่งล้างตะกร้าทางขวา
+            renderCartItems();     
+            
             goBackToTables();      
         } else {
             showToast(data.message, "error");
