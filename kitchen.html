@@ -161,6 +161,34 @@ function fetchKitchenOrders() {
 
           let filteredOrders = orders.filter(o => o.timestamp >= startOfDay && o.timestamp <= endOfDay);
 
+          // 🛑 เพิ่มโค้ดดักออเดอร์ "แพ็กเกจ" ตรงนี้ (ดักก่อนระบบจะเอายอดไปนับโชว์บนหน้าจอ)
+          filteredOrders = filteredOrders.filter(order => {
+              const skipWords = ["บุฟเฟต์", "บุฟเฟ่ต์", "แพ็กเกจ", "ผู้ใหญ่", "เด็ก", "ราคา"];
+              let hasRealFood = false;
+              
+              // แยกรายการสินค้าเพื่อตรวจสอบ
+              const rawItems = []; let buffer = ""; let bracket = 0;
+              for (let ch of order.items) {
+                  if (ch === "[") bracket++; if (ch === "]") bracket--;
+                  if (ch === "," && bracket === 0) { rawItems.push(buffer.trim()); buffer = ""; } else { buffer += ch; }
+              }
+              if (buffer.trim()) rawItems.push(buffer.trim());
+
+              // ตรวจสอบว่าในบิลนี้ มีอาหารอื่นที่ไม่ใช่แพ็กเกจปนมาด้วยหรือไม่
+              rawItems.forEach(itemStr => {
+                  let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
+                  let mainName = baseName.replace(/\[.*?\]/g, "").trim();
+                  const isPackage = skipWords.some(word => mainName.includes(word));
+                  
+                  if (!isPackage) {
+                      hasRealFood = true; // เจออาหารที่ต้องปรุงจริงๆ
+                  }
+              });
+              
+              // ถ้าในบิลไม่มีอาหารจริงเลย (มีแต่แพ็กเกจ) จะไม่เก็บข้อมูลนี้เข้าระบบ KDS เลย (ตัวเลขจะไม่นับ)
+              return hasRealFood; 
+          });
+
           // 🔔 ตรวจสอบว่ามีออเดอร์ใหม่เพิ่มขึ้นมาหรือไม่ (ถ้ามีและไม่ใช่การโหลดครั้งแรก ให้เล่นเสียง)
           if (filteredOrders.length > activeOrdersList.length && activeOrdersList.length > 0) {
             playSound('doorbell.mp3');
