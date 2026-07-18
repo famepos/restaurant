@@ -490,6 +490,7 @@ function enterOrderView(name) {
         // เมื่อโหลดเสร็จแล้ว ค่อยทำงานส่วนที่เหลือต่อใน Callback
         document.getElementById('tableSelectorView').classList.add('hidden');
         document.getElementById('orderView').classList.remove('hidden'); 
+        document.getElementById('orderView').classList.add('flex');
         document.getElementById('productGrid').classList.remove('hidden');
         //document.getElementById('orderFooter').classList.remove('hidden');
         document.getElementById('btnBack').classList.remove('hidden');
@@ -719,6 +720,7 @@ function clearTable() {
             
             // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
             document.getElementById('orderView').classList.add('hidden');
+            document.getElementById('orderView').classList.remove('flex');
             //document.getElementById('orderFooter').classList.add('hidden');
             document.getElementById('btnBack').classList.add('hidden');
             
@@ -736,6 +738,7 @@ function clearTable() {
 function goBackToTables() {
     // 1. ซ่อนหน้าสั่งอาหารและ Footer
     document.getElementById('orderView').classList.add('hidden');
+    document.getElementById('orderView').classList.remove('flex');
     //document.getElementById('orderFooter').classList.add('hidden');
     
     // 2. ซ่อนปุ่มย้อนกลับ
