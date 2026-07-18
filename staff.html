@@ -582,40 +582,40 @@ function renderProductGrid() {
 // อัปเดตฟังก์ชัน addToCart เดิม ให้เรียกอัปเดตตัวเลขหน้าปุ่มด้วย
 function addToCart(name, price) {
     // 1. หาข้อมูลสินค้าจาก allSalesProducts
-    let productRow = allSalesProducts.find(p => p[1] === name);[cite: 1]
+    let productRow = allSalesProducts.find(p => p[1] === name);
     // 🟢 เปลี่ยนจาก [4] เป็น [6] เพราะ Remaining อยู่คอลัมน์ G
-    let stock = parseInt(productRow[6]) || 0; [cite: 1]
+    let stock = parseInt(productRow[6]) || 0; 
 
     // 2. เช็คว่าในตะกร้ามีอยู่กี่ชิ้นแล้ว
-    let existing = cart.find(item => item.name === name);[cite: 1]
-    let currentQtyInCart = existing ? existing.qty : 0;[cite: 1]
+    let existing = cart.find(item => item.name === name);
+    let currentQtyInCart = existing ? existing.qty : 0;
 
     // 3. เช็คเงื่อนไขก่อนเพิ่ม
-    if (currentQtyInCart >= stock) {[cite: 1]
-        showToast("สินค้าหมดหรือเกินจำนวนสต็อกที่มีครับ", "error");[cite: 1]
-        return;[cite: 1]
+    if (currentQtyInCart >= stock) {
+        showToast("สินค้าหมดหรือเกินจำนวนสต็อกที่มีครับ", "error");
+        return;
     }
 
-    if(existing) {[cite: 1]
-        existing.qty++;[cite: 1]
+    if(existing) {
+        existing.qty++;
     } else {
-        cart.push({ name: name, price: price, qty: 1 });[cite: 1]
+        cart.push({ name: name, price: price, qty: 1 });
     }
     
-    updateCartBadge();[cite: 1]
+    updateCartBadge();
     
     // 🟢 เพิ่มบรรทัดนี้ เพื่อสั่งให้ตะกร้าวาดใหม่ทันที
     renderCartItems(); 
     
-    let btn = document.querySelector(`button[onclick="addToCart('${name}', ${price})"]`);[cite: 1]
-    if(btn) {[cite: 1]
-        let oldText = btn.innerText;[cite: 1]
-        btn.innerText = "✅ เพิ่มแล้ว";[cite: 1]
-        btn.classList.replace("bg-pink-500", "bg-green-500");[cite: 1]
-        setTimeout(() => {[cite: 1]
-            btn.innerText = oldText;[cite: 1]
-            btn.classList.replace("bg-green-500", "bg-pink-500");[cite: 1]
-        }, 800);[cite: 1]
+    let btn = document.querySelector(`button[onclick="addToCart('${name}', ${price})"]`);
+    if(btn) {
+        let oldText = btn.innerText;
+        btn.innerText = "✅ เพิ่มแล้ว";
+        btn.classList.replace("bg-pink-500", "bg-green-500");
+        setTimeout(() => {
+            btn.innerText = oldText;
+            btn.classList.replace("bg-green-500", "bg-pink-500");
+        }, 800);
     }
 }
 // ==========================================
