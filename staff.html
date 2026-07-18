@@ -958,23 +958,18 @@ google.script.run.withSuccessHandler((updatedTables) => {
     enterOrderView(selectedTable);
 }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);}
 
+// ในฟังก์ชัน submitTableOpen()
 function saveTableOpeningData() {
     let openingPayload = { 
         table: currentTable, 
-        items: cart, 
-        isOpeningOnly: true // 🟢 Flag สำคัญ: บอกหลังบ้านว่า "เปิดโต๊ะเฉยๆ ไม่ต้องส่งเข้าครัว"
+        items: cart
     };
 
-    fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ 
-            action: "submitCustomerOrder", 
-            args: [openingPayload] 
-        })
-    });
+    // 🟢 เปลี่ยนจาก submitCustomerOrder เป็น saveTableOpeningDirectly
+    google.script.run.withSuccessHandler(() => {
+        console.log("บันทึกเปิดโต๊ะลงบิลเรียบร้อย");
+    }).saveTableOpeningDirectly(openingPayload);
 }
-
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
 function updateCartBadge() {
     let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
