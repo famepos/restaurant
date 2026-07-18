@@ -11,21 +11,36 @@
 </head>
 <body class="bg-gray-100 h-screen flex overflow-hidden font-sans">
 
-    <!-- ================= ฝั่งซ้าย: แผนผังโต๊ะ ================= -->
-    <div class="w-[70%] h-full p-6 flex flex-col">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-xl font-bold text-gray-700">แผนผังโต๊ะ</h1>
-            <button class="bg-white border px-4 py-2 rounded shadow text-sm hover:bg-gray-50">รีเฟรช ↻</button>
-        </div>
+<!-- ================= ฝั่งซ้าย: พื้นที่หลัก (70%) ================= -->
+<div class="w-[70%] h-full bg-gray-50 flex flex-col">
+    
+    <!-- ส่วนหัว (Header ผังโต๊ะ) ... โค้ดเดิมของคุณ ... -->
 
-        <!-- Grid โต๊ะ (ถูกสร้างด้วย JavaScript ด้านล่าง) -->
-        <div id="tableGrid" class="grid grid-cols-5 gap-4 overflow-y-auto pb-10">
-            <!-- โต๊ะจะถูกโหลดมาใส่ตรงนี้ -->
+    <!-- พื้นที่ 1: ผังโต๊ะ -->
+    <div id="tableGrid" class="grid grid-cols-5 gap-4 overflow-y-auto pb-10">
+        <!-- โต๊ะ ... -->
+    </div>
+
+    <!-- 🎯 พื้นที่ 2: เมนูอาหาร (ต้องย้ายมาวางตรงนี้ ต่อจาก tableGrid ทันที!) -->
+    <div id="menuModeContainer" class="hidden flex-col h-full p-4 overflow-y-auto">
+        <!-- ปุ่มกลับไปผังโต๊ะ และช่องค้นหา -->
+        <div class="flex justify-between items-center mb-4">
+            <button onclick="location.reload()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+                ◀ กลับไปผังโต๊ะ
+            </button>
+            <h2 class="text-xl font-bold text-gray-800">รายการอาหาร</h2>
+        </div>
+        
+        <!-- Grid เมนูอาหาร -->
+        <div id="menuGrid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <!-- เมนูจะถูกสร้างที่นี่ -->
         </div>
     </div>
 
-    <!-- ================= ฝั่งขวา: ตะกร้าสินค้า ================= -->
-    <div class="w-[30%] h-full bg-white border-l shadow-2xl flex flex-col relative">
+</div>
+
+<!-- ================= ฝั่งขวา: ตะกร้าสินค้า (30%) ================= -->
+<div class="w-[30%] h-full bg-white border-l shadow-2xl flex flex-col relative">
         <div class="flex items-center justify-between p-4 border-b">
             <div class="flex items-center space-x-2 text-pink-600 font-bold text-lg">
                 <span>🛒 ตะกร้าสินค้า</span>
@@ -227,61 +242,6 @@
     // 🔴 นำ URL ของเว็บแอป (ที่ลงท้ายด้วย /exec) มาวางในเครื่องหมายคำพูดด้านล่างนี้
     const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec"; 
 
-    // ==========================================
-    // 📦 ตัวแปรระบบ (Global Variables)
-    // ==========================================
-    let allProducts = [];       // เก็บข้อมูลเมนูอาหารทั้งหมด
-    let allTablesData = [];     // เก็บข้อมูลโต๊ะล่าสุด
-    let draftNewItems = [];     // เก็บรายการที่เพิ่งจิ้มเลือก (ยังไม่กดบันทึก)
-
-    // เริ่มทำงานตอนเปิดเว็บ
-    document.addEventListener("DOMContentLoaded", () => {
-        loadProducts(); // 🎯 สั่งดึงเมนูอาหารมารอไว้เลย
-        loadTablesRealtime();
-        autoRefreshTimer = setInterval(loadTablesRealtime, 4000); 
-    });
-
-    // ==========================================
-    // 🍔 ระบบดึงและแสดงเมนูอาหาร
-    // ==========================================
-    function loadProducts() {
-        // อ้างอิงจากโค้ดเดิมของคุณที่มีฟังก์ชัน getProducts อยู่แล้วใน .gs
-        callBackend('getProducts', [], function(products) {
-            if(products) {
-                allProducts = products;
-                console.log("✅ โหลดเมนูสำเร็จ!");
-            }
-        });
-    }
-
-    // ฟังก์ชันวาดเมนูลงในหน้าจอฝั่งซ้าย
-    function renderMenuUI(products) {
-        const grid = document.getElementById('menuGrid');
-        grid.innerHTML = '';
-        if(!products || products.length === 0) {
-            grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8 font-bold animate-pulse">กำลังโหลดเมนูอาหาร...</div>`;
-            return;
-        }
-
-        let html = '';
-        products.forEach(p => {
-            // ปรับตัวแปรให้รับได้ทั้ง Object และ Array จากหลังบ้าน
-            let itemName = p.name || p[1] || 'ไม่มีชื่อ';
-            let itemPrice = parseFloat(p.price || p[2]) || 0;
-            let itemImg = p.image || p[4] || "https://placehold.co/150x150/fee2e2/dc2626?text=" + encodeURIComponent(itemName);
-
-            html += `
-            <div onclick="addDraftItem('${itemName}', ${itemPrice}, '${itemImg}')" class="bg-white rounded-2xl p-2 shadow-sm border border-gray-100 cursor-pointer hover:border-pink-400 hover:shadow-md transition active:scale-95 flex flex-col items-center text-center">
-                <img src="${itemImg}" class="w-full h-24 object-cover rounded-xl mb-2" alt="${itemName}">
-                <span class="font-bold text-gray-800 text-sm line-clamp-1 w-full">${itemName}</span>
-                <span class="text-pink-600 font-bold text-sm">฿${itemPrice.toLocaleString()}</span>
-            </div>
-            `;
-        });
-        grid.innerHTML = html;
-    }
-
-
     let currentSelectedTableId = null;
     let autoRefreshTimer = null;
 
@@ -442,13 +402,12 @@
         }
     }
 
-// ==========================================
-    // 1. อัปเดตฟังก์ชันยืนยันเปิดโต๊ะ
-    // ==========================================
+    // กดปุ่มยืนยันเปิดโต๊ะ
+// กดปุ่มยืนยันเปิดโต๊ะ
     function confirmOpenTable() {
         if(!targetOpenTableId) return;
 
-        const tableName = document.getElementById('modalTableName').innerText;
+        // รวบรวมข้อมูลทั้งหมดในหน้าต่าง
         const orderData = {
             tableId: targetOpenTableId,
             mode: document.getElementById('buffetPackageSection').classList.contains('hidden') ? 'alacarte' : 'buffet',
@@ -460,15 +419,24 @@
             payment: document.getElementById('btnPayPrepaid').classList.contains('border-pink-500') ? 'prepaid' : 'postpaid'
         };
 
+        // แสดงข้อมูลใน Console (สำหรับการตรวจสอบของนักพัฒนา)
         console.log("ส่งข้อมูลเปิดโต๊ะ:", orderData);
         
-        // 🎯 [เพิ่มใหม่] ตั้งค่าให้ระบบรู้ว่าตอนนี้กำลังทำงานกับโต๊ะไหนอยู่
-        currentSelectedTableId = targetOpenTableId; 
+        // ==========================================
+        // ❌ เอา alert() ที่เด้งเตือนออกแล้ว
+        // ==========================================
 
+        // 🔴 เมื่อฟังก์ชันหลังบ้าน (Google Script) ของคุณพร้อม ให้เอาเครื่องหมาย /* */ ออกเพื่อใช้งาน
+        /* 
+        document.getElementById('cartItems').innerHTML = `<div class="h-full flex items-center justify-center text-pink-500 animate-pulse font-bold">กำลังส่งคำสั่งเปิดโต๊ะ...</div>`;
+        callBackend('openNewTableGS', [orderData], function(res) {
+            closeTableModal();
+            loadTablesRealtime(); // สั่งรีเฟรชหน้าจอโต๊ะอัตโนมัติ
+        }); 
+        */
+
+        // ปิดหน้าต่าง Modal ทันทีแบบเนียนๆ (ถ้าต่อ API แล้ว ให้ย้ายบรรทัดนี้ไปไว้ใน callBackend ด้านบนครับ)
         closeTableModal();
-        
-        // สั่งเปิดหน้าเมนูอาหารทันที
-        openMenuForTable(targetOpenTableId, tableName);
     }
 
     function selectTable(tableId) {
@@ -478,103 +446,66 @@
         loadTablesRealtime(); 
     }
 
-// วาดตะกร้า (แยกระหว่าง ของเก่าที่สั่งแล้ว vs ของใหม่ที่เพิ่งจิ้ม)
     function renderCartUI(selectedTable) {
         let totalAmount = selectedTable.totalAmount ? parseFloat(selectedTable.totalAmount) : 0;
-        let draftTotal = draftNewItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        let grandTotal = totalAmount + draftTotal; // ยอดรวมทั้งหมด
-        
         document.getElementById('cartTableName').innerHTML = `🪑 โต๊ะ: <span class="text-pink-600">${selectedTable.customerName ? selectedTable.customerName : selectedTable.name}</span>`;
-        document.getElementById('cartTotalDisplay').innerText = `฿${grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        document.getElementById('cartTotalDisplay').innerText = `฿${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
         const cartItemsDiv = document.getElementById('cartItems');
-        let itemsHTML = '<div class="w-full space-y-3">';
-        
-        // 1. วาดของเก่า (ส่งเข้าครัวไปแล้ว)
-        if (selectedTable.items && selectedTable.items.length > 0) {
+        if (!selectedTable.items || selectedTable.items.length === 0) {
+            cartItemsDiv.innerHTML = `<div class="h-full flex items-center justify-center">ยังไม่มีรายการอาหาร</div>`;
+        } else {
+            let itemsHTML = '<div class="w-full space-y-3">';
             selectedTable.items.forEach(item => {
                 let itemTotal = parseFloat(item.price) * parseInt(item.qty);
                 let itemImage = item.image || "https://placehold.co/100x100/fee2e2/dc2626?text=Food"; 
-                itemsHTML += generateCartItemHTML(item.name, item.qty, itemTotal, itemImage, false);
+                
+                itemsHTML += `
+                <div class="flex items-center justify-between bg-white border border-gray-100 p-2.5 rounded-2xl shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] transition-all hover:border-pink-200">
+                    <div class="flex items-center gap-3 w-5/12 overflow-hidden">
+                        <img src="${itemImage}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-red-100 shrink-0">
+                        <span class="font-bold text-gray-800 text-sm truncate" title="${item.name}">${item.name}</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2 w-3/12">
+                        <button onclick="changeQty('${item.name}', -1)" class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold hover:bg-gray-200 transition pb-1 active:scale-90">-</button>
+                        <span class="font-bold text-pink-600 w-4 text-center text-sm">${item.qty}</span>
+                        <button onclick="changeQty('${item.name}', 1)" class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold hover:bg-pink-200 transition pb-1 active:scale-90">+</button>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 w-4/12 pr-1">
+                        <span class="font-bold text-pink-600 text-sm whitespace-nowrap">฿${itemTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                        <button onclick="deleteItem('${item.name}')" class="text-red-400 hover:text-red-600 font-bold ml-1 text-lg leading-none transition active:scale-90">×</button>
+                    </div>
+                </div>`;
             });
-        }
-
-        // 2. วาดของใหม่ (Draft - เพิ่งกดเลือก ยังไม่บันทึก)
-        if (draftNewItems.length > 0) {
-            itemsHTML += `<div class="text-xs font-bold text-pink-500 mt-4 mb-2 pb-1 border-b border-pink-100 flex items-center gap-1">✨ รายการสั่งใหม่ (ยังไม่บันทึก)</div>`;
-            draftNewItems.forEach(item => {
-                let itemTotal = parseFloat(item.price) * parseInt(item.qty);
-                itemsHTML += generateCartItemHTML(item.name, item.qty, itemTotal, item.image, true);
-            });
-        }
-        
-        if ((!selectedTable.items || selectedTable.items.length === 0) && draftNewItems.length === 0) {
-            cartItemsDiv.innerHTML = `<div class="h-full flex items-center justify-center text-gray-400 font-bold">ยังไม่มีรายการอาหาร</div>`;
-        } else {
             itemsHTML += '</div>';
             cartItemsDiv.innerHTML = itemsHTML;
         }
     }
 
-
-// ตัวสร้าง HTML สำหรับแต่ละแถวในตะกร้า
-    function generateCartItemHTML(name, qty, total, image, isDraft) {
-        let borderClass = isDraft ? 'border-pink-200 bg-pink-50/30' : 'border-gray-100 bg-white';
-        return `
-        <div class="flex items-center justify-between ${borderClass} border p-2.5 rounded-2xl shadow-sm transition-all">
-            <div class="flex items-center gap-3 w-5/12 overflow-hidden">
-                <img src="${image}" class="w-12 h-12 rounded-xl object-cover border border-red-100 shrink-0">
-                <span class="font-bold text-gray-800 text-sm truncate">${name}</span>
-            </div>
-            <div class="flex items-center justify-center gap-2 w-3/12">
-                <button onclick="changeQty('${name}', -1, ${isDraft})" class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 font-bold hover:bg-gray-200 active:scale-90">-</button>
-                <span class="font-bold text-pink-600 w-4 text-center text-sm">${qty}</span>
-                <button onclick="changeQty('${name}', 1, ${isDraft})" class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 font-bold hover:bg-pink-200 active:scale-90">+</button>
-            </div>
-            <div class="flex items-center justify-end gap-2 w-4/12 pr-1">
-                <span class="font-bold text-pink-600 text-sm whitespace-nowrap">฿${total.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
-                <button onclick="deleteItem('${name}', ${isDraft})" class="text-red-400 hover:text-red-600 font-bold ml-1 text-lg leading-none active:scale-90">×</button>
-            </div>
-        </div>`;
-    }
     // ==========================================
     // ⚙️ ส่งคำสั่งอัปเดตไปหาหลังบ้าน
     // ==========================================
-    // ระบบเพิ่มลดจำนวนอัจฉริยะ (แยกของใหม่ กับ ของเก่า)
-    function changeQty(itemName, changeAmt, isDraft) {
-        if (isDraft) {
-            let item = draftNewItems.find(i => i.name === itemName);
-            if(item) {
-                item.qty += changeAmt;
-                if(item.qty <= 0) draftNewItems = draftNewItems.filter(i => i.name !== itemName);
-            }
-            let activeId = currentSelectedTableId || targetOpenTableId;
-            let selected = allTablesData.find(t => t.id === activeId || t.name === activeId);
-            if(selected) renderCartUI(selected);
-        } else {
+    function changeQty(itemName, changeAmt) {
+        if(!currentSelectedTableId) return;
+        document.getElementById('cartItems').style.opacity = '0.5';
+        
+        // ส่งคำสั่งอัปเดตจำนวนไปหา doPost
+        callBackend('updateItemQtyGS', [currentSelectedTableId, itemName, changeAmt], function(response) {
+            document.getElementById('cartItems').style.opacity = '1';
+            loadTablesRealtime(); 
+        });
+    }
+
+    function deleteItem(itemName) {
+        if(!currentSelectedTableId) return;
+        if(confirm(`ต้องการลบ ${itemName} ออกจากโต๊ะหรือไม่?`)) {
             document.getElementById('cartItems').style.opacity = '0.5';
-            callBackend('updateItemQtyGS', [currentSelectedTableId, itemName, changeAmt], function() {
+            
+            // ส่งคำสั่งลบไปหา doPost
+            callBackend('deleteItemGS', [currentSelectedTableId, itemName], function(response) {
                 document.getElementById('cartItems').style.opacity = '1';
                 loadTablesRealtime(); 
             });
-        }
-    }
-
-   // ระบบลบรายการ
-    function deleteItem(itemName, isDraft) {
-        if (isDraft) {
-            draftNewItems = draftNewItems.filter(i => i.name !== itemName);
-            let activeId = currentSelectedTableId || targetOpenTableId;
-            let selected = allTablesData.find(t => t.id === activeId || t.name === activeId);
-            if(selected) renderCartUI(selected);
-        } else {
-            if(confirm(`ต้องการลบ ${itemName} ออกจากระบบเลยหรือไม่?`)) {
-                document.getElementById('cartItems').style.opacity = '0.5';
-                callBackend('deleteItemGS', [currentSelectedTableId, itemName], function() {
-                    document.getElementById('cartItems').style.opacity = '1';
-                    loadTablesRealtime(); 
-                });
-            }
         }
     }
 
@@ -591,60 +522,22 @@
     });
 
 // ==========================================
-    // 2. อัปเดตฟังก์ชันควบคุมการสลับหน้าจอ
+    // 🔄 ระบบสลับหน้าจอ (ผังโต๊ะ <--> เมนูอาหาร)
     // ==========================================
-    function openMenuForTable(tableId, tableName) {
-        // 🎯 [เพิ่มใหม่] ล็อกเป้าหมายโต๊ะให้ตะกร้า
-        currentSelectedTableId = tableId;
 
-        // สลับหน้าจอ (ซ่อนผังโต๊ะ -> โชว์หน้าเมนู)
-        const tableGrid = document.getElementById('tableGrid');
-        const menuContainer = document.getElementById('menuModeContainer');
+    // ฟังก์ชันเปิดหน้าเมนูอาหารสำหรับโต๊ะนั้นๆ
+    function openMenuForTable(tableId, tableName) {
+        // 1. ซ่อนผังโต๊ะ โชว์หน้าเมนู
+        document.getElementById('tableGrid').classList.add('hidden');
+        document.getElementById('menuModeContainer').classList.remove('hidden');
         
-        if(tableGrid) tableGrid.classList.add('hidden');
-        if(menuContainer) menuContainer.classList.remove('hidden');
-        
-        // สลับปุ่มด้านล่างตะกร้า
-        document.getElementById('btnCheckout').classList.add('hidden'); 
-        document.getElementById('btnSaveOrder').classList.remove('hidden'); 
+        // 2. จัดการปุ่มฝั่งตะกร้า
+        document.getElementById('btnCheckout').classList.add('hidden'); // ซ่อนปุ่มชำระเงินไว้ก่อนตอนกำลังสั่งอาหาร
+        document.getElementById('btnSaveOrder').classList.remove('hidden'); // โชว์ปุ่มบันทึกเข้าครัว
         document.getElementById('saveBtnTableName').innerText = tableName;
         
-        // เคลียร์ของใหม่ที่เคยจิ้มค้างไว้
-        draftNewItems = []; 
-        renderMenuUI(allProducts); // วาดเมนู
-        
-        // 🎯 [เพิ่มใหม่] วาดตะกร้า (ถ้าเป็นโต๊ะใหม่เพิ่งเปิด ให้สร้างข้อมูลจำลองไปก่อน)
-        let selected = allTablesData.find(t => t.id === tableId || t.name === tableId);
-        if(!selected) {
-            selected = { 
-                id: tableId, 
-                name: tableName, 
-                customerName: tableName, 
-                totalAmount: 0, 
-                items: [] 
-            };
-        }
-        renderCartUI(selected);
+        // (เดี๋ยวสเตปหน้า เราจะดึงข้อมูลเมนูอาหารมาใส่ใน menuGrid ตรงนี้ครับ)
     }
-// ==========================================
-    // 🛒 ระบบตะกร้า และ Draft Order
-    // ==========================================
-    
-    // เมื่อพนักงานจิ้มเมนูอาหาร
-    function addDraftItem(name, price, image) {
-        let existing = draftNewItems.find(item => item.name === name);
-        if(existing) {
-            existing.qty += 1;
-        } else {
-            draftNewItems.push({ name: name, price: price, qty: 1, image: image });
-        }
-        
-        // รีเฟรชตะกร้าทันที
-        let activeId = currentSelectedTableId || targetOpenTableId;
-        let selected = allTablesData.find(t => t.id === activeId || t.name === activeId);
-        if(selected) renderCartUI(selected);
-    }
-
 
 // ฟังก์ชันกดปุ่ม "กลับไปผังโต๊ะ"
     function backToTables() {
@@ -661,7 +554,7 @@
         document.getElementById('btnSaveOrder').classList.add('hidden');
         document.getElementById('btnCheckout').classList.remove('hidden');
     }
-
+    
 </script>
 </body>
 </html>
