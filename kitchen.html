@@ -259,15 +259,23 @@ function renderKitchenCards() {
         }
         if (buffer.trim()) rawItems.push(buffer.trim());
 
-        const groupedItems = {};
-        rawItems.forEach(itemStr => {
-            let qtyMatch = itemStr.match(/\(x(\d+)\)/);
-            let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
-            let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
-            let mainName = baseName.replace(/\[.*?\]/g, "").trim();
-            if (!groupedItems[mainName]) groupedItems[mainName] = { name: mainName, qty: 0 };
-            groupedItems[mainName].qty += qty;
-        });
+  const groupedItems = {};
+rawItems.forEach(itemStr => {
+    let qtyMatch = itemStr.match(/\(x(\d+)\)/);
+    let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
+    let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
+    let mainName = baseName.replace(/\[.*?\]/g, "").trim();
+    
+    // --- เริ่มเพิ่มเงื่อนไขตรงนี้ ---
+    // กรองชื่อเมนูที่ไม่ต้องการให้แสดงในจอครัวออก
+    if (mainName.includes("(ผู้ใหญ่)") || mainName.includes("(เด็ก)") || mainName.includes("(ทานฟรี)")) {
+        return; // ข้าม (Skip) รายการนี้ไป ไม่ต้องเอาไปรวมใน groupedItems
+    }
+    // --- จบเงื่อนไข ---
+
+    if (!groupedItems[mainName]) groupedItems[mainName] = { name: mainName, qty: 0 };
+    groupedItems[mainName].qty += qty;
+});
 
         let itemsHtml = "";
         Object.values(groupedItems).forEach(item => {
