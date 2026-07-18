@@ -555,6 +555,46 @@
         document.getElementById('btnCheckout').classList.remove('hidden');
     }
     
+    function renderMenuUI(products) {
+        const grid = document.getElementById('menuGrid');
+        grid.innerHTML = '';
+        if(!products || products.length === 0) {
+            grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8 font-bold">ไม่พบข้อมูลสินค้าจากชีต Stock</div>`;
+            return;
+        }
+
+        let html = '';
+        products.forEach(p => {
+            // =========================================
+            // 🎯 จุดที่ต้องแก้: เปลี่ยนเลขในวงเล็บให้ตรงกับชีต
+            // =========================================
+            
+            // สมมติว่า "ชื่อสินค้า" อยู่คอลัมน์ B (เปลี่ยนเลข 1 เป็นเลขคอลัมน์ของคุณ)
+            let itemName = p[1] || 'ไม่มีชื่อ'; 
+            
+            // สมมติว่า "ราคา" อยู่คอลัมน์ C (เปลี่ยนเลข 2 เป็นเลขคอลัมน์ของคุณ)
+            let itemPrice = parseFloat(p[2]) || 0; 
+            
+            // สมมติว่า "ลิงก์รูปภาพ" อยู่คอลัมน์ J (คอลัมน์ J = 9) (เปลี่ยนเลข 9 เป็นเลขคอลัมน์รูปของคุณ)
+            let rawImg = p[9]; 
+            
+            // =========================================
+
+            let itemImg = (rawImg && typeof rawImg === 'string' && rawImg.startsWith('http')) 
+                          ? rawImg 
+                          : "https://placehold.co/150x150/fee2e2/dc2626?text=" + encodeURIComponent(itemName);
+
+            html += `
+            <div onclick="addDraftItem('${itemName}', ${itemPrice}, '${itemImg}')" class="bg-white rounded-2xl p-2 shadow-sm border border-gray-100 cursor-pointer hover:border-pink-400 hover:shadow-md transition active:scale-95 flex flex-col items-center text-center">
+                <img src="${itemImg}" class="w-full h-24 object-cover rounded-xl mb-2" alt="${itemName}">
+                <span class="font-bold text-gray-800 text-sm line-clamp-1 w-full">${itemName}</span>
+                <span class="text-pink-600 font-bold text-sm">฿${itemPrice.toLocaleString()}</span>
+            </div>
+            `;
+        });
+        grid.innerHTML = html;
+    }
+    
 </script>
 </body>
 </html>
