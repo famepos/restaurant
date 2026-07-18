@@ -491,7 +491,7 @@ function enterOrderView(name) {
         document.getElementById('tableSelectorView').classList.add('hidden');
         document.getElementById('orderView').classList.remove('hidden'); 
         document.getElementById('productGrid').classList.remove('hidden');
-        document.getElementById('orderFooter').classList.remove('hidden');
+        //document.getElementById('orderFooter').classList.remove('hidden');
         document.getElementById('btnBack').classList.remove('hidden');
         document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
 
@@ -719,7 +719,7 @@ function clearTable() {
             
             // ซ่อนหน้าสั่งอาหารและปุ่มต่างๆ
             document.getElementById('orderView').classList.add('hidden');
-            document.getElementById('orderFooter').classList.add('hidden');
+            //document.getElementById('orderFooter').classList.add('hidden');
             document.getElementById('btnBack').classList.add('hidden');
             
             // 🟢 ปิดกล่องป๊อปอัป "ดูบิลโต๊ะนี้"
@@ -736,7 +736,7 @@ function clearTable() {
 function goBackToTables() {
     // 1. ซ่อนหน้าสั่งอาหารและ Footer
     document.getElementById('orderView').classList.add('hidden');
-    document.getElementById('orderFooter').classList.add('hidden');
+    //document.getElementById('orderFooter').classList.add('hidden');
     
     // 2. ซ่อนปุ่มย้อนกลับ
     document.getElementById('btnBack').classList.add('hidden');
@@ -977,7 +977,7 @@ function closeCartModal() {
 function clearCart() {
     cart = [];
     updateCartBadge();
-    closeCartModal();
+    //closeCartModal();
     // 🟢 เปลี่ยนจาก alert เป็น showToast
     showToast("ล้างรายการในตะกร้าแล้วครับ", "info");
 }
