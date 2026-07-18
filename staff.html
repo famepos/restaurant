@@ -496,7 +496,7 @@ function enterOrderView(name) {
         document.getElementById('btnBack').classList.remove('hidden');
         document.getElementById('selectedTableDisplay').innerText = "โต๊ะ: " + name;
         document.getElementById('cartTableNameDisplay').innerText = name;
-        renderCartItems();
+      
 
         // 🟢 เช็คว่าโต๊ะที่เข้าเป็นโหมด Buffet หรือไม่
         let myTable = globalTablesList.find(t => t.name === name);
@@ -519,6 +519,7 @@ function enterOrderView(name) {
             isBuffetMode = false;
             buffetIncludedCategories = [];
             renderProductGrid(); // วาดสินค้าด้วยราคาปกติ + สต็อกล่าสุด
+              renderCartItems();
         }
     });
 }
