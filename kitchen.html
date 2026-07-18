@@ -260,22 +260,27 @@ function renderKitchenCards() {
         if (buffer.trim()) rawItems.push(buffer.trim());
 
         const groupedItems = {};
-     rawItems.forEach(itemStr => {
+ rawItems.forEach(itemStr => {
             let qtyMatch = itemStr.match(/\(x(\d+)\)/);
             let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
             let baseName = itemStr.replace(/\s*\(x\d+\)/, "").trim();
             let mainName = baseName.replace(/\[.*?\]/g, "").trim();
 
-            // --- 📢 แทรกโค้ดตัวกรองตรงนี้ครับ ---
-            if (mainName.includes("(ผู้ใหญ่)") || 
-                mainName.includes("(เด็ก)") || 
-                mainName.includes("(เปิดโต๊ะฟรี)")) {
-                return; // ถ้าเจอชื่อเหล่านี้ ให้ข้ามการแสดงผลไปเลย
-            }
+            // 🛑 1. เพิ่มโค้ดดักจับคำที่เกี่ยวกับแพ็กเกจตรงนี้
+            // (คุณสามารถเพิ่มคำอื่นๆ ที่ใช้ในชื่อแพ็กเกจลงไปในเครื่องหมาย "" ได้เลยครับ)
+            const skipWords = ["บุฟเฟต์", "บุฟเฟ่ต์", "แพ็กเกจ", "ผู้ใหญ่", "เด็ก", "ราคา","Premium"];
+            const isPackage = skipWords.some(word => mainName.includes(word));
             
+            if (isPackage) return; // ถ้าชื่อสินค้ามีคำพวกนี้ ให้ข้ามไป ไม่ต้องแสดงบนจอครัว
+
             if (!groupedItems[mainName]) groupedItems[mainName] = { name: mainName, qty: 0 };
             groupedItems[mainName].qty += qty;
         });
+
+        // 🛑 2. ถ้าในบิลนั้นมีแค่แพ็กเกจอย่างเดียว (โดนดักทิ้งไปหมดแล้ว) ไม่ต้องสร้างการ์ดให้รกจอ
+        if (Object.keys(groupedItems).length === 0) {
+            return; 
+        }
 
         let itemsHtml = "";
         Object.values(groupedItems).forEach(item => {
