@@ -667,7 +667,11 @@ function sendToKitchen() {
     let isOpeningOnly = !hasNormalFood;
 
     let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    
+    // ตรงนี้สำคัญ: เช็คว่า totalAmount มากกว่า 0 ก่อนส่ง
+if (totalAmount === 0) {
+    showToast("ข้อผิดพลาด: ราคาแพ็กเกจเป็น 0 กรุณาตรวจสอบข้อมูลสินค้า", "error");
+    return;
+}
     // 2. ส่ง Flag isOpeningOnly ไปด้วย
     let orderPayload = { 
         table: currentTable, 
