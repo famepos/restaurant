@@ -661,55 +661,52 @@ function sendToKitchen() {
         return;
     }
 
-    // แยกรายการ: แพ็กเกจไปบันทึกบิล, รายการอาหารส่งครัว
-    let packageItems = cart.filter(item => item.name.includes("บุฟเฟต์"));
-    let normalOrders = cart.filter(item => !item.name.includes("บุฟเฟต์"));
+    // ตรวจสอบว่าในตะกร้ามีรายการที่ไม่ใช่ "บุฟเฟต์" ไหม
+    // ถ้าไม่มีเลย (มีแต่บุฟเฟต์) -> ให้มองว่าเป็นแค่การเปิดโต๊ะ (isOpeningOnly = true)
+    let hasNormalFood = cart.some(item => !item.name.includes("บุฟเฟต์"));
+    let isOpeningOnly = !hasNormalFood;
 
-    // 1. บันทึกแพ็กเกจ (ไม่ส่งครัว)
-    if (packageItems.length > 0) {
-        google.script.run.saveTableOpeningDirectly({
-            table: currentTable,
-            items: packageItems
-        });
-    }
+    let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    
+    let orderPayload = { 
+        table: currentTable, 
+        items: cart, 
+        total: totalAmount,
+        isOpeningOnly: isOpeningOnly // 👈 ส่งค่านี้ไปบอก backend
+    };
 
-    // 2. ถ้ามีแค่อาหารปกติ หรือมีทั้งสองอย่าง -> ส่งรายการอาหารเข้าครัวผ่าน fetch
-    if (normalOrders.length > 0) {
-        let totalAmount = normalOrders.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        let orderPayload = { 
-            table: currentTable, 
-            items: normalOrders.map(i => ({ name: i.name, price: i.price, qty: i.qty })), 
-            total: totalAmount 
-        };
+    let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
+    btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
 
-        let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
-        btns.forEach(btn => { btn.innerText = "กำลังส่ง... ⏳"; btn.disabled = true; });
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ 
+            action: "submitCustomerOrder", 
+            args: [orderPayload] 
+        }),
+        redirect: "follow"
+    })
+    .then(res => res.json())
+    .then(data => {
+        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
 
-        fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action: "submitCustomerOrder", args: [orderPayload] }),
-            redirect: "follow"
-        })
-        .then(res => res.json())
-        .then(data => {
-            btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-            if(data.status === "Success") {
-                showToast("ส่งออเดอร์เข้าครัวเรียบร้อย! 🔔", "success");
-                cart = []; updateCartBadge(); closeCartModal(); goBackToTables();
-            } else { showToast(data.message, "error"); }
-        })
-        .catch(() => {
-            btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-            showToast("การเชื่อมต่อล้มเหลว", "error");
-        });
-    } else {
-        // กรณีมีแค่แพ็กเกจอย่างเดียว
-        showToast("บันทึกค่าแพ็กเกจเข้าบิลเรียบร้อย! 🔔", "success");
-        cart = []; updateCartBadge(); closeCartModal(); goBackToTables();
-    }
+        if(data.status === "Success") {
+            showToast(isOpeningOnly ? "บันทึกค่าแพ็กเกจเข้าบิลแล้ว! 🔔" : "ส่งออเดอร์เข้าครัวเรียบร้อย! 🔔", "success");
+            
+            cart = [];            
+            updateCartBadge();    
+            closeCartModal();      
+            goBackToTables();      
+        } else {
+            showToast(data.message, "error");
+        }
+    })
+    .catch(err => {
+        btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
+        showToast("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง", "error");
+    });
 }
-
 // 4. ระบบเคลียร์โต๊ะ (แบบกดแล้วทำงานทันที)
 function clearTable() {
     if (!currentTable) return;
