@@ -68,9 +68,52 @@
 
   <!-- ================= JAVASCRIPT ================= -->
   <script>
+    // 🔗 1. กำหนด API URL ของ Google Apps Script ของคุณ
     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
+    // 🪄 2. MAGIC PROXY: ตัวแปลงคำสั่งให้อ่าน google.script.run ได้บน GitHub
+    const google = {
+      script: {
+        get run() {
+          let successCb = null;
+          let failureCb = null;
+          
+          const proxy = new Proxy({}, {
+            get: function(target, prop) {
+              if (prop === 'withSuccessHandler') {
+                return function(cb) { successCb = cb; return proxy; };
+              }
+              if (prop === 'withFailureHandler') {
+                return function(cb) { failureCb = cb; return proxy; };
+              }
+              return function(...args) {
+                // ยิง API แบบ POST ไปหาฟังก์ชัน doPost หลังบ้าน
+                fetch(API_URL, {
+                  method: "POST",
+                  headers: { "Content-Type": "text/plain;charset=utf-8" }, // ป้องกัน CORS
+                  body: JSON.stringify({ action: prop, args: args })
+                })
+                .then(res => res.json())
+                .then(data => {
+                  if(data.status === "Success" && successCb) {
+                    successCb(data.result);
+                  } else if (data.status !== "Success" && failureCb) {
+                    failureCb(data.message);
+                  }
+                })
+                .catch(err => {
+                  if(failureCb) failureCb(err);
+                  else console.error("Fetch Error:", err);
+                });
+              };
+            }
+          });
+          return proxy;
+        }
+      }
+    };
 
+    // ================= โค้ดทำงานส่วนหลัก =================
     let currentTable = "";
     let menuData = [];
     let cart = [];
@@ -82,7 +125,7 @@
       document.getElementById(screenId).classList.remove('hidden');
     }
 
-    // 1. โหลดข้อมูลโต๊ะจากระบบหลังบ้าน
+    // 1. โหลดข้อมูลโต๊ะจากระบบหลังบ้าน (วิ่งผ่าน Proxy อัตโนมัติ)
     function loadTables() {
       google.script.run
         .withSuccessHandler(function(tables) {
@@ -104,7 +147,7 @@
         .getTablesData();
     }
 
-    // 2. โหลดเมนูอาหารจากระบบหลังบ้าน
+    // 2. โหลดเมนูอาหารจากระบบหลังบ้าน (วิ่งผ่าน Proxy อัตโนมัติ)
     function loadMenu() {
       google.script.run
         .withSuccessHandler(function(products) {
@@ -112,7 +155,7 @@
           renderMenu();
         })
         .withFailureHandler(err => console.error("Error loading menu:", err))
-        .getProductsForMenu(); // ดึงมาจากฟังก์ชันที่มีอยู่แล้วในระบบคุณ
+        .getProductsForMenu(); 
     }
 
     // เลือกโต๊ะและไปหน้าสั่งอาหาร
@@ -157,7 +200,6 @@
       }
       updateCartUI();
       
-      // แจ้งเตือนเล็กๆ
       Swal.fire({
         toast: true, position: 'top-end', showConfirmButton: false,
         timer: 1000, icon: 'success', title: 'เพิ่มลงตะกร้าแล้ว'
