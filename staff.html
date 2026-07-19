@@ -661,18 +661,19 @@ function sendToKitchen() {
         return;
     }
 
-    // ตรวจสอบว่าในตะกร้ามีรายการที่ไม่ใช่ "บุฟเฟต์" ไหม
-    // ถ้าไม่มีเลย (มีแต่บุฟเฟต์) -> ให้มองว่าเป็นแค่การเปิดโต๊ะ (isOpeningOnly = true)
+    // 1. ตรวจสอบว่าในตะกร้ามีอาหารที่ไม่ใช่บุฟเฟต์ไหม
+    // ถ้าไม่มีเลย (hasNormalFood เป็น false) แสดงว่านี่คือการ "เปิดโต๊ะ" อย่างเดียว
     let hasNormalFood = cart.some(item => !item.name.includes("บุฟเฟต์"));
     let isOpeningOnly = !hasNormalFood;
 
     let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     
+    // 2. ส่ง Flag isOpeningOnly ไปด้วย
     let orderPayload = { 
         table: currentTable, 
         items: cart, 
         total: totalAmount,
-        isOpeningOnly: isOpeningOnly // 👈 ส่งค่านี้ไปบอก backend
+        isOpeningOnly: isOpeningOnly 
     };
 
     let btns = document.querySelectorAll('button[onclick="sendToKitchen()"]');
@@ -690,23 +691,18 @@ function sendToKitchen() {
     .then(res => res.json())
     .then(data => {
         btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-
         if(data.status === "Success") {
-            showToast(isOpeningOnly ? "บันทึกค่าแพ็กเกจเข้าบิลแล้ว! 🔔" : "ส่งออเดอร์เข้าครัวเรียบร้อย! 🔔", "success");
-            
-            cart = [];            
-            updateCartBadge();    
-            closeCartModal();      
-            goBackToTables();      
-        } else {
-            showToast(data.message, "error");
-        }
+            // แสดงข้อความตามบริบท
+            showToast(isOpeningOnly ? "เปิดโต๊ะเรียบร้อย! 🔔" : "ส่งออเดอร์เข้าครัวเรียบร้อย! 🔔", "success");
+            cart = []; updateCartBadge(); closeCartModal(); goBackToTables();
+        } else { showToast(data.message, "error"); }
     })
-    .catch(err => {
+    .catch(() => {
         btns.forEach(btn => { btn.innerText = "ส่งแคชเชียร์ 🔔"; btn.disabled = false; });
-        showToast("การเชื่อมต่อล้มเหลว โปรดลองอีกครั้ง", "error");
+        showToast("การเชื่อมต่อล้มเหลว", "error");
     });
 }
+
 // 4. ระบบเคลียร์โต๊ะ (แบบกดแล้วทำงานทันที)
 function clearTable() {
     if (!currentTable) return;
