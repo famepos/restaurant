@@ -6,7 +6,6 @@
   <title>Staff Mode | FamePOS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body { font-family: 'Kanit', sans-serif; background-color: #f9fafb; margin: 0; padding: 0; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -27,8 +26,11 @@
   </header>
 
   <!-- ================= SCREEN 1: เลือกโต๊ะ ================= -->
-  <div id="tableScreen" class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-    <h2 class="font-bold text-gray-700 text-lg">🪑 เลือกโต๊ะที่ต้องการดูแล</h2>
+  <div id="tableScreen" class="flex-1 overflow-y-auto p-4 flex flex-col gap-4 relative">
+    <div class="flex justify-between items-center">
+      <h2 class="font-bold text-gray-700 text-lg">🪑 เลือกโต๊ะที่ต้องการดูแล</h2>
+      <span id="syncStatus" class="text-xs text-green-500 font-bold opacity-0 transition-opacity duration-300">● อัปเดตแล้ว</span>
+    </div>
     <div id="tableGrid" class="grid grid-cols-2 gap-3">
       <div class="text-center text-gray-400 py-10 col-span-2 animate-pulse">กำลังโหลดข้อมูลโต๊ะ...</div>
     </div>
@@ -108,29 +110,20 @@
       }
     };
 
-    // ================= 3. ตั้งค่าแพ็กเกจ (PACKAGE CONFIG) =================
-    // ชื่อคีย์ ("a_la_carte", "buffet_299") ควรตั้งให้ตรงกับค่าที่ระบบหลังบ้านส่งมา
+    // ================= 3. ตั้งค่าแพ็กเกจ =================
     const PACKAGE_RULES = {
-      "a_la_carte": { 
-        name: "จานเดี่ยว (A La Carte)", 
-        freeCategories: [] 
-      },
-      "บุฟเฟต์ 299": { 
-        name: "บุฟเฟต์ 299", 
-        freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม"] 
-      },
-      "บุฟเฟต์ 399": { 
-        name: "บุฟเฟต์ 399", 
-        freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม", "เนื้อวัว", "ซีฟู้ด", "ของหวาน"] 
-      }
+      "a_la_carte": { name: "จานเดี่ยว (A La Carte)", freeCategories: [] },
+      "บุฟเฟต์ 299": { name: "บุฟเฟต์ 299", freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม"] },
+      "บุฟเฟต์ 399": { name: "บุฟเฟต์ 399", freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม", "เนื้อวัว", "ซีฟู้ด", "ของหวาน"] }
     };
 
     // ตัวแปรระบบ
-    let tablesData = []; // เก็บข้อมูลโต๊ะทั้งหมดที่โหลดมา
+    let tablesData = []; 
     let currentTable = "";
     let menuData = [];
     let cart = [];
-    let currentPackage = "a_la_carte"; // ค่าเริ่มต้น
+    let currentPackage = "a_la_carte"; 
+    let isFirstLoad = true; // ป้องกันจอกะพริบตอนอัปเดตอัตโนมัติ
 
     function showScreen(screenId) {
       document.getElementById('tableScreen').classList.add('hidden');
@@ -138,14 +131,26 @@
       document.getElementById(screenId).classList.remove('hidden');
     }
 
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.innerText = message;
+      toast.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-50 transition-opacity duration-300";
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 1200);
+    }
+
+    // ฟังก์ชันโหลดข้อมูลโต๊ะ (ทำงานอัตโนมัติทุกๆ 5 วินาที)
     function loadTables() {
       google.script.run
         .withSuccessHandler(function(tables) {
-          tablesData = tables; // เก็บข้อมูลลงตัวแปรโกลบอล
+          isFirstLoad = false;
+          tablesData = tables; 
           let html = '';
+          
           if(tables && tables.length > 0) {
             tables.forEach(t => {
-              let statusColor = (t.status === "ว่าง" || t.status === "🟢 ว่าง") ? "bg-white text-gray-700 border-gray-200 opacity-70" : "bg-pink-50 text-pink-700 border-pink-300";
+              let isFree = (t.status === "ว่าง" || t.status === "🟢 ว่าง");
+              let statusColor = isFree ? "bg-white text-gray-700 border-gray-200 opacity-70" : "bg-pink-50 text-pink-700 border-pink-300";
               html += `<button onclick="selectTable('${t.name}')" class="p-4 rounded-2xl border-2 ${statusColor} shadow-sm font-bold text-lg active:scale-95 transition flex flex-col items-center justify-center gap-1">
                         <span class="text-2xl">🪑</span>
                         ${t.name}
@@ -155,7 +160,26 @@
           } else {
             html = '<div class="col-span-2 text-center text-gray-500">ไม่พบข้อมูลโต๊ะ</div>';
           }
+          
           document.getElementById('tableGrid').innerHTML = html;
+
+          // ✅ แสดงไฟกระพริบเขียวๆ เล็กๆ ว่าเพิ่งดึงข้อมูลล่าสุดมา
+          let syncIcon = document.getElementById('syncStatus');
+          syncIcon.style.opacity = '1';
+          setTimeout(() => syncIcon.style.opacity = '0', 1000);
+
+          // ✅ ระบบดีดออกอัตโนมัติ: ถ้าพนักงานกำลังสั่งอาหารอยู่ แล้วแคชเชียร์ปิดโต๊ะ
+          if (currentTable && !document.getElementById('menuScreen').classList.contains('hidden')) {
+             let tb = tablesData.find(t => t.name === currentTable);
+             if (tb && (tb.status === "ว่าง" || tb.status === "🟢 ว่าง")) {
+                 alert("⚠️ โต๊ะ " + currentTable + " ถูกปิดไปแล้วโดยแคชเชียร์\n\nระบบจะพาคุณกลับไปหน้าเลือกโต๊ะ");
+                 showScreen('tableScreen');
+                 currentTable = "";
+                 cart = [];
+                 document.getElementById('currentTableDisplay').innerText = "กรุณาเลือกโต๊ะ";
+             }
+          }
+
         })
         .withFailureHandler(err => console.error("Error loading tables:", err))
         .getTablesData();
@@ -165,48 +189,36 @@
       google.script.run
         .withSuccessHandler(function(products) {
           menuData = products;
-          // ยังไม่วาดเมนูจนกว่าจะเลือกโต๊ะ
         })
         .withFailureHandler(err => console.error("Error loading menu:", err))
         .getProductsForMenu(); 
     }
 
-    // ฟังก์ชันค้นหาแพ็กเกจให้ตรงกับที่ตั้งค่าไว้
     function matchPackage(backendPackageName) {
       if (!backendPackageName) return "a_la_carte";
-      
-      // ค้นหาว่าชื่อที่แคชเชียร์เลือก ตรงกับ key หรือ name ใน PACKAGE_RULES ไหม
       for (let key in PACKAGE_RULES) {
         if (key === backendPackageName || PACKAGE_RULES[key].name === backendPackageName) {
           return key;
         }
       }
-      return "a_la_carte"; // ถ้าหาไม่เจอ ให้คิดเงินปกติ
+      return "a_la_carte"; 
     }
 
     function selectTable(tableName) {
-      // 1. หาข้อมูลโต๊ะที่ถูกคลิก
       let tableInfo = tablesData.find(t => t.name === tableName);
       if (!tableInfo) return;
 
-      // 2. แจ้งเตือนหากแคชเชียร์ยังไม่ได้เปิดโต๊ะ
       if (tableInfo.status === "ว่าง" || tableInfo.status === "🟢 ว่าง") {
-        Swal.fire({
-          icon: 'warning',
-          title: 'โต๊ะนี้ยังไม่เปิด',
-          text: 'กรุณาให้แคชเชียร์เปิดโต๊ะและเลือกแพ็กเกจก่อนสั่งอาหาร (ระบบจะตั้งเป็น A La Carte ชั่วคราว)'
-        });
+        alert("⚠️ โต๊ะนี้ยังไม่เปิด\n\nกรุณาให้แคชเชียร์เปิดโต๊ะและเลือกแพ็กเกจก่อนสั่งอาหาร\n(ระบบจะตั้งเป็น A La Carte ชั่วคราว)");
       }
 
       currentTable = tableName;
       document.getElementById('currentTableDisplay').innerText = "ดูแลโต๊ะ: " + tableName;
       cart = []; 
       
-      // 3. ดึงค่าแพ็กเกจจากฐานข้อมูล (สมมติว่า backend ส่งมาในชื่อ package หรือ packageName)
       let backendPackage = tableInfo.package || tableInfo.packageName || "a_la_carte";
       currentPackage = matchPackage(backendPackage);
       
-      // 4. แสดงชื่อแพ็กเกจบนหน้าจอ
       document.getElementById('packageDisplay').innerText = PACKAGE_RULES[currentPackage].name;
 
       updateCartUI();
@@ -214,14 +226,12 @@
       showScreen('menuScreen');
     }
 
-    // วาดรายการอาหาร แยกตามหมวดหมู่ และตรวจสอบแพ็กเกจ
     function renderMenu() {
       if(!menuData || menuData.length === 0) return;
 
       const rule = PACKAGE_RULES[currentPackage];
       const freeCats = rule.freeCategories;
 
-      // จัดกลุ่มเมนูตามหมวดหมู่ (Category)
       const groupedMenu = {};
       menuData.forEach(item => {
         let cat = item.category && item.category !== "" ? item.category : "อื่นๆ";
@@ -232,8 +242,6 @@
       let html = '';
       for(let cat in groupedMenu) {
         let isFree = freeCats.includes(cat);
-        
-        // ป้ายกำกับหมวดหมู่
         let badgeHtml = isFree 
           ? `<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold shadow-sm">🟢 ฟรี (รวมในบุฟเฟต์)</span>` 
           : `<span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-bold shadow-sm">🔴 คิดเงินเพิ่ม</span>`;
@@ -250,7 +258,6 @@
         groupedMenu[cat].forEach(item => {
           let originalPrice = parseFloat(item.price) || 0;
           let img = item.image ? `<img src="${item.image}" class="w-16 h-16 rounded-xl object-cover">` : `<div class="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-2xl">🍽️</div>`;
-          
           let priceDisplay = isFree 
             ? `<span class="text-gray-400 line-through text-xs mr-1">฿${originalPrice.toFixed(2)}</span> <span class="text-green-600">฿0.00</span>` 
             : `<span class="text-pink-600">฿${originalPrice.toFixed(2)}</span>`;
@@ -282,11 +289,7 @@
         cart.push({ name: name, originalPrice: originalPrice, category: category, qty: 1 });
       }
       updateCartUI();
-      
-      Swal.fire({
-        toast: true, position: 'top-end', showConfirmButton: false,
-        timer: 800, icon: 'success', title: 'เพิ่มลงตะกร้าแล้ว'
-      });
+      showToast('เพิ่ม ' + name + ' ลงตะกร้าแล้ว');
     }
 
     function updateCartUI() {
@@ -308,8 +311,8 @@
     }
 
     function submitOrder() {
-      if (cart.length === 0) return Swal.fire('ตะกร้าว่างเปล่า!', 'กรุณาเลือกอาหารก่อน', 'warning');
-      if (!currentTable) return Swal.fire('ข้อผิดพลาด', 'กรุณาเลือกโต๊ะก่อนส่งออเดอร์', 'error');
+      if (cart.length === 0) return alert('⚠️ ตะกร้าว่างเปล่า!\nกรุณาเลือกอาหารก่อนกดส่งออเดอร์');
+      if (!currentTable) return alert('❌ ข้อผิดพลาด\nกรุณาเลือกโต๊ะก่อนส่งออเดอร์');
 
       let btn = document.getElementById('btnSubmitOrder');
       btn.innerHTML = '⏳ กำลังส่ง...'; btn.disabled = true;
@@ -332,53 +335,51 @@
         .withSuccessHandler(function(res) {
           btn.innerHTML = '<span>🍳</span> ส่งเข้าครัว'; btn.disabled = false;
           if(res.status === "Success") {
-            Swal.fire('สำเร็จ!', 'ส่งออเดอร์เข้าครัวเรียบร้อย', 'success');
+            alert('✅ สำเร็จ!\nส่งออเดอร์เข้าครัวเรียบร้อยแล้ว');
             cart = []; 
             updateCartUI();
           } else {
-            Swal.fire('ข้อผิดพลาด', res.message, 'error');
+            alert('❌ เกิดข้อผิดพลาด\n' + res.message);
           }
         })
         .withFailureHandler(function(err) {
           btn.innerHTML = '<span>🍳</span> ส่งเข้าครัว'; btn.disabled = false;
-          Swal.fire('เซิร์ฟเวอร์ขัดข้อง', err.toString(), 'error');
+          alert('❌ เซิร์ฟเวอร์ขัดข้อง\n' + err.toString());
         })
         .submitCustomerOrder(orderData);
     }
 
     function requestBill() {
-      if (!currentTable) return Swal.fire('ข้อผิดพลาด', 'กรุณาเลือกโต๊ะ', 'error');
-      Swal.fire({
-        title: 'ยืนยันเรียกเก็บเงิน?',
-        text: "ระบบจะแจ้งเตือนไปยังหน้าจอแคชเชียร์",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#ec4899',
-        cancelButtonColor: '#9ca3af',
-        confirmButtonText: 'ตกลง, เรียกเลย'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          let btn = document.getElementById('btnRequestBill');
-          btn.innerHTML = '⏳ กำลังเรียก...'; btn.disabled = true;
-          google.script.run
-            .withSuccessHandler(function(res) {
-              btn.innerHTML = '<span>🛎️</span> เรียกเก็บเงิน'; btn.disabled = false;
-              if (res === "Success") Swal.fire('สำเร็จ', 'แจ้งเตือนแคชเชียร์แล้ว', 'success');
-              else Swal.fire('ผิดพลาด', res, 'error');
-            })
-            .withFailureHandler(function(err) {
-              btn.innerHTML = '<span>🛎️</span> เรียกเก็บเงิน'; btn.disabled = false;
-              Swal.fire('ข้อผิดพลาด', err.toString(), 'error');
-            })
-            .requestBillGS(currentTable);
-        }
-      });
+      if (!currentTable) return alert('❌ ข้อผิดพลาด\nกรุณาเลือกโต๊ะก่อนทำรายการ');
+      
+      if (confirm('ยืนยันเรียกเก็บเงินโต๊ะ: ' + currentTable + ' ใช่หรือไม่?\n\nระบบจะส่งการแจ้งเตือนไปยังหน้าจอแคชเชียร์ทันที')) {
+        let btn = document.getElementById('btnRequestBill');
+        btn.innerHTML = '⏳ กำลังเรียก...'; btn.disabled = true;
+        
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.innerHTML = '<span>🛎️</span> เรียกเก็บเงิน'; btn.disabled = false;
+            if (res === "Success") {
+              alert('✅ สำเร็จ\nแจ้งเตือนไปยังแคชเชียร์เรียบร้อยแล้ว');
+            } else {
+              alert('❌ เกิดข้อผิดพลาด\n' + res);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.innerHTML = '<span>🛎️</span> เรียกเก็บเงิน'; btn.disabled = false;
+            alert('❌ เซิร์ฟเวอร์ขัดข้อง\n' + err.toString());
+          })
+          .requestBillGS(currentTable);
+      }
     }
 
-    // เริ่มต้นทำงาน
+    // ================= เริ่มต้นทำงาน =================
     window.onload = function() {
       loadTables();
       loadMenu();
+
+      // ⏱️ ตั้งเวลาดึงข้อมูลตารางโต๊ะใหม่ทุกๆ 4 วินาที (Auto-Polling)
+      setInterval(loadTables, 4000);
     };
   </script>
 </body>
