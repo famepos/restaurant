@@ -899,52 +899,61 @@ function submitTableOpen() {
     let timeLimit = currentTableMode === 'Buffet' ? document.getElementById('inputTimeLimit').value : "ไม่จำกัด";
 
     let btn = document.querySelector(`button[onclick="submitTableOpen()"]`);
-    let originalText = btn.innerText;
     btn.innerText = "กำลังเปิดโต๊ะ... ⏳";
     btn.disabled = true;
 
+    // 1. เรียก openTableGS เพื่อเปิดโต๊ะในระบบก่อน
     google.script.run.withSuccessHandler((updatedTables) => {
-        document.getElementById('openTableModeModal').classList.add('hidden');
-        btn.innerText = originalText;
-        btn.disabled = false;
+        globalTablesList = updatedTables;
         
-        globalTablesList = updatedTables; 
-        
-        // 🛑 เคลียร์ตะกร้าให้ว่างสนิททุกครั้งก่อนใส่รายการเปิดโต๊ะ
-        cart = []; 
-        
+        // 2. ถ้าเป็นบุฟเฟต์ ให้เตรียม Payload และส่งเข้าแคชเชียร์ทันที
         if (currentTableMode === 'Buffet' && selectedPackage) {
             let pAdult = window.tempAdultPrice || 0;
             let pChild = window.tempChildPrice || 0;
             
-            // ใส่รายการลงตะกร้าตามจำนวนที่ระบุใน input
-            if (adult > 0) cart.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
-            if (kid > 0) cart.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
-            if (freeCount > 0) cart.push({ name: `${selectedPackage} (ทานฟรี)`, price: 0, qty: freeCount });
+            let buffetItems = [];
+            if (adult > 0) buffetItems.push({ name: `${selectedPackage} (ผู้ใหญ่)`, price: pAdult, qty: adult });
+            if (kid > 0) buffetItems.push({ name: `${selectedPackage} (เด็ก)`, price: pChild, qty: kid });
+            if (freeCount > 0) buffetItems.push({ name: `${selectedPackage} (ทานฟรี)`, price: 0, qty: freeCount });
             
-            updateCartBadge(); 
-            showToast("เปิดโต๊ะบุฟเฟต์แล้ว", "success");
+            let totalAmount = buffetItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
             
-            // บันทึกลงบิลโดยไม่ผ่านครัว
-            saveTableOpeningData(); 
+            // 🟢 ส่งเข้า submitCustomerOrder ทันที! (ไม่ต้องรอไปกด sendToKitchen)
+            let openingPayload = { 
+                table: selectedTable, 
+                items: buffetItems, 
+                total: totalAmount,
+                isOpeningOnly: true // เพื่อให้หลังบ้านเซฟเป็นสถานะ "Opened" (ครัวไม่เห็น)
+            };
+            
+            google.script.run.withSuccessHandler(() => {
+                showToast("เปิดโต๊ะและส่งรายการเข้าแคชเชียร์แล้วครับ!", "success");
+                document.getElementById('openTableModeModal').classList.add('hidden');
+                btn.innerText = "🚀 ยืนยันเปิดโต๊ะ";
+                btn.disabled = false;
+                enterOrderView(selectedTable);
+            }).submitCustomerOrder(openingPayload);
+            
+        } else {
+            // กรณีไม่ใช่บุฟเฟต์
+            document.getElementById('openTableModeModal').classList.add('hidden');
+            btn.innerText = "🚀 ยืนยันเปิดโต๊ะ";
+            btn.disabled = false;
+            enterOrderView(selectedTable);
         }
-        
-        // เข้าหน้าสั่งอาหาร (อย่าลืมตรวจสอบว่าใน enterOrderView ไม่มีการ push เพิ่มเติม)
-        enterOrderView(selectedTable);
-        
     }).openTableGS(selectedTable, currentTableMode, totalHeadCount, pkgName, timeLimit, adult, kid, freeCount);
 }
 
-// ในฟังก์ชัน submitTableOpen()
 function saveTableOpeningData() {
     let openingPayload = { 
-        table: currentTable, 
+        table: selectedTable, 
         items: cart
     };
 
-    // 🟢 เปลี่ยนจาก submitCustomerOrder เป็น saveTableOpeningDirectly
+    // 🟢 เรียกฟังก์ชันใหม่ที่สร้างขึ้น ซึ่งจะบันทึกสถานะเป็น "Opened" 
+    // ห้องครัวจะมองไม่เห็น เพราะห้องครัวจะมองหาแต่สถานะ "Pending" เท่านั้น
     google.script.run.withSuccessHandler(() => {
-        console.log("บันทึกเปิดโต๊ะลงบิลเรียบร้อย");
+        console.log("บันทึกเปิดโต๊ะลงบิลเรียบร้อย (ไม่ส่งเข้าครัว)");
     }).saveTableOpeningDirectly(openingPayload);
 }
 // อัปเดตตัวเลขจำนวนของในปุ่มตะกร้า
