@@ -36,10 +36,9 @@
     </div>
   </div>
 
-  <!-- ================= SCREEN 2: สั่งอาหาร & จัดการบิล ================= -->
+  <!-- ================= SCREEN 2: สั่งอาหาร ================= -->
   <div id="menuScreen" class="hidden flex-1 flex flex-col overflow-hidden">
-    
-    <!-- แถบแสดงแพ็กเกจ (ดึงจากแคชเชียร์อัตโนมัติ) -->
+    <!-- แถบแสดงแพ็กเกจ -->
     <div class="bg-pink-50 px-4 py-3 shadow-sm border-b border-pink-100 z-10 flex justify-between items-center">
       <div class="text-xs font-bold text-gray-500">🏷️ แพ็กเกจโต๊ะนี้:</div>
       <div id="packageDisplay" class="font-black text-pink-700 text-sm bg-white px-3 py-1 rounded-full border border-pink-200 shadow-sm">
@@ -47,23 +46,19 @@
       </div>
     </div>
 
-    <!-- เมนูอาหาร (จัดกลุ่มตามหมวดหมู่) -->
+    <!-- เมนูอาหาร -->
     <div class="flex-1 overflow-y-auto no-scrollbar p-4 bg-gray-50 pb-32">
       <div id="menuList" class="space-y-5">
         <div class="text-center text-gray-400 py-10 animate-pulse">กำลังโหลดเมนู...</div>
       </div>
     </div>
 
-    <!-- แถบเครื่องมือด้านล่างสุด (Sticky Bottom) -->
+    <!-- แถบตะกร้าด้านล่าง -->
     <div class="absolute bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] p-4 flex flex-col gap-3 rounded-t-3xl z-20">
-      
-      <!-- สรุปตะกร้า -->
       <div class="flex justify-between items-center px-2">
         <span class="font-bold text-gray-600">รวม <span id="cartCount" class="text-pink-600">0</span> รายการ</span>
         <span class="font-black text-2xl text-pink-600" id="cartTotal">฿0.00</span>
       </div>
-
-      <!-- ปุ่ม Action -->
       <div class="grid grid-cols-2 gap-3">
         <button onclick="submitOrder()" id="btnSubmitOrder" class="py-3.5 bg-pink-500 text-white font-bold rounded-xl shadow-md active:scale-95 transition flex items-center justify-center gap-2">
           <span>🍳</span> ส่งเข้าครัว
@@ -75,11 +70,37 @@
     </div>
   </div>
 
+  <!-- ================= CUSTOM MODALS (หน้าต่างแจ้งเตือนทำเอง) ================= -->
+  
+  <!-- 1. แจ้งเตือนทั่วไป (Alert) -->
+  <div id="customAlertModal" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-opacity">
+    <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center border-t-4 border-pink-500 transform scale-100 transition-transform">
+      <div id="customAlertIcon" class="text-5xl mb-3">⚠️</div>
+      <h3 id="customAlertTitle" class="text-xl font-black text-gray-800 mb-2">แจ้งเตือน</h3>
+      <p id="customAlertMessage" class="text-sm text-gray-500 mb-6 whitespace-pre-line">ข้อความ</p>
+      <button onclick="closeCustomAlert()" class="w-full bg-pink-500 text-white font-bold py-3.5 rounded-xl active:scale-95 transition shadow-md">
+        ตกลงเข้าใจแล้ว
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. กล่องยืนยัน (Confirm) -->
+  <div id="customConfirmModal" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-opacity">
+    <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center border-t-4 border-orange-400">
+      <div id="customConfirmIcon" class="text-5xl mb-3">❓</div>
+      <h3 id="customConfirmTitle" class="text-xl font-black text-gray-800 mb-2">ยืนยัน</h3>
+      <p id="customConfirmMessage" class="text-sm text-gray-500 mb-6 whitespace-pre-line">ข้อความ</p>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="closeCustomConfirm()" class="w-full bg-gray-100 text-gray-600 font-bold py-3.5 rounded-xl active:scale-95 transition">ยกเลิก</button>
+        <button id="customConfirmBtn" class="w-full bg-orange-500 text-white font-bold py-3.5 rounded-xl active:scale-95 transition shadow-md">ตกลง</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= JAVASCRIPT ================= -->
- <!-- ================= JAVASCRIPT ================= -->
   <script>
     // 🔗 1. API URL ของระบบหลังบ้านคุณ
-    const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
     // 🪄 2. MAGIC PROXY
     const google = {
@@ -111,7 +132,47 @@
       }
     };
 
-    // ================= 3. ตัวแปรระบบ =================
+    // ================= ระบบ CUSTOM UI =================
+    function showAlert(title, message, icon = '⚠️') {
+      document.getElementById('customAlertTitle').innerText = title;
+      document.getElementById('customAlertMessage').innerText = message;
+      document.getElementById('customAlertIcon').innerText = icon;
+      document.getElementById('customAlertModal').classList.remove('hidden');
+    }
+
+    function closeCustomAlert() {
+      document.getElementById('customAlertModal').classList.add('hidden');
+    }
+
+    function showConfirm(title, message, icon, onConfirmCallback) {
+      document.getElementById('customConfirmTitle').innerText = title;
+      document.getElementById('customConfirmMessage').innerText = message;
+      document.getElementById('customConfirmIcon').innerText = icon;
+      document.getElementById('customConfirmModal').classList.remove('hidden');
+
+      const confirmBtn = document.getElementById('customConfirmBtn');
+      const newBtn = confirmBtn.cloneNode(true); // ล้าง Event เก่า
+      confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+
+      newBtn.addEventListener('click', () => {
+        closeCustomConfirm();
+        onConfirmCallback();
+      });
+    }
+
+    function closeCustomConfirm() {
+      document.getElementById('customConfirmModal').classList.add('hidden');
+    }
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.innerText = message;
+      toast.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-xl z-[200] transition-opacity duration-300";
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 1500);
+    }
+
+    // ================= ตัวแปรระบบ =================
     let PACKAGE_RULES = {
       "a_la_carte": { name: "จานเดี่ยว (A La Carte)", freeCategories: [] }
     };
@@ -129,15 +190,7 @@
       document.getElementById(screenId).classList.remove('hidden');
     }
 
-    function showToast(message) {
-      const toast = document.createElement('div');
-      toast.innerText = message;
-      toast.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-50 transition-opacity duration-300";
-      document.body.appendChild(toast);
-      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 1200);
-    }
-
-    // 🚀 โหลดแพ็กเกจบุฟเฟต์จากชีตตั้งค่า
+    // 🚀 โหลดแพ็กเกจ
     function loadPackages() {
       google.script.run
         .withSuccessHandler(function(packages) {
@@ -154,6 +207,7 @@
         .getPackagesData();
     }
 
+    // 🚀 โหลดข้อมูลโต๊ะ
     function loadTables() {
       google.script.run
         .withSuccessHandler(function(tables) {
@@ -183,10 +237,11 @@
              setTimeout(() => syncIcon.style.opacity = '0', 1000);
           }
 
+          // ระบบดีดพนักงานออก (เรียกใช้ Custom Modal แทน alert)
           if (currentTable && !document.getElementById('menuScreen').classList.contains('hidden')) {
              let tb = tablesData.find(t => t.name === currentTable);
              if (tb && (tb.status === "ว่าง" || tb.status === "🟢 ว่าง")) {
-                 alert("⚠️ โต๊ะ " + currentTable + " ถูกปิดไปแล้วโดยแคชเชียร์\n\nระบบจะพาคุณกลับไปหน้าเลือกโต๊ะ");
+                 showAlert('โต๊ะถูกปิดแล้ว', `โต๊ะ ${currentTable} ถูกปิดไปแล้วโดยแคชเชียร์\nระบบจะพาคุณกลับไปหน้าเลือกโต๊ะ`, '🚪');
                  showScreen('tableScreen');
                  currentTable = "";
                  cart = [];
@@ -207,15 +262,12 @@
         .getProductsForMenu(); 
     }
 
-    // 🚀 ระบบจับคู่แพ็กเกจ
     function matchPackage(orderMode, backendPackageName) {
       if (orderMode === "A La Carte" || !backendPackageName || backendPackageName.trim() === "") {
         return "a_la_carte";
       }
-
       let pName = backendPackageName.trim();
       if (PACKAGE_RULES[pName]) return pName;
-      
       return "a_la_carte"; 
     }
 
@@ -224,7 +276,8 @@
       if (!tableInfo) return;
 
       if (tableInfo.status === "ว่าง" || tableInfo.status === "🟢 ว่าง") {
-        alert("⚠️ โต๊ะนี้ยังไม่เปิด\n\nกรุณาให้แคชเชียร์เปิดโต๊ะและเลือกแพ็กเกจก่อนสั่งอาหาร\n(ระบบจะตั้งเป็น A La Carte ชั่วคราว)");
+        // ใช้ Custom Modal แทน alert
+        showAlert('โต๊ะนี้ยังไม่เปิด', 'กรุณาให้แคชเชียร์เปิดโต๊ะและเลือกแพ็กเกจก่อนสั่งอาหาร\n(ระบบจะตั้งเป็น A La Carte ชั่วคราว)', '⚠️');
       }
 
       currentTable = tableName;
@@ -257,7 +310,6 @@
 
       let html = '';
       for(let cat in groupedMenu) {
-        // ✅ ตรวจสอบว่ามีคำว่า ALL อยู่ในหมวดหมู่ที่กินฟรี หรือหมวดหมู่นั้นกินฟรี
         let isFree = freeCats.includes("ALL") || freeCats.includes(cat);
         
         let badgeHtml = isFree 
@@ -307,7 +359,7 @@
         cart.push({ name: name, originalPrice: originalPrice, category: category, qty: 1 });
       }
       updateCartUI();
-      showToast('เพิ่ม ' + name + ' ลงตะกร้าแล้ว');
+      showToast(`เพิ่ม ${name} แล้ว`);
     }
 
     function updateCartUI() {
@@ -318,7 +370,6 @@
       const freeCats = rule.freeCategories || [];
 
       cart.forEach(i => {
-        // ✅ ตรวจสอบว่ามีคำว่า ALL หรือไม่ ในตะกร้า
         let isFree = freeCats.includes("ALL") || freeCats.includes(i.category);
         let effectivePrice = isFree ? 0 : i.originalPrice;
         
@@ -332,8 +383,8 @@
     }
 
     function submitOrder() {
-      if (cart.length === 0) return alert('⚠️ ตะกร้าว่างเปล่า!\nกรุณาเลือกอาหารก่อนกดส่งออเดอร์');
-      if (!currentTable) return alert('❌ ข้อผิดพลาด\nกรุณาเลือกโต๊ะก่อนส่งออเดอร์');
+      if (cart.length === 0) return showAlert('ตะกร้าว่างเปล่า!', 'กรุณาเลือกอาหารก่อนกดส่งออเดอร์', '🛒');
+      if (!currentTable) return showAlert('ข้อผิดพลาด', 'กรุณาเลือกโต๊ะก่อนส่งออเดอร์', '❌');
 
       let btn = document.getElementById('btnSubmitOrder');
       btn.innerHTML = '⏳ กำลังส่ง...'; btn.disabled = true;
@@ -357,24 +408,25 @@
         .withSuccessHandler(function(res) {
           btn.innerHTML = '<span>🍳</span> ส่งเข้าครัว'; btn.disabled = false;
           if(res.status === "Success") {
-            alert('✅ สำเร็จ!\nส่งออเดอร์เข้าครัวเรียบร้อยแล้ว');
+            showAlert('สำเร็จ!', 'ส่งออเดอร์เข้าครัวเรียบร้อยแล้ว', '✅');
             cart = []; 
             updateCartUI();
           } else {
-            alert('❌ เกิดข้อผิดพลาด\n' + res.message);
+            showAlert('เกิดข้อผิดพลาด', res.message, '❌');
           }
         })
         .withFailureHandler(function(err) {
           btn.innerHTML = '<span>🍳</span> ส่งเข้าครัว'; btn.disabled = false;
-          alert('❌ เซิร์ฟเวอร์ขัดข้อง\n' + err.toString());
+          showAlert('เซิร์ฟเวอร์ขัดข้อง', err.toString(), '❌');
         })
         .submitCustomerOrder(orderData);
     }
 
     function requestBill() {
-      if (!currentTable) return alert('❌ ข้อผิดพลาด\nกรุณาเลือกโต๊ะก่อนทำรายการ');
+      if (!currentTable) return showAlert('ข้อผิดพลาด', 'กรุณาเลือกโต๊ะก่อนทำรายการ', '❌');
       
-      if (confirm('ยืนยันเรียกเก็บเงินโต๊ะ: ' + currentTable + ' ใช่หรือไม่?\n\nระบบจะส่งการแจ้งเตือนไปยังหน้าจอแคชเชียร์ทันที')) {
+      // เรียกใช้ Custom Confirm แทน confirm()
+      showConfirm('ยืนยันเรียกเก็บเงิน?', `โต๊ะ: ${currentTable}\nระบบจะส่งการแจ้งเตือนไปยังหน้าจอแคชเชียร์ทันที`, '🛎️', () => {
         let btn = document.getElementById('btnRequestBill');
         btn.innerHTML = '⏳ กำลังเรียก...'; btn.disabled = true;
         
@@ -382,17 +434,17 @@
           .withSuccessHandler(function(res) {
             btn.innerHTML = '<span>🛎️</span> เรียกเก็บเงิน'; btn.disabled = false;
             if (res === "Success") {
-              alert('✅ สำเร็จ\nแจ้งเตือนไปยังแคชเชียร์เรียบร้อยแล้ว');
+              showAlert('สำเร็จ', 'แจ้งเตือนไปยังแคชเชียร์เรียบร้อยแล้ว', '✅');
             } else {
-              alert('❌ เกิดข้อผิดพลาด\n' + res);
+              showAlert('เกิดข้อผิดพลาด', res, '❌');
             }
           })
           .withFailureHandler(function(err) {
             btn.innerHTML = '<span>🛎️</span> เรียกเก็บเงิน'; btn.disabled = false;
-            alert('❌ เซิร์ฟเวอร์ขัดข้อง\n' + err.toString());
+            showAlert('เซิร์ฟเวอร์ขัดข้อง', err.toString(), '❌');
           })
           .requestBillGS(currentTable);
-      }
+      });
     }
 
     // ================= เริ่มต้นทำงาน =================
