@@ -37,12 +37,12 @@
   <!-- ================= SCREEN 2: สั่งอาหาร & จัดการบิล ================= -->
   <div id="menuScreen" class="hidden flex-1 flex flex-col overflow-hidden">
     
-    <!-- แถบเลือกแพ็กเกจ (PACKAGE SELECTOR) -->
-    <div class="bg-white px-4 py-3 shadow-sm border-b border-gray-200 z-10">
-      <label class="text-xs font-bold text-gray-500 block mb-1">🏷️ เลือกแพ็กเกจของโต๊ะนี้:</label>
-      <select id="packageSelector" onchange="changePackage(this.value)" class="w-full bg-pink-50 border border-pink-200 text-pink-700 rounded-lg p-2 font-bold focus:ring-pink-500 outline-none">
-        <!-- ตัวเลือกจะถูกสร้างอัตโนมัติจาก JS -->
-      </select>
+    <!-- แถบแสดงแพ็กเกจ (ดึงจากแคชเชียร์อัตโนมัติ) -->
+    <div class="bg-pink-50 px-4 py-3 shadow-sm border-b border-pink-100 z-10 flex justify-between items-center">
+      <div class="text-xs font-bold text-gray-500">🏷️ แพ็กเกจโต๊ะนี้:</div>
+      <div id="packageDisplay" class="font-black text-pink-700 text-sm bg-white px-3 py-1 rounded-full border border-pink-200 shadow-sm">
+        กำลังตรวจสอบ...
+      </div>
     </div>
 
     <!-- เมนูอาหาร (จัดกลุ่มตามหมวดหมู่) -->
@@ -109,23 +109,24 @@
     };
 
     // ================= 3. ตั้งค่าแพ็กเกจ (PACKAGE CONFIG) =================
-    // คุณสามารถแก้ไขชื่อแพ็กเกจ และ หมวดหมู่ที่ทานฟรี ได้ที่นี่
+    // ชื่อคีย์ ("a_la_carte", "buffet_299") ควรตั้งให้ตรงกับค่าที่ระบบหลังบ้านส่งมา
     const PACKAGE_RULES = {
       "a_la_carte": { 
-        name: "จานเดี่ยว (A La Carte) - คิดเงินทุกอย่าง", 
+        name: "จานเดี่ยว (A La Carte)", 
         freeCategories: [] 
       },
-      "buffet_299": { 
-        name: "บุฟเฟต์ 299.-", 
-        freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม"] // หมวดหมู่เหล่านี้จะราคา 0 บาท
+      "บุฟเฟต์ 299": { 
+        name: "บุฟเฟต์ 299", 
+        freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม"] 
       },
-      "buffet_399": { 
-        name: "บุฟเฟต์ 399.- (พรีเมียม)", 
+      "บุฟเฟต์ 399": { 
+        name: "บุฟเฟต์ 399", 
         freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม", "เนื้อวัว", "ซีฟู้ด", "ของหวาน"] 
       }
     };
 
     // ตัวแปรระบบ
+    let tablesData = []; // เก็บข้อมูลโต๊ะทั้งหมดที่โหลดมา
     let currentTable = "";
     let menuData = [];
     let cart = [];
@@ -137,31 +138,18 @@
       document.getElementById(screenId).classList.remove('hidden');
     }
 
-    // สร้างตัวเลือกแพ็กเกจใน Dropdown
-    function initPackageDropdown() {
-      let select = document.getElementById('packageSelector');
-      let html = '';
-      for(let key in PACKAGE_RULES) {
-        html += `<option value="${key}">${PACKAGE_RULES[key].name}</option>`;
-      }
-      select.innerHTML = html;
-    }
-
-    function changePackage(pkgKey) {
-      currentPackage = pkgKey;
-      renderMenu();     // วาดเมนูใหม่เพื่ออัปเดตป้ายกำกับ (ฟรี/คิดเงิน)
-      updateCartUI();   // อัปเดตราคาในตะกร้าใหม่ทันที
-    }
-
     function loadTables() {
       google.script.run
         .withSuccessHandler(function(tables) {
+          tablesData = tables; // เก็บข้อมูลลงตัวแปรโกลบอล
           let html = '';
           if(tables && tables.length > 0) {
             tables.forEach(t => {
-              let statusColor = (t.status === "ว่าง" || t.status === "🟢 ว่าง") ? "bg-white text-gray-700 border-gray-200" : "bg-pink-50 text-pink-700 border-pink-300";
+              let statusColor = (t.status === "ว่าง" || t.status === "🟢 ว่าง") ? "bg-white text-gray-700 border-gray-200 opacity-70" : "bg-pink-50 text-pink-700 border-pink-300";
               html += `<button onclick="selectTable('${t.name}')" class="p-4 rounded-2xl border-2 ${statusColor} shadow-sm font-bold text-lg active:scale-95 transition flex flex-col items-center justify-center gap-1">
-                        <span class="text-2xl">🪑</span>${t.name}
+                        <span class="text-2xl">🪑</span>
+                        ${t.name}
+                        <span class="text-xs font-normal mt-1">${t.status}</span>
                       </button>`;
             });
           } else {
@@ -177,21 +165,50 @@
       google.script.run
         .withSuccessHandler(function(products) {
           menuData = products;
-          renderMenu();
+          // ยังไม่วาดเมนูจนกว่าจะเลือกโต๊ะ
         })
         .withFailureHandler(err => console.error("Error loading menu:", err))
         .getProductsForMenu(); 
     }
 
+    // ฟังก์ชันค้นหาแพ็กเกจให้ตรงกับที่ตั้งค่าไว้
+    function matchPackage(backendPackageName) {
+      if (!backendPackageName) return "a_la_carte";
+      
+      // ค้นหาว่าชื่อที่แคชเชียร์เลือก ตรงกับ key หรือ name ใน PACKAGE_RULES ไหม
+      for (let key in PACKAGE_RULES) {
+        if (key === backendPackageName || PACKAGE_RULES[key].name === backendPackageName) {
+          return key;
+        }
+      }
+      return "a_la_carte"; // ถ้าหาไม่เจอ ให้คิดเงินปกติ
+    }
+
     function selectTable(tableName) {
+      // 1. หาข้อมูลโต๊ะที่ถูกคลิก
+      let tableInfo = tablesData.find(t => t.name === tableName);
+      if (!tableInfo) return;
+
+      // 2. แจ้งเตือนหากแคชเชียร์ยังไม่ได้เปิดโต๊ะ
+      if (tableInfo.status === "ว่าง" || tableInfo.status === "🟢 ว่าง") {
+        Swal.fire({
+          icon: 'warning',
+          title: 'โต๊ะนี้ยังไม่เปิด',
+          text: 'กรุณาให้แคชเชียร์เปิดโต๊ะและเลือกแพ็กเกจก่อนสั่งอาหาร (ระบบจะตั้งเป็น A La Carte ชั่วคราว)'
+        });
+      }
+
       currentTable = tableName;
       document.getElementById('currentTableDisplay').innerText = "ดูแลโต๊ะ: " + tableName;
       cart = []; 
       
-      // รีเซ็ตแพ็กเกจเป็นค่าเริ่มต้นทุกครั้งที่เปิดโต๊ะใหม่
-      document.getElementById('packageSelector').value = "a_la_carte";
-      currentPackage = "a_la_carte";
+      // 3. ดึงค่าแพ็กเกจจากฐานข้อมูล (สมมติว่า backend ส่งมาในชื่อ package หรือ packageName)
+      let backendPackage = tableInfo.package || tableInfo.packageName || "a_la_carte";
+      currentPackage = matchPackage(backendPackage);
       
+      // 4. แสดงชื่อแพ็กเกจบนหน้าจอ
+      document.getElementById('packageDisplay').innerText = PACKAGE_RULES[currentPackage].name;
+
       updateCartUI();
       renderMenu();
       showScreen('menuScreen');
@@ -204,7 +221,7 @@
       const rule = PACKAGE_RULES[currentPackage];
       const freeCats = rule.freeCategories;
 
-      // 1. จัดกลุ่มเมนูตามหมวดหมู่ (Category)
+      // จัดกลุ่มเมนูตามหมวดหมู่ (Category)
       const groupedMenu = {};
       menuData.forEach(item => {
         let cat = item.category && item.category !== "" ? item.category : "อื่นๆ";
@@ -212,7 +229,6 @@
         groupedMenu[cat].push(item);
       });
 
-      // 2. สร้าง HTML แยกตามหมวดหมู่
       let html = '';
       for(let cat in groupedMenu) {
         let isFree = freeCats.includes(cat);
@@ -231,12 +247,10 @@
             <div class="space-y-3">
         `;
 
-        // วนลูปรายการอาหารในหมวดหมู่นั้น
         groupedMenu[cat].forEach(item => {
           let originalPrice = parseFloat(item.price) || 0;
           let img = item.image ? `<img src="${item.image}" class="w-16 h-16 rounded-xl object-cover">` : `<div class="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-2xl">🍽️</div>`;
           
-          // ตกแต่งการแสดงราคา
           let priceDisplay = isFree 
             ? `<span class="text-gray-400 line-through text-xs mr-1">฿${originalPrice.toFixed(2)}</span> <span class="text-green-600">฿0.00</span>` 
             : `<span class="text-pink-600">฿${originalPrice.toFixed(2)}</span>`;
@@ -260,7 +274,6 @@
       document.getElementById('menuList').innerHTML = html;
     }
 
-    // เพิ่มลงตะกร้า (เก็บราคาต้นฉบับไว้คำนวณทีหลัง)
     function addToCart(name, originalPrice, category) {
       let existing = cart.find(i => i.name === name);
       if (existing) {
@@ -276,18 +289,16 @@
       });
     }
 
-    // อัปเดตยอดรวมตะกร้า (คำนวณราคาใหม่เสมอ เผื่อมีการเปลี่ยนแพ็กเกจ)
     function updateCartUI() {
       let totalQty = 0;
       let totalPrice = 0;
       const freeCats = PACKAGE_RULES[currentPackage].freeCategories;
 
       cart.forEach(i => {
-        // เช็คว่ารายการนี้ฟรีในแพ็กเกจปัจจุบันหรือไม่
         let isFree = freeCats.includes(i.category);
         let effectivePrice = isFree ? 0 : i.originalPrice;
         
-        i.price = effectivePrice; // อัปเดตราคาจริงที่จะส่งเข้าครัว
+        i.price = effectivePrice; 
         totalQty += i.qty;
         totalPrice += (effectivePrice * i.qty);
       });
@@ -303,9 +314,8 @@
       let btn = document.getElementById('btnSubmitOrder');
       btn.innerHTML = '⏳ กำลังส่ง...'; btn.disabled = true;
 
-      // จัดฟอร์แมตข้อมูลส่งเข้าหลังบ้าน
       let orderItems = cart.map(i => {
-        return { name: i.name, price: i.price, qty: i.qty }; // ส่งเฉพาะข้อมูลที่จำเป็นไป
+        return { name: i.name, price: i.price, qty: i.qty }; 
       });
 
       let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -315,7 +325,7 @@
         items: orderItems,
         total: totalPrice,
         isOpeningOnly: false,
-        package: PACKAGE_RULES[currentPackage].name // แอบแนบชื่อแพ็กเกจไปให้แคชเชียร์ทราบด้วย
+        package: PACKAGE_RULES[currentPackage].name
       };
 
       google.script.run
@@ -367,7 +377,6 @@
 
     // เริ่มต้นทำงาน
     window.onload = function() {
-      initPackageDropdown();
       loadTables();
       loadMenu();
     };
