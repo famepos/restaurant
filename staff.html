@@ -76,11 +76,12 @@
   </div>
 
   <!-- ================= JAVASCRIPT ================= -->
+ <!-- ================= JAVASCRIPT ================= -->
   <script>
     // 🔗 1. API URL ของระบบหลังบ้านคุณ
     const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
-    // 🪄 2. MAGIC PROXY: ตัวแปลงคำสั่ง
+    // 🪄 2. MAGIC PROXY
     const google = {
       script: {
         get run() {
@@ -110,20 +111,17 @@
       }
     };
 
-    // ================= 3. ตั้งค่าแพ็กเกจ =================
-    const PACKAGE_RULES = {
-      "a_la_carte": { name: "จานเดี่ยว (A La Carte)", freeCategories: [] },
-      "บุฟเฟต์ 299": { name: "บุฟเฟต์ 299", freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม"] },
-      "บุฟเฟต์ 399": { name: "บุฟเฟต์ 399", freeCategories: ["เนื้อหมู", "ไก่", "ผัก", "ของทานเล่น", "เครื่องดื่ม", "เนื้อวัว", "ซีฟู้ด", "ของหวาน"] }
+    // ================= 3. ตัวแปรระบบ =================
+    let PACKAGE_RULES = {
+      "a_la_carte": { name: "จานเดี่ยว (A La Carte)", freeCategories: [] }
     };
 
-    // ตัวแปรระบบ
     let tablesData = []; 
     let currentTable = "";
     let menuData = [];
     let cart = [];
     let currentPackage = "a_la_carte"; 
-    let isFirstLoad = true; // ป้องกันจอกะพริบตอนอัปเดตอัตโนมัติ
+    let isFirstLoad = true; 
 
     function showScreen(screenId) {
       document.getElementById('tableScreen').classList.add('hidden');
@@ -139,7 +137,23 @@
       setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 1200);
     }
 
-    // ฟังก์ชันโหลดข้อมูลโต๊ะ (ทำงานอัตโนมัติทุกๆ 5 วินาที)
+    // 🚀 โหลดแพ็กเกจบุฟเฟต์จากชีตตั้งค่า
+    function loadPackages() {
+      google.script.run
+        .withSuccessHandler(function(packages) {
+          if(packages && packages.length > 0) {
+            packages.forEach(p => {
+              PACKAGE_RULES[p.name] = { 
+                name: p.name, 
+                freeCategories: p.freeCategories 
+              };
+            });
+          }
+        })
+        .withFailureHandler(err => console.error("Error loading packages:", err))
+        .getPackagesData();
+    }
+
     function loadTables() {
       google.script.run
         .withSuccessHandler(function(tables) {
@@ -163,12 +177,12 @@
           
           document.getElementById('tableGrid').innerHTML = html;
 
-          // ✅ แสดงไฟกระพริบเขียวๆ เล็กๆ ว่าเพิ่งดึงข้อมูลล่าสุดมา
           let syncIcon = document.getElementById('syncStatus');
-          syncIcon.style.opacity = '1';
-          setTimeout(() => syncIcon.style.opacity = '0', 1000);
+          if(syncIcon) {
+             syncIcon.style.opacity = '1';
+             setTimeout(() => syncIcon.style.opacity = '0', 1000);
+          }
 
-          // ✅ ระบบดีดออกอัตโนมัติ: ถ้าพนักงานกำลังสั่งอาหารอยู่ แล้วแคชเชียร์ปิดโต๊ะ
           if (currentTable && !document.getElementById('menuScreen').classList.contains('hidden')) {
              let tb = tablesData.find(t => t.name === currentTable);
              if (tb && (tb.status === "ว่าง" || tb.status === "🟢 ว่าง")) {
@@ -179,7 +193,6 @@
                  document.getElementById('currentTableDisplay').innerText = "กรุณาเลือกโต๊ะ";
              }
           }
-
         })
         .withFailureHandler(err => console.error("Error loading tables:", err))
         .getTablesData();
@@ -194,13 +207,15 @@
         .getProductsForMenu(); 
     }
 
-    function matchPackage(backendPackageName) {
-      if (!backendPackageName) return "a_la_carte";
-      for (let key in PACKAGE_RULES) {
-        if (key === backendPackageName || PACKAGE_RULES[key].name === backendPackageName) {
-          return key;
-        }
+    // 🚀 ระบบจับคู่แพ็กเกจ
+    function matchPackage(orderMode, backendPackageName) {
+      if (orderMode === "A La Carte" || !backendPackageName || backendPackageName.trim() === "") {
+        return "a_la_carte";
       }
+
+      let pName = backendPackageName.trim();
+      if (PACKAGE_RULES[pName]) return pName;
+      
       return "a_la_carte"; 
     }
 
@@ -216,10 +231,11 @@
       document.getElementById('currentTableDisplay').innerText = "ดูแลโต๊ะ: " + tableName;
       cart = []; 
       
-      let backendPackage = tableInfo.package || tableInfo.packageName || "a_la_carte";
-      currentPackage = matchPackage(backendPackage);
-      
-      document.getElementById('packageDisplay').innerText = PACKAGE_RULES[currentPackage].name;
+      let mode = tableInfo.orderMode || ""; 
+      let pName = tableInfo.packageName || "";
+
+      currentPackage = matchPackage(mode, pName);
+      document.getElementById('packageDisplay').innerText = PACKAGE_RULES[currentPackage] ? PACKAGE_RULES[currentPackage].name : "จานเดี่ยว (A La Carte)";
 
       updateCartUI();
       renderMenu();
@@ -229,8 +245,8 @@
     function renderMenu() {
       if(!menuData || menuData.length === 0) return;
 
-      const rule = PACKAGE_RULES[currentPackage];
-      const freeCats = rule.freeCategories;
+      const rule = PACKAGE_RULES[currentPackage] || PACKAGE_RULES["a_la_carte"];
+      const freeCats = rule.freeCategories || [];
 
       const groupedMenu = {};
       menuData.forEach(item => {
@@ -241,7 +257,9 @@
 
       let html = '';
       for(let cat in groupedMenu) {
-        let isFree = freeCats.includes(cat);
+        // ✅ ตรวจสอบว่ามีคำว่า ALL อยู่ในหมวดหมู่ที่กินฟรี หรือหมวดหมู่นั้นกินฟรี
+        let isFree = freeCats.includes("ALL") || freeCats.includes(cat);
+        
         let badgeHtml = isFree 
           ? `<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold shadow-sm">🟢 ฟรี (รวมในบุฟเฟต์)</span>` 
           : `<span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-bold shadow-sm">🔴 คิดเงินเพิ่ม</span>`;
@@ -295,10 +313,13 @@
     function updateCartUI() {
       let totalQty = 0;
       let totalPrice = 0;
-      const freeCats = PACKAGE_RULES[currentPackage].freeCategories;
+      
+      const rule = PACKAGE_RULES[currentPackage] || PACKAGE_RULES["a_la_carte"];
+      const freeCats = rule.freeCategories || [];
 
       cart.forEach(i => {
-        let isFree = freeCats.includes(i.category);
+        // ✅ ตรวจสอบว่ามีคำว่า ALL หรือไม่ ในตะกร้า
+        let isFree = freeCats.includes("ALL") || freeCats.includes(i.category);
         let effectivePrice = isFree ? 0 : i.originalPrice;
         
         i.price = effectivePrice; 
@@ -322,13 +343,14 @@
       });
 
       let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      let pkgName = PACKAGE_RULES[currentPackage] ? PACKAGE_RULES[currentPackage].name : "จานเดี่ยว (A La Carte)";
       
       let orderData = {
         table: currentTable,
         items: orderItems,
         total: totalPrice,
         isOpeningOnly: false,
-        package: PACKAGE_RULES[currentPackage].name
+        package: pkgName
       };
 
       google.script.run
@@ -375,10 +397,10 @@
 
     // ================= เริ่มต้นทำงาน =================
     window.onload = function() {
+      loadPackages(); 
       loadTables();
       loadMenu();
 
-      // ⏱️ ตั้งเวลาดึงข้อมูลตารางโต๊ะใหม่ทุกๆ 4 วินาที (Auto-Polling)
       setInterval(loadTables, 4000);
     };
   </script>
