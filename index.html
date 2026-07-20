@@ -146,6 +146,199 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+    /* 🌟 เปลี่ยนสีไฮไลต์เวลาเอาเมาส์ชี้ตัวเลือกในดรอปดาวน์เป็นสีชมพู */
+select option:hover,
+select option:focus,
+select option:checked {
+    background-color: #fce7f3 !important; /* สีชมพูอ่อน */
+    color: #b83280 !important;          /* สีตัวหนังสือชมพูเข้ม */
+}
+#historyView{
+    overflow:hidden;
+}
+
+#historyPageContainer{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#historyPageContainer::-webkit-scrollbar{
+    display:none;
+}
+/* ---------- Product Management ---------- */
+
+#productManagementView{
+    overflow:hidden;
+    min-height:0;
+}
+
+#productManagementView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#productManagementView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+
+/* ===== Expiry ===== */
+
+#expiryView{
+    overflow:hidden;
+}
+
+#expiryProductPage,
+#expiryRawPage{
+    min-height:0;
+}
+
+#expiryTableContainer,
+#rawExpiryTableContainer{
+    min-height:0;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#expiryTableContainer::-webkit-scrollbar,
+#rawExpiryTableContainer::-webkit-scrollbar{
+    display:none;
+}
+/* ตารางเต็มพื้นที่ */
+
+#employeeSettingsView{
+    overflow:hidden;
+}
+
+#employeeSettingsView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#employeeSettingsView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+/* ===== Receipt Settings ===== */
+
+#receiptSettingsView{
+    overflow:hidden;
+}
+
+#receiptSettingsView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#receiptSettingsView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+/* ===== Membership ===== */
+
+#membershipView{
+    overflow:hidden;
+}
+
+#membershipView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#membershipView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+/* ===== Promotions ===== */
+
+#promotionsManagementView{
+    overflow:hidden;
+}
+
+#promotionsManagementView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#promotionsManagementView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+/* ===== Barcode ===== */
+
+#barcodeSettingsView{
+    overflow:hidden;
+}
+
+#barcodeSettingsView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#barcodeSettingsView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+/* ===== Branch ===== */
+
+#branchManagementView{
+    overflow:hidden;
+}
+
+#branchManagementView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#branchManagementView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+/* ===== Table Management ===== */
+
+#tableManagementView{
+    overflow:hidden;
+}
+
+#tableManagementView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#tableManagementView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+/* ===== Buffet ===== */
+
+#buffetManagementView{
+    overflow:hidden;
+}
+
+#buffetManagementView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#buffetManagementView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+#adSettingsView{
+    overflow:hidden;
+}
+
+#adSettingsView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#adSettingsView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+#taxServiceSettingsView{
+    overflow:hidden;
+}
+
+#taxServiceSettingsView .no-scrollbar{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+#taxServiceSettingsView .no-scrollbar::-webkit-scrollbar{
+    display:none;
+}
   </style>
 </head>
 <body class="h-screen flex overflow-hidden">
@@ -386,72 +579,161 @@
     </div>
 </div>
 
-    <!-- ================= หน้าจอ: บิล ================= -->
-</div> <div id="historyView" class="hidden w-full h-full flex flex-col p-6 bg-gray-50/50">
+<!-- ================= หน้าจอ: บิล ================= -->
+</div>
+
+<div id="historyView" class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col">
+
+    <!-- Header -->
     <div class="shrink-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 mb-6">
-        <div class="flex flex-col xl:flex-row justify-between items-center mb-0 border-b pb-4 gap-4">
-            <h1 class="text-3xl font-bold text-pink-800 whitespace-nowrap">📜 บิลทั้งหมด</h1>
-            
+        <div class="flex flex-col xl:flex-row justify-between items-center border-b pb-4 gap-4">
+
+            <h1 class="text-3xl font-bold text-pink-800 whitespace-nowrap">
+                📜 บิลทั้งหมด
+            </h1>
+
             <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-end">
-                <span class="font-bold text-gray-500 text-sm">เลือกวันที่:</span>
-                <input type="date" id="filterDate" oninput="loadAllHistory()" class="p-3 rounded-xl border-2 border-pink-100 focus:border-pink-500 outline-none text-gray-700 font-medium">
-                
-                <input type="text" id="filterOrderId" oninput="loadAllHistory()" placeholder="ระบุเลขที่บิล..." class="p-3 rounded-xl border-2 border-pink-100 focus:border-pink-500 outline-none w-full md:w-48 font-medium">
-                
-                <button onclick="loadAllHistory()" class="px-5 py-3 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 transition shadow-sm">🔍 ค้นหา</button>
-                <button onclick="clearHistoryFilter()" class="px-5 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition shadow-sm">ล้างค่า</button>
+
+                <span class="font-bold text-gray-500 text-sm">
+                    เลือกวันที่:
+                </span>
+
+                <input type="date"
+                       id="filterDate"
+                       oninput="loadAllHistory()"
+                       class="p-3 rounded-xl border-2 border-pink-100 focus:border-pink-500 outline-none">
+
+                <input type="text"
+                       id="filterOrderId"
+                       oninput="loadAllHistory()"
+                       placeholder="ระบุเลขที่บิล..."
+                       class="p-3 rounded-xl border-2 border-pink-100 focus:border-pink-500 outline-none w-full md:w-48">
+
+                <button onclick="loadAllHistory()"
+                        class="px-5 py-3 bg-pink-500 text-white rounded-xl font-bold">
+                    🔍 ค้นหา
+                </button>
+
+                <button onclick="clearHistoryFilter()"
+                        class="px-5 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold">
+                    ล้างค่า
+                </button>
+
             </div>
+
         </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto no-scrollbar pb-6">
-        
-        <div id="historyPageContainer" class="space-y-4 bg-white p-6 rounded-3xl shadow-sm border border-pink-100">
-            </div>
-        
+    <!-- ตาราง -->
+    <div class="flex-1 min-h-0 overflow-hidden">
+
+        <div id="historyPageContainer"
+             class="h-full overflow-y-auto no-scrollbar bg-white p-6 rounded-3xl shadow-sm border border-pink-100">
+
+        </div>
+
     </div>
+
 </div>
 
     <!-- ================= หน้าจอ: สินค้า ================= -->
 
-    <div id="productManagementView" class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col">
-    <div class="w-full flex-1 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
-        
+<div id="productManagementView" class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0">
+
+    <div class="w-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+
+        <!-- Header -->
         <div class="shrink-0 flex justify-between items-center mb-6 border-b pb-4">
-            <h1 class="text-3xl font-bold text-pink-800">📑 จัดการสินค้า (Stock)</h1>
+            <h1 class="text-3xl font-bold text-pink-800">
+                📑 จัดการสินค้า (Stock)
+            </h1>
+
             <div class="flex gap-3">
-                <button onclick="loadAdminProducts()" class="px-5 py-3 bg-pink-100 text-pink-600 font-bold rounded-xl hover:bg-pink-200 transition shadow-sm flex items-center gap-2">
+
+                <button
+                    onclick="loadAdminProducts()"
+                    class="px-5 py-3 bg-pink-100 text-pink-600 font-bold rounded-xl hover:bg-pink-200 transition shadow-sm flex items-center gap-2">
                     🔄 รีเฟรช
                 </button>
-                <button onclick="openModifiersManagerModal()" class="px-5 py-3 bg-orange-100 text-orange-600 font-bold rounded-xl hover:bg-orange-200 transition shadow-sm flex items-center gap-2">
-                    <span>🧩</span> ตัวเลือกเสริม
+
+                <button
+                    onclick="openModifiersManagerModal()"
+                    class="px-5 py-3 bg-orange-100 text-orange-600 font-bold rounded-xl hover:bg-orange-200 transition shadow-sm flex items-center gap-2">
+                    <span>🧩</span>
+                    ตัวเลือกเสริม
                 </button>
-                <button onclick="openProductModal()" class="px-5 py-3 bg-pink-100 text-pink-600 font-bold rounded-xl hover:bg-pink-200 transition shadow-sm flex items-center gap-2">
-                    <span>➕</span> เพิ่มสินค้าใหม่
+
+                <button
+                    onclick="openProductModal()"
+                    class="px-5 py-3 bg-pink-100 text-pink-600 font-bold rounded-xl hover:bg-pink-200 transition shadow-sm flex items-center gap-2">
+                    <span>➕</span>
+                    เพิ่มสินค้าใหม่
                 </button>
+
             </div>
         </div>
-        
-        <div class="flex-1 overflow-x-auto overflow-y-auto no-scrollbar rounded-xl border border-gray-200">
+
+        <!-- ตารางสินค้า -->
+        <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-200">
+
             <table class="w-full text-left border-collapse">
-                <thead class="sticky top-0 z-10 bg-pink-50">
+
+                <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
+
                     <tr class="text-pink-800 border-b border-pink-100">
-                        <th class="p-4 font-bold text-center w-16">รูป</th>
-                        <th class="p-4 font-bold">รหัส/Barcode</th>
-                        <th class="p-4 font-bold">ชื่อสินค้า</th>
-                        <th class="p-4 font-bold">หมวดหมู่</th>
-                        <th class="p-4 font-bold text-gray-500">ต้นทุน</th>
-                        <th class="p-4 font-bold text-emerald-600">ราคาหน้าร้าน</th>
-                        <th class="p-4 font-bold text-orange-500">ราคา 🛵</th> 
-                        <th class="p-4 font-bold text-pink-600">คงเหลือ</th>
-                        <th class="p-4 font-bold text-center">จัดการ</th>
+
+                        <th class="p-4 font-bold text-center w-16">
+                            รูป
+                        </th>
+
+                        <th class="p-4 font-bold">
+                            รหัส/Barcode
+                        </th>
+
+                        <th class="p-4 font-bold">
+                            ชื่อสินค้า
+                        </th>
+
+                        <th class="p-4 font-bold">
+                            หมวดหมู่
+                        </th>
+
+                        <th class="p-4 font-bold text-gray-500">
+                            ต้นทุน
+                        </th>
+
+                        <th class="p-4 font-bold text-emerald-600">
+                            ราคาหน้าร้าน
+                        </th>
+
+                        <th class="p-4 font-bold text-orange-500">
+                            ราคา 🛵
+                        </th>
+
+                        <th class="p-4 font-bold text-pink-600">
+                            คงเหลือ
+                        </th>
+
+                        <th class="p-4 font-bold text-center">
+                            จัดการ
+                        </th>
+
                     </tr>
+
                 </thead>
-                <tbody id="productTableBody" class="divide-y divide-gray-100 text-gray-700">
-                    </tbody>
+
+                <tbody
+                    id="productTableBody"
+                    class="divide-y divide-gray-100 text-gray-700">
+
+                </tbody>
+
             </table>
+
         </div>
+
     </div>
+
 </div>
 
 <div id="productFormModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
@@ -1257,9 +1539,9 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
 
 <!-- ================= หน้าจอ: ระบบจัดการวันหมดอายุ ================= -->
 <div id="expiryView"
-     class="view-section hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
+     class="view-section hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0">
 
-    <div class="w-full h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+    <div class="w-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
 
         <!-- Header -->
         <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -1313,7 +1595,7 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
 
         <!-- ==================== หน้าสินค้า ===================== -->
 
-        <div id="expiryProductPage" class="flex flex-col flex-1">
+        <div id="expiryProductPage" class="flex flex-col flex-1 min-h-0">
 
             <!-- ค้นหา + กรอง -->
             <div class="mb-5 flex flex-wrap gap-3 items-center">
@@ -1353,20 +1635,17 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
             </div>
 
             <!-- ตารางสินค้า -->
-            <div
-                id="expiryTableContainer"
-                class="flex-1 overflow-hidden">
+     <div
+    id="expiryTableContainer"
+    class="flex-1 min-h-0 overflow-y-auto no-scrollbar rounded-xl border border-pink-200">
 
-                กำลังโหลด...
-
-            </div>
+</div>
 
         </div>
 
                  <!-- =================== หน้าวัตถุดิบ ==================== -->
 
-<div id="expiryRawPage" class="hidden flex-col flex-1">
-
+<div id="expiryRawPage" class="hidden flex-col flex-1 min-h-0">
     <!-- ค้นหา + กรอง -->
     <div class="mb-5 flex flex-wrap gap-3 items-center">
 
@@ -1394,41 +1673,28 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
     </div>
 </div>
 
-        <button
-            onclick="loadRawLots()"
-            class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-xl font-bold">
+<button
+        onclick="loadRawLots()"
+        class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-xl font-bold">
+        🔄 รีเฟรช
+    </button>
 
-            🔄 รีเฟรช
+    <!-- ดันปุ่มไปขวาสุด -->
+    <div class="flex-1"></div>
 
-        </button>
+    <button
+        onclick="openRawLotModal()"
+        class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-xl font-bold">
+        ➕ เพิ่มล็อต
+    </button>
 
-    </div>
-
-    <!-- หัวข้อ -->
-    <div class="flex justify-between items-center mb-4">
-
-        <h2 class="text-xl font-bold text-pink-700">
-
-            🥛 ล็อตวัตถุดิบ
-
-        </h2>
-
-        <button
-            onclick="openRawLotModal()"
-            class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-xl font-bold">
-
-            ➕ เพิ่มล็อต
-
-        </button>
-
-    </div>
+</div>
 
     <!-- ตาราง -->
-    <div id="rawExpiryTableContainer"
-     class="flex-1 min-h-0 overflow-hidden">
-        กำลังโหลดข้อมูลวัตถุดิบ...
+<div id="rawExpiryTableContainer"
+     class="flex-1 min-h-0 overflow-y-auto no-scrollbar rounded-xl border border-pink-200">
 
-    </div>
+</div>
 
 </div>
 
@@ -1484,6 +1750,12 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
         <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-pink-50 transition" onclick="openSoundSettingsView()">
     <div class="text-5xl mb-4">🔊</div><h3 class="font-bold text-lg text-pink-700">ตั้งค่าเสียง</h3>
 </div>
+<!-- ในหน้า settingsView ของคุณ -->
+<div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-pink-50 transition" 
+     onclick="showView('createStoreView')">
+    <div class="text-5xl mb-4">🏪</div>
+    <h3 class="font-bold text-lg text-pink-700">เพิ่มร้านค้าใหม่</h3>
+</div>
           <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-red-50 border-transparent hover:border-red-200 transition" onclick="triggerFactoryReset()">
             <div class="text-5xl mb-4">🧨</div><h3 class="font-bold text-lg text-pink-600">รีเซ็ตระบบ</h3>
           </div>
@@ -1493,312 +1765,682 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
     </div>
 
     <!-- ================= หน้าจอ: ตั้งค่าข้อมูลร้าน ================= -->
-<div id="storeInfoView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-      <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
-        
-        <div class="flex justify-between items-center mb-6 border-b pb-4">
-          <div class="flex items-center gap-4">
-              <button onclick="closeStoreInfo()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-              </button>
-              <h1 class="text-2xl font-bold text-pink-800">🏪 ข้อมูลร้านค้า</h1>
-          </div>
-        </div>
-        <div class="space-y-6 flex-1 flex flex-col">
-          <div>
-            <label class="block font-bold text-gray-700 mb-2">โลโก้ร้าน</label>
+<div id="storeInfoView"
+     class="hidden w-full h-full p-6 bg-gray-50/50">
+
+    <div class="w-full h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6 border-b pb-4 shrink-0">
             <div class="flex items-center gap-4">
-              <img id="settingLogoPreview" src="" class="w-24 h-24 rounded-2xl object-cover border-2 border-dashed border-gray-300 hidden">
-              <input type="file" id="logoInput" accept="image/*" onchange="previewLogo(event)" class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 cursor-pointer">
+                <button onclick="closeStoreInfo()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h1 class="text-2xl font-bold text-pink-800">🏪 ข้อมูลร้านค้า</h1>
             </div>
-          </div>
-          <div><label class="block font-bold text-gray-700 mb-2">ชื่อร้าน</label><input type="text" id="settingStoreName" class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition"></div>
-          <div><label class="block font-bold text-gray-700 mb-2">ที่อยู่</label><textarea id="settingAddress" rows="3" class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition"></textarea></div>
-          <div><label class="block font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</label><input type="text" id="settingPhone" class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition"></div>
-          
-          <div class="pt-6 mt-auto">
-            <button id="btnSaveStoreInfo" onclick="saveStoreInfo()" class="w-full p-4 bg-pink-500 text-white rounded-xl font-bold text-xl shadow-md hover:bg-pink-600 transition">บันทึกข้อมูลร้าน</button>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- ================= หน้าจอ: ตั้งค่าการชำระเงิน ================= -->
-    <div id="paymentSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-      <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto pr-1">
 
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-          <div class="flex items-center gap-4">
-              <button onclick="closePaymentSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-              </button>
-              <h1 class="text-2xl font-bold text-pink-800">💳 ตั้งค่าการชำระเงิน</h1>
-          </div>
-        </div>
-        
-        <div class="space-y-4 flex-1 flex flex-col">
-          <!-- Toggle เงินสด -->
-          <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
-            <span class="font-bold text-lg text-gray-700">💵 เงินสด</span>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleCash" class="sr-only peer">
-              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
-            </label>
-          </div>
-          
-          <!-- Toggle โอนเงิน -->
-          <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
-            <span class="font-bold text-lg text-gray-700">📱 โอนเงิน (QR พร้อมเพย์)</span>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleTransfer" onchange="togglePromptPayInput()" class="sr-only peer">
-              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
-            </label>
-          </div>
-          
-          <!-- Input PromptPay -->
-          <div id="promptPayContainer" class="hidden pl-4 pr-4 transition-all">
-            <label class="block font-bold text-pink-600 mb-2">เบอร์พร้อมเพย์ หรือ เลขบัตร ปชช.</label>
-            <input type="text" id="settingPromptPay" placeholder="เช่น 0123456789" class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition">
-          </div>
+            <div class="space-y-6">
 
-          <!-- Toggle คนละครึ่ง -->
-          <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
-            <span class="font-bold text-lg text-gray-700">คนละครึ่ง</span>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleHalf" class="sr-only peer">
-              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
-            </label>
-          </div>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">โลโก้ร้าน</label>
+                    <div class="flex items-center gap-4">
+                        <img id="settingLogoPreview" src="" class="w-24 h-24 rounded-2xl object-cover border-2 border-dashed border-gray-300 hidden">
 
-           <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
-            <div class="flex flex-col">
-              <span class="font-bold text-lg text-pink-800">🛵 ชำระเงินปลายทาง / เดลิเวอรี่</span>
-              <span class="text-sm text-pink-600 mt-1">ใช้ได้เฉพาะตอนเลือกบริการ "ส่งของ (Delivery)" เท่านั้น</span>
+                        <input type="file"
+                               id="logoInput"
+                               accept="image/*"
+                               onchange="previewLogo(event)"
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 cursor-pointer">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">ชื่อร้าน</label>
+                    <input type="text"
+                           id="settingStoreName"
+                           class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">ที่อยู่</label>
+                    <textarea id="settingAddress"
+                              rows="3"
+                              class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition"></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                    <input type="text"
+                           id="settingPhone"
+                           class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition">
+                </div>
+
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleDeliveryPayment" class="sr-only peer">
-              <div class="w-11 h-6 bg-pink-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
-            </label>
-          </div>
 
-          <!-- Toggle แบ่งจ่าย -->
-          <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
-            <div class="flex flex-col">
-              <span class="font-bold text-lg text-gray-700">✂️ แบ่งจ่าย</span>
-              <span class="text-sm text-gray-500 mt-1">ชำระเงินหลายช่องทาง (เงินสดส่วนหนึ่ง + สแกนจ่ายส่วนที่เหลือ)</span>
-            </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleSplit" class="sr-only peer">
-              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
-            </label>
-          </div>
-          
-          <div class="pt-6 mt-auto">
-            <button id="btnSavePaymentSettings" onclick="savePaymentSettings()" class="w-full p-4 bg-pink-500 text-white rounded-xl font-bold text-xl shadow-md hover:bg-pink-600 transition">บันทึกการชำระเงิน</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= หน้าจอ: ตั้งค่าใบเสร็จ ================= -->
-
-   <div id="receiptSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
-
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <div class="flex items-center gap-4">
-          <button onclick="closeReceiptSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h1 class="text-2xl font-bold text-pink-800">🧾 ตั้งค่าใบเสร็จ</h1>
-      </div>
-    </div>
-    
-    <div class="space-y-5 flex-1 flex flex-col">
-      <div class="bg-gray-50 p-5 rounded-xl border border-gray-100" id="customDropdownContainer">
-        <label class="block font-bold text-gray-700 mb-2">1. ประเภทใบเสร็จ</label>
-        <input type="hidden" id="settingReceiptType" value="ใบเสร็จรับเงิน">
-        <button type="button" onclick="toggleDropdown()" class="w-full p-4 rounded-xl border-2 border-pink-100 bg-white text-left flex justify-between items-center focus:outline-none transition shadow-sm mb-2">
-          <span id="dropdownSelectedText" class="font-bold text-pink-700">ใบเสร็จรับเงิน</span>
-          <span class="text-pink-500 text-xl">▼</span>
-        </button>
-        <div id="dropdownMenu" class="hidden w-full bg-white border border-pink-100 rounded-xl shadow-md overflow-hidden mb-3">
-          <div onclick="selectDropdownValue('ใบเสร็จรับเงิน')" class="p-4 hover:bg-pink-50 cursor-pointer border-b">ใบเสร็จรับเงิน</div>
-          <div onclick="selectDropdownValue('ใบกำกับภาษีอย่างย่อ')" class="p-4 hover:bg-pink-50 cursor-pointer border-b">ใบกำกับภาษีอย่างย่อ</div>
-          <div onclick="selectDropdownValue('กำหนดเอง')" class="p-4 hover:bg-pink-50 cursor-pointer">กำหนดเอง...</div>
-        </div>
-        <input type="text" id="settingReceiptCustomType" placeholder="พิมพ์ชื่อประเภทใบเสร็จ..." class="hidden w-full p-4 rounded-xl border-2 border-pink-100 transition">
-      </div>
-
-<div class="bg-gray-50 p-5 rounded-xl border border-gray-100 space-y-3">
-  <label class="block font-bold text-gray-700">2. ข้อมูลร้านที่หัวใบเสร็จ</label> 
-  
-  <div class="flex justify-between">
-    <span class="text-gray-600">แสดงรูปโลโก้</span>
-    <input type="checkbox" id="tglReceiptLogo" class="w-6 h-6 accent-pink-500 cursor-pointer">
-  </div> 
-  
-  <div class="flex justify-between">
-    <span class="text-gray-600">แสดงชื่อร้าน</span>
-    <input type="checkbox" id="tglReceiptStoreName" class="w-6 h-6 accent-pink-500 cursor-pointer">
-  </div> 
-  
-  <div class="flex justify-between">
-    <span class="text-gray-600">แสดงที่อยู่ร้าน</span>
-    <input type="checkbox" id="tglReceiptAddress" class="w-6 h-6 accent-pink-500 cursor-pointer">
-  </div> 
-  
-  <div class="flex justify-between">
-    <span class="text-gray-600">แสดงเบอร์โทร</span>
-    <input type="checkbox" id="tglReceiptPhone" class="w-6 h-6 accent-pink-500 cursor-pointer">
-  </div> 
-  
-  <div class="flex justify-between">
-    <span class="text-gray-600">แสดงสาขา</span>
-    <input type="checkbox" id="tglReceiptBranch" class="w-6 h-6 accent-pink-500 cursor-pointer">
-  </div>
-  
-  <div class="flex justify-between border-t border-gray-200 pt-3 mt-1">
-    <span class="text-pink-700 font-bold">🎫 เปิดใช้งานระบบหมายเลขคิว</span>
-    <input type="checkbox" id="tglReceiptQueue" class="w-6 h-6 accent-pink-500 cursor-pointer">
-  </div>
-</div>
-
-<div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
-        <div><span class="font-bold text-gray-700">3. แสดง QR Code ท้ายใบเสร็จ</span></div>
-        <input type="checkbox" id="tglReceiptQR" class="w-6 h-6 accent-pink-500 cursor-pointer">
-      </div>
-
-      <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100 shadow-sm">
-        <div>
-          <span class="font-bold text-gray-700">4. เปิดใช้งานระบบใบสั่งทำครัว (Kitchen Slip)</span>
-          <p class="text-xs text-gray-400 mt-0.5">เปิดเพื่อแสดงใบสั่งงานตัวใหญ่พิมพ์ต่อท้ายบิลหลักส่งเข้าห้องครัว</p>
-        </div>
-        <input type="checkbox" id="tglEnableKitchenSlip" class="w-6 h-6 cursor-pointer accent-pink-500 rounded">
-      </div>
-
-      <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
-        <label class="block font-bold text-gray-700 mb-2">5. ข้อความท้ายใบเสร็จ</label>
-        <textarea id="settingReceiptFooter" rows="3" class="w-full p-3 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400"></textarea>
-      </div>
-
-      <button onclick="saveReceiptSettings()" id="btnSaveReceipt" class="w-full p-4 bg-pink-500 text-white rounded-xl font-bold text-xl hover:bg-pink-600 transition shadow-md">บันทึกใบเสร็จ</button>
-    </div>
-  </div>
-</div>
-
-    <!-- ================= หน้าจอ: ภาษี ================= -->
-
-   <div id="taxServiceSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
-    
-<div class="flex justify-between items-center mb-6 border-b pb-4">
-      <div class="flex items-center gap-4">
-          <button onclick="closeTaxServiceSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h2 class="text-2xl font-bold text-pink-800">📊 ภาษีและค่าบริการ</h2>
-      </div>
-    </div>
-
-    <div class="space-y-6 flex-1 flex flex-col">
-        
-      <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 relative" id="taxDropdownContainer">
-        <div class="flex justify-between items-center mb-4">
-          <label class="font-bold text-lg text-gray-700">ภาษีมูลค่าเพิ่ม (VAT)</label>
-          <input type="checkbox" id="tglTax" class="w-6 h-6 accent-pink-500 cursor-pointer">
-        </div>
-        
-        <div class="flex gap-2">
-          <input type="number" id="settingTaxAmount" placeholder="ระบุจำนวน..." class="w-full p-4 rounded-xl border-2 border-pink-100 focus:border-pink-500 outline-none">
-          
-          <input type="hidden" id="settingTaxType" value="bath">
-          <button type="button" onclick="toggleTaxDropdown()" class="p-4 rounded-xl border-2 border-pink-100 bg-white min-w-[80px] flex justify-between items-center font-bold text-pink-700 transition">
-            <span id="taxSelectedText">บาท</span>
-            <span class="ml-2 text-pink-500">▼</span>
-          </button>
         </div>
 
-        <div id="taxDropdownMenu" class="hidden absolute right-5 z-50 mt-2 w-32 bg-white border border-pink-100 rounded-xl shadow-xl overflow-hidden transition-all">
-          <div onclick="selectTaxValue('bath', 'บาท')" class="p-4 hover:bg-pink-50 cursor-pointer font-medium border-b">บาท</div>
-          <div onclick="selectTaxValue('percent', '%')" class="p-4 hover:bg-pink-50 cursor-pointer font-medium">%</div>
-        </div>
-      </div>
-
-      <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 relative" id="serviceDropdownContainer">
-        <div class="flex justify-between items-center mb-4">
-          <label class="font-bold text-lg text-gray-700">เปิดใช้งานค่าบริการ</label>
-          <input type="checkbox" id="tglService" class="w-6 h-6 accent-pink-500 cursor-pointer">
-        </div>
-
-        <label class="block font-bold text-gray-700 mb-2">ประเภทค่าบริการ</label>
-        <input type="hidden" id="selectServiceType" value="fixed">
-        
-        <button type="button" onclick="toggleServiceDropdown()" class="w-full p-4 rounded-xl border-2 border-pink-100 bg-white text-left flex justify-between items-center focus:outline-none focus:border-pink-500 transition shadow-sm hover:bg-pink-50 mb-3">
-          <span id="serviceSelectedText" class="font-bold text-pink-700">ค่าบริการคงที่</span>
-          <span class="text-pink-500 text-xl pointer-events-none">▼</span>
-        </button>
-
-        <div id="serviceDropdownMenu" class="hidden absolute z-50 w-[calc(100%-2.5rem)] mt-[-10px] bg-white border border-pink-100 rounded-xl shadow-xl overflow-hidden transition-all">
-          <div onclick="selectServiceValue('fixed', 'ค่าบริการคงที่')" class="p-4 hover:bg-pink-50 cursor-pointer text-gray-700 font-medium border-b border-gray-50 transition">ค่าบริการคงที่</div>
-          <div onclick="selectServiceValue('manual', 'ให้พนักงานกรอกเองหน้างาน')" class="p-4 hover:bg-pink-50 cursor-pointer text-gray-700 font-medium transition">ให้พนักงานกรอกเองหน้างาน</div>
-        </div>
-
-        <div id="serviceAmountContainer">
-          <input type="number" id="settingServiceValue" placeholder="ระบุจำนวนเงิน (บาท)..." class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition">
-        </div>
-      </div>
-
-      <div class="pt-6 mt-auto">
-        <button onclick="saveTaxServiceSettings()" class="w-full bg-pink-500 text-white font-bold py-4 rounded-xl hover:bg-pink-600 transition text-lg shadow-md">บันทึกภาษีและค่าบริการ</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-    <!-- ================= หน้าจอ: พนักงาน ================= -->
-
-<div id="employeeSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
-    
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-        <div class="flex items-center gap-4">
-            <button onclick="backToSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        <!-- Footer -->
+        <div class="pt-6 border-t shrink-0">
+            <button id="btnSaveStoreInfo"
+                    onclick="saveStoreInfo()"
+                    class="w-full p-4 bg-pink-500 text-white rounded-xl font-bold text-xl shadow-md hover:bg-pink-600 transition">
+                บันทึกข้อมูลร้าน
             </button>
-            <h2 class="text-2xl font-bold text-pink-800">👥 จัดการพนักงาน</h2>
         </div>
-        <button onclick="openAddEmployeeForm()" class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
-            + เพิ่มพนักงาน
-        </button>
-    </div>
-    
-<div class="flex-1 overflow-x-auto rounded-xl border border-gray-100 shadow-inner">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-pink-50">
-                <tr>
-                    <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ชื่อ-นามสกุล</th>
-                    <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">เบอร์โทรศัพท์</th>
-                    <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ตำแหน่ง</th>
-                    <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ประจำสาขา</th>
-                    <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold">รหัสผ่าน</th> 
-                    <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold">จัดการ</th>
-                </tr>
-            </thead>
-            <tbody id="employeeTableBody">
-                <tr><td colspan="5" class="text-center p-8 text-gray-500 font-medium">กำลังโหลดข้อมูล...</td></tr>
-            </tbody>
-        </table>
+
     </div>
 
-  </div>
 </div>
 
+
+   <!-- ================= หน้าจอ: ตั้งค่าการชำระเงิน ================= -->
+<div id="paymentSettingsView"
+     class="hidden w-full h-full p-6 bg-gray-50/50">
+
+    <div class="w-full h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6 border-b pb-4 shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="closePaymentSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <h1 class="text-2xl font-bold text-pink-800">
+                    💳 ตั้งค่าการชำระเงิน
+                </h1>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto pr-1">
+
+            <div class="space-y-4">
+
+                <!-- เงินสด -->
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
+                    <span class="font-bold text-lg text-gray-700">💵 เงินสด</span>
+
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggleCash" class="sr-only peer">
+
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-pink-500
+                             after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                             after:bg-white after:border after:border-gray-300 after:rounded-full
+                             after:h-5 after:w-5 after:transition-all
+                             peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+
+                <!-- โอนเงิน -->
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
+                    <span class="font-bold text-lg text-gray-700">📱 โอนเงิน (QR พร้อมเพย์)</span>
+
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               id="toggleTransfer"
+                               onchange="togglePromptPayInput()"
+                               class="sr-only peer">
+
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-pink-500
+                             after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                             after:bg-white after:border after:border-gray-300 after:rounded-full
+                             after:h-5 after:w-5 after:transition-all
+                             peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+
+                <!-- พร้อมเพย์ -->
+                <div id="promptPayContainer" class="hidden transition-all">
+                    <label class="block font-bold text-pink-600 mb-2">
+                        เบอร์พร้อมเพย์ หรือ เลขบัตร ปชช.
+                    </label>
+
+                    <input
+                        type="text"
+                        id="settingPromptPay"
+                        placeholder="เช่น 0123456789"
+                        class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition">
+                </div>
+
+                <!-- คนละครึ่ง -->
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
+                    <span class="font-bold text-lg text-gray-700">
+                        คนละครึ่ง
+                    </span>
+
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggleHalf" class="sr-only peer">
+
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-pink-500
+                             after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                             after:bg-white after:border after:border-gray-300 after:rounded-full
+                             after:h-5 after:w-5 after:transition-all
+                             peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+
+                <!-- Delivery -->
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
+
+                    <div class="flex flex-col">
+                        <span class="font-bold text-lg text-pink-800">
+                            🛵 ชำระเงินปลายทาง / เดลิเวอรี่
+                        </span>
+
+                        <span class="text-sm text-pink-600 mt-1">
+                            ใช้ได้เฉพาะตอนเลือกบริการ "ส่งของ (Delivery)" เท่านั้น
+                        </span>
+                    </div>
+
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               id="toggleDeliveryPayment"
+                               class="sr-only peer">
+
+                        <div class="w-11 h-6 bg-pink-200 rounded-full peer peer-checked:bg-pink-500
+                             after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                             after:bg-white after:border after:border-gray-300 after:rounded-full
+                             after:h-5 after:w-5 after:transition-all
+                             peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+
+                <!-- แบ่งจ่าย -->
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
+
+                    <div class="flex flex-col">
+                        <span class="font-bold text-lg text-gray-700">
+                            ✂️ แบ่งจ่าย
+                        </span>
+
+                        <span class="text-sm text-gray-500 mt-1">
+                            ชำระเงินหลายช่องทาง (เงินสดส่วนหนึ่ง + สแกนจ่ายส่วนที่เหลือ)
+                        </span>
+                    </div>
+
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               id="toggleSplit"
+                               class="sr-only peer">
+
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-pink-500
+                             after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                             after:bg-white after:border after:border-gray-300 after:rounded-full
+                             after:h-5 after:w-5 after:transition-all
+                             peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-6 border-t shrink-0">
+            <button id="btnSavePaymentSettings"
+                    onclick="savePaymentSettings()"
+                    class="w-full p-4 bg-pink-500 text-white rounded-xl font-bold text-xl shadow-md hover:bg-pink-600 transition">
+                บันทึกการชำระเงิน
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+   <!-- ================= หน้าจอ: ตั้งค่าใบเสร็จ ================= -->
+<div id="receiptSettingsView"
+     class="hidden w-full h-full p-6 bg-gray-50/50">
+
+    <div class="w-full h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6 border-b pb-4 shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="closeReceiptSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <h1 class="text-2xl font-bold text-pink-800">
+                    🧾 ตั้งค่าใบเสร็จ
+                </h1>
+            </div>
+        </div>
+
+        <!-- Content -->
+       <div class="flex-1 overflow-y-auto no-scrollbar pr-1">
+
+            <div class="space-y-5">
+
+                <!-- ประเภทใบเสร็จ -->
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-100" id="customDropdownContainer">
+
+                    <label class="block font-bold text-gray-700 mb-2">
+                        1. ประเภทใบเสร็จ
+                    </label>
+
+                    <input type="hidden" id="settingReceiptType" value="ใบเสร็จรับเงิน">
+
+                    <button type="button"
+                            onclick="toggleDropdown()"
+                            class="w-full p-4 rounded-xl border-2 border-pink-100 bg-white text-left flex justify-between items-center shadow-sm">
+
+                        <span id="dropdownSelectedText"
+                              class="font-bold text-pink-700">
+                            ใบเสร็จรับเงิน
+                        </span>
+
+                        <span class="text-pink-500 text-xl">▼</span>
+
+                    </button>
+
+                    <div id="dropdownMenu"
+                         class="hidden w-full bg-white border border-pink-100 rounded-xl shadow-md overflow-hidden mt-2">
+
+                        <div onclick="selectDropdownValue('ใบเสร็จรับเงิน')" class="p-4 hover:bg-pink-50 cursor-pointer border-b">
+                            ใบเสร็จรับเงิน
+                        </div>
+
+                        <div onclick="selectDropdownValue('ใบกำกับภาษีอย่างย่อ')" class="p-4 hover:bg-pink-50 cursor-pointer border-b">
+                            ใบกำกับภาษีอย่างย่อ
+                        </div>
+
+                        <div onclick="selectDropdownValue('กำหนดเอง')" class="p-4 hover:bg-pink-50 cursor-pointer">
+                            กำหนดเอง...
+                        </div>
+
+                    </div>
+
+                    <input type="text"
+                           id="settingReceiptCustomType"
+                           placeholder="พิมพ์ชื่อประเภทใบเสร็จ..."
+                           class="hidden mt-3 w-full p-4 rounded-xl border-2 border-pink-100">
+
+                </div>
+
+                <!-- หัวใบเสร็จ -->
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 space-y-3">
+
+                    <label class="block font-bold text-gray-700">
+                        2. ข้อมูลร้านที่หัวใบเสร็จ
+                    </label>
+
+                    <div class="flex justify-between">
+                        <span>แสดงรูปโลโก้</span>
+                        <input type="checkbox" id="tglReceiptLogo" class="w-6 h-6 accent-pink-500">
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>แสดงชื่อร้าน</span>
+                        <input type="checkbox" id="tglReceiptStoreName" class="w-6 h-6 accent-pink-500">
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>แสดงที่อยู่ร้าน</span>
+                        <input type="checkbox" id="tglReceiptAddress" class="w-6 h-6 accent-pink-500">
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>แสดงเบอร์โทร</span>
+                        <input type="checkbox" id="tglReceiptPhone" class="w-6 h-6 accent-pink-500">
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>แสดงสาขา</span>
+                        <input type="checkbox" id="tglReceiptBranch" class="w-6 h-6 accent-pink-500">
+                    </div>
+
+                    <div class="flex justify-between border-t pt-3">
+                        <span class="font-bold text-pink-700">
+                            🎫 เปิดใช้งานระบบหมายเลขคิว
+                        </span>
+
+                        <input type="checkbox"
+                               id="tglReceiptQueue"
+                               class="w-6 h-6 accent-pink-500">
+
+                    </div>
+
+                </div>
+
+                <!-- QR -->
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
+
+                    <span class="font-bold text-gray-700">
+                        3. แสดง QR Code ท้ายใบเสร็จ
+                    </span>
+
+                    <input type="checkbox"
+                           id="tglReceiptQR"
+                           class="w-6 h-6 accent-pink-500">
+
+                </div>
+
+                <!-- Kitchen -->
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
+
+                    <div>
+
+                        <span class="font-bold text-gray-700">
+                            4. เปิดใช้งานระบบใบสั่งทำครัว (Kitchen Slip)
+                        </span>
+
+                        <p class="text-xs text-gray-400 mt-1">
+                            เปิดเพื่อแสดงใบสั่งงานตัวใหญ่พิมพ์ต่อท้ายบิลหลักส่งเข้าห้องครัว
+                        </p>
+
+                    </div>
+
+                    <input type="checkbox"
+                           id="tglEnableKitchenSlip"
+                           class="w-6 h-6 accent-pink-500">
+
+                </div>
+
+                <!-- Footer Text -->
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+
+                    <label class="block font-bold text-gray-700 mb-2">
+                        5. ข้อความท้ายใบเสร็จ
+                    </label>
+
+                    <textarea id="settingReceiptFooter"
+                              rows="3"
+                              class="w-full p-3 rounded-xl border-2 border-pink-100 focus:border-pink-500 focus:outline-none"></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-6 border-t shrink-0">
+
+            <button id="btnSaveReceipt"
+                    onclick="saveReceiptSettings()"
+                    class="w-full p-4 bg-pink-500 text-white rounded-xl font-bold text-xl shadow-md hover:bg-pink-600 transition">
+
+                บันทึกใบเสร็จ
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+    <!-- ================= หน้าจอ: ภาษี ================= -->
+<div id="taxServiceSettingsView"
+     class="hidden w-full h-full p-6 bg-gray-50/50">
+
+    <div class="w-full h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6 border-b pb-4 shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="closeTaxServiceSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <h2 class="text-2xl font-bold text-pink-800">
+                    📊 ภาษีและค่าบริการ
+                </h2>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto no-scrollbar pr-2">
+
+            <div class="space-y-6">
+
+                <!-- VAT -->
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 relative" id="taxDropdownContainer">
+
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="font-bold text-lg text-gray-700">
+                            ภาษีมูลค่าเพิ่ม (VAT)
+                        </label>
+
+                        <input type="checkbox"
+                               id="tglTax"
+                               class="w-6 h-6 accent-pink-500 cursor-pointer">
+                    </div>
+
+                    <div class="flex gap-2">
+
+                        <input type="number"
+                               id="settingTaxAmount"
+                               placeholder="ระบุจำนวน..."
+                               class="w-full p-4 rounded-xl border-2 border-pink-100 focus:border-pink-500 outline-none">
+
+                        <input type="hidden"
+                               id="settingTaxType"
+                               value="bath">
+
+                        <button type="button"
+                                onclick="toggleTaxDropdown()"
+                                class="p-4 rounded-xl border-2 border-pink-100 bg-white min-w-[80px] flex justify-between items-center font-bold text-pink-700">
+
+                            <span id="taxSelectedText">บาท</span>
+                            <span class="ml-2 text-pink-500">▼</span>
+
+                        </button>
+
+                    </div>
+
+                    <div id="taxDropdownMenu"
+                         class="hidden absolute right-5 z-50 mt-2 w-32 bg-white border border-pink-100 rounded-xl shadow-xl overflow-hidden">
+
+                        <div onclick="selectTaxValue('bath','บาท')"
+                             class="p-4 hover:bg-pink-50 cursor-pointer border-b">
+                            บาท
+                        </div>
+
+                        <div onclick="selectTaxValue('percent','%')"
+                             class="p-4 hover:bg-pink-50 cursor-pointer">
+                            %
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Service -->
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 relative" id="serviceDropdownContainer">
+
+                    <div class="flex justify-between items-center mb-4">
+
+                        <label class="font-bold text-lg text-gray-700">
+                            เปิดใช้งานค่าบริการ
+                        </label>
+
+                        <input type="checkbox"
+                               id="tglService"
+                               class="w-6 h-6 accent-pink-500 cursor-pointer">
+
+                    </div>
+
+                    <label class="block font-bold text-gray-700 mb-2">
+                        ประเภทค่าบริการ
+                    </label>
+
+                    <input type="hidden"
+                           id="selectServiceType"
+                           value="fixed">
+
+                    <button type="button"
+                            onclick="toggleServiceDropdown()"
+                            class="w-full p-4 rounded-xl border-2 border-pink-100 bg-white flex justify-between items-center shadow-sm mb-3">
+
+                        <span id="serviceSelectedText"
+                              class="font-bold text-pink-700">
+                            ค่าบริการคงที่
+                        </span>
+
+                        <span class="text-pink-500 text-xl">▼</span>
+
+                    </button>
+
+                    <div id="serviceDropdownMenu"
+                         class="hidden absolute z-50 w-[calc(100%-2.5rem)] mt-[-10px] bg-white border border-pink-100 rounded-xl shadow-xl overflow-hidden">
+
+                        <div onclick="selectServiceValue('fixed','ค่าบริการคงที่')"
+                             class="p-4 hover:bg-pink-50 cursor-pointer border-b">
+
+                            ค่าบริการคงที่
+
+                        </div>
+
+                        <div onclick="selectServiceValue('manual','ให้พนักงานกรอกเองหน้างาน')"
+                             class="p-4 hover:bg-pink-50 cursor-pointer">
+
+                            ให้พนักงานกรอกเองหน้างาน
+
+                        </div>
+
+                    </div>
+
+                    <div id="serviceAmountContainer">
+
+                        <input type="number"
+                               id="settingServiceValue"
+                               placeholder="ระบุจำนวนเงิน (บาท)..."
+                               class="w-full p-4 rounded-xl border-2 border-pink-100 focus:border-pink-500">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-6 border-t shrink-0">
+
+            <button onclick="saveTaxServiceSettings()"
+                    class="w-full py-4 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-bold text-xl shadow-md transition">
+
+                บันทึกภาษีและค่าบริการ
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+   <!-- ================= หน้าจอ: พนักงาน ================= -->
+
+<div id="employeeSettingsView" class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0">
+
+    <div class="w-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+
+        <!-- Header -->
+        <div class="shrink-0 flex justify-between items-center mb-6 border-b pb-4">
+
+            <div class="flex items-center gap-4">
+
+                <button onclick="backToSettings()"
+                        class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 19l-7-7 7-7"/>
+
+                    </svg>
+
+                </button>
+
+                <h2 class="text-2xl font-bold text-pink-800">
+                    👥 จัดการพนักงาน
+                </h2>
+
+            </div>
+
+            <button onclick="openAddEmployeeForm()"
+                    class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
+
+                ➕ เพิ่มพนักงาน
+
+            </button>
+
+        </div>
+
+        <!-- ตาราง -->
+        <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-200">
+
+            <table class="w-full border-collapse text-left">
+
+                <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
+
+                    <tr>
+
+                        <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">
+                            ชื่อ-นามสกุล
+                        </th>
+
+                        <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">
+                            เบอร์โทรศัพท์
+                        </th>
+
+                        <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">
+                            ตำแหน่ง
+                        </th>
+
+                        <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">
+                            ประจำสาขา
+                        </th>
+
+                        <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold">
+                            รหัสผ่าน
+                        </th>
+
+                        <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold">
+                            จัดการ
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="employeeTableBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- ================= หน้าจอ: แต้ม ================= -->
-<div id="membershipView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+<div id="membershipView" class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0">
+ <div class="w-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
     
     <!-- แถบหัวข้อ และปุ่มตั้งค่า (ย้ายมาชิดขวา) -->
     <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -1826,9 +2468,9 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
     </div>
 
     <!-- ตารางสมาชิก -->
-    <div class="flex-1 overflow-x-auto rounded-xl border border-gray-200 shadow-inner">
+    <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-200 shadow-inner">
        <table class="w-full text-left border-collapse">
-        <thead>
+        <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
             <tr class="bg-pink-50 text-pink-800 border-b border-pink-100">
                 <th class="p-4 font-bold">เบอร์โทรศัพท์ (ID)</th>
                 <th class="p-4 font-bold">ชื่อลูกค้า</th>
@@ -1840,7 +2482,6 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
             </tr>
         </thead>
          <tbody id="memberTableBody" class="divide-y divide-gray-100 text-gray-700">
-             <tr><td colspan="7" class="p-8 text-center text-gray-400 font-bold">⏳ กำลังโหลดข้อมูล...</td></tr> 
          </tbody>
       </table>
     </div>
@@ -1897,9 +2538,9 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
     </div>
 </div>
     <!-- ================= หน้าจอ: พิมพ์บาร์โค้ดสินค้า ================= -->
-</div> <div id="barcodeSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
-    
+<div id="barcodeSettingsView" class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0">
+<div class="w-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+
     <div class="flex flex-wrap justify-between items-center mb-6 border-b pb-4 gap-4">
         <div class="flex items-center gap-4">
             <button onclick="backToSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
@@ -1940,9 +2581,9 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
         <input type="text" id="barcodeSearchInput" oninput="filterBarcodeProducts()" placeholder="🔍 ค้นหาชื่อสินค้า หรือ รหัสบาร์โค้ด..." class="p-3 rounded-xl border border-gray-200 w-full md:w-80 outline-none focus:border-pink-500">
     </div>
 
-    <div class="flex-1 overflow-x-auto rounded-xl border border-gray-100 shadow-inner">
+    <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-100 shadow-inner">
         <table class="w-full text-left border-collapse">
-            <thead class="bg-pink-50 sticky top-0 shadow-sm z-10">
+            <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
                 <tr>
                     <th class="p-3 border-b border-pink-100 text-center w-16">
                         <input type="checkbox" id="selectAllBarcodes" onchange="toggleAllBarcodes(this)" class="w-5 h-5 cursor-pointer accent-pink-500">
@@ -1953,9 +2594,7 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
                     <th class="p-3 border-b border-pink-100 text-center text-pink-800 font-bold w-32">จำนวนพิมพ์</th>
                 </tr>
             </thead>
-            <tbody id="barcodeTableBody">
-                <tr><td colspan="5" class="text-center p-8 text-gray-500 font-medium">กำลังโหลดข้อมูล...</td></tr>
-            </tbody>
+         <tbody id="barcodeTableBody"></tbody>
         </table>
     </div>
 
@@ -1966,39 +2605,70 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
 
 
 
-    <!-- ================= หน้าจอ: จัดการร้านค้า ================= -->
-<div id="branchManagementView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col gap-6">
-    
-    <div class="flex justify-between items-center border-b pb-4">
-      <div class="flex items-center gap-4">
-          <button onclick="backToSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h1 class="text-2xl font-bold text-pink-800">🏢 จัดการสาขาร้านค้า</h1>
-      </div>
-      <button onclick="openAddBranchModal()" class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
-          + เพิ่มสาขาใหม่
-      </button>
-    </div>
-    
-    <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-inner bg-white">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-pink-50">
-                <tr>
-                    <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ชื่อสาขา</th>
-                    <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ที่ตั้ง / หมายเหตุ</th>
-                    <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-32">สถานะ</th>
-                    <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-40">จัดการ</th>
-                </tr>
-            </thead>
-            <tbody id="branchTableBody">
-                <tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูลสาขา... ⏳</td></tr>
-            </tbody>
-        </table>
-    </div>
+   <!-- ================= หน้าจอ: จัดการร้านค้า ================= -->
 
-  </div>
+<div id="branchManagementView"
+     class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
+
+<div class="w-full h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+
+            <div class="flex items-center gap-4">
+
+                <button onclick="backToSettings()"
+                        class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 19l-7-7 7-7" />
+
+                    </svg>
+
+                </button>
+
+                <h1 class="text-2xl font-bold text-pink-800">
+                    🏢 จัดการสาขาร้านค้า
+                </h1>
+
+            </div>
+
+            <button onclick="openAddBranchModal()"
+                    class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
+
+                + เพิ่มสาขาใหม่
+
+            </button>
+
+        </div>
+<div class="flex-1 min-h-0 overflow-auto rounded-xl border border-gray-200 shadow-inner">
+
+    <table class="w-full text-left border-collapse">
+
+        <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
+            <tr>
+                <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ชื่อสาขา</th>
+                <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ที่ตั้ง / หมายเหตุ</th>
+                <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-32">สถานะ</th>
+                <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-40">จัดการ</th>
+            </tr>
+        </thead>
+
+        <tbody id="branchTableBody"></tbody>
+
+    </table>
+
+</div>
+
+</div>
 </div>
 
     <!-- ================= หน้าจอ:ตั้งค่าแอปเดลิเวอรี่ ================= -->
@@ -2027,38 +2697,77 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
   </div>
 </div>
 
-    <!-- ================= หน้าจอ:โต๊ะ ================= -->
-<div id="tableManagementView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col gap-6">
-    
-    <div class="flex justify-between items-center border-b pb-4">
-      <div class="flex items-center gap-4">
-          <button onclick="backToSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h1 class="text-2xl font-bold text-pink-800">🪑 จัดการโต๊ะและพิมพ์ QR Code สั่งอาหาร</h1>
-      </div>
-      <button onclick="openAddTableModal()" class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
-          + เพิ่มโต๊ะใหม่
-      </button>
+<!-- ================= หน้าจอ: โต๊ะ ================= -->
+<div id="tableManagementView"
+     class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0 view-section">
+
+    <div class="w-full h-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+
+        <!-- Header -->
+        <div class="shrink-0 flex justify-between items-center mb-6 border-b pb-4">
+
+            <div class="flex items-center gap-4">
+
+                <button onclick="backToSettings()"
+                        class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <h1 class="text-2xl font-bold text-pink-800">
+                    🪑 จัดการโต๊ะและพิมพ์ QR Code สั่งอาหาร
+                </h1>
+
+            </div>
+
+            <button onclick="openAddTableModal()"
+                    class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
+                + เพิ่มโต๊ะใหม่
+            </button>
+
+        </div>
+
+        <!-- ตาราง -->
+        <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-200 shadow-inner bg-white">
+
+            <table class="w-full text-left border-collapse">
+
+                <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
+                    <tr>
+                        <th class="p-4 text-pink-800 font-bold">
+                            ชื่อโต๊ะ / หมายเลขโต๊ะ
+                        </th>
+
+                        <th class="p-4 text-center text-pink-800 font-bold">
+                            สถานะโต๊ะปัจจุบัน
+                        </th>
+
+                        <th class="p-4 text-center text-pink-800 font-bold w-64">
+                            สิทธิ์ QR Code ประจำโต๊ะ
+                        </th>
+
+                        <th class="p-4 text-center text-pink-800 font-bold w-40">
+                            จัดการ
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody id="branchTableBodyTable"></tbody>
+
+            </table>
+
+        </div>
+
     </div>
-    
-    <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-inner bg-white">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-pink-50">
-                <tr>
-                    <th class="p-4 text-pink-800 font-bold">ชื่อโต๊ะ / หมายเลขโต๊ะ</th>
-                    <th class="p-4 text-pink-800 font-bold text-center">สถานะโต๊ะปัจจุบัน</th>
-                    <th class="p-4 text-pink-800 font-bold text-center w-64">สิทธิ์ QR Code ประจำโต๊ะ</th>
-                    <th class="p-4 text-pink-800 font-bold text-center w-40">จัดการ</th>
-                </tr>
-            </thead>
-            <tbody id="branchTableBodyTable">
-                <tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูลโต๊ะ... ⏳</td></tr>
-            </tbody>
-        </table>
-    </div>
-  </div>
+
 </div>
 
 <div id="addTableModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
@@ -2130,39 +2839,83 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
     </div>
 </div>
 
-    <!-- ================= หน้าจอ:ตารางราคาบุฟเฟต์ ================= -->
+<!-- ================= หน้าจอ: ตารางราคาบุฟเฟต์ ================= -->
+<div id="buffetManagementView"
+     class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0 view-section">
 
-<div id="buffetManagementView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <div class="flex items-center gap-4">
-        <button onclick="backToSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h1 class="text-2xl font-bold text-pink-800">🥩 ตั้งค่าราคา & แพ็กเกจบุฟเฟต์</h1>
-      </div>
-      <button onclick="openBuffetPackageModal()" class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 font-bold transition shadow">
-          + เพิ่มราคาแพ็กเกจใหม่
-      </button>
+    <div class="w-full h-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+
+        <!-- Header -->
+        <div class="shrink-0 flex justify-between items-center mb-6 border-b pb-4">
+
+            <div class="flex items-center gap-4">
+
+                <button onclick="backToSettings()"
+                        class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <h1 class="text-2xl font-bold text-pink-800">
+                    🥩 ตั้งค่าราคา & แพ็กเกจบุฟเฟต์
+                </h1>
+
+            </div>
+
+            <button onclick="openBuffetPackageModal()"
+                    class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
+                + เพิ่มราคาแพ็กเกจใหม่
+            </button>
+
+        </div>
+
+        <!-- ตาราง -->
+        <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-200 shadow-inner bg-white">
+
+            <table class="w-full text-left border-collapse">
+
+                <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
+                    <tr>
+                        <th class="p-4 text-pink-800 font-bold">
+                            ชื่อแพ็กเกจบุฟเฟต์
+                        </th>
+
+                        <th class="p-4 text-center text-pink-800 font-bold">
+                            ราคาผู้ใหญ่ (บาท)
+                        </th>
+
+                        <th class="p-4 text-center text-pink-800 font-bold">
+                            ราคาเด็ก (บาท)
+                        </th>
+
+                        <th class="p-4 text-center text-pink-800 font-bold">
+                            เวลาจำหน่าย (นาที)
+                        </th>
+
+                        <th class="p-4 text-center text-pink-800 font-bold w-40">
+                            จัดการ
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody id="buffetPackageTableBody"></tbody>
+
+            </table>
+
+        </div>
+
     </div>
-    <div class="flex-1 overflow-x-auto rounded-xl border border-gray-100 shadow-inner">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-pink-50">
-                <tr>
-                    <th class="p-4 text-pink-800 font-bold">ชื่อแพ็กเกจบุฟเฟต์</th>
-                    <th class="p-4 text-pink-800 font-bold text-center">ราคาต่อหัว (บาท)</th>
-                    <th class="p-4 text-pink-800 font-bold text-center">เวลาจำหน่าย (นาที)</th>
-                    <th class="p-4 text-pink-800 font-bold text-center w-40">จัดการ</th>
-                </tr>
-            </thead>
-            <tbody id="buffetPackageTableBody">
-                <tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดราคาบุฟเฟต์... ⏳</td></tr>
-            </tbody>
-        </table>
-    </div>
-  </div>
+
 </div>
-
+<!-- ================= หน้าจอ: Modal เพิ่ม/แก้ไข ================= -->
 <div id="buffetFormModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[210] flex items-center justify-center p-4">
     <div class="bg-white p-6 rounded-[2rem] w-full max-w-sm shadow-2xl relative flex flex-col">
         <h3 id="buffetFormTitle" class="text-xl font-bold mb-4 text-pink-700 border-b pb-2">🥩 แพ็กเกจราคา</h3>
@@ -2176,7 +2929,8 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-pink-400 mb-1">ราคาผู้ใหญ่ (บาท) <span class="text-red-500">*</span></label>
-                    <input type="number" id="buffetPriceInput" class="w-full p-2.5 border rounded-xl outline-none text-center font-bold text-pink-600" placeholder="399">
+                    <!-- 🟢 เพิ่ม oninput ให้ระบบรู้ว่าถ้าราคาผู้ใหญ่เปลี่ยน ให้คำนวณราคาเด็กใหม่ด้วย -->
+                    <input type="number" id="buffetPriceInput" oninput="calculateChildPrice()" class="w-full p-2.5 border rounded-xl outline-none text-center font-bold text-pink-600" placeholder="399">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-pink-400 mb-1">จำกัดเวลา (นาที)</label>
@@ -2184,23 +2938,65 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
                 </div>
             </div>
 
-            <!-- 🟢 ส่วนที่เพิ่มใหม่: ตั้งค่าเด็ก -->
+            <!-- 🟢 ส่วนที่แก้ไขใหม่: ตั้งค่าเด็ก (เครื่องคิดเลขอัตโนมัติ) -->
             <div class="p-3 bg-pink-50 rounded-xl border border-pink-100 space-y-3 mt-2">
                 <div class="flex items-center gap-2">
                     <span class="text-lg">👦</span>
-                    <span class="font-bold text-sm text-pink-700">ตั้งค่าราคาเด็ก <span class="text-xs text-gray-500 font-normal">(ไม่บังคับ)</span></span>
+                    <span class="font-bold text-sm text-pink-700">ตั้งค่าราคาเด็ก <span class="text-xs text-gray-500 font-normal">(คำนวณอัตโนมัติ)</span></span>
                 </div>
+                
+          <!-- แถวที่ 1: เลือกส่วนลด -->
+<div>
+    <label class="block text-xs font-bold text-gray-500 mb-1">ส่วนลดสำหรับเด็ก (ใส่ 0 ถ้าไม่ลด)</label>
+    <div class="flex gap-2">
+        <input type="number" id="childDiscountValue" oninput="calculateChildPrice()" class="w-2/3 p-2.5 border rounded-xl outline-none text-center font-bold text-orange-500" placeholder="เช่น 20 หรือ 50">
+        
+        <!-- เริ่ม: เปลี่ยนจาก <select> เป็น Custom Dropdown -->
+        <div class="relative w-1/3">
+            <!-- ปุ่มกดเลือก -->
+            <button type="button" id="customDiscountTypeBtn" class="flex items-center justify-between w-full p-2.5 text-gray-600 bg-white border rounded-xl focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 font-bold">
+                <span id="customDiscountLabel">%</span>
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+
+            <!-- เมนู Dropdown -->
+            <div id="customDiscountMenu" class="absolute right-0 z-10 hidden w-full mt-1 bg-white border shadow-lg rounded-xl overflow-hidden">
+                <ul class="py-1 text-gray-600 font-bold">
+                    <li>
+                        <!-- ส่งค่า 'percent' ไปคำนวณ และส่ง '%' ไปโชว์ -->
+                        <button type="button" onclick="selectDiscountType('percent', '%')" class="block w-full px-4 py-2 text-center hover:bg-pink-50 hover:text-pink-600 transition-colors">
+                            %
+                        </button>
+                    </li>
+                    <li>
+                        <!-- ส่งค่า 'baht' ไปคำนวณ และส่ง '฿' ไปโชว์ -->
+                        <button type="button" onclick="selectDiscountType('baht', '฿')" class="block w-full px-4 py-2 text-center hover:bg-pink-50 hover:text-pink-600 transition-colors">
+                            ฿
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- ซ่อน Input ไว้ด้วย ID เดิม เพื่อให้ calculateChildPrice() ดึงไปใช้ได้ตามปกติ -->
+            <input type="hidden" id="childDiscountType" value="percent">
+        </div>
+        <!-- จบ: Custom Dropdown -->
+
+    </div>
+</div>
+
+                <!-- แถวที่ 2: ราคาสุทธิ & ส่วนสูง -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">ราคาเด็ก (บาท)</label>
-                        <input type="number" id="buffetChildPriceInput" class="w-full p-2.5 border rounded-xl outline-none text-center font-bold text-orange-500" placeholder="199">
+                        <label class="block text-xs font-bold text-gray-500 mb-1">ราคาสุทธิ (บาท)</label>
+                        <!-- 🟢 ช่องนี้ล็อกไว้ (readonly) พนักงานพิมพ์เองไม่ได้ ให้ระบบคำนวณใส่ให้ -->
+                        <input type="number" id="buffetChildPriceInput" class="w-full p-2.5 border border-pink-200 rounded-xl outline-none text-center font-bold text-pink-700 bg-pink-100" placeholder="อัตโนมัติ" readonly>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-1">ส่วนสูงไม่เกิน (ซม.)</label>
                         <input type="number" id="buffetChildHeightInput" class="w-full p-2.5 border rounded-xl outline-none text-center font-bold text-blue-500" placeholder="120">
                     </div>
                 </div>
-                <p class="text-[10px] text-gray-400 leading-tight">ถ้าไม่ระบุ ระบบจะคิด 50% ของราคาผู้ใหญ่ หรือตั้งค่าราคาเหมาเองได้เลย</p>
             </div>
             
         </div>
@@ -2210,42 +3006,88 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
         </div>
     </div>
 </div>
-    <!-- ================= หน้าจอ:จอโฆษณา ================= -->
-    <div id="adSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
-    
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <div class="flex items-center gap-4">
-          <button onclick="backToSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h1 class="text-2xl font-bold text-pink-800">📺 จัดการจอโฆษณา (Customer Display)</h1>
-      </div>
-      <button onclick="openAdSlideModal()" class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
-          + เพิ่มรูปโฆษณาใหม่
-      </button>
-    </div>
-    
-    <div class="flex-1 overflow-x-auto rounded-xl border border-gray-100 shadow-inner bg-white mb-6">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-pink-50">
-                <tr>
-                    <th class="p-4 border-b border-pink-100 text-pink-800 font-bold w-32 text-center">รูปภาพ</th>
-                    <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ข้อความแสดงบนจอ</th>
-                    <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-32">เวลา (วินาที)</th>
-                    <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-32">จัดการ</th>
-                </tr>
-            </thead>
-            <tbody id="adTableBody">
-                <tr><td colspan="4" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูลโฆษณา... ⏳</td></tr>
-            </tbody>
-        </table>
+    <!-- ================= หน้าจอ: จอโฆษณา ================= -->
+<div id="adSettingsView"
+     class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0 view-section">
+
+    <div class="w-full h-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+
+        <!-- Header -->
+        <div class="shrink-0 flex justify-between items-center mb-6 border-b pb-4">
+
+            <div class="flex items-center gap-4">
+
+                <button onclick="backToSettings()"
+                        class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <h1 class="text-2xl font-bold text-pink-800">
+                    📺 จัดการจอโฆษณา (Customer Display)
+                </h1>
+
+            </div>
+
+            <button onclick="openAdSlideModal()"
+                    class="bg-pink-600 text-white px-5 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold">
+                + เพิ่มรูปโฆษณาใหม่
+            </button>
+
+        </div>
+
+        <!-- ตาราง -->
+        <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-200 shadow-inner bg-white">
+
+            <table class="w-full text-left border-collapse">
+
+                <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
+                    <tr>
+                        <th class="p-4 border-b border-pink-100 text-pink-800 font-bold w-32 text-center">
+                            รูปภาพ
+                        </th>
+
+                        <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">
+                            ข้อความแสดงบนจอ
+                        </th>
+
+                        <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-32">
+                            เวลา (วินาที)
+                        </th>
+
+                        <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-32">
+                            จัดการ
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody id="adTableBody"></tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ปุ่ม -->
+        <div class="shrink-0 pt-6 border-t border-pink-100">
+
+            <button onclick="saveAllAds()"
+                    id="btnSaveAllAds"
+                    class="w-full py-4 bg-pink-500 hover:bg-pink-600 text-white rounded-2xl font-bold text-lg shadow-md transition">
+                💾 บันทึกการตั้งค่าโฆษณา
+            </button>
+
+        </div>
+
     </div>
 
-    <div class="pt-4 mt-auto">
-        <button onclick="saveAllAds()" id="btnSaveAllAds" class="w-full p-4 bg-pink-500 text-white rounded-xl font-bold text-xl shadow-md hover:bg-pink-600 transition">💾 บันทึกการตั้งค่าโฆษณา</button>
-    </div>
-  </div>
 </div>
 
 <div id="adSlideModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
@@ -2371,8 +3213,7 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
    
 <!-- ================= หน้าจอ: จัดการโปรโมชั่น ================= -->
 <div id="promotionsManagementView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50 view-section">
-  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col gap-6">
-    
+<div class="w-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col gap-6 overflow-hidden">    
     <div class="flex justify-between items-center border-b pb-4">
       <div class="flex items-center gap-4">
           <button onclick="closePromotionsManagement()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
@@ -2385,9 +3226,9 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
       </button>
     </div>
     
-    <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-inner bg-white">
+    <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-100 shadow-inner bg-white">
         <table class="w-full text-left border-collapse">
-            <thead class="bg-pink-50">
+           <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
                 <tr>
                     <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">ชื่อโปรโมชั่น</th>
                     <th class="p-4 border-b border-pink-100 text-pink-800 font-bold">รูปแบบส่วนลด</th>
@@ -2397,9 +3238,7 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
                     <th class="p-4 border-b border-pink-100 text-center text-pink-800 font-bold w-32">จัดการ</th>
                 </tr>
             </thead>
-            <tbody id="promoTableBody">
-                <tr><td colspan="6" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูลโปรโมชั่น... ⏳</td></tr>
-            </tbody>
+            <tbody id="promoTableBody"></tbody>
         </table>
     </div>
   </div>
@@ -2699,9 +3538,11 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
       <div class="dashed-line"></div>
           
       <div class="text-xs space-y-1">
+             <div class="flex justify-between"><span>รวมเงิน</span><span id="slipSubTotal"></span></div>
+
         <div id="slipTaxRow" class="flex justify-between hidden"><span>ภาษี (VAT):</span><span id="slipTax">0.00 ฿</span></div>
         <div id="slipServiceRow" class="flex justify-between hidden"><span>ค่าบริการ:</span><span id="slipService">0.00 ฿</span></div>
-        <div class="flex justify-between"><span>รวมเงิน</span><span id="slipSubTotal"></span></div>
+   
         <div class="flex justify-between text-red-600"><span>ส่วนลด</span><span id="slipDiscount"></span></div>
       </div>
      
@@ -3980,7 +4821,6 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
     </div>
 </div>
 
-<!-- หน้าจอ: ตั้งค่าเสียง (ใช้ขนาดและโครงสร้างเดียวกับหน้าอื่นๆ) -->
 <!-- หน้าจอ: ตั้งค่าเสียง -->
 <div id="soundSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
   <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
@@ -4050,9 +4890,148 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
   </div>
 </div>
 
+<!-- หน้าจอจัดการสาขา / สร้างร้านค้าใหม่ (ดีไซน์ตามแบบระบบจัดการรายจ่าย) -->
+<div id="createStoreView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50 view-section">
+    <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+        
+        <!-- Header: หัวข้อ + ปุ่มสร้างร้านใหม่มุมขวาบน -->
+        <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+            <div class="flex items-center gap-4">
+                <button onclick="showView('settings')" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <h1 class="text-2xl font-bold text-pink-800">จัดการสาขาและร้านค้า</h1>
+            </div>
+            <button onclick="openCreateStoreModal()" class="px-5 py-2.5 bg-pink-600 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-pink-700 shadow-sm transition">
+                <span>+</span> สร้างร้านค้าใหม่
+            </button>
+        </div>
+
+        <!-- แถบแสดงโควต้าร้านค้า (ดีไซน์คล้ายกล่องสรุปยอดเงิน) -->
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <span class="text-gray-700 font-bold text-base">📊 โควต้าร้านค้าทั้งหมดในระบบ</span>
+            </div>
+            <div class="px-5 py-2 bg-pink-50 border border-pink-100 rounded-xl text-pink-600 font-bold text-lg" id="storeCountQuotaBadge">
+                0 / 5 ร้าน
+            </div>
+        </div>
+
+        <!-- ตารางแสดงรายชื่อร้านค้า -->
+        <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden flex-1 flex flex-col shadow-sm">
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-pink-50/60 text-pink-900 border-b border-pink-100">
+                            <th class="p-4 font-bold text-sm">ชื่อร้านค้า</th>
+                            <th class="p-4 font-bold text-sm">วันที่สร้าง</th>
+                            <th class="p-4 font-bold text-sm text-center">สถานะ</th>
+                            <th class="p-4 font-bold text-sm text-right">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="storeTableBody" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="4" class="text-center py-12 text-gray-400">กำลังโหลดข้อมูลร้านค้า...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal สำหรับกรอกชื่อสร้างร้านใหม่ -->
+<div id="createStoreModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md p-6 rounded-3xl shadow-xl border border-pink-100 space-y-4">
+        <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="text-xl font-bold text-gray-800">✨ สร้างร้านค้าใหม่</h3>
+            <button onclick="closeCreateStoreModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+        </div>
+        <div>
+            <label class="block font-bold text-gray-700 mb-2">ชื่อร้านค้า <span class="text-red-500">*</span></label>
+            <input type="text" id="newStoreName" class="w-full p-4 rounded-xl border-2 border-pink-100 focus:outline-none focus:border-pink-500 transition font-bold text-gray-800" placeholder="เช่น ร้านกาแฟ สาขา 2">
+            <p class="text-xs text-gray-400 mt-2">ระบบจะทำการคัดลอกฐานข้อมูลเปล่ามาให้คุณใช้งานทันที</p>
+        </div>
+        <div class="flex gap-3 pt-4">
+            <button onclick="closeCreateStoreModal()" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">ยกเลิก</button>
+            <button id="btncreateStoreView" onclick="createNewStore()" class="flex-1 py-3 bg-pink-600 text-white rounded-xl font-bold hover:bg-pink-700 shadow-md transition">ยืนยันสร้าง</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= หน้าจอ: Modal ยืนยันการลบแพ็กเกจ ================= -->
+<div id="deleteConfirmModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[220] flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-[2rem] w-full max-w-sm shadow-2xl relative flex flex-col items-center text-center">
+        <!-- ไอคอนถังขยะสีแดง -->
+        <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        </div>
+        
+        <h3 class="text-xl font-bold mb-2 text-gray-800">ยืนยันการลบข้อมูล</h3>
+        <p class="text-gray-500 text-sm mb-6 leading-relaxed">
+            คุณต้องการลบแพ็กเกจ <br>
+            <span id="deletePackageNameDisplay" class="font-bold text-pink-600 text-base"></span><br>
+            ใช่หรือไม่? (ลบแล้วกู้คืนไม่ได้นะ)
+        </p>
+        
+        <div class="flex gap-3 w-full">
+            <button onclick="closeDeleteModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition">ยกเลิก</button>
+            <button onclick="executeDeletePackage()" class="flex-1 py-2.5 bg-red-500 text-white rounded-xl font-bold text-sm shadow hover:bg-red-600 transition">🗑️ ลบทิ้งเลย</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= Modal: แก้ไขชื่อร้านค้า ================= -->
+<div id="editStoreModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl relative flex flex-col animate-fade-in">
+        <button onclick="closeEditStoreModal()" class="absolute top-4 right-5 text-gray-400 hover:text-red-500 text-3xl font-bold transition">&times;</button>
+        
+        <h3 class="text-xl font-bold mb-4 text-pink-700 border-b pb-3">✏️ แก้ไขชื่อร้านค้า</h3>
+        
+        <input type="hidden" id="editStoreId" value="">
+        
+        <div class="space-y-4 mb-6">
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1.5">ชื่อร้านค้า <span class="text-red-500">*</span></label>
+                <input type="text" id="editStoreNameInput" class="w-full p-3.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-pink-500 font-semibold text-gray-700 transition" placeholder="กรอกชื่อร้านใหม่...">
+            </div>
+        </div>
+        
+        <div class="flex gap-3">
+            <button onclick="closeEditStoreModal()" class="flex-1 py-3.5 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition">ยกเลิก</button>
+            <button onclick="confirmEditStore()" class="flex-1 py-3.5 bg-pink-600 text-white rounded-xl font-bold hover:bg-pink-700 transition shadow-md">💾 บันทึก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= Modal: ยืนยันการลบร้านค้า ================= -->
+<div id="deleteStoreModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl relative flex flex-col items-center text-center animate-fade-in">
+        <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-3xl mb-4 font-bold">⚠️</div>
+        
+        <h3 class="text-xl font-bold mb-2 text-gray-800">ยืนยันการลบร้านค้า</h3>
+        <p class="text-gray-500 text-sm mb-6 leading-relaxed">
+            คุณต้องการลบร้าน <span id="deleteStoreNameDisplay" class="font-bold text-pink-600"></span> ใช่หรือไม่?<br>ข้อมูลทั้งหมดจะถูกลบออก
+        </p>
+        
+        <input type="hidden" id="deleteStoreId" value="">
+        
+        <div class="flex gap-3 w-full">
+            <button onclick="closeDeleteStoreModal()" class="flex-1 py-3.5 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition">ยกเลิก</button>
+            <button onclick="confirmDeleteStore()" class="flex-1 py-3.5 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition shadow-md">🗑️ ลบทิ้งเลย</button>
+        </div>
+    </div>
+</div>
   <script>
+
+window.currentBranch = "<?= currentBranch ?>";
+    window.currentStoreId = "<?= currentStoreId ?>";
+
 // 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
-const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
+/*const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
 // ================================================================
 // 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
@@ -4098,11 +5077,15 @@ const google = {
         }
     }
 };
+
+
 // ================================================================*/
 
 let cart = [];
     let currentCash = "0";
     let selectedPayment = "เงินสด";
+    let isAlreadySentToKitchen = false; // เพิ่มตัวแปรนี้เพื่อเช็คว่าบิลถูกส่งเข้าครัวไปแล้วหรือยัง    let currentCash = "0";
+
     let qrTimerInterval = null;
     let qrTimeLeft = 600; 
     let globalStoreSettings = {};
@@ -4114,6 +5097,7 @@ let currentOutHistory = [];
 let heldOrders = JSON.parse(localStorage.getItem('famepos_held_orders') || '[]');
 var modalSelectedProducts = [];
 let allExpiryData = [];
+
 
 // 1. ฟังก์ชันช่วยแจ้งเตือน (Toast) [เวอร์ชันเพิ่มระบบ Mute เสียงซ้ำซ้อน]
 function showToast(message, type, muteSound = false) {
@@ -4538,7 +5522,7 @@ function showView(viewName) {
         'dashboardView', 'inventoryView', 'stockAdjustView', 'membershipView', 
         'employeeView', 'shiftView', 'branchManagementView', 'tableManagementView',
         'buffetManagementView', 'adSettingsView', 'kitchenSettingsView', 'expiryView', 
-        'promotionsManagementView', 'expenseView'
+        'promotionsManagementView', 'expenseView', 'createStoreView'
     ];
     views.forEach(v => {
         let el = document.getElementById(v);
@@ -4629,6 +5613,18 @@ function showView(viewName) {
 else if (viewName === 'sound') {
         document.getElementById('soundSettingsView').classList.remove('hidden');
         // ไม่ต้องเปลี่ยน Class ของเมนูเพราะเราถือว่าอยู่ในหมวด settings
+    }
+// 🟢 เพิ่มคำสั่งเรียกโหลดข้อมูลไว้ตรงนี้ครับ
+  else if (viewName === 'createStoreView') {
+        let el = document.getElementById('createStoreView');
+        if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
+        let nav = document.getElementById('nav-settings'); 
+        if (nav) nav.className = activeClass;
+        
+        // 🟢 เพิ่มบรรทัดนี้เข้าไป เพื่อให้พอกดเปิดหน้าจอ ระบบจะสั่งดึงข้อมูลทันที
+        if (typeof loadStoreTableData === 'function') {
+            loadStoreTableData();
+        }
     }
 }
     function openStoreInfo() {
@@ -5281,7 +6277,8 @@ let exactCash = 0; let exactTransfer = 0;
                 }).updateTableStatusGS(capturedTableNo, "ว่าง");
             }
             
-            cart = []; updateCartUI();
+           cart = []; updateCartUI();
+            isAlreadySentToKitchen = false; // ล้างค่าหลังเช็คบิลเสร็จ
             
             let inTable = document.getElementById('inputTableNo'); if (inTable) inTable.value = "";
             let dispTable = document.getElementById('displaySelectedTable'); if (dispTable) dispTable.innerText = "-";
@@ -5295,28 +6292,43 @@ let exactCash = 0; let exactTransfer = 0;
  // ----------------------------------------------------
 // 👨‍🍳 ระบบยิงออเดอร์เข้าครัวสำหรับ โต๊ะแบบ Prepaid (จ่ายก่อนกิน)
 // ----------------------------------------------------
-if (window.isPrepaidOrder && capturedTableNo !== "") {
-    
-    // เช็คก่อนว่าเปิดใช้งานระบบจอครัวหรือไม่
-    if (globalStoreSettings.enableKitchenDisplay === true) {
-        let kitOrder = {
-            orderId: res.orderId,
-            tableNo: capturedTableNo,
-            orderType: capturedOrderType, 
-            items: res.cart
-        };
-        
-        // ยิงข้อมูลไปชีต KitchenOrders เพื่อให้แสดงบนจอครัว
-        google.script.run.withSuccessHandler(function() {
-            console.log("Prepaid Order sent to Kitchen KDS successfully.");
-        }).createKitchenOrderGS(kitOrder);
-    } else {
-        console.log("ระบบจอครัวปิดอยู่: ข้ามการส่งออเดอร์เข้าครัว");
-    }
-    
-    // ต้องเคลียร์ค่านี้เสมอไม่ว่าจะส่งเข้าครัวหรือไม่ เพื่อป้องกันการส่งซ้ำในรอบถัดไป
-    window.isPrepaidOrder = false; 
+// ส่งเข้าครัวเฉพาะออเดอร์ที่สร้างจาก POS เท่านั้น
+if (
+    window.isPrepaidOrder &&
+    capturedTableNo !== "" &&
+    globalStoreSettings.enableKitchenDisplay === true
+) {
+
+    let kitOrder = {
+        orderId: res.orderId,
+        tableNo: capturedTableNo,
+        orderType: capturedOrderType,
+        items: res.cart
+    };
+
+    google.script.run
+        .withSuccessHandler(function(exists){
+
+            if (!exists) {
+
+                google.script.run
+                    .withSuccessHandler(function(){
+                        console.log("ส่ง KDS สำเร็จ");
+                    })
+                    .createKitchenOrderGS(kitOrder);
+
+            } else {
+
+                console.log("Order อยู่ใน KitchenOrders แล้ว ไม่ส่งซ้ำ");
+
+            }
+
+        })
+        .isKitchenOrderExists(res.orderId);
+
 }
+
+window.isPrepaidOrder = false;
 // ----------------------------------------------------
             // ----------------------------------------------------
 
@@ -5328,7 +6340,7 @@ if (window.isPrepaidOrder && capturedTableNo !== "") {
             if(btnQR) { btnQR.innerText = "ชำระเงินแล้ว"; btnQR.disabled = false; }
         }
         
-    }).processSale(cartData, finalPaymentType, currentCash, changeStr, totalDiscountForDB, phone, exactCash, exactTransfer, tax, service, usedPoints, capturedUserLog, capturedBranchLog, capturedOrderType, capturedTableNo, capturedDeliveryApp, capturedDeliveryOrderId);
+    }).processSale(cartData, finalPaymentType, currentCash, changeStr, totalDiscountForDB, phone, exactCash, exactTransfer, tax, service, usedPoints, capturedUserLog, capturedBranchLog, capturedOrderType, capturedTableNo, capturedDeliveryApp, capturedDeliveryOrderId, isAlreadySentToKitchen);
 }
 function finishRealTime() {
   const tableNo = document.getElementById('inputTableNo')?.value || '';
@@ -5857,12 +6869,18 @@ function recallOrder(index) {
                 // 🟢 สั่งแสดงกล่องโต๊ะทันที เพื่อให้หน้าบิลมีข้อมูลครบ
                 toggleTableDisplay(true);
                 processRecall(index);
+                
+                // ✨ ใส่ตรงนี้ครับ! บอกระบบว่าบิลที่เพิ่งดึงมานี้ เคยส่งเข้าครัวไปแล้ว
+                isAlreadySentToKitchen = true; 
             }
         );
     } else {
         // 🟢 สั่งแสดงกล่องโต๊ะทันที
         toggleTableDisplay(true);
         processRecall(index);
+        
+        // ✨ ใส่ตรงนี้ด้วย! (สำหรับกรณีที่ตะกร้าว่างอยู่แล้วกดเรียกบิลเลย)
+        isAlreadySentToKitchen = true; 
     }
 }
 
@@ -6873,7 +7891,7 @@ function loadMovementForItem(itemName) {
     if (!titleEl || !bodyEl || !modalEl) return;
 
     titleEl.innerText = "ประวัติความเคลื่อนไหว: " + itemName;
-    bodyEl.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-pink-500 font-bold">⏳ กำลังโหลดข้อมูล...</td></tr>';
+    bodyEl.innerHTML = "";
     modalEl.classList.remove('hidden');
 
     google.script.run.withSuccessHandler(function(movements) {
@@ -8707,7 +9725,8 @@ function backToSettings() {
     'tableManagementView', 
     'buffetManagementView', 
     'adSettingsView', 
-    'kitchenSettingsView'
+    'kitchenSettingsView',
+    'createStoreView'
   ];
   
   subViews.forEach(viewId => {
@@ -8719,37 +9738,85 @@ function backToSettings() {
   document.getElementById('settingsView').classList.remove('hidden');
 }
 
+// ฟังก์ชันกดปุ่มรีเซ็ตระบบ
+// ฟังก์ชันกดปุ่มรีเซ็ตระบบ
 function triggerFactoryReset() {
-    showConfirmModal("🛑 คำเตือนวิกฤต: คุณต้องการล้างข้อมูลสินค้า ยอดขาย และการตั้งค่าทั้งหมดกลับเป็นค่าเริ่มต้นโรงงานใช่หรือไม่? ข้อมูลทั้งหมดจะหายถาวร!", function() {
-        let btn = document.getElementById('btnFactoryReset');
-        if(btn) {
-            btn.disabled = true;
-            btn.innerHTML = "🧨 กำลังกวาดล้างข้อมูลทั้งหมด...";
+    Swal.fire({
+        title: '⚠️ ยืนยันการล้างระบบ (Factory Reset)?',
+        html: '<span class="text-red-500 font-bold">คำเตือน:</span> ข้อมูลทั้งหมดจะถูกลบถาวร!<br>ระบบจะเก็บไว้เฉพาะ <b>หัวตาราง</b> เท่านั้น',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#9ca3af',
+        confirmButtonText: '🧨 ยืนยัน ล้างข้อมูลทั้งหมด',
+        cancelButtonText: 'ยกเลิก',
+        // 🌟 เพิ่มส่วนนี้: ปรับกล่องและปุ่มให้ขอบมน
+        customClass: {
+            popup: 'rounded-3xl border border-pink-100 shadow-2xl', // กล่องหลักมน 3xl
+            confirmButton: 'rounded-xl font-bold shadow-md', // ปุ่มยืนยันมน xl
+            cancelButton: 'rounded-xl font-bold shadow-sm'   // ปุ่มยกเลิกมน xl
         }
-        
-        google.script.run.withSuccessHandler(function(res) {
-            if(res === "Success") {
-                let views = ['salesView', 'settingsView', 'historyView', 'productManagementView', 'dashboardView', 'inventoryView', 'stockAdjustView', 'membershipView', 'employeeView', 'shiftView', 'branchManagementView'];
-                views.forEach(v => {
-                    let el = document.getElementById(v);
-                    if(el) { el.style.display = 'none'; }
-                });
-
-                let sidebar = document.querySelector('.bg-white.border-r');
-                if(sidebar) sidebar.style.display = 'none';
-                
-                let welcome = document.getElementById('factoryWelcomeView');
-                if(welcome) {
-                    welcome.classList.remove('hidden');
-                    welcome.classList.add('flex');
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'กำลังล้างระบบ...',
+                text: 'กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); },
+                // 🌟 ให้กล่องตอนโหลดขอบมนด้วย
+                customClass: {
+                    popup: 'rounded-3xl border border-pink-100 shadow-2xl'
                 }
-                
-                showToast("ระบบรีเซ็ตกลับค่าโรงงานสมบูรณ์!", "success");
-            } else {
-                if(btn) { btn.disabled = false; btn.innerHTML = "🧨 รีเช็ตระบบกลับค่าโรงงาน"; }
-                showToast("เกิดข้อผิดพลาด: " + res, "error");
-            }
-        }).clearAllSystemDataGS();
+            });
+
+            google.script.run
+            .withSuccessHandler(function(res) {
+                if(res === "Success") {
+                    Swal.close(); // ปิดกล่องโหลด
+                    
+                    // 1. เคลียร์ข้อมูล User ที่ค้างอยู่ในเบราว์เซอร์
+                    localStorage.removeItem('famepos_user');
+                    window.currentUser = null;
+                    window.currentRole = null;
+                    window.currentBranch = null;
+
+                    // 2. ล้างข้อมูลรหัสผ่านในช่องกรอก
+                    document.getElementById('loginUsername').value = '';
+                    document.getElementById('loginPassword').value = '';
+
+                    // 3. ปิดหน้าจอตั้งค่า/หน้าจอการทำงานทั้งหมด
+                    document.getElementById('settingsView').classList.add('hidden');
+                    document.getElementById('salesView').classList.add('hidden');
+                    document.getElementById('userStatusContainer').innerHTML = '';
+
+                    // 4. แสดงหน้า Login ทันที
+                    document.getElementById('loginOverlay').classList.remove('hidden');
+
+                    // 5. โหลดข้อมูลร้านค้าจาก Store_Hub ใหม่มารอไว้
+                    if(typeof loadStoreTableData === 'function') {
+                        loadStoreTableData();
+                    }
+
+                    showToast('ล้างระบบและคืนค่าหัวตารางสำเร็จ! กรุณาเข้าสู่ระบบใหม่', 'success');
+                } else {
+                    Swal.fire({
+                        title: 'ข้อผิดพลาด', 
+                        text: res, 
+                        icon: 'error',
+                        customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl' }
+                    });
+                }
+            })
+            .withFailureHandler(function(err) {
+                Swal.fire({
+                    title: 'ข้อผิดพลาด', 
+                    text: err.message, 
+                    icon: 'error',
+                    customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-xl' }
+                });
+            })
+            .clearAllSystemDataGS();
+        }
     });
 }
 
@@ -8940,13 +10007,18 @@ function processLogin() {
         let loginOverlay = document.getElementById('loginOverlay'); 
         if (loginOverlay) loginOverlay.classList.add('hidden'); 
         
+        // 🟢 ✅ เพิ่มบรรทัดนี้: สั่งให้สลับไปแสดงหน้าจอขายสินค้า (sales) ทันที
+        showView('sales');
+
         updateUserStatusUI(); 
         applyRolePermissions(); 
         loadProducts(); 
         loadShiftHistory(); 
         
+        // 🟢 ย้ายมาไว้ตรงนี้ครับ: โหลด Dropdown หลังจากล็อกอินสำเร็จ
+        renderStoreDropdown(); 
+        
       } else {
-        // 🚀 ดักจับข้อความแจ้งเตือนผิดพลาดจากระบบ Server ส่งขึ้น Toast สีแดงทันที!
         let errorMsg = (res && res.message) ? res.message : "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"; 
         showToast(errorMsg, "error"); 
       }
@@ -8966,6 +10038,8 @@ function updateUserStatusUI() {
   if (statusBox) {
     statusBox.innerHTML = `
       <div class="flex flex-col gap-2 p-3 bg-slate-50 rounded-2xl border border-gray-100 shadow-inner">
+        
+        <!-- ส่วนหัว: ชื่อพนักงาน และ สาขา -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5 min-w-0">
             <span class="w-2 h-2 rounded-full bg-pink-500 shrink-0 animate-pulse"></span>
@@ -8974,11 +10048,19 @@ function updateUserStatusUI() {
           <span class="text-[11px] bg-pink-600 text-white px-2 py-0.5 rounded-lg font-bold shadow-sm shrink-0">${window.currentBranch}</span>
         </div>
         
+        <!-- 🌟 เพิ่มพื้นที่ว่างตรงนี้ เพื่อรอรับ Dropdown สลับร้านค้า -->
+        <div id="storeDropdownContainer"></div>
+
+        <!-- ปุ่มออกจากระบบ -->
         <button onclick="processLogout()" class="w-full mt-1 py-1.5 px-3 bg-white hover:bg-red-50 text-xs font-semibold text-gray-500 hover:text-red-600 rounded-xl border border-gray-200 hover:border-red-100 shadow-sm transition-all duration-200 flex items-center justify-center gap-1">
           <span>ออกจากระบบ</span> <span class="text-xs">↩️</span>
         </button>
+        
       </div>
     `;
+
+    // 🌟 สั่งให้โหลด Dropdown มาใส่ในกล่องทันที หลังจากสร้างกล่องโปรไฟล์เสร็จ
+    renderStoreDropdown();
   }
 }
 
@@ -10590,10 +11672,13 @@ window.handleSalesTableClick = function(tableName, status) {
         
         // 🛑 2. ค่อยเด้งหน้าต่างยืนยันการดึงบิล
         showConfirmModal(`ต้องการดึงบิลของ ${tableName} เพื่อคิดเงินใช่หรือไม่?`, function() {
+            // ✨ 1. เติมบรรทัดนี้ลงไปตรงนี้เลยครับ บังคับค่าให้เป็น Global ทันที!
+            window.isAlreadySentToKitchen = true; 
+            
             window.pullBillForTable(tableName);
         });
         
-    } 
+    }
     else if (status === 'ว่าง' || status === '🟢 ว่าง') {
         document.getElementById('salesTableModal').classList.add('hidden');
         
@@ -10671,7 +11756,7 @@ window.pullBillForTable = function(tableName) {
             cart.push({ name: item.name, price: parseFloat(item.price), qty: parseInt(item.qty) });
         });
 
-        // ยัดอาหารที่ลูกค้าสั่งเพิ่มผ่านมือถือลงตะกร้า และจัดกลุ่มรวมกันถ้าชื่อซ้ำกัน
+ // ยัดอาหารที่ลูกค้าสั่งเพิ่มผ่านมือถือลงตะกร้า และจัดกลุ่มรวมกันถ้าชื่อซ้ำกัน
         if (res.items && res.items.length > 0) {
             res.items.forEach(item => {
                 let existing = cart.find(i => i.name === item.name && i.price === parseFloat(item.price));
@@ -10684,6 +11769,9 @@ window.pullBillForTable = function(tableName) {
         }
         
         updateCartUI(); // อัปเดตตะกร้าให้แสดงรายการและคำนวณยอดรวม
+        
+        // ✨ เติมโค้ด 1 บรรทัดนี้ลงไปตรงนี้เลยครับ! ✨
+        isAlreadySentToKitchen = true; 
         
         // ล็อกเป้าหมายโต๊ะในหน้าจอแคชเชียร์
         document.getElementById('inputTableNo').value = tableName;
@@ -10730,12 +11818,15 @@ function selectSalesTable(tableName, status) {
             text: `ต้องการดึงบิลของ ${tableName} เพื่อคิดเงินใช่หรือไม่?`,
             icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: '#ec4899', // สีชมพูเข้ม
+            confirmButtonColor: '#ec4899', 
             cancelButtonColor: '#d1d5db',
             confirmButtonText: '📥 ดึงบิลเข้าเครื่อง',
             cancelButtonText: 'ยกเลิก'
         }).then((result) => {
             if (result.isConfirmed) {
+                // ✨ 2. เติมบรรทัดนี้ลงไปตรงนี้ด้วยครับ!
+                window.isAlreadySentToKitchen = true; 
+                
                 pullBillForTable(tableName);
             }
         });
@@ -10799,15 +11890,19 @@ function checkForNewQROrders() {
             
             google.script.run.markQROrderAsReceivedGS(order.id);
             
-            // 🔥 ส่งเข้า KDS อัตโนมัติ เฉพาะออเดอร์จาก QR โต๊ะอาหาร
-            if (order.table && order.table !== "") {
-                google.script.run.createKitchenOrderGS({
-                    orderId: order.id,
-                    tableNo: order.table,
-                    orderType: "ทานที่ร้าน",
-                    items: order.items // ส่งรายการพร้อมราคาที่คำนวณมาแล้วจากฝั่ง QR
-                });
-            }
+         // 🔥 ส่งเข้า KDS อัตโนมัติ เฉพาะออเดอร์จาก QR โต๊ะอาหาร
+if (order.table && order.table !== "") {
+
+    // บอกว่าออเดอร์นี้มาจาก QR
+    window.isQrOrder = true;
+
+    google.script.run.createKitchenOrderGS({
+        orderId: order.id,
+        tableNo: order.table,
+        orderType: "ทานที่ร้าน",
+        items: order.items
+    });
+}
             orderCount++;
         });
 
@@ -11458,22 +12553,31 @@ function loadPackagesForOpenTable() {
             if(menu) menu.innerHTML = '<div class="p-3 text-gray-500 text-sm text-center font-bold">กรุณาไปเพิ่มราคาบุฟเฟต์ในเมนูตั้งค่า</div>';
             return;
         }
+        
         let html = '';
         packages.forEach(pkg => {
-            // 🟢 1. ดึงราคาเด็ก (ถ้าไม่มีให้หาร 2)
-            let pChildPrice = (pkg.priceChild && pkg.priceChild > 0) ? pkg.priceChild : (pkg.price / 2);
+            // 🟢 ดึงราคาผู้ใหญ่ (ดักไว้ทั้งชื่อ priceAdult และ price)
+            let adultPrice = parseFloat(pkg.priceAdult || pkg.price || 0);
             
-            // 🟢 2. เพิ่ม pChildPrice เข้าไปเป็นพารามิเตอร์ตัวที่ 4
-            html += `<div onclick="selectBuffetPackageItem('${pkg.name}', ${pkg.price}, ${pkg.timeLimit}, ${pChildPrice}, this)" class="buffet-pkg-item p-4 hover:bg-pink-50 hover:text-pink-600 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">${pkg.name} (ผู้ใหญ่ ฿${pkg.price} | เด็ก ฿${pChildPrice})</div>`;
+            // 🟢 ดึงราคาเด็ก (ถ้าไม่มีให้หาร 2 จากราคาผู้ใหญ่)
+            let pChildPrice = (pkg.priceChild && parseFloat(pkg.priceChild) > 0) ? parseFloat(pkg.priceChild) : (adultPrice / 2);
+            
+            // 🟢 สร้าง HTML เมนู โดยใช้ตัวแปรที่ดึงมาใหม่
+            html += `<div onclick="selectBuffetPackageItem('${pkg.name}', ${adultPrice}, ${pkg.timeLimit}, ${pChildPrice}, this)" 
+                      class="buffet-pkg-item p-4 hover:bg-pink-50 hover:text-pink-600 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">
+                      🥩 ${pkg.name} (ผู้ใหญ่ ฿${adultPrice} | เด็ก ฿${pChildPrice})
+                      </div>`;
         });
         if(menu) menu.innerHTML = html;
         
-        // 🟢 3. เลือกแพ็กเกจแรกเป็นค่าเริ่มต้น (อย่าลืมส่งราคาเด็กไปด้วย)
+        // 🟢 เลือกแพ็กเกจแรกเป็นค่าเริ่มต้น
         if (packages.length > 0) {
             let firstElement = menu.querySelector('.buffet-pkg-item');
-            let firstChildPrice = (packages[0].priceChild && packages[0].priceChild > 0) ? packages[0].priceChild : (packages[0].price / 2);
             
-            selectBuffetPackageItem(packages[0].name, packages[0].price, packages[0].timeLimit, firstChildPrice, firstElement);
+            let firstAdultPrice = parseFloat(packages[0].priceAdult || packages[0].price || 0);
+            let firstChildPrice = (packages[0].priceChild && parseFloat(packages[0].priceChild) > 0) ? parseFloat(packages[0].priceChild) : (firstAdultPrice / 2);
+            
+            selectBuffetPackageItem(packages[0].name, firstAdultPrice, packages[0].timeLimit, firstChildPrice, firstElement);
         }
     }).getBuffetPackagesGS();
 }
@@ -11538,50 +12642,51 @@ function loadBuffetPackagesTable() {
         let tbody = document.getElementById('buffetPackageTableBody');
 
         if (data.length === 0) {
-            tbody.innerHTML =
-                '<tr><td colspan="4" class="text-center p-6 text-gray-400">ยังไม่มีแพ็กเกจราคาในฐานข้อมูล</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-gray-400">ยังไม่มีแพ็กเกจราคาในฐานข้อมูล</td></tr>';
             return;
         }
 
         tbody.innerHTML = data.map((p, idx) => {
-            // 🟢 เพิ่มตัวแปรเช็คราคาเด็ก เพื่อนำไปโชว์ใต้ชื่อแพ็กเกจ
-            let childInfo = (p.priceChild && p.priceChild > 0)
-                ? `<div class="text-[11px] text-pink-500 mt-1 font-medium">👦 เด็ก: ฿${p.priceChild} (สูงไม่เกิน ${p.heightLimit || '-'} ซม.)</div>` 
-                : `<div class="text-[11px] text-gray-400 mt-1 font-medium">👦 เด็ก: 50% ของราคาผู้ใหญ่</div>`;
+            // 🟢 ดึงข้อมูลจากหลังบ้าน (เขียนดักไว้ทั้งพิมพ์เล็ก/ใหญ่ เผื่อระบบส่งมาไม่ตรงกัน)
+            let cPrice = parseFloat(p.priceChild || p.PriceChild || 0);
+            let cHeight = p.heightLimit || p.HeightLimit || '';
+            let aPrice = parseFloat(p.price || p.priceAdult || p.Price || 0);
+            let pName = p.name || p.PackageName || '';
+            let pTime = p.timeLimit || p.TimeLimit || '';
+
+            // 🟢 จัดรูปแบบราคาเด็ก ถ้ามีราคาให้โชว์ราคา ถ้าไม่มีให้ขึ้นว่าไม่ระบุ (เอา 50% ออก)
+            let childInfo = cPrice > 0
+                ? `<div class="font-black text-pink-500">฿${cPrice}</div>
+                   <div class="text-[10px] text-gray-400 mt-1">(สูงไม่เกิน ${cHeight || '-'} ซม.)</div>` 
+                : `<div class="text-[11px] text-gray-400 font-medium">- ไม่ระบุ -</div>`;
 
             return `
             <tr class="border-b hover:bg-gray-50 transition">
+                <!-- คอลัมน์ที่ 1: ชื่อแพ็กเกจ -->
                 <td class="p-4 font-bold text-gray-700">
-                    🥩 ${p.name}
-                    ${childInfo} <!-- 👈 นำข้อมูลเด็กมาแสดงตรงนี้ -->
+                    🥩 ${pName}
                 </td>
 
-<td class="p-4 text-center font-black text-pink-600">
-    ฿${(parseFloat(p.price || p.priceAdult) || 0).toFixed(2)}
-</td>
+                <!-- คอลัมน์ที่ 2: ราคาผู้ใหญ่ -->
+                <td class="p-4 text-center font-black text-pink-600">
+                    ฿${aPrice.toFixed(2)}
+                </td>
 
+                <!-- 🟢 คอลัมน์ที่ 3: ราคาเด็ก (โชว์ข้อมูลจากฐานข้อมูลจริง) -->
+                <td class="p-4 text-center">
+                    ${childInfo}
+                </td>
+
+                <!-- คอลัมน์ที่ 4: เวลาจำหน่าย -->
                 <td class="p-4 text-center font-bold text-gray-600">
-                    ${p.timeLimit} นาที
+                    ${pTime} นาที
                 </td>
 
+                <!-- คอลัมน์ที่ 5: ปุ่มจัดการ -->
                 <td class="p-4 text-center whitespace-nowrap">
-                   <button
-                        onclick="openBuffetCategoryModal('${p.name}')"
-                        class="text-pink-500 font-bold text-xs mr-3">
-                        📂 หมวดหมู่
-                    </button>
-
-                    <button
-                        onclick="editBuffetPackage(${idx})"
-                        class="text-pink-600 font-bold text-xs mr-3">
-                        แก้ไข
-                    </button>
-
-                    <button
-                        onclick="deleteBuffetPackage('${p.name}')"
-                        class="text-red-700 font-bold text-xs">
-                        ลบ
-                    </button>
+                   <button onclick="openBuffetCategoryModal('${pName}')" class="text-pink-500 font-bold text-xs mr-3">📂 หมวดหมู่</button>
+                   <button onclick="editBuffetPackage(${idx})" class="text-pink-600 font-bold text-xs mr-3">แก้ไข</button>
+                   <button onclick="deleteBuffetPackage('${pName}')" class="text-red-700 font-bold text-xs">ลบ</button>
                 </td>
             </tr>
             `;
@@ -11719,19 +12824,46 @@ function openBuffetPackageModal(isEdit = false, name = '', priceAdult = '', time
     document.getElementById('buffetFormModal').classList.remove('hidden');
 }
 function editBuffetPackage(index) {
-        let p = localBuffetPackages[index];
-        document.getElementById('buffetFormTitle').innerText = "✏️ แก้ไขราคาแพ็กเกจ";
-        document.getElementById('oldBuffetName').value = p.name;
-        document.getElementById('buffetNameInput').value = p.name;
-        document.getElementById('buffetPriceInput').value = p.price || p.priceAdult || '';
-        document.getElementById('buffetTimeInput').value = p.timeLimit;
-        
-        // 🟢 เพิ่ม 2 บรรทัดนี้ เพื่อดึงข้อมูลเด็กมาใส่ในช่อง (ถ้าไม่มีให้เป็นค่าว่าง)
-        document.getElementById('buffetChildPriceInput').value = p.priceChild || '';
-        document.getElementById('buffetChildHeightInput').value = p.heightLimit || '';
+    let p = localBuffetPackages[index];
+    
+    // ดึงค่ามาพักไว้ก่อน (ป้องกันปัญหาชื่อคีย์จากหลังบ้านตัวพิมพ์ใหญ่/เล็กไม่ตรงกัน)
+    let pName = p.name || p.PackageName || '';
+    let adultP = parseFloat(p.price || p.priceAdult || p.Price || 0);
+    let childP = parseFloat(p.priceChild || p.PriceChild || 0);
+    let pTime = p.timeLimit || p.TimeLimit || '';
+    let heightL = p.heightLimit || p.HeightLimit || '';
 
-        document.getElementById('buffetFormModal').classList.remove('hidden');
+    document.getElementById('buffetFormTitle').innerText = "✏️ แก้ไขราคาแพ็กเกจ";
+    document.getElementById('oldBuffetName').value = pName;
+    document.getElementById('buffetNameInput').value = pName;
+    document.getElementById('buffetPriceInput').value = adultP || '';
+    document.getElementById('buffetTimeInput').value = pTime;
+    
+    // 🟢 เอาข้อมูลเด็กไปหยอดใส่ช่องราคาสุทธิ และช่องส่วนสูง
+    document.getElementById('buffetChildPriceInput').value = childP > 0 ? childP : '';
+    document.getElementById('buffetChildHeightInput').value = heightL;
+
+    // 🟢 คำนวณราคาย้อนกลับไปเป็น "ส่วนลด (บาท)" เพื่อให้โชว์ในช่องได้ถูกต้อง
+    if (childP > 0 && childP < adultP) {
+        let diff = adultP - childP;
+        document.getElementById('childDiscountValue').value = diff; // ใส่ตัวเลขส่วนลด
+        
+        // สั่งให้ Dropdown ซ่อนทำงาน และโชว์ปุ่มเป็นเงินบาท (฿)
+        document.getElementById('childDiscountType').value = 'baht';
+        if(document.getElementById('customDiscountLabel')) {
+            document.getElementById('customDiscountLabel').innerText = '฿';
+        }
+    } else {
+        // กรณีไม่มีส่วนลด ให้เคลียร์ช่องให้ว่าง
+        document.getElementById('childDiscountValue').value = '';
+        document.getElementById('childDiscountType').value = 'percent';
+        if(document.getElementById('customDiscountLabel')) {
+            document.getElementById('customDiscountLabel').innerText = '%';
+        }
     }
+
+    document.getElementById('buffetFormModal').classList.remove('hidden');
+}
 
 // 🟢 2. ฟังก์ชันเซฟข้อมูล (พอบันทึกเสร็จ สั่งอัปเดตตารางทันที!)
 function saveBuffetPackageData() {
@@ -11792,21 +12924,44 @@ function saveBuffetPackageData() {
     loadBuffetPackagesTable();
 }
 
+// ตัวแปรสำหรับจำชื่อแพ็กเกจที่ต้องการลบชั่วคราว
+let targetPackageToDelete = "";
+
+// 1. ฟังก์ชันที่กดจากปุ่ม "ลบ" ในตาราง (เปิด Modal)
 function deleteBuffetPackage(name) {
-    if(!confirm('ยืนยันการลบแพ็กเกจ ' + name + ' ใช่หรือไม่?')) return;
+    targetPackageToDelete = name; 
+    document.getElementById('deletePackageNameDisplay').innerText = name; 
+    document.getElementById('deleteConfirmModal').classList.remove('hidden'); 
+}
+
+// 2. ฟังก์ชันเมื่อกดปุ่ม "ยกเลิก" ใน Modal
+function closeDeleteModal() {
+    targetPackageToDelete = "";
+    document.getElementById('deleteConfirmModal').classList.add('hidden');
+}
+
+// 3. ฟังก์ชันที่จะทำงานเมื่อกดปุ่ม "🗑️ ลบทิ้งเลย" ใน Modal
+function executeDeletePackage() {
+    if (!targetPackageToDelete) return;
+    
+    let name = targetPackageToDelete;
+    closeDeleteModal(); // ปิดหน้าต่างก่อน
     
     showToast("⏳ กำลังลบข้อมูล...", "info");
     
     google.script.run.withSuccessHandler(function(res) {
         if(res === "Success") {
             showToast("ลบแพ็กเกจเรียบร้อย", "success");
-            loadBuffetPackages(); // 🚀 อัปเดตตารางทันทีหลังลบเสร็จ
+            
+            // 🚀 แก้ไขตรงนี้: เรียกชื่อฟังก์ชันให้ถูกต้อง (เติม Table ต่อท้าย)
+            // พอลบเสร็จ มันจะดึงข้อมูลใหม่มาสร้างตารางให้ทันทีแบบเรียลไทม์!
+            loadBuffetPackagesTable(); 
+            
         } else {
             showToast(res, "error");
         }
     }).deleteBuffetPackageGS(name);
 }
-
 // หน้าลุกค้า
 // =========================================================================
 // 🛠️ UNIFIED SYSTEM CODE (รวมโค้ดที่ซ้ำกันให้เป็นหนึ่งเดียว เสถียร 100%)
@@ -15458,8 +16613,381 @@ function confirmSplitEqualPaymentNew() {
     confirmPayment(); // วิ่งเข้าสู่กระบวนการออกบิลปกติ
 }
 
+// ฟังก์ชันคำนวณราคาเด็กอัตโนมัติ (ของเดิมของคุณ)
+function calculateChildPrice() {
+    let adultPrice = parseFloat(document.getElementById('buffetPriceInput').value) || 0;
+    let discountVal = parseFloat(document.getElementById('childDiscountValue').value) || 0;
+    let discountType = document.getElementById('childDiscountType').value;
+    
+    // ตั้งค่าเริ่มต้นให้ราคาเด็กเท่ากับราคาผู้ใหญ่ (กรณีไม่ได้กรอกส่วนลด)
+    let finalPrice = adultPrice; 
+
+    if (discountVal > 0) {
+        if (discountType === 'percent') {
+            // ลดเป็น %
+            finalPrice = adultPrice - (adultPrice * (discountVal / 100));
+        } else if (discountType === 'baht') {
+            // ลดเป็นเงินบาท
+            finalPrice = adultPrice - discountVal;
+        }
+    }
+    
+    // ป้องกันกรณีคำนวณแล้วราคาติดลบ
+    if (finalPrice < 0) finalPrice = 0;
+
+    // ถ้ามีราคาผู้ใหญ่ ให้โชว์ราคาเด็กที่คำนวณได้ แต่ถ้าไม่มีให้เป็นช่องว่าง
+    document.getElementById('buffetChildPriceInput').value = adultPrice > 0 ? Math.round(finalPrice) : '';
+}
+
+// =======================================================
+// 👇 วางโค้ดใหม่ต่อท้ายตรงนี้ได้เลยครับ 👇
+// =======================================================
+
+// ดึง Element ของ Dropdown
+const discountBtn = document.getElementById('customDiscountTypeBtn');
+const discountMenu = document.getElementById('customDiscountMenu');
+const discountLabel = document.getElementById('customDiscountLabel');
+const discountInput = document.getElementById('childDiscountType');
+
+// เปิด/ปิด Dropdown เวลากดปุ่ม
+if(discountBtn) {
+    discountBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); 
+        discountMenu.classList.toggle('hidden');
+    });
+}
+
+// ฟังก์ชันทำงานตอนกดเลือก % หรือ ฿ จาก Dropdown
+function selectDiscountType(valueType, labelText) {
+    // 1. เปลี่ยนข้อความบนปุ่มเป็น % หรือ ฿
+    if(discountLabel) discountLabel.innerText = labelText; 
+    
+    // 2. เปลี่ยนค่าใน <input hidden> เป็น percent หรือ baht
+    if(discountInput) discountInput.value = valueType;         
+    
+    // 3. ปิดเมนู
+    if(discountMenu) discountMenu.classList.add('hidden'); 
+    
+    // 4. สั่งให้ฟังก์ชันคำนวณราคาของคุณทำงานทันที (มันจะวิ่งกลับไปเรียกฟังก์ชันด้านบนครับ)
+    if (typeof calculateChildPrice === "function") {
+        calculateChildPrice(); 
+    }
+}
+
+// กดพื้นที่อื่นบนหน้าจอ แล้วให้ Dropdown ปิดอัตโนมัติ
+document.addEventListener('click', function(e) {
+    if (discountBtn && discountMenu && !discountBtn.contains(e.target) && !discountMenu.contains(e.target)) {
+        discountMenu.classList.add('hidden');
+    }
+});
+// ==========================================
+// สลับร้านค้า
+// ==========================================
+function renderStoreDropdown() {
+    google.script.run.withSuccessHandler(function(data) {
+        let container = document.getElementById('storeDropdownContainer');
+        if (!container) return; 
+
+        let savedStoreId = localStorage.getItem('activeStoreId') || window.currentStoreId;
+        let currentStoreName = "เลือกสาขา";
+        
+        let menuItemsHtml = "";
+
+        // วนลูปสร้างรายการตัวเลือกในเมนู
+        data.forEach(row => {
+            let storeName = row[0];
+            let storeId = row[1];
+            
+            if (storeId === savedStoreId) {
+                currentStoreName = storeName;
+            }
+
+            menuItemsHtml += `
+                <div onclick="selectStoreCustomDropdown('${storeId}', '${storeName}')" 
+                     class="p-3 hover:bg-pink-50 hover:text-pink-600 text-gray-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">
+                    ${storeName}
+                </div>`;
+        });
+
+        // สร้างโครงสร้าง Custom Dropdown (ดีไซน์เดียวกับช่องเลือกตำแหน่ง)
+        let html = `
+            <div class="relative mt-1 mb-1 pt-2 border-t border-gray-200" id="customStoreDropdownWrapper">
+                <button type="button" onclick="document.getElementById('customStoreMenu').classList.toggle('hidden')" 
+                    class="w-full p-2 bg-white border border-pink-200 rounded-lg text-xs font-bold text-pink-700 outline-none flex justify-between items-center shadow-sm cursor-pointer">
+                    <span id="customStoreSelectedText">${currentStoreName}</span>
+                    <span class="text-pink-500 text-xs">▼</span>
+                </button>
+                
+                <div id="customStoreMenu" class="hidden absolute bottom-full left-0 mb-1 w-full bg-white border-2 border-pink-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                    ${menuItemsHtml}
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html; 
+        
+    }).getStoreList();
+}
+
+// ฟังก์ชันเมื่อคลิกเลือกสาขาจาก Custom Dropdown
+function selectStoreCustomDropdown(storeId, storeName) {
+    document.getElementById('customStoreSelectedText').innerText = storeName;
+    document.getElementById('customStoreMenu').classList.add('hidden');
+
+    // บันทึกลง Local Storage
+    localStorage.setItem('activeStoreId', storeId);
+    localStorage.setItem('activeStoreName', storeName);
+
+    // ส่งค่าไปเซ็ตที่หลังบ้านและสลับหน้าเว็บ
+    google.script.run
+        .withSuccessHandler(function(appUrl) {
+            if (appUrl) {
+                window.top.location.href = appUrl;
+            }
+        })
+        .setActiveStoreGS(storeId);
+}
+
+function switchStore() {
+    let storeDropdown = document.getElementById('storeSelector');
+    let selectedId = storeDropdown.value;
+    let selectedName = storeDropdown.options[storeDropdown.selectedIndex].text;
+    
+    if(!selectedId) return;
+
+    storeDropdown.disabled = true;
+    
+    localStorage.setItem('activeStoreId', selectedId);
+    localStorage.setItem('activeStoreName', selectedName);
+
+    google.script.run
+        .withSuccessHandler(function(url) {
+            // 🌟 ตรงนี้ตัวแปร url จะได้ค่ามาจาก ScriptApp.getService().getUrl() โดยตรง
+            let separator = url.includes('?') ? '&' : '?';
+            window.top.location.href = url + separator + "storeId=" + selectedId; 
+        })
+        .withFailureHandler(function(error) {
+            alert("เกิดข้อผิดพลาด: " + error.message);
+            storeDropdown.disabled = false;
+        })
+        .setActiveStoreGS(selectedId, selectedName); 
+}
+
+function openAddStoreModal() {
+    document.getElementById('addStoreModal').classList.remove('hidden');
+}
+
+function closeAddStoreModal() {
+    document.getElementById('addStoreModal').classList.add('hidden');
+}
+// 🚀 2. สร้างร้านค้าใหม่แบบ Real-time (เพิ่มแถวเข้าตารางทันทีโดยไม่ต้องรีเฟรช)
+function createNewStore() {
+    let storeNameInput = document.getElementById('newStoreName');
+    let storeName = storeNameInput ? storeNameInput.value.trim() : "";
+    
+    if (!storeName) {
+        showToast("กรุณากรอกชื่อร้านค้า", "error");
+        return;
+    }
+
+    let btn = document.getElementById('btncreateStoreView');
+    if (btn) { btn.innerText = "กำลังสร้าง..."; btn.disabled = true; }
+
+    google.script.run
+        .withSuccessHandler(function(res) {
+            showToast("สร้างร้านค้าใหม่สำเร็จ!", "success");
+            closeCreateStoreModal();
+            if (btn) { btn.innerText = "ยืนยันสร้าง"; btn.disabled = false; }
+
+            // 🌟 อัปเดตตารางและดรอปดาวน์แบบเรียลไทม์ทันที
+            loadStoreTableData();
+            if (typeof renderStoreDropdown === 'function') renderStoreDropdown();
+        })
+        .withFailureHandler(function(err) {
+            showToast("เกิดข้อผิดพลาด: " + err, "error");
+            if (btn) { btn.innerText = "ยืนยันสร้าง"; btn.disabled = false; }
+        })
+        .createStoreGS(storeName);
+}
+
+// 🏢 1. เปิด Modal สร้างร้านค้าใหม่
+function openCreateStoreModal() {
+    let input = document.getElementById('newStoreName');
+    if (input) input.value = '';
+    let modal = document.getElementById('createStoreModal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeCreateStoreModal() {
+    let modal = document.getElementById('createStoreModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+// โหลดข้อมูลใส่ตารางเมื่อเปิดหน้านี้
+document.addEventListener("DOMContentLoaded", function() {
+    loadStoreTableData();
+});
+
+// 📋 3. โหลดข้อมูลตารางร้านค้า
+function loadStoreTableData() {
+    let tbody = document.getElementById('storeTableBody');
+    if (!tbody) return;
+    
+    // แสดงสถานะกำลังโหลดเฉพาะครั้งแรกที่เปิดหน้า
+    if (!tbody.hasChildNodes() || tbody.innerHTML.includes("กำลังโหลด")) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-gray-400">กำลังโหลดข้อมูลร้านค้า... ⏳</td></tr>`;
+    }
+
+    google.script.run
+        .withSuccessHandler(function(stores) {
+            if (!stores || stores.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-gray-400">ยังไม่มีข้อมูลร้านค้าในระบบ</td></tr>`;
+                let quotaBadge = document.getElementById('storeCountQuotaBadge');
+                if (quotaBadge) quotaBadge.innerText = `0 / 5 ร้าน`;
+                return;
+            }
+
+            let html = "";
+            stores.forEach(function(row) {
+                let storeName = row[0];
+                let storeId = row[1];
+                let createdDate = row[2] || "-";
+                
+                let safeName = storeName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+                html += `
+                    <tr id="store-row-${storeId}" class="hover:bg-pink-50/40 transition-colors">
+                        <td class="p-4 font-bold text-gray-800 store-name-cell">${storeName}</td>
+                        <td class="p-4 text-gray-600 text-sm">${createdDate}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-bold border border-emerald-100 shadow-sm">ใช้งานได้ปกติ</span>
+                        </td>
+                        <td class="p-4 text-right flex items-center justify-end gap-2">
+                            <button onclick="openEditStoreModal('${storeId}', '${safeName}')" class="px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-xl font-bold text-xs transition shadow-sm flex items-center gap-1">
+                                <span>✏️</span> แก้ไข
+                            </button>
+                            <button onclick="openDeleteStoreModal('${storeId}', '${safeName}')" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold text-xs transition shadow-sm flex items-center gap-1">
+                                <span>🗑️</span> ลบ
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            
+            let quotaBadge = document.getElementById('storeCountQuotaBadge');
+            if (quotaBadge) {
+                quotaBadge.innerText = `${stores.length} / 5 ร้าน`;
+            }
+        })
+        .getStoreList();
+}
+// ✏️ 4. เปิด Modal แก้ไขชื่อร้าน
+function openEditStoreModal(storeId, currentName) {
+    document.getElementById('editStoreId').value = storeId;
+    document.getElementById('editStoreNameInput').value = currentName;
+    document.getElementById('editStoreModal').classList.remove('hidden');
+}
+
+function closeEditStoreModal() {
+    document.getElementById('editStoreModal').classList.add('hidden');
+}
+
+// 💾 5. ยืนยันบันทึกชื่อใหม่ (อัปเดตแบบเรียลไทม์ไม่กระพริบ)
+function confirmEditStore() {
+    let storeId = document.getElementById('editStoreId').value;
+    let newName = document.getElementById('editStoreNameInput').value.trim();
+    if (!newName) {
+        showToast("กรุณากรอกชื่อร้านค้า", "error");
+        return;
+    }
+
+    google.script.run
+        .withSuccessHandler(function(res) {
+            showToast("แก้ไขชื่อร้านค้าสำเร็จ!", "success");
+            closeEditStoreModal();
+            
+            // 🌟 อัปเดตข้อความบนแถวในตารางทันทีโดยไม่ต้องโหลดใหม่
+            let row = document.getElementById(`store-row-${storeId}`);
+            if (row) {
+                let nameCell = row.querySelector('.store-name-cell');
+                if (nameCell) nameCell.innerText = newName;
+            } else {
+                loadStoreTableData(); // เผื่อกรณีหาแถวไม่พบ
+            }
+
+            if (typeof renderStoreDropdown === 'function') renderStoreDropdown();
+        })
+        .updateStoreNameGS(storeId, newName);
+}
+// 🗑️ 6. เปิด Modal ยืนยันลบ
+function openDeleteStoreModal(storeId, storeName) {
+    document.getElementById('deleteStoreId').value = storeId;
+    document.getElementById('deleteStoreNameDisplay').innerText = `"${storeName}"`;
+    document.getElementById('deleteStoreModal').classList.remove('hidden');
+}
+
+function closeDeleteStoreModal() {
+    document.getElementById('deleteStoreModal').classList.add('hidden');
+}
+// 🗑️ ฟังก์ชันลบร้านค้าแบบเรียลไทม์
+function deleteStoreAction(storeId, storeName) {
+    if (!confirm(`คุณต้องการลบร้าน "${storeName}" ใช่หรือไม่? ข้อมูลทั้งหมดจะถูกลบออก`)) return;
+
+    google.script.run
+        .withSuccessHandler(function(res) {
+            showToast("ลบร้านค้าเรียบร้อยแล้ว", "success");
+            loadStoreTableData(); // โหลดตารางใหม่แบบเรียลไทม์[cite: 1]
+            if (typeof renderStoreDropdown === 'function') renderStoreDropdown(); // อัปเดตดรอปดาวน์มุมซ้าย[cite: 1]
+        })
+        .deleteStoreGS(storeId);
+}
+// ฟังก์ชันกดสลับร้าน
+function switchStoreAndReload(sheetId, storeName) {
+    showToast("กำลังสลับไปร้าน \"" + storeName + "\"...", "info");
+    google.script.run
+        .withSuccessHandler(function() {
+            showToast("สลับร้านสำเร็จ!", "success");
+            setTimeout(() => { location.reload(); }, 1000);
+        })
+        .withFailureHandler(function(err) {
+            showToast("สลับร้านไม่สำเร็จ: " + err, "error");
+        })
+        .setActiveStoreGS(sheetId);
+}
+// ❌ 7. ยืนยันลบร้านค้า (ซ่อนแถวออกทันทีแบบเรียลไทม์)
+function confirmDeleteStore() {
+    let storeId = document.getElementById('deleteStoreId').value;
+
+    google.script.run
+        .withSuccessHandler(function(res) {
+            showToast("ลบร้านค้าเรียบร้อยแล้ว", "success");
+            closeDeleteStoreModal();
+
+            // 🌟 ซ่อนและลบแถวออกจากตารางทันทีโดยไม่รีเฟรชหน้าจอ
+            let row = document.getElementById(`store-row-${storeId}`);
+            if (row) {
+                row.style.transition = "all 0.3s ease";
+                row.style.opacity = "0";
+                setTimeout(() => {
+                    row.remove();
+                    // อัปเดตตัวเลขโควต้า
+                    loadStoreTableData(); 
+                }, 300);
+            } else {
+                loadStoreTableData();
+            }
+
+            if (typeof renderStoreDropdown === 'function') renderStoreDropdown();
+        })
+        .deleteStoreGS(storeId);
+}
+
 // ==========================================
 // ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
+// ==========================================
+
 window.addEventListener('load', function() { loadModifiersData(); });
 
 // 🟢 Auto-Sync ข้อมูลไปยังจอลูกค้า เมื่อมีการคลิกปุ่มใดๆ ในหน้าต่างแบ่งจ่าย
