@@ -369,56 +369,71 @@ select option:checked {
   <span class="text-gray-400 text-xs mt-6">Powered by FamePOS</span>
 </div>
 
-<nav class="h-screen w-16 md:w-20 lg:w-64 bg-white border-r border-pink-100 flex flex-col shadow-sm z-50 shrink-0 transition-all duration-300">
+<!-- ปุ่ม 3 ขีด สำหรับเปิดเมนู (แสดงเฉพาะบนมือถือ) -->
+<button onclick="toggleSidebar()" class="md:hidden fixed top-4 left-2 z-[100] bg-white p-2 rounded-xl shadow-md text-pink-600 border border-pink-100 flex items-center justify-center">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
+  </svg>
+</button>
+
+<!-- ฉากหลังสีดำโปร่งแสง เวลาเมนูเปิดขึ้นมา (คลิกเพื่อปิดเมนูได้) -->
+<div id="mobileBackdrop" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-[98] md:hidden transition-opacity"></div>
+
+
+<nav id="sideMenu" class="h-screen w-64 md:w-20 lg:w-64 bg-white border-r border-pink-100 flex flex-col shadow-sm z-[99] shrink-0 transition-all duration-300 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0">
     
     <div class="p-6 shrink-0">
         <h1 class="text-2xl font-bold text-pink-600 mb-4 flex items-center gap-2">
             <img id="sidebarLogo" src="" class="w-8 h-8 rounded-lg object-cover hidden">
             <span id="sidebarLogoFallback" class="bg-pink-500 text-white p-2 rounded-xl">F</span> 
-            <span id="sidebarStoreName" class="hidden lg:block truncate">FamePOS</span>
+            <!-- 👇 แก้ไขให้แสดงชื่อร้านบนมือถือ -->
+            <span id="sidebarStoreName" class="block md:hidden lg:block truncate">FamePOS</span>
         </h1>
 
-        <div id="digitalClockContainer" class="hidden lg:flex flex-col p-3 bg-slate-50 rounded-2xl border border-gray-100 text-center font-semibold">
+        <!-- 👇 แก้ไขให้แสดงเวลาบนมือถือ -->
+        <div id="digitalClockContainer" class="flex md:hidden lg:flex flex-col p-3 bg-slate-50 rounded-2xl border border-gray-100 text-center font-semibold">
             <div id="clockTime" class="text-xl font-bold text-pink-700 tracking-wider">00:00:00</div>
             <div id="clockDate" class="text-[11px] text-gray-400 mt-0.5">วันเสาร์ที่ 6 มิ.ย. 2026</div>
         </div>
     </div>
 
     <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 p-4">
+        <!-- 👇 แก้ไขให้แสดงตัวหนังสือเมนูทุกอันบนมือถือ -->
         <a id="nav-sales" onclick="showView('sales')" class="flex items-center gap-3 text-pink-700 bg-pink-50 p-3 rounded-xl font-semibold cursor-pointer transition">
-            <span class="text-xl">🛒</span> <span class="hidden lg:block">ขายสินค้า</span>
+            <span class="text-xl">🛒</span> <span class="block md:hidden lg:block">ขายสินค้า</span>
         </a>
         <a id="nav-history" onclick="showView('history')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">📜</span> <span class="hidden lg:block">บิลทั้งหมด</span>
+            <span class="text-xl">📜</span> <span class="block md:hidden lg:block">บิลทั้งหมด</span>
         </a>
         <a id="nav-products" onclick="showView('products')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">📑</span> <span class="hidden lg:block">จัดการสินค้า</span>
+            <span class="text-xl">📑</span> <span class="block md:hidden lg:block">จัดการสินค้า</span>
         </a>
         <a id="nav-inventory" onclick="showView('inventory')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">📦</span> <span class="hidden lg:block">คลังสินค้า</span>
+            <span class="text-xl">📦</span> <span class="block md:hidden lg:block">คลังสินค้า</span>
         </a>
         <a id="nav-expiry" onclick="showView('expiry')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">📅</span> <span class="hidden lg:block">จัดการวันหมดอายุ</span>
+            <span class="text-xl">📅</span> <span class="block md:hidden lg:block">จัดการวันหมดอายุ</span>
         </a>
         <a id="nav-dashboard" onclick="showView('dashboard')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">📊</span> <span class="hidden lg:block">รายงานยอดขาย</span>
+            <span class="text-xl">📊</span> <span class="block md:hidden lg:block">รายงานยอดขาย</span>
         </a>
         <a id="nav-expense" onclick="showView('expense')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-        <span class="text-xl">💸</span> <span class="hidden lg:block">บันทึกรายจ่าย</span>
+            <span class="text-xl">💸</span> <span class="block md:hidden lg:block">บันทึกรายจ่าย</span>
         </a>
         <a id="nav-shift" onclick="showView('shift')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">⏱️</span> <span class="hidden lg:block">จัดการกะ</span>
+            <span class="text-xl">⏱️</span> <span class="block md:hidden lg:block">จัดการกะ</span>
         </a>
         <a id="nav-cds" onclick="syncCustomerDisplay(); window.open('https://famepos.github.io/restaurant/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">🖥️</span> <span class="hidden lg:block">หน้าจอลูกค้า (CDS)</span>
+            <span class="text-xl">🖥️</span> <span class="block md:hidden lg:block">หน้าจอลูกค้า (CDS)</span>
         </a>
     </div>
 
     <div class="p-4 shrink-0 border-t border-pink-100 mt-auto">
         <a id="nav-settings" onclick="showView('settings')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">⚙️</span> <span class="hidden lg:block">ตั้งค่า</span>
+            <span class="text-xl">⚙️</span> <span class="block md:hidden lg:block">ตั้งค่า</span>
         </a>
-        <div id="userStatusContainer" class="hidden lg:block mt-2 px-3"></div>
+        <!-- 👇 แก้ไขให้แสดงปุ่มสลับร้านและออกจากระบบบนมือถือ -->
+        <div id="userStatusContainer" class="block md:hidden lg:block mt-2 px-3"></div>
     </div>
 </nav>
 
@@ -5061,8 +5076,7 @@ window.currentBranch = "<?= currentBranch ?>";
     window.currentStoreId = "<?= currentStoreId ?>";
 
 // 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
-    const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
-
+/*const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
 // ================================================================
 // 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
@@ -5110,6 +5124,7 @@ const google = {
 };
 
 
+// ================================================================*/
 
 let cart = [];
     let currentCash = "0";
@@ -5185,56 +5200,55 @@ function loadProducts() {
     if (!grid) return;
 
     google.script.run
-
     .withSuccessHandler(function(data) {
 
         console.log("Products :", data);
 
-       if (data && data.length > 0) {
-    allSalesProducts = data;
+        if (data && data.length > 0) {
+            allSalesProducts = data;
 
-    let categories = [...new Set(
-        data.map(row => row[2])
-        .filter(c => c !== undefined && c.toString().trim() !== "")
-    )];
+            let categories = [...new Set(
+                data.map(row => row[2])
+                .filter(c => c !== undefined && c.toString().trim() !== "")
+            )];
 
-    // 👇 [เพิ่มโค้ดส่วนนี้] วาดหมวดหมู่ลงใน Custom Dropdown
-    let catMenu = document.getElementById('categoryDropdownMenu');
-    if (catMenu) {
-        let html = `<div onclick="selectCategoryDropdown('ทั้งหมด', '🔍 หมวดหมู่ทั้งหมด')" class="p-3 hover:bg-pink-50 hover:text-pink-600 text-pink-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">🔍 หมวดหมู่ทั้งหมด</div>`;
-        
-        categories.forEach(cat => {
-            html += `<div onclick="selectCategoryDropdown('${cat}', '${cat}')" class="p-3 hover:bg-pink-50 hover:text-pink-600 text-gray-700 font-medium cursor-pointer border-b border-pink-50 transition-colors">${cat}</div>`;
-        });
-        catMenu.innerHTML = html;
-    }
+            // 👇 [เพิ่มโค้ดส่วนนี้] วาดหมวดหมู่ลงใน Custom Dropdown
+            let catMenu = document.getElementById('categoryDropdownMenu');
+            if (catMenu) {
+                let html = `<div onclick="selectCategoryDropdown('ทั้งหมด', '🔍 หมวดหมู่ทั้งหมด')" class="p-3 hover:bg-pink-50 hover:text-pink-600 text-pink-700 font-bold cursor-pointer border-b border-pink-50 transition-colors">🔍 หมวดหมู่ทั้งหมด</div>`;
+                
+                categories.forEach(cat => {
+                    html += `<div onclick="selectCategoryDropdown('${cat}', '${cat}')" class="p-3 hover:bg-pink-50 hover:text-pink-600 text-gray-700 font-medium cursor-pointer border-b border-pink-50 transition-colors">${cat}</div>`;
+                });
+                catMenu.innerHTML = html;
+            }
 
             renderProductGrid(allSalesProducts);
 
         } else {
-
             console.warn("ไม่มีข้อมูลสินค้า");
-
             allSalesProducts = [];
 
             let catGroup = document.getElementById('categoryButtonGroup');
             if (catGroup) catGroup.innerHTML = '';
 
-            grid.innerHTML =
-            '<div class="col-span-full text-center text-gray-400 font-bold py-12 text-lg">ยังไม่มีสินค้าในระบบ 📭</div>';
-
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-400 font-bold py-12 text-lg">ยังไม่มีสินค้าในระบบ 📭</div>';
         }
-
     })
-
     .withFailureHandler(function(err){
-
         console.error("Apps Script Error :", err);
-
-        alert("Apps Script Error : " + err);
-
-    })
-
+        
+        // 🛑 [เปลี่ยนจาก alert เป็นระบบแจ้งเตือนของ FamePOS]
+        // รูปแบบที่ 1: ถ้าในระบบคุณใช้ SweetAlert2 (Swal) เป็นตัวแจ้งเตือน
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: 'ไม่สามารถโหลดข้อมูลสินค้าได้: ' + err.message,
+                confirmButtonColor: '#ec4899' // สีปุ่มธีมสีชมพู (Pink-500)
+            });
+        }
+    }) // 👈 [แก้ไข] เติม }) ปิดตรงนี้ให้แล้วครับ
     .getProducts();
 
 }
@@ -17051,6 +17065,21 @@ function toggleMobileCart() {
         backdrop.classList.add('opacity-0');
         setTimeout(() => backdrop.classList.add('hidden'), 300); 
     }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sideMenu');
+  const backdrop = document.getElementById('mobileBackdrop');
+
+  // สลับ Class เพื่อเลื่อนเมนูเข้า/ออก
+  sidebar.classList.toggle('-translate-x-full');
+  
+  // สลับการแสดงผลของฉากหลัง
+  if (backdrop.classList.contains('hidden')) {
+    backdrop.classList.remove('hidden');
+  } else {
+    backdrop.classList.add('hidden');
+  }
 }
 
 // ==========================================
