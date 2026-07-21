@@ -22,6 +22,30 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden max-w-md mx-auto bg-white shadow-xl relative">
 
+  <div id="loginOverlay" class="fixed inset-0 bg-gradient-to-br from-pink-50 via-white to-pink-100 flex flex-col items-center justify-center z-[9999] p-4">
+  <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-pink-100 flex flex-col items-center text-center">
+    <img src="https://i.postimg.cc/7h052Ffb/daa42c0e-2ccf-455e-9d46-491a67539e44.png" class="w-24 h-24 object-contain mb-4 drop-shadow-md">
+    <h2 class="text-3xl font-bold text-gray-800">FamePOS</h2>
+    <p class="text-gray-500 text-sm mt-1 mb-8">ระบบจัดการร้านค้า ยินดีให้บริการ</p>
+    
+    <div class="space-y-5 w-full text-left">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">ชื่อพนักงาน หรือ เบอร์โทรศัพท์</label>
+        <input type="text" id="loginUsername" class="w-full p-3.5 border-2 border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition font-medium" placeholder="กรอกชื่อพนักงาน">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">รหัสผ่าน (PIN)</label>
+        <input type="password" id="loginPassword" class="w-full p-3.5 border-2 border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-center tracking-widest text-2xl font-bold transition" placeholder="••••">
+      </div>
+      <button onclick="processLogin()" id="btnLoginSubmit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold p-4 rounded-2xl transition duration-200 shadow-md flex items-center justify-center space-x-2 text-lg mt-2">
+        <span>🚀 เข้าสู่ระบบร้านค้า</span>
+      </button>
+    </div>
+  </div>
+  <span class="text-gray-400 text-xs mt-6">Powered by FamePOS</span>
+</div>
+
+
   <!-- ================= HEADER ================= -->
 <header class="bg-pink-600 text-white p-4 flex justify-between items-center shadow-md z-10 shrink-0">
     <div>
@@ -109,6 +133,8 @@
       </div>
     </div>
   </div>
+
+
 
   <!-- ================= JAVASCRIPT ================= -->
   <script>
@@ -461,27 +487,80 @@
     }
 
 // ================= ระบบล็อคอิน (AUTH) =================
-    
-    // 1. ตรวจสอบว่าเคยล็อคอินมาหรือยัง
-    function checkLoginState() {
-      let isLoggedIn = localStorage.getItem('isFamePOSLoggedIn');
-      if (!isLoggedIn) {
-        // 🟢 แก้ไขลิงก์ตรงนี้ให้กลับไปหน้า index.html
-        window.location.href = "https://famepos.github.io/restaurant/index.html"; 
-      }
-    }
+  // ================= ระบบล็อคอิน (AUTH) =================
 
-    // 2. ฟังก์ชันออกจากระบบ
-    function logout() {
-      // เรียกใช้หน้าต่าง Confirm ที่คุณทำไว้แล้ว
-      showConfirm('ยืนยันออกจากระบบ', 'คุณต้องการออกจากระบบพนักงานใช่หรือไม่?', '🚪', () => {
-        // ล้างข้อมูลการล็อคอินทิ้ง
-        localStorage.removeItem('isFamePOSLoggedIn');
+// 1. ฟังก์ชันตรวจสอบสถานะล็อคอิน
+function checkLoginState() {
+  let isLoggedIn = localStorage.getItem('isFamePOSLoggedIn');
+  let overlay = document.getElementById('loginOverlay');
+  
+  if (!isLoggedIn) {
+    // ถ้ายังไม่ล็อคอิน ให้ "แสดง" หน้าต่างล็อคอิน
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+  } else {
+    // ถ้าล็อคอินแล้ว ให้ "ซ่อน" หน้าต่างล็อคอิน
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+  }
+}
+
+// 2. ฟังก์ชันกดล็อคอิน
+function processLogin() {
+  let user = document.getElementById('loginUsername').value.trim();
+  let pass = document.getElementById('loginPassword').value.trim(); 
+  
+  if (!user || !pass) { 
+    alert("กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วน");
+    return; 
+  }
+  
+  let btn = document.getElementById('btnLoginSubmit'); 
+  btn.innerHTML = `<span>⏳ กำลังตรวจสอบ...</span>`; 
+  btn.disabled = true; 
+  
+  google.script.run
+    .withSuccessHandler(function(res) {
+      btn.innerHTML = `<span>🚀 เข้าสู่ระบบร้านค้า</span>`; 
+      btn.disabled = false; 
+      
+      if (res && res.status === "Success") { 
+        // บันทึกสถานะว่าล็อคอินสำเร็จ
+        localStorage.setItem('isFamePOSLoggedIn', 'true');
+        localStorage.setItem('famepos_user', JSON.stringify(res)); 
         
-        // 🟢 แก้ไขลิงก์ตรงนี้ให้กลับไปหน้า index.html เช่นกัน
-        window.location.href = "https://famepos.github.io/restaurant/index.html";
-      });
-    }
+        // ซ่อนหน้าต่างล็อคอิน
+        let overlay = document.getElementById('loginOverlay');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+        
+        // เคลียร์ช่องรหัสผ่านเผื่อไว้
+        document.getElementById('loginPassword').value = '';
+        
+      } else {
+        let errorMsg = (res && res.message) ? res.message : "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"; 
+        alert(errorMsg); 
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.innerHTML = `<span>🚀 เข้าสู่ระบบร้านค้า</span>`; 
+      btn.disabled = false; 
+      alert("ระบบขัดข้อง: " + err.message); 
+    })
+    .ชื่อฟังก์ชันในGoogleSheetของคุณ(user, pass); // ⚠️ อย่าลืมแก้ชื่อฟังก์ชันฝั่ง GAS นะครับ
+}
+
+// 3. ฟังก์ชันออกจากระบบ
+function logout() {
+  showConfirm('ยืนยันออกจากระบบ', 'คุณต้องการออกจากระบบพนักงานใช่หรือไม่?', '🚪', () => {
+    // ล้างข้อมูลทั้งหมด
+    localStorage.removeItem('isFamePOSLoggedIn');
+    localStorage.removeItem('famepos_user'); 
+    
+    // รีเฟรชหน้าเว็บ 1 รอบเพื่อให้เด้งกลับไปหน้าล็อคอินของตัวเอง
+    window.location.reload(); 
+  });
+}  
 
 // ================= เริ่มต้นทำงาน =================
     window.onload = function() {
