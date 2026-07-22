@@ -379,6 +379,28 @@ select option:checked {
 #taxServiceSettingsView .no-scrollbar::-webkit-scrollbar{
     display:none;
 }
+/* =========================================
+       ✨ บังคับกล่องเมนูด้านข้าง (Sidebar) ให้ชิดเพดานจอมือถือ ✨
+       ========================================= */
+       
+    /* ดักคลาสที่มักใช้ทำ Sidebar หรือถ้าคุณมี ID เฉพาะ (เช่น #sidebar) ก็เพิ่มเข้าไปได้เลย */
+    aside,
+    #sidebar,
+    .fixed.inset-y-0.left-0 {
+        top: 0 !important;
+        margin-top: 0 !important;
+        
+        /* ขยายความสูงให้เต็มจอ */
+        height: 100vh !important;
+        height: 100dvh !important; /* รองรับมือถือรุ่นใหม่ให้พอดีจอเป๊ะ */
+        
+        /* ลบความโค้งของขอบด้านบนทิ้งไปเลย จะได้แนบสนิทกับขอบจอ */
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+        
+        /* เว้นระยะปุ่มเมนู หรือโลโก้ด้านใน ไม่ให้โดนนาฬิกาของมือถือทับ */
+        padding-top: env(safe-area-inset-top, 24px) !important;
+    }
   </style>
 </head>
 <body class="h-[100dvh] flex overflow-hidden">
