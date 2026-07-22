@@ -342,7 +342,7 @@ select option:checked {
 }
   </style>
 </head>
-<body class="h-screen flex overflow-hidden">
+<body class="h-[100dvh] flex overflow-hidden">
   
 <div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none w-80"></div>
 
@@ -429,7 +429,8 @@ select option:checked {
         </a>
     </div>
 
-    <div class="p-4 shrink-0 border-t border-pink-100 mt-auto">
+ <!-- 👇 เพิ่ม pb-12 md:pb-4 เข้าไปตรงนี้ครับ -->
+    <div class="p-4 pb-12 md:pb-4 shrink-0 border-t border-pink-100 mt-auto">
         <a id="nav-settings" onclick="showView('settings')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">⚙️</span> <span class="block md:hidden lg:block">ตั้งค่า</span>
         </a>
@@ -485,9 +486,9 @@ select option:checked {
                 </div>
             </div>
             
-        </div> <div class="flex-1 overflow-y-auto no-scrollbar min-h-0 pb-20"> 
-          <!-- เพิ่ม pb-20 เพื่อไม่ให้สินค้าล่างสุดโดนปุ่มตะกร้าบัง -->
-            <div id="productGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-6 content-start"></div>
+  <div class="flex-1 overflow-y-auto no-scrollbar min-h-0 pb-32"> 
+    <!-- เปลี่ยนจาก pb-20 เป็น pb-32 เพื่อไม่ให้สินค้าล่างสุดโดนปุ่มตะกร้าบัง -->
+    <div id="productGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-6 content-start"></div>
 
             <div id="salesBlockOverlay" class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center rounded-l-3xl transition-all duration-300">
                 <div class="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center text-center border border-gray-100 max-w-sm">
@@ -607,7 +608,7 @@ select option:checked {
 </div>
 
 <!-- ================= 🛒 ปุ่มตระกร้าลอย ================= -->
-<button id="mobileCartFab" onclick="toggleMobileCart()" class="lg:hidden absolute bottom-6 right-6 z-50 bg-pink-600 text-white p-4 rounded-full shadow-2xl flex items-center justify-center gap-2 hover:bg-pink-700 transition-transform transform hover:scale-105 active:scale-95">
+<button id="mobileCartFab" onclick="toggleMobileCart()" class="lg:hidden absolute bottom-16 md:bottom-6 right-4 md:right-6 z-[120] bg-pink-600 text-white p-4 rounded-[2rem] shadow-2xl flex items-center justify-center gap-2 hover:bg-pink-700 transition-transform transform hover:scale-105 active:scale-95">
     <div class="relative">
         <span class="text-3xl drop-shadow-md">🛒</span>
         <!-- ตัวเลขจำนวนสินค้าในตะกร้า -->
@@ -5082,7 +5083,7 @@ window.currentBranch = "<?= currentBranch ?>";
     window.currentStoreId = "<?= currentStoreId ?>";
 
 // 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
-const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
 // ================================================================
 // 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
