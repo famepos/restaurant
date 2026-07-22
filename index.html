@@ -26,19 +26,15 @@
 .modern-card { 
         background: white; 
         border: 1px solid #edc5e2; 
-        border-radius: 1.5rem; /* ขอบโค้งปกติ */
+        border-radius: 1.5rem; /* ขอบโค้ง 1.5rem ตามเดิม เพื่อให้การ์ดสินค้าสวยงาม */
         transition: 0.2s; 
-        margin-top: 0 !important; 
-        min-height: 100vh !important;
-        /* บังคับขอบบนให้เป็นมุมฉาก 👇 */
-        border-top-left-radius: 0 !important;
-        border-top-right-radius: 0 !important;
+        /* ลบ margin-top, min-height และ border-radius ที่เป็น 0 ออกทั้งหมดครับ */
     }
+    
     .modern-card:hover { 
         transform: translateY(-5px); 
         box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1); 
     }
-    
     /* =========================================
    ✨ ดันกล่องเนื้อหาสีขาวให้ชิดขอบบนและขยายเต็มจอ ✨
    ========================================= */
@@ -5126,7 +5122,7 @@ window.currentBranch = "<?= currentBranch ?>";
     window.currentStoreId = "<?= currentStoreId ?>";
 
 // 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
-const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+/*const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
 
 // ================================================================
 // 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
@@ -5172,7 +5168,7 @@ const google = {
         }
     }
 };
-
+*/
 let cart = [];
     let currentCash = "0";
     let selectedPayment = "เงินสด";
