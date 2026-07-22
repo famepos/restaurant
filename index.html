@@ -680,36 +680,36 @@ select option:checked {
 
 </div>
 
-    <!-- ================= หน้าจอ: สินค้า ================= -->
+<!-- ================= หน้าจอ: สินค้า ================= -->
+<div id="productManagementView" class="hidden w-full h-full p-4 md:p-6 bg-gray-50/50 flex flex-col min-h-0">
 
-<div id="productManagementView" class="hidden w-full h-full p-6 bg-gray-50/50 flex flex-col min-h-0">
-
-    <div class="w-full flex-1 min-h-0 bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+    <div class="w-full flex-1 min-h-0 bg-white p-4 md:p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
 
         <!-- Header -->
-        <div class="shrink-0 flex justify-between items-center mb-6 border-b pb-4">
-            <h1 class="text-3xl font-bold text-pink-800">
+        <div class="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 gap-4 md:gap-0">
+            <h1 class="text-2xl md:text-3xl font-bold text-pink-800">
                 📑 จัดการสินค้า (Stock)
             </h1>
 
-            <div class="flex gap-3">
+            <!-- แก้ไขตรงนี้: เพิ่ม flex-wrap เพื่อให้ปุ่มตัดบรรทัดเมื่อจอเล็ก -->
+            <div class="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto">
 
                 <button
                     onclick="loadAdminProducts()"
-                    class="px-5 py-3 bg-pink-100 text-pink-600 font-bold rounded-xl hover:bg-pink-200 transition shadow-sm flex items-center gap-2">
+                    class="flex-1 md:flex-none justify-center px-4 py-3 bg-pink-100 text-pink-600 font-bold rounded-xl hover:bg-pink-200 transition shadow-sm flex items-center gap-2 text-sm md:text-base">
                     🔄 รีเฟรช
                 </button>
 
                 <button
                     onclick="openModifiersManagerModal()"
-                    class="px-5 py-3 bg-orange-100 text-orange-600 font-bold rounded-xl hover:bg-orange-200 transition shadow-sm flex items-center gap-2">
+                    class="flex-1 md:flex-none justify-center px-4 py-3 bg-orange-100 text-orange-600 font-bold rounded-xl hover:bg-orange-200 transition shadow-sm flex items-center gap-2 text-sm md:text-base">
                     <span>🧩</span>
                     ตัวเลือกเสริม
                 </button>
 
                 <button
                     onclick="openProductModal()"
-                    class="px-5 py-3 bg-pink-100 text-pink-600 font-bold rounded-xl hover:bg-pink-200 transition shadow-sm flex items-center gap-2">
+                    class="w-full md:w-auto justify-center px-4 py-3 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 transition shadow-sm flex items-center gap-2 text-sm md:text-base mt-1 md:mt-0">
                     <span>➕</span>
                     เพิ่มสินค้าใหม่
                 </button>
@@ -717,14 +717,16 @@ select option:checked {
             </div>
         </div>
 
-        <!-- ตารางสินค้า -->
-        <div class="flex-1 min-h-0 overflow-auto no-scrollbar rounded-xl border border-gray-200">
+       <!-- ตารางสินค้า -->
+        <div class="flex-1 min-h-0 overflow-x-auto no-scrollbar rounded-xl border border-gray-200">
 
-            <table class="w-full text-left border-collapse">
+            <!-- เพิ่ม min-w-max บังคับตารางไม่ให้หดตัวตามจอ -->
+            <table class="w-full text-left border-collapse min-w-max">
 
                 <thead class="sticky top-0 z-20 bg-pink-50 shadow-sm">
 
-                    <tr class="text-pink-800 border-b border-pink-100">
+                    <!-- เพิ่ม whitespace-nowrap ป้องกันข้อความโดนบีบตกบรรทัด -->
+                    <tr class="text-pink-800 border-b border-pink-100 whitespace-nowrap">
 
                         <th class="p-4 font-bold text-center w-16">
                             รูป
@@ -769,7 +771,7 @@ select option:checked {
                 <tbody
                     id="productTableBody"
                     class="divide-y divide-gray-100 text-gray-700">
-
+                    <!-- ข้อมูลสินค้าจะถูกดึงมาแสดงตรงนี้ -->
                 </tbody>
 
             </table>
@@ -874,58 +876,60 @@ select option:checked {
     </div>
 </div>
 
-    <!-- ================= หน้าจอ: รายงานยอดขาย ================= -->
-<div id="dashboardView" class="hidden w-full h-full p-6 bg-gray-50/50">
+   <!-- ================= หน้าจอ: รายงานยอดขาย ================= -->
+<div id="dashboardView" class="hidden w-full h-full p-4 md:p-6 bg-gray-50/50">
       
-      <div class="w-full h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
+    <div class="w-full h-full bg-white p-4 md:p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
         
         <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 border-b pb-4 gap-4 shrink-0">
-          <div>
-            <h1 class="text-3xl font-bold text-pink-800 flex items-center gap-2">📊 รายงานยอดขาย</h1>
-            <p class="text-sm text-gray-500 mt-1">ตรวจสอบสถิติและผลประกอบการตามช่วงเวลา</p>
-          </div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-pink-800 flex items-center gap-2">📊 รายงานยอดขาย</h1>
+                <p class="text-sm text-gray-500 mt-1">ตรวจสอบสถิติและผลประกอบการตามช่วงเวลา</p>
+            </div>
           
-          <div class="flex flex-col md:flex-row items-end md:items-center gap-3 w-full xl:w-auto">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center gap-3 w-full xl:w-auto">
             
-            <div class="flex items-center gap-2 bg-pink-50 p-2 rounded-xl border border-pink-100 w-full md:w-auto justify-between">
-              <div class="flex items-center gap-2">
-                 <span class="text-sm text-pink-700 font-bold ml-2">ตั้งแต่</span>
-                 <input type="date" id="dashStartDate" class="p-2 rounded-lg border-none focus:ring-2 focus:ring-pink-400 outline-none text-sm font-medium bg-white shadow-sm text-pink-700">
-                 <span class="text-sm text-pink-700 font-bold">ถึง</span>
-                 <input type="date" id="dashEndDate" class="p-2 rounded-lg border-none focus:ring-2 focus:ring-pink-400 outline-none text-sm font-medium bg-white shadow-sm text-pink-700">
-              </div>
-              <button onclick="loadDashboardData()" class="px-4 py-2 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-600 transition shadow-sm text-sm">🔍 ค้นหา</button>
-            </div>
+                <!-- กล่องเลือกวันที่ (แก้ให้ wrap และจัดเรียงใหม่บนมือถือ) -->
+                <div class="flex flex-wrap md:flex-nowrap items-center gap-2 bg-pink-50 p-2 rounded-xl border border-pink-100 w-full justify-between">
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <span class="text-sm text-pink-700 font-bold ml-2">ตั้งแต่</span>
+                        <input type="date" id="dashStartDate" class="p-2 w-full md:w-auto rounded-lg border-none focus:ring-2 focus:ring-pink-400 outline-none text-sm font-medium bg-white shadow-sm text-pink-700">
+                        <span class="text-sm text-pink-700 font-bold ml-2 md:ml-0">ถึง</span>
+                        <input type="date" id="dashEndDate" class="p-2 w-full md:w-auto rounded-lg border-none focus:ring-2 focus:ring-pink-400 outline-none text-sm font-medium bg-white shadow-sm text-pink-700">
+                    </div>
+                    <button onclick="loadDashboardData()" class="w-full md:w-auto mt-2 md:mt-0 px-4 py-2 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-600 transition shadow-sm text-sm">🔍 ค้นหา</button>
+                </div>
 
-            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
-               <div class="relative w-full md:w-56" id="reportDropdownContainer">
-                 <button type="button" onclick="toggleReportDropdown()" class="w-full px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition shadow-sm flex items-center justify-between font-bold text-sm outline-none">
-                   <span id="reportSelectedText" class="flex items-center gap-2">📄 รายงานสรุปยอดขาย</span>
-                   <span class="text-gray-500 font-bold text-xs leading-none">v</span>
-                 </button>
-                 
-         <div id="reportDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
-    <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-pink-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
-    <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">📦 รายงานสินค้าขายดี</div>
-    <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
-    <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
-    <div onclick="selectReport('user', '👨‍💼 รายงานยอดขายพนักงาน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">👨‍💼 รายงานยอดขายพนักงาน</div>
-    <div onclick="selectReport('branch', '🏢 รายงานยอดขายสาขา', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">🏢 รายงานยอดขายสาขา</div>
-    
-    <div class="border-t border-gray-100 my-1"></div>
-    <div onclick="selectReport('void', '❌ รายงานบิลที่ยกเลิก', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-red-50 transition-colors">❌ รายงานบิลที่ยกเลิก</div>
-</div>
-               </div>
+                <!-- กล่องปุ่ม Dropdown และโหลดไฟล์ (แก้ให้ wrap) -->
+                <div class="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto justify-start lg:justify-end">
+                    <div class="relative w-full sm:w-auto md:w-56" id="reportDropdownContainer">
+                        <button type="button" onclick="toggleReportDropdown()" class="w-full px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition shadow-sm flex items-center justify-between font-bold text-sm outline-none">
+                            <span id="reportSelectedText" class="flex items-center gap-2 truncate">📄 รายงานสรุปยอดขาย</span>
+                            <span class="text-gray-500 font-bold text-xs leading-none ml-2">v</span>
+                        </button>
+                        
+                        <div id="reportDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                            <div onclick="selectReport('sales', '📄 รายงานสรุปยอดขาย', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold bg-pink-600 text-white transition-colors">📄 รายงานสรุปยอดขาย</div>
+                            <div onclick="selectReport('top_items', '📦 รายงานสินค้าขายดี', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">📦 รายงานสินค้าขายดี</div>
+                            <div onclick="selectReport('payment', '💳 รายงานช่องทางชำระเงิน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">💳 รายงานช่องทางชำระเงิน</div>
+                            <div onclick="selectReport('stock', '🔍 รายงานสต็อกปัจจุบัน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">🔍 รายงานสต็อกปัจจุบัน</div>
+                            <div onclick="selectReport('user', '👨‍💼 รายงานยอดขายพนักงาน', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">👨‍💼 รายงานยอดขายพนักงาน</div>
+                            <div onclick="selectReport('branch', '🏢 รายงานยอดขายสาขา', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-pink-50 transition-colors">🏢 รายงานยอดขายสาขา</div>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <div onclick="selectReport('void', '❌ รายงานบิลที่ยกเลิก', this)" class="report-item px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-bold text-gray-600 hover:bg-red-50 transition-colors">❌ รายงานบิลที่ยกเลิก</div>
+                        </div>
+                    </div>
 
-               <button onclick="downloadCSV()" class="px-4 py-2.5 bg-pink-300 text-white font-bold rounded-xl hover:bg-pink-400 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
-                  📥 โหลดไฟล์ CSV
-               </button>
-               
-               <button onclick="openReportPrintModal()" class="px-4 py-2.5 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
-                  🖨️ พิมพ์รายงาน
-               </button>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="downloadCSV()" class="flex-1 sm:flex-none justify-center px-4 py-2.5 bg-pink-300 text-white font-bold rounded-xl hover:bg-pink-400 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
+                            📥 โหลด CSV
+                        </button>
+                        <button onclick="openReportPrintModal()" class="flex-1 sm:flex-none justify-center px-4 py-2.5 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 transition shadow-sm text-sm flex items-center gap-2 whitespace-nowrap">
+                            🖨️ พิมพ์
+                        </button>
+                    </div>
+                </div>
             </div>
-          </div>
         </div><div class="flex-1 overflow-y-auto no-scrollbar pr-2 pb-10 space-y-6">
           
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
