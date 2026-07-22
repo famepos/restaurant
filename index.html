@@ -397,33 +397,34 @@ select option:checked {
         </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 p-4">
-        <!-- 👇 แก้ไขให้แสดงตัวหนังสือเมนูทุกอันบนมือถือ -->
-        <a id="nav-sales" onclick="showView('sales'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-pink-700 bg-pink-50 p-3 rounded-xl font-semibold cursor-pointer transition">
+<div class="flex-1 overflow-y-auto no-scrollbar space-y-2 p-4">
+        <a id="nav-sales" onclick="showView('sales')" class="flex items-center gap-3 text-pink-700 bg-pink-50 p-3 rounded-xl font-semibold cursor-pointer transition">
             <span class="text-xl">🛒</span> <span class="block md:hidden lg:block">ขายสินค้า</span>
         </a>
-        <a id="nav-history" onclick="showView('history'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-history" onclick="showView('history')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📜</span> <span class="block md:hidden lg:block">บิลทั้งหมด</span>
         </a>
-        <a id="nav-products" onclick="showView('products'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-products" onclick="showView('products')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📑</span> <span class="block md:hidden lg:block">จัดการสินค้า</span>
         </a>
-        <a id="nav-inventory" onclick="showView('inventory'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-inventory" onclick="showView('inventory')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📦</span> <span class="block md:hidden lg:block">คลังสินค้า</span>
         </a>
-        <a id="nav-expiry" onclick="showView('expiry'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-expiry" onclick="showView('expiry')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📅</span> <span class="block md:hidden lg:block">จัดการวันหมดอายุ</span>
         </a>
-        <a id="nav-dashboard" onclick="showView('dashboard'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-dashboard" onclick="showView('dashboard')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📊</span> <span class="block md:hidden lg:block">รายงานยอดขาย</span>
         </a>
-        <a id="nav-expense" onclick="showView('expense'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-expense" onclick="showView('expense')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">💸</span> <span class="block md:hidden lg:block">บันทึกรายจ่าย</span>
         </a>
-        <a id="nav-shift" onclick="showView('shift'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-shift" onclick="showView('shift')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">⏱️</span> <span class="block md:hidden lg:block">จัดการกะ</span>
         </a>
-        <a id="nav-cds" onclick="syncCustomerDisplay(); if(window.innerWidth < 768) toggleSidebar(); window.open('https://famepos.github.io/restaurant/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        
+        <!-- เมนู CDS ไม่มีหน้าต่าง showView ให้ใส่โค้ดจัดการปิดเมนูตรงนี้เลยได้ครับ -->
+        <a id="nav-cds" onclick="if(window.innerWidth < 1024) toggleSidebar(); syncCustomerDisplay(); window.open('https://famepos.github.io/restaurant/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">🖥️</span> <span class="block md:hidden lg:block">หน้าจอลูกค้า (CDS)</span>
         </a>
     </div>
@@ -432,7 +433,6 @@ select option:checked {
         <a id="nav-settings" onclick="showView('settings')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">⚙️</span> <span class="block md:hidden lg:block">ตั้งค่า</span>
         </a>
-        <!-- 👇 แก้ไขให้แสดงปุ่มสลับร้านและออกจากระบบบนมือถือ -->
         <div id="userStatusContainer" class="block md:hidden lg:block mt-2 px-3"></div>
     </div>
 </nav>
@@ -5082,7 +5082,7 @@ window.currentBranch = "<?= currentBranch ?>";
     window.currentStoreId = "<?= currentStoreId ?>";
 
 // 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
-const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+/*const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
 
 // ================================================================
 // 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
@@ -5128,7 +5128,7 @@ const google = {
         }
     }
 };
-
+*/
 let cart = [];
     let currentCash = "0";
     let selectedPayment = "เงินสด";
@@ -5673,10 +5673,10 @@ else if (viewName === 'sound') {
             loadStoreTableData();
         }
     }
-// 👇 เพิ่มโค้ดส่วนนี้เข้าไปด้านล่างสุดของฟังก์ชัน
-    if (window.innerWidth < 768) {
+// 👇 จัดการปิดหน้าต่างอัตโนมัติบนมือถือและแท็บเล็ต (< 1024px)
+    if (window.innerWidth < 1024) {
         const sideMenu = document.getElementById('sideMenu');
-        // เช็คว่าถ้าเมนูกำลังเปิดอยู่ ให้เรียกฟังก์ชัน toggleSidebar() เพื่อปิดมัน
+        // เช็คว่าถ้าเมนูกำลังเปิดอยู่ ให้ปิดเมนู
         if (sideMenu && !sideMenu.classList.contains('-translate-x-full')) {
             toggleSidebar();
         }
