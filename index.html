@@ -369,25 +369,13 @@ select option:checked {
 /* =========================================
        ✨ บังคับกล่องเมนูด้านข้าง (Sidebar) ให้ชิดเพดานจอมือถือ ✨
        ========================================= */
-       
-    /* ดักคลาสที่มักใช้ทำ Sidebar หรือถ้าคุณมี ID เฉพาะ (เช่น #sidebar) ก็เพิ่มเข้าไปได้เลย */
-    aside,
-    #sidebar,
-    .fixed.inset-y-0.left-0 {
-        top: 0 !important;
-        margin-top: 0 !important;
-        
-        /* ขยายความสูงให้เต็มจอ */
-        height: 100vh !important;
-        height: 100dvh !important; /* รองรับมือถือรุ่นใหม่ให้พอดีจอเป๊ะ */
-        
-        /* ลบความโค้งของขอบด้านบนทิ้งไปเลย จะได้แนบสนิทกับขอบจอ */
-        border-top-left-radius: 0 !important;
-        border-top-right-radius: 0 !important;
-        
-        /* เว้นระยะปุ่มเมนู หรือโลโก้ด้านใน ไม่ให้โดนนาฬิกาของมือถือทับ */
-        padding-top: env(safe-area-inset-top, 24px) !important;
-    }
+   aside,
+#sidebar,
+.fixed.inset-y-0.left-0 {
+    top: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
   </style>
 </head>
 <body class="w-full flex overflow-hidden text-gray-800 bg-gray-100">  
@@ -488,8 +476,7 @@ select option:checked {
 <!-- ต้องมีคลาส relative อยู่ที่กล่องนี้ -->
 <div id="salesView" class="flex-1 flex flex-col lg:flex-row h-full relative">    
     <!-- ================= ฝั่งซ้าย: สินค้า (กว้างเต็มจอในมือถือ) ================= -->
-    <div class="flex-1 p-4 lg:p-8 flex flex-col relative overflow-hidden bg-white">
-        
+<div class="flex-1 p-0 lg:p-0 flex flex-col relative overflow-hidden bg-white">        
         <!-- (โค้ดค้นหา โหมดราคา และตะแกรงสินค้าของคุณ ใส่เหมือนเดิมได้เลยครับ) -->
         <div class="shrink-0 w-full flex flex-col">
             
@@ -5127,7 +5114,7 @@ window.currentBranch = "<?= currentBranch ?>";
     window.currentStoreId = "<?= currentStoreId ?>";
 
 // 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
-const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+/*const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
 
 // ================================================================
 // 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
@@ -5173,7 +5160,7 @@ const google = {
         }
     }
 };
-
+*/
 let cart = [];
     let currentCash = "0";
     let selectedPayment = "เงินสด";
