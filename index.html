@@ -399,31 +399,31 @@ select option:checked {
 
     <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 p-4">
         <!-- 👇 แก้ไขให้แสดงตัวหนังสือเมนูทุกอันบนมือถือ -->
-        <a id="nav-sales" onclick="showView('sales')" class="flex items-center gap-3 text-pink-700 bg-pink-50 p-3 rounded-xl font-semibold cursor-pointer transition">
+        <a id="nav-sales" onclick="showView('sales'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-pink-700 bg-pink-50 p-3 rounded-xl font-semibold cursor-pointer transition">
             <span class="text-xl">🛒</span> <span class="block md:hidden lg:block">ขายสินค้า</span>
         </a>
-        <a id="nav-history" onclick="showView('history')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-history" onclick="showView('history'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📜</span> <span class="block md:hidden lg:block">บิลทั้งหมด</span>
         </a>
-        <a id="nav-products" onclick="showView('products')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-products" onclick="showView('products'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📑</span> <span class="block md:hidden lg:block">จัดการสินค้า</span>
         </a>
-        <a id="nav-inventory" onclick="showView('inventory')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-inventory" onclick="showView('inventory'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📦</span> <span class="block md:hidden lg:block">คลังสินค้า</span>
         </a>
-        <a id="nav-expiry" onclick="showView('expiry')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-expiry" onclick="showView('expiry'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📅</span> <span class="block md:hidden lg:block">จัดการวันหมดอายุ</span>
         </a>
-        <a id="nav-dashboard" onclick="showView('dashboard')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-dashboard" onclick="showView('dashboard'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">📊</span> <span class="block md:hidden lg:block">รายงานยอดขาย</span>
         </a>
-        <a id="nav-expense" onclick="showView('expense')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-expense" onclick="showView('expense'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">💸</span> <span class="block md:hidden lg:block">บันทึกรายจ่าย</span>
         </a>
-        <a id="nav-shift" onclick="showView('shift')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-shift" onclick="showView('shift'); if(window.innerWidth < 768) toggleSidebar();" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">⏱️</span> <span class="block md:hidden lg:block">จัดการกะ</span>
         </a>
-        <a id="nav-cds" onclick="syncCustomerDisplay(); window.open('https://famepos.github.io/restaurant/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+        <a id="nav-cds" onclick="syncCustomerDisplay(); if(window.innerWidth < 768) toggleSidebar(); window.open('https://famepos.github.io/restaurant/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
             <span class="text-xl">🖥️</span> <span class="block md:hidden lg:block">หน้าจอลูกค้า (CDS)</span>
         </a>
     </div>
@@ -1032,14 +1032,16 @@ select option:checked {
 <div class="w-full h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col overflow-hidden">
         <h1 class="text-3xl font-bold text-pink-800 mb-6">📦 คลังสินค้า</h1>
       
-      <div class="flex gap-2 mb-6 border-b border-pink-100 pb-2 overflow-x-auto">
-         <button onclick="changeInventoryTab('movement', event)" class="px-4 py-2 font-bold text-gray-700 border-b-2 border-pink-500 transition">ความเคลื่อนไหว</button>
-          <button onclick="changeInventoryTab('rawmat', event)" class="px-4 py-2 font-bold text-gray-500 hover:text-pink-600 transition">🌾 วัตถุดิบ</button>
-         <button onclick="changeInventoryTab('receive', event)" class="px-4 py-2 font-bold text-gray-500 hover:text-emerald-600 transition">📥 รับสินค้าเข้า</button>
-         <button onclick="changeInventoryTab('out', event)" class="px-4 py-2 font-bold text-gray-500 hover:text-red-600 transition">📤 จ่ายสินค้าออก</button>
-         <button onclick="changeInventoryTab('adjust', event)" class="px-4 py-2 font-bold text-gray-500 hover:text-orange-600 transition">⚖️ ปรับปรุงสต๊อก</button>
-         <button onclick="changeInventoryTab('count', event)" class="px-4 py-2 font-bold text-gray-500 hover:text-purple-600 transition">📋 ตรวจนับสินค้า</button>
-      </div>
+<!-- เพิ่ม flex-nowrap และ no-scrollbar ที่กล่องครอบ -->
+<div class="flex flex-nowrap gap-2 mb-6 border-b border-pink-100 pb-2 overflow-x-auto no-scrollbar">
+    <!-- เพิ่ม shrink-0 และ whitespace-nowrap ที่ปุ่มทุกปุ่มด้านใน -->
+    <button onclick="changeInventoryTab('movement', event)" class="shrink-0 whitespace-nowrap px-4 py-2 font-bold text-gray-700 border-b-2 border-pink-500 transition">ความเคลื่อนไหว</button>
+    <button onclick="changeInventoryTab('rawmat', event)" class="shrink-0 whitespace-nowrap px-4 py-2 font-bold text-gray-500 hover:text-pink-600 transition">🌾 วัตถุดิบ</button>
+    <button onclick="changeInventoryTab('receive', event)" class="shrink-0 whitespace-nowrap px-4 py-2 font-bold text-gray-500 hover:text-emerald-600 transition">📥 รับสินค้าเข้า</button>
+    <button onclick="changeInventoryTab('out', event)" class="shrink-0 whitespace-nowrap px-4 py-2 font-bold text-gray-500 hover:text-red-600 transition">📤 จ่ายสินค้าออก</button>
+    <button onclick="changeInventoryTab('adjust', event)" class="shrink-0 whitespace-nowrap px-4 py-2 font-bold text-gray-500 hover:text-orange-600 transition">⚖️ ปรับปรุงสต๊อก</button>
+    <button onclick="changeInventoryTab('count', event)" class="shrink-0 whitespace-nowrap px-4 py-2 font-bold text-gray-500 hover:text-purple-600 transition">📋 ตรวจนับสินค้า</button>
+</div>
 
  <div id="inventory-movement"
      class="flex-1 min-h-0 overflow-hidden rounded-xl border border-gray-200">
@@ -5122,7 +5124,7 @@ const google = {
         }
     }
 };
-    
+
 let cart = [];
     let currentCash = "0";
     let selectedPayment = "เงินสด";
@@ -5665,6 +5667,14 @@ else if (viewName === 'sound') {
         // 🟢 เพิ่มบรรทัดนี้เข้าไป เพื่อให้พอกดเปิดหน้าจอ ระบบจะสั่งดึงข้อมูลทันที
         if (typeof loadStoreTableData === 'function') {
             loadStoreTableData();
+        }
+    }
+// 👇 เพิ่มโค้ดส่วนนี้เข้าไปด้านล่างสุดของฟังก์ชัน
+    if (window.innerWidth < 768) {
+        const sideMenu = document.getElementById('sideMenu');
+        // เช็คว่าถ้าเมนูกำลังเปิดอยู่ ให้เรียกฟังก์ชัน toggleSidebar() เพื่อปิดมัน
+        if (sideMenu && !sideMenu.classList.contains('-translate-x-full')) {
+            toggleSidebar();
         }
     }
 }
