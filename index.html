@@ -23,9 +23,52 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
     body { font-family: 'Kanit', sans-serif; background-color: #fccfed; color: #b32089; margin: 0; }
-    .modern-card { background: white; border: 1px solid #edc5e2; border-radius: 1.5rem; transition: 0.2s; }
-    .modern-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1); }
+.modern-card { 
+        background: white; 
+        border: 1px solid #edc5e2; 
+        border-radius: 1.5rem; /* ขอบโค้งปกติ */
+        transition: 0.2s; 
+        margin-top: 0 !important; 
+        min-height: 100vh !important;
+        /* บังคับขอบบนให้เป็นมุมฉาก 👇 */
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+    }
+    .modern-card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1); 
+    }
     
+    /* =========================================
+   ✨ ดันกล่องเนื้อหาสีขาวให้ชิดขอบบนและขยายเต็มจอ ✨
+   ========================================= */
+
+/* 1. ลบระยะขอบด้านบนของหน้าต่างๆ (ดักจับ ID ของแต่ละหน้า) */
+#historyView,
+#productManagementView,
+#expiryView,
+#employeeSettingsView,
+#receiptSettingsView,
+#membershipView,
+#promotionsManagementView,
+#barcodeSettingsView,
+#branchManagementView,
+#tableManagementView,
+#buffetManagementView,
+#adSettingsView,
+#taxServiceSettingsView {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* 2. ดักจับคลาส Tailwind ที่มักใช้ครอบ (Wrapper) ไม่ให้เว้นช่องว่างด้านบน */
+.w-full.p-4,
+.w-full.p-6,
+main {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
     .receipt-slip { font-family: 'Courier New', Courier, monospace; background: white; color: black; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; }
     .dashed-line { border-top: 1px dashed #ccc; margin: 10px 0; }
     
