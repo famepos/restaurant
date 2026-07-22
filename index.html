@@ -50,14 +50,43 @@
     .slip-a4   { max-width: 794px; font-size: 16px; padding: 40px; min-height: 1123px; }
     
     /* บังคับหน้าจอให้กว้าง-สูง 100% ทุกอุปกรณ์ และรองรับเบราว์เซอร์เก่า */
-html, body {
-    width: 100%;
-    height: 100%;
-    height: 100vh;
-    height: 100dvh;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+/* ===== Mobile Full Screen ===== */
+
+html,
+body{
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+}
+
+#salesView{
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0;
+}
+
+#salesView > div:first-child{
+    width:100%;
+    margin:0;
+    padding:0;
+}
+
+#salesView .shrink-0{
+    padding-left:0;
+    padding-right:0;
+}
+
+#salesSearchInput{
+    border-radius:0;
+}
+
+#productGrid{
+    width:100%;
+    margin:0;
+    padding:0;
 }
 
 @media print {
@@ -480,11 +509,10 @@ select option:checked {
         <!-- (โค้ดค้นหา โหมดราคา และตะแกรงสินค้าของคุณ ใส่เหมือนเดิมได้เลยครับ) -->
         <div class="shrink-0 w-full flex flex-col">
             
-<div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4 w-full">
-    
+<div class="flex flex-col md:flex-row items-center justify-between gap-0 mb-0 w-full">    
     <!-- 1. ช่องค้นหา -->
-    <div class="relative w-full md:flex-1 max-w-4xl"> 
-        <input type="text" id="salesSearchInput" oninput="filterProducts()" placeholder="🔍 ค้นหาชื่อ, บาร์โค้ด..." 
+<div class="relative flex-1 w-full">
+          <input type="text" id="salesSearchInput" oninput="filterProducts()" placeholder="🔍 ค้นหาชื่อ, บาร์โค้ด..." 
                 class="p-3 pr-12 rounded-xl border-2 border-pink-100 focus:border-pink-500 outline-none w-full font-medium shadow-sm">
         <button onclick="openSalesScanner()" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-pink-500 transition p-2 z-10 flex items-center justify-center cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" /></svg>
@@ -504,8 +532,8 @@ select option:checked {
     </div>
 </div>
 
-            <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
-                <div class="relative w-full sm:w-auto" id="customCategoryDropdownContainer">
+<div class="flex flex-col sm:flex-row items-center gap-2 mb-2">
+                  <div class="relative w-full sm:w-auto" id="customCategoryDropdownContainer">
                     <input type="hidden" id="categorySelector" value="ทั้งหมด">
                     <button type="button" onclick="toggleCategoryDropdown()" class="w-full sm:w-64 p-3 rounded-xl border-2 border-pink-100 bg-white text-left flex justify-between items-center focus:outline-none focus:border-pink-500 transition shadow-sm cursor-pointer">
                         <span id="categorySelectedText" class="font-medium text-pink-700">🔍 หมวดหมู่ทั้งหมด</span>
@@ -521,7 +549,8 @@ select option:checked {
             
         </div> <div class="flex-1 overflow-y-auto no-scrollbar min-h-0 pb-20"> 
           <!-- เพิ่ม pb-20 เพื่อไม่ให้สินค้าล่างสุดโดนปุ่มตะกร้าบัง -->
-            <div id="productGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-6 content-start"></div>
+            <div id="productGrid"
+     class="grid grid-cols-2 lg:grid-cols-4 gap-3 content-start px-2">
 
             <div id="salesBlockOverlay" class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center rounded-l-3xl transition-all duration-300">
                 <div class="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center text-center border border-gray-100 max-w-sm">
