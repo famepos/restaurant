@@ -493,13 +493,17 @@ select option:checked {
     
 
 
-    <!-- 3. ปุ่มสลับโหมดหน้าร้าน/เดลิเวอรี่ -->
-    <div class="flex bg-gray-100 p-1 rounded-xl shadow-inner w-full md:w-auto flex-shrink-0">
-        <button id="btnModeStore" onclick="switchPriceMode('store')" class="flex-1 md:w-32 py-2 px-4 rounded-lg font-bold text-sm bg-white shadow-sm text-pink-600 transition-all flex items-center justify-center gap-2">
+<!-- 3. ปุ่มสลับโหมดหน้าร้าน/เดลิเวอรี่/ออนไลน์ -->
+    <div class="flex bg-gray-100 p-1 rounded-xl shadow-inner w-full md:w-auto flex-shrink-0 gap-1">
+        <button id="btnModeStore" onclick="switchPriceMode('store')" class="flex-1 md:w-28 py-2 px-2 rounded-lg font-bold text-sm bg-white shadow-sm text-pink-600 transition-all flex items-center justify-center gap-1">
             <span>🏪</span> หน้าร้าน
         </button>
-        <button id="btnModeDelivery" onclick="switchPriceMode('delivery')" class="flex-1 md:w-32 py-2 px-4 rounded-lg font-bold text-sm text-gray-500 hover:text-orange-500 transition-all flex items-center justify-center gap-2">
+        <button id="btnModeDelivery" onclick="switchPriceMode('delivery')" class="flex-1 md:w-28 py-2 px-2 rounded-lg font-bold text-sm text-gray-500 hover:text-orange-500 transition-all flex items-center justify-center gap-1">
             <span>🛵</span> เดลิเวอรี่
+        </button>
+        <!-- 👇 เพิ่มปุ่ม ออนไลน์ เข้าไปใหม่ -->
+        <button id="btnModeOnline" onclick="switchPriceMode('online')" class="flex-1 md:w-28 py-2 px-2 rounded-lg font-bold text-sm text-gray-500 hover:text-pink-500 transition-all flex items-center justify-center gap-1">
+            <span>🌐</span> ออนไลน์
         </button>
     </div>
 </div>
@@ -573,18 +577,19 @@ select option:checked {
         </div>
 
         <div class="mb-4 bg-gray-50 p-3 rounded-2xl border border-gray-100 shadow-inner w-full">
-            <label class="block text-[11px] font-bold text-gray-400 mb-2 uppercase tracking-wider">📋 รูปแบบการบริการ</label>
-            <div class="grid grid-cols-3 gap-2">
-<!-- ต้องมีคลาส relative ที่ปุ่มหลัก -->
-<button type="button" onclick="setOrderType('DineIn', this)" id="btnOrderDineIn" 
-    class="order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500 shadow-sm relative">
-    🍽️ โต๊ะ
-    <!-- Badge ต้องอยู่ในปุ่ม และมีตำแหน่ง absolute -->
-    <span id="billRequestBadge" class="hidden absolute -top-2 -right-2 bg-pink-600 text-white text-[11px] font-black px-2 py-0.5 rounded-full border-2 border-white animate-pulse shadow-sm z-50">0</span>
-</button>
+           <label class="block text-[11px] font-bold text-gray-400 mb-2 uppercase tracking-wider">📋 รูปแบบการบริการ</label>
+            <!-- 👇 เปลี่ยนจาก grid-cols-3 เป็น grid-cols-2 เพื่อให้ใส่ได้ 4 ปุ่ม (2 แถว) -->
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="setOrderType('DineIn', this)" id="btnOrderDineIn" class="order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500 shadow-sm relative">
+                    🍽️ โต๊ะ
+                    <span id="billRequestBadge" class="hidden absolute -top-2 -right-2 bg-pink-600 text-white text-[11px] font-black px-2 py-0.5 rounded-full border-2 border-white animate-pulse shadow-sm z-50">0</span>
+                </button>
                 <button type="button" onclick="setOrderType('TakeAway', this)" id="btnOrderTakeAway" class="order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500 shadow-sm">🛍️ กลับบ้าน</button>
                 <button type="button" onclick="setOrderType('Delivery', this)" id="btnOrderDelivery" class="order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500 shadow-sm">🛵 ส่งของ</button>
+                <!-- 👇 เพิ่มปุ่ม ออนไลน์ เข้าไปใหม่ -->
+                <button type="button" onclick="setOrderType('Online', this)" id="btnOrderOnline" class="order-type-btn py-2.5 text-xs font-bold rounded-xl border-2 transition bg-white border-gray-200 text-gray-500 shadow-sm">🌐 ออนไลน์</button>
             </div>
+
             <input type="hidden" id="inputTableNo" value="">
 
             <div id="tableSelectedDisplayContainer" class="hidden mt-3 w-full flex-row items-center justify-between bg-pink-50 p-3 rounded-xl border border-pink-200 shadow-sm gap-2">
@@ -620,6 +625,35 @@ select option:checked {
                 </div>
             </div>
         </div>
+
+        <!-- 👇 เพิ่มกล่องของ ออนไลน์ ต่อจากกล่องของ Delivery เดิม -->
+            <div id="onlineInfoContainer" class="hidden mt-3 space-y-3">
+                <div class="relative w-full" id="onlineAppDropdownContainer">
+                    <input type="hidden" id="selectOnlineApp" value="shopee">
+                    <button type="button" onclick="toggleOnlineAppDropdown()" class="w-full flex items-center justify-between bg-white p-3 rounded-xl border-2 border-pink-200 shadow-sm hover:bg-pink-50 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition cursor-pointer text-left">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-gray-700 shrink-0">🌐 แพลตฟอร์ม:</span>
+                            <span id="onlineAppSelectedText" class="text-pink-700 font-bold">🛒 Shopee (GP 5%)</span>
+                        </div>
+                        <span class="text-pink-500 font-bold text-xs leading-none">▼</span>
+                    </button>
+                    <div id="onlineAppDropdownMenu" class="hidden absolute top-full left-0 mt-2 w-full bg-white border border-pink-100 rounded-xl shadow-lg overflow-hidden flex flex-col z-50">
+                        <div onclick="selectOnlineApp('shopee', '🛒 Shopee (GP 5%)', this)" class="px-4 py-3 cursor-pointer text-sm font-bold text-pink-700 hover:bg-pink-50 transition-colors border-b border-pink-50 bg-pink-50">
+                            🛒 Shopee (GP 5%)
+                        </div>
+                        <div onclick="selectOnlineApp('lazada', '🛒 Lazada (GP 5%)', this)" class="px-4 py-3 cursor-pointer text-sm font-bold text-pink-700 hover:bg-pink-50 transition-colors border-b border-pink-50">
+                            🛒 Lazada (GP 5%)
+                        </div>
+                        <div onclick="selectOnlineApp('tiktok', '🎵 TikTok (GP 4%)', this)" class="px-4 py-3 cursor-pointer text-sm font-bold text-pink-700 hover:bg-pink-50 transition-colors">
+                            🎵 TikTok (GP 4%)
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 bg-white p-3 rounded-xl border-2 border-pink-200 shadow-sm focus-within:border-pink-400 focus-within:ring-1 focus-within:ring-pink-400 transition">
+                   <input type="text" id="inputOnlineOrderId" oninput="syncCustomerDisplay()" placeholder="เลขออเดอร์ (เช่น #SHP-123)" class="w-full bg-transparent text-pink-700 font-bold focus:outline-none placeholder-pink-300">
+                </div>
+            </div>
+
         
         <div id="cartItems" class="flex-1 overflow-y-auto no-scrollbar space-y-3"></div>
         
@@ -780,13 +814,17 @@ select option:checked {
                             ต้นทุน
                         </th>
 
-                        <th class="p-4 font-bold text-emerald-600">
+                        <th class="p-4 font-bold text-pink-600">
                             ราคาหน้าร้าน
                         </th>
 
                         <th class="p-4 font-bold text-orange-500">
-                            ราคา 🛵
+                            ราคาเดริเวอร์รี่
+                        <!-- 👇 [ส่วนที่เพิ่ม] คอลัมน์ ราคา 🌐 ออนไลน์ 👇 -->
+                        <th class="p-4 font-bold text-emerald -500">
+                            ราคาออนไลน์
                         </th>
+
 
                         <th class="p-4 font-bold text-pink-600">
                             คงเหลือ
@@ -860,20 +898,25 @@ select option:checked {
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
                         <div>
                             <label class="block text-sm font-bold text-gray-500 mb-1">ต้นทุน</label>
                             <input type="number" id="prodCost" class="w-full p-3 rounded-xl border border-gray-200 focus:border-pink-400 outline-none transition text-sm font-bold text-gray-600 text-center">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-pink-600 mb-1">ราคาขาย <span class="text-pink-500">*</span></label>
-                            <input type="number" id="prodPrice" class="w-full p-3 rounded-xl border border-pink-200 bg-pink-50 focus:border-pink-400 outline-none transition font-bold text-pink-700 text-lg text-center">
+                            <label class="block text-sm font-bold text-pink -600 mb-1">ราคาขาย <span class="text-pink -500">*</span></label>
+                            <input type="number" id="prodPrice" class="w-full p-3 rounded-xl border border-pink -200 bg-pink -50 focus:border-pink -400 outline-none transition font-bold text-pink -700 text-lg text-center">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-pink-600 mb-1">ราคาแอป</label>
-                            <input type="number" id="prodDeliveryPrice" placeholder="ราคาเดลิเวอรี่" class="w-full p-3 rounded-xl border border-pink-200 bg-pink-50 focus:border-pink-400 outline-none transition font-bold text-pink-700 text-lg text-center">
+                            <label class="block text-sm font-bold text-orange-600 mb-1">ราคาแอป</label>
+                            <input type="number" id="prodDeliveryPrice" placeholder="ราคาเดลิเวอรี่" class="w-full p-3 rounded-xl border border-orange-200 bg-orange-50 focus:border-orange-400 outline-none transition font-bold text-orange-700 text-lg text-center">
                         </div>
                     </div>
+
+                    <div>
+                            <label class="block text-sm font-bold text-emerald-600 mb-1">ราคาออนไลน์ 🌐</label>
+                            <input type="number" id="prodOnlinePrice" placeholder="ราคาออนไลน์" class="w-full p-3 rounded-xl border border-emerald -200 bg-emerald-50 focus:border-emerald-400 outline-none transition font-bold text-emerald -700 text-lg text-center">
+                        </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                         <div>
@@ -1817,6 +1860,10 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
         <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-pink-50 transition" onclick="openDeliverySettings()">
     <div class="text-5xl mb-4">🛵</div><h3 class="font-bold text-lg text-pink-700">จัดการเดลิเวอรี่</h3>
 </div>
+<!-- 👇 เพิ่มปุ่มจัดการออนไลน์ ต่อจากปุ่มจัดการเดลิเวอรี่ -->
+          <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-pink-50 transition" onclick="openOnlineSettings()">
+            <div class="text-5xl mb-4">🌐</div><h3 class="font-bold text-lg text-pink-700">จัดการออนไลน์</h3>
+          </div>
     <div class="modern-card p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-pink-50 transition" onclick="openTableManagement()">
     <div class="text-5xl mb-4">🪑</div><h3 class="font-bold text-lg text-pink-700">จัดการโต๊ะ & QR</h3>
 </div>
@@ -2014,7 +2061,7 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
                 <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100">
 
                     <div class="flex flex-col">
-                        <span class="font-bold text-lg text-pink-800">
+                        <span class="font-bold text-lg text-gray-800">
                             🛵 ชำระเงินปลายทาง / เดลิเวอรี่
                         </span>
 
@@ -2028,7 +2075,32 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
                                id="toggleDeliveryPayment"
                                class="sr-only peer">
 
-                        <div class="w-11 h-6 bg-pink-200 rounded-full peer peer-checked:bg-pink-500
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-pink-500
+
+                             after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                             after:bg-white after:border after:border-gray-300 after:rounded-full
+                             after:h-5 after:w-5 after:transition-all
+                             peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+
+                <!-- ออนไลน์ -->
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-xl border border-gray-100 mt-4">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-lg text-gray-800">
+                            🌐 ชำระเงินแพลตฟอร์มออนไลน์
+                        </span>
+                        <span class="text-sm text-pink-600 mt-1">
+                            เปิดเพื่อให้มีตัวเลือกชำระเงินในโหมด "ออนไลน์"
+                        </span>
+                    </div>
+
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               id="toggleOnlinePayment"
+                               class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-pink-500
+
                              after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                              after:bg-white after:border after:border-gray-300 after:rounded-full
                              after:h-5 after:w-5 after:transition-all
@@ -2044,7 +2116,7 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
                             ✂️ แบ่งจ่าย
                         </span>
 
-                        <span class="text-sm text-gray-500 mt-1">
+                        <span class="text-sm text-pink-500 mt-1">
                             ชำระเงินหลายช่องทาง (เงินสดส่วนหนึ่ง + สแกนจ่ายส่วนที่เหลือ)
                         </span>
                     </div>
@@ -2077,6 +2149,32 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
 
     </div>
 
+</div>
+
+<!-- ================= หน้าจอ:ตั้งค่าแพลตฟอร์มออนไลน์ ================= -->
+<div id="onlineSettingsView" class="hidden w-full h-full p-6 overflow-y-auto bg-gray-50/50">
+  <div class="w-full min-h-full bg-white p-8 rounded-3xl shadow-sm border border-pink-100 flex flex-col">
+    
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
+      <div class="flex items-center gap-4">
+          <button onclick="closeOnlineSettings()" class="text-gray-500 hover:text-pink-600 bg-gray-100 hover:bg-pink-50 p-2 rounded-xl transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 class="text-2xl font-bold text-pink-800">🌐 ตั้งค่าแพลตฟอร์มออนไลน์ & ค่า GP</h1>
+      </div>
+      <button onclick="addOnlinePlatformRow('', 0)" class="bg-pink-600 text-white px-4 py-2.5 rounded-xl hover:bg-pink-700 transition shadow flex items-center gap-2 font-bold text-sm">
+          + เพิ่มแพลตฟอร์ม
+      </button>
+    </div>
+    
+    <div id="onlinePlatformsContainer" class="flex-1 space-y-3 overflow-y-auto pr-1 max-h-[60vh]">
+        <div class="text-center p-8 text-gray-400 font-bold">⏳ กำลังดึงข้อมูลแพลตฟอร์มออนไลน์...</div>
+    </div>
+    
+    <div class="pt-6 mt-auto border-t">
+       <button id="btnSaveOnline" onclick="saveOnlinePlatformsData()" class="w-full p-4 bg-pink-500 text-white rounded-xl font-bold text-xl shadow-md hover:bg-pink-600 transition">บันทึกตั้งค่าแพลตฟอร์มออนไลน์</button>
+    </div>
+  </div>
 </div>
 
    <!-- ================= หน้าจอ: ตั้งค่าใบเสร็จ ================= -->
@@ -3076,7 +3174,7 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-1">ส่วนสูงไม่เกิน (ซม.)</label>
-                        <input type="number" id="buffetChildHeightInput" class="w-full p-2.5 border rounded-xl outline-none text-center font-bold text-blue-500" placeholder="120">
+                        <input type="number" id="buffetChildHeightInput" class="w-full p-2.5 border rounded-xl outline-none text-center font-bold text-pink-500" placeholder="120">
                     </div>
                 </div>
             </div>
@@ -5114,7 +5212,7 @@ window.currentBranch = "<?= currentBranch ?>";
     window.currentStoreId = "<?= currentStoreId ?>";
 
 // 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
-const API_URL = "https://script.google.com/macros/s/AKfycbwoYiZEvKuN4u3DYy4T0xqcUscVwRAlCfDTHZRBVoBBsyUvJZvtLPnOXqKpd5n7Shh35g/exec";
+/*const API_URL = "https://script.google.com/macros/s/AKfycbwaXqbOFGMQltGnk-oLbKbyA65NxXGK3T4QeOog9bLTcGpIiGmQsWQOsG8N4yj8BNUpQQ/exec";
 
 // ================================================================
 // 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
@@ -5160,7 +5258,7 @@ const google = {
         }
     }
 };
-
+*/
 let cart = [];
     let currentCash = "0";
     let selectedPayment = "เงินสด";
@@ -5338,11 +5436,15 @@ function setOrderType(type, btnElement, isRecall = false) {
 
     let tableBox = document.getElementById('tableSelectedDisplayContainer');
     let deliveryBox = document.getElementById('deliveryInfoContainer');
+    let onlineBox = document.getElementById('onlineInfoContainer'); // 👈 เพิ่มบรรทัดนี้
 
     if (type === 'DineIn') {
         currentOrderType = 'โต๊ะ';
         if(tableBox) { tableBox.classList.remove('hidden'); tableBox.classList.add('flex'); }
         if(deliveryBox) deliveryBox.classList.add('hidden');
+        if(onlineBox) onlineBox.classList.add('hidden'); // 👈 เพิ่มบรรทัดนี้
+
+        switchPriceMode('store'); // 👈 เพิ่ม: บังคับใช้ "ราคาหน้าร้าน"
 
         // 🧠 ดักจับ: ถ้าไม่ใช่บิลเก่าเรียกคืน (Recall) ให้เด้งป๊อปอัปเลือกโต๊ะตามปกติ
         if (!isRecall) {
@@ -5352,44 +5454,62 @@ function setOrderType(type, btnElement, isRecall = false) {
     } else if (type === 'TakeAway') {
         currentOrderType = 'กลับบ้าน';
         if(tableBox) { tableBox.classList.add('hidden'); tableBox.classList.remove('flex'); }
+        if(onlineBox) onlineBox.classList.add('hidden'); // 👈 เพิ่มบรรทัดนี้
         if(deliveryBox) deliveryBox.classList.add('hidden');
         document.getElementById('inputTableNo').value = ''; 
+
+        switchPriceMode('store'); // 👈 เพิ่ม: บังคับใช้ "ราคาหน้าร้าน"
 
     } else if (type === 'Delivery') {
         currentOrderType = 'เดลิเวอรี่';
         if(tableBox) { tableBox.classList.add('hidden'); tableBox.classList.remove('flex'); }
         if(deliveryBox) deliveryBox.classList.remove('hidden');
+        if(onlineBox) onlineBox.classList.add('hidden'); // 👈 เพิ่มบรรทัดนี้
         document.getElementById('inputTableNo').value = ''; 
+
+        switchPriceMode('delivery'); // 👈 เพิ่ม: บังคับใช้ "ราคาเดลิเวอรี่ (GP)"
+
+} else if (type === 'Online') { // 👈 เพิ่มเงื่อนไขนี้ทั้งบล็อก
+        currentOrderType = 'ออนไลน์';
+        if(tableBox) { tableBox.classList.add('hidden'); tableBox.classList.remove('flex'); }
+        if(deliveryBox) deliveryBox.classList.add('hidden');
+        if(onlineBox) onlineBox.classList.remove('hidden');
+        document.getElementById('inputTableNo').value = ''; 
+
+        switchPriceMode('online'); // 👈 เพิ่ม: บังคับใช้ "ราคาเดลิเวอรี่ (GP)"
+
     }
 }
-
 // ==========================================
-// ตัวแปรและฟังก์ชันควบคุมโหมดราคา (สเตป 3 และ 4)
+// ตัวแปรและฟังก์ชันควบคุมโหมดราคา (อัปเดตให้รองรับ Online)
 // ==========================================
 
-// 1. ตั้งค่าเริ่มต้นเป็นโหมดหน้าร้าน
 let currentPriceMode = 'store'; 
 
-// 2. ฟังก์ชันสลับโหมดราคา (เรียกใช้ตอนกดปุ่ม 🏪 / 🛵)
 function switchPriceMode(mode) {
     currentPriceMode = mode;
     
     let btnStore = document.getElementById('btnModeStore');
     let btnDelivery = document.getElementById('btnModeDelivery');
+    let btnOnline = document.getElementById('btnModeOnline'); // ถ้ามีปุ่มแยกเฉพาะออนไลน์ (หรือใช้ร่วมกัน)
     
+    // รีเซ็ตสไตล์ปุ่มทั้งหมดเบื้องต้น
+    if (btnStore) btnStore.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm text-gray-500 hover:text-pink-600 transition-all flex items-center justify-center gap-2";
+    if (btnDelivery) btnDelivery.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm text-gray-500 hover:text-orange-500 transition-all flex items-center justify-center gap-2";
+    if (btnOnline) btnOnline.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm text-gray-500 hover:text-emerald-600 transition-all flex items-center justify-center gap-2";
+
     if (mode === 'delivery') {
-        // สลับปุ่มเป็นสีส้ม (เดลิเวอรี่)
-        btnStore.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm text-gray-500 hover:text-pink-600 transition-all flex items-center justify-center gap-2";
-        btnDelivery.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm bg-white shadow-sm text-orange-500 transition-all flex items-center justify-center gap-2";
+        if (btnDelivery) btnDelivery.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm bg-white shadow-sm text-orange-500 transition-all flex items-center justify-center gap-2";
         showToast("🛵 สลับเป็น ราคาเดลิเวอรี่", "info");
+    } else if (mode === 'online') {
+        if (btnOnline) btnOnline.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm bg-white shadow-sm text-emerald-600 transition-all flex items-center justify-center gap-2";
+        showToast("🌐 สลับเป็น ราคาออนไลน์", "info");
     } else {
-        // สลับปุ่มเป็นสีชมพู (หน้าร้าน)
-        btnStore.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm bg-white shadow-sm text-pink-600 transition-all flex items-center justify-center gap-2";
-        btnDelivery.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm text-gray-500 hover:text-orange-500 transition-all flex items-center justify-center gap-2";
+        if (btnStore) btnStore.className = "flex-1 sm:w-32 py-2 px-4 rounded-lg font-bold text-sm bg-white shadow-sm text-pink-600 transition-all flex items-center justify-center gap-2";
         showToast("🏪 สลับเป็น ราคาหน้าร้าน", "info");
     }
     
-    // รีเฟรชการ์ดสินค้าทันทีโดยใช้ข้อมูลเดิมที่โหลดมาแล้ว (ไม่ต้องรอโหลดเน็ตใหม่)
+    // รีเฟรชการ์ดสินค้าทันที
     if (window.allProductsData) {
         renderProductGrid(window.allProductsData);
     } else {
@@ -5412,67 +5532,85 @@ function renderProductGrid(data) {
         return;
     }
     
-    data.forEach(function(row) {
-        let name = row[1] || "ไม่มีชื่อ";
-        let category = row[2] || "";
-        let normalPrice = parseFloat(row[3]) || 0;
-        let deliveryPrice = (row[11] !== "" && row[11] !== undefined && row[11] !== null) ? parseFloat(row[11]) : normalPrice;
-        let isDeliveryMode = (currentPriceMode === 'delivery');
-        let activePrice = isDeliveryMode ? deliveryPrice : normalPrice;
-        
-        let imageUrl = row[8] || ""; 
-        let safeName = (name || "").toString().replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        let imageDisplay = imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-xl border border-gray-100 shadow-sm" onerror="this.outerHTML='<div class=\\'bg-red-50 w-full h-full rounded-xl flex items-center justify-center text-xs text-red-400\\'>รูปเสีย</div>'">` : `<div class="bg-pink-50 w-full h-full rounded-xl flex items-center justify-center text-4xl shadow-sm border border-pink-100">📦</div>`;
+data.forEach(function(row) {
+    let name = row[1] || "ไม่มีชื่อ";
+    let category = row[2] || "";
+    let normalPrice = parseFloat(row[3]) || 0;
+    
+    // ดึงราคาเดลิเวอรี่ (คอลัมน์ Index 11 ตามโครงสร้างเดิม)
+    let deliveryPrice = (row[11] !== "" && row[11] !== undefined && row[11] !== null) ? parseFloat(row[11]) : normalPrice;
+    
+    // 🌐 [เพิ่มใหม่] ดึงราคาออนไลน์จากคอลัมน์ Index 12
+let onlinePrice = (row[17] !== "" && row[17] !== undefined && row[17] !== null) ? parseFloat(row[17]) : normalPrice;    
+    // เช็กโหมดราคาปัจจุบัน
+    let isDeliveryMode = (currentPriceMode === 'delivery');
+    let isOnlineMode = (currentPriceMode === 'online'); // 🌐 เช็กโหมดออนไลน์
+    
+    // กำหนดราคาที่จะนำไปใช้งานและแสดงผลตามโหมดที่เลือก
+    let activePrice = normalPrice;
+    if (isDeliveryMode) {
+        activePrice = deliveryPrice;
+    } else if (isOnlineMode) {
+        activePrice = onlinePrice; // 🌐 ใช้ราคาออนไลน์
+    }
+    
+    let imageUrl = row[8] || "";
+    let safeName = (name || "").toString().replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    let imageDisplay = imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-xl border border-gray-100 shadow-sm" onerror="this.outerHTML='<div class=\\'bg-red-50 w-full h-full rounded-xl flex items-center justify-center text-xs text-red-400\\'>รูปเสีย</div>'">` : `<div class="bg-pink-50 w-full h-full rounded-xl flex items-center justify-center text-4xl shadow-sm border border-pink-100">📦</div>`;
 
-        let priceDisplayHtml = '';
-        if (isDeliveryMode && deliveryPrice > normalPrice) {
-            priceDisplayHtml = `
-                <div class="mt-auto pt-2 flex flex-col items-center">
-                    <span class="text-xs text-gray-400 line-through">฿${normalPrice.toFixed(2)}</span>
-                    <span class="text-orange-500 font-bold text-lg leading-none">฿${activePrice.toFixed(2)}</span>
-                </div>`;
-        } else {
-            priceDisplayHtml = `<p class="text-pink-600 font-bold text-center mt-auto text-lg pt-2">฿${activePrice.toFixed(2)}</p>`;
+    let priceDisplayHtml = '';
+    // ถ้าเป็นโหมดเดลิเวอรี่หรือออนไลน์ แล้วราคาต่างจากราคาปกติ สามารถทำไฮไลต์หรือขีดฆ่าได้ตามต้องการ
+    if (isDeliveryMode && deliveryPrice > normalPrice) {
+        priceDisplayHtml = `
+            <div class="mt-auto pt-2 flex flex-col items-center">
+                <span class="text-xs text-gray-400 line-through">฿${normalPrice.toFixed(2)}</span>
+                <span class="text-orange-500 font-bold text-lg leading-none">฿${activePrice.toFixed(2)}</span>
+            </div>`;
+    } else if (isOnlineMode && onlinePrice !== normalPrice) {
+        priceDisplayHtml = `
+            <div class="mt-auto pt-2 flex flex-col items-center">
+                <span class="text-xs text-gray-400 line-through">฿${normalPrice.toFixed(2)}</span>
+                <span class="text-emerald-600 font-bold text-lg leading-none">฿${activePrice.toFixed(2)}</span>
+            </div>`;
+    } else {
+        priceDisplayHtml = `<p class="text-pink-600 font-bold text-center mt-auto text-lg pt-2">฿${activePrice.toFixed(2)}</p>`;
+    }
+
+    // 🚨 ระบบเช็คสต็อก
+    let remaining = row[7]; 
+    let isUnlimited = (remaining === "" || remaining === null || remaining === undefined);
+    let stockNum = parseFloat(remaining);
+    
+    let isOutOfStock = !isUnlimited && stockNum <= 0;
+    let alertThreshold = 5; 
+    let isLowStock = !isUnlimited && stockNum > 0 && stockNum <= alertThreshold; 
+    
+    let cardClass = "modern-card product-item p-4 flex flex-col h-full relative ";
+    let onClickAction = `onclick="addToCart('${safeName}', ${activePrice}, '${row[10] || ''}')"`;
+    
+    let stockDisplayHtml = `<div class="text-[11px] text-transparent mt-1 text-center select-none h-4"></div>`; 
+    
+    if (isOutOfStock) {
+        cardClass += "bg-gray-100 opacity-60 cursor-not-allowed";
+        onClickAction = `onclick="showToast('สินค้าหมด! กรุณาเติมสต็อกก่อน', 'error')"`;
+        stockDisplayHtml = `<div class="text-[11px] text-red-500 font-bold mt-1 text-center h-4">สินค้าหมด</div>`;
+    } else {
+        cardClass += "cursor-pointer hover:bg-pink-50 transition";
+        if (isLowStock) {
+            stockDisplayHtml = `<div class="text-[11px] text-orange-500 font-bold mt-1 text-center h-4">คงเหลือ : ${stockNum}</div>`;
         }
+    }
 
-        // 🚨 ระบบเช็คสต็อก
-        let remaining = row[7]; 
-        let isUnlimited = (remaining === "" || remaining === null || remaining === undefined);
-        let stockNum = parseFloat(remaining);
-        
-        let isOutOfStock = !isUnlimited && stockNum <= 0;
-        
-        // 💡 ตั้งค่าแจ้งเตือนเมื่อเหลือน้อยกว่าหรือเท่ากับ 5 ชิ้น (เปลี่ยนตัวเลข 5 ตรงนี้ได้เลย)
-        let alertThreshold = 5; 
-        let isLowStock = !isUnlimited && stockNum > 0 && stockNum <= alertThreshold; 
-        
-        let cardClass = "modern-card product-item p-4 flex flex-col h-full relative ";
-        let onClickAction = `onclick="addToCart('${safeName}', ${activePrice}, '${row[10] || ''}')"`;
-        
-        // จองพื้นที่ความสูง (h-4) ไว้กันการ์ดกระโดดไม่เท่ากัน
-        let stockDisplayHtml = `<div class="text-[11px] text-transparent mt-1 text-center select-none h-4"></div>`; 
-        
-        if (isOutOfStock) {
-            cardClass += "bg-gray-100 opacity-60 cursor-not-allowed";
-            onClickAction = `onclick="showToast('สินค้าหมด! กรุณาเติมสต็อกก่อน', 'error')"`;
-            stockDisplayHtml = `<div class="text-[11px] text-red-500 font-bold mt-1 text-center h-4">สินค้าหมด</div>`;
-        } else {
-            cardClass += "cursor-pointer hover:bg-pink-50 transition";
-            if (isLowStock) {
-                // ถ้าสินค้าใกล้หมด ให้โชว์คำว่า "คงเหลือ : X" สีส้ม
-                stockDisplayHtml = `<div class="text-[11px] text-orange-500 font-bold mt-1 text-center h-4">คงเหลือ : ${stockNum}</div>`;
-            }
-        }
+    html += `
+    <div class="${cardClass}" data-category="${category}" ${onClickAction}>
+        <div class="h-28 w-full mb-3 flex items-center justify-center overflow-hidden rounded-xl bg-white relative">${imageDisplay}</div>
+        ${category ? `<span class="absolute top-2 left-2 bg-white/90 backdrop-blur text-pink-700 text-[10px] px-2 py-0.5 rounded-lg border border-pink-100 font-bold shadow-sm">${category}</span>` : ''}
+        <h3 class="font-bold text-center text-gray-800 line-clamp-2 text-sm z-10">${name}</h3>
+        ${priceDisplayHtml}
+        ${stockDisplayHtml}
+    </div>`;
+});
 
-        html += `
-        <div class="${cardClass}" data-category="${category}" ${onClickAction}>
-            <div class="h-28 w-full mb-3 flex items-center justify-center overflow-hidden rounded-xl bg-white relative">${imageDisplay}</div>
-            ${category ? `<span class="absolute top-2 left-2 bg-white/90 backdrop-blur text-pink-700 text-[10px] px-2 py-0.5 rounded-lg border border-pink-100 font-bold shadow-sm">${category}</span>` : ''}
-            <h3 class="font-bold text-center text-gray-800 line-clamp-2 text-sm z-10">${name}</h3>
-            ${priceDisplayHtml}
-            ${stockDisplayHtml}
-        </div>`;
-    });
     grid.innerHTML = html;
 }
 
@@ -5505,6 +5643,7 @@ function updateStoreUI(settings) {
   safeSetCheck('toggleHalf', !!settings.enableHalf);
   safeSetCheck('toggleSplit', !!settings.enableSplit);
   safeSetCheck('toggleDeliveryPayment', !!settings.enableDeliveryPayment);
+  safeSetCheck('toggleOnlinePayment', !!settings.enableOnlinePayment); // 👈 เพิ่มบรรทัดนี้
   togglePromptPayInput();
 
   // 3. อัปเดตภาษีและค่าบริการ
@@ -5613,7 +5752,7 @@ function showView(viewName) {
         'storeInfoView', 'paymentSettingsView', 'receiptSettingsView', 
         'taxServiceSettingsView', 'employeeSettingsView', 'barcodeSettingsView',
         'deliverySettingsView', 'tableManagementView', 'adSettingsView', 
-        'kitchenSettingsView', 'promotionsManagementView', 'soundSettingsView'
+        'kitchenSettingsView', 'promotionsManagementView', 'soundSettingsView','onlineSettingsView'
     ];
     settingsViews.forEach(id => { let el = document.getElementById(id); if (el) el.classList.add('hidden'); });
 
@@ -5785,7 +5924,8 @@ function savePaymentSettings() {
         promptPay: document.getElementById('settingPromptPay').value,
         enableHalf: document.getElementById('toggleHalf').checked,
         enableSplit: document.getElementById('toggleSplit').checked,
-        enableDeliveryPayment: document.getElementById('toggleDeliveryPayment').checked // 👉 ส่งค่าเดลิเวอรี่ไปเซฟ
+        enableDeliveryPayment: document.getElementById('toggleDeliveryPayment').checked,
+        enableOnlinePayment: document.getElementById('toggleOnlinePayment').checked // 👈 เพิ่มบรรทัดนี้
       };
       google.script.run.withSuccessHandler(function(res) {
         showToast("ตั้งค่าการชำระเงินเรียบร้อย!", "success");
@@ -5921,7 +6061,19 @@ function renderPaymentButtons() {
        } else {
            container.innerHTML = '<div class="w-full text-center text-red-500 font-bold text-sm py-2">กรุณาเปิดสวิตช์ระบบชำระเงินเดลิเวอรี่ก่อนครับ</div>';
        }
-   } else {
+   } 
+   // 👇 เพิ่มบล็อกนี้สำหรับ "ออนไลน์" 👇
+   else if (currentOrderType === 'ออนไลน์') {
+       if (s.enableOnlinePayment) {
+           // ปรับให้ปุ่มเป็นโทนสีฟ้า (Blue) ให้เข้ากับออนไลน์
+           container.innerHTML += '<button onclick="setPaymentType(\'ออนไลน์\')" id="btnออนไลน์" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-blue-200 text-blue-500 font-bold bg-white transition">แพลตฟอร์มออนไลน์</button>';
+           setPaymentType('ออนไลน์'); 
+       } else {
+           container.innerHTML = '<div class="w-full text-center text-red-500 font-bold text-sm py-2">กรุณาเปิดสวิตช์ชำระเงินออนไลน์ในหน้าตั้งค่าก่อนครับ</div>';
+       }
+   } 
+   // 👆 สิ้นสุดส่วนที่เพิ่ม 👆
+   else {
        if (isCashEnabled) container.innerHTML += '<button onclick="setPaymentType(\'เงินสด\')" id="btnเงินสด" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition hover:bg-gray-50">เงินสด</button>';
        if (s.enableTransfer) container.innerHTML += '<button onclick="setPaymentType(\'โอนเงิน\')" id="btnโอนเงิน" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition hover:bg-gray-50">โอนเงิน</button>';
        if (s.enableHalf) container.innerHTML += '<button onclick="setPaymentType(\'คนละครึ่ง\')" id="btnคนละครึ่ง" class="flex-1 min-w-[80px] p-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold bg-white transition hover:bg-gray-50">คนละครึ่ง</button>';
@@ -6177,6 +6329,11 @@ function confirmPayment() {
     const capturedDeliveryApp = document.getElementById('selectDeliveryApp') ? document.getElementById('selectDeliveryApp').value : '';
     const capturedDeliveryOrderId = document.getElementById('inputDeliveryOrderId') ? document.getElementById('inputDeliveryOrderId').value.trim() : '';
 
+// 👇 โค้ดดึงข้อมูลแพลตฟอร์มออนไลน์ (แก้ไข ID ให้ตรงกับ HTML แล้ว) 👇
+   const capturedOnlinePlatform = document.getElementById('onlineAppSelectedText') ? document.getElementById('onlineAppSelectedText').innerText.trim() : 'ไม่ระบุแพลตฟอร์ม';
+   const capturedOnlineOrderId = document.getElementById('inputOnlineOrderId') ? document.getElementById('inputOnlineOrderId').value.trim() : '';
+   // 👆 สิ้นสุดส่วนที่เพิ่ม 👆
+
     // 🟢 ล็อคชื่อพนักงานและสาขา ป้องกันค่าหายระหว่างรอเซิร์ฟเวอร์!
     let capturedUserLog = (typeof window !== 'undefined' && window.currentUser) ? window.currentUser : (typeof currentUser !== 'undefined' ? currentUser : "ไม่ระบุพนักงาน");
     let capturedBranchLog = (typeof window !== 'undefined' && window.currentBranch) ? window.currentBranch : (typeof currentBranch !== 'undefined' ? currentBranch : "สาขาหลัก");
@@ -6259,7 +6416,7 @@ let exactCash = 0; let exactTransfer = 0;
             let branchAddress = (branchInfo && branchInfo.desc && branchInfo.desc.trim() !== "") ? branchInfo.desc : (globalStoreSettings.address || "");
             let elAddress = document.getElementById('receiptAddress'); if(elAddress) elAddress.innerText = branchAddress;
 
-            // 🟢 แสดงชื่อโต๊ะ (จากค่าที่ล็อคไว้)
+      // 🟢 แสดงชื่อโต๊ะ (จากค่าที่ล็อคไว้)
             let finalTypeString = "";
             if (capturedOrderType === 'ทานที่ร้าน' || capturedTableNo !== "") { 
                 finalTypeString = capturedTableNo !== "" ? "โต๊ะ: " + capturedTableNo : "ทานที่ร้าน";
@@ -6267,7 +6424,13 @@ let exactCash = 0; let exactTransfer = 0;
                 finalTypeString = "กลับบ้าน";
             } else if (capturedOrderType === 'เดลิเวอรี่') {
                 finalTypeString = capturedDeliveryApp + (capturedDeliveryOrderId !== "" ? " " + capturedDeliveryOrderId : "");
-            } else {
+            } 
+            // 👇 เพิ่มเงื่อนไขนี้เข้าไปสำหรับ "ออนไลน์" 👇
+            else if (capturedOrderType === 'ออนไลน์') {
+                finalTypeString = `ออนไลน์ - ${capturedOnlinePlatform}` + (capturedOnlineOrderId !== "" ? ` (ออเดอร์: ${capturedOnlineOrderId})` : "");
+            }
+            // 👆 สิ้นสุดส่วนที่เพิ่ม 👆
+            else {
                 finalTypeString = capturedTableNo !== "" ? "โต๊ะ: " + capturedTableNo : "ทานที่ร้าน";
             }
             let elSlipType = document.getElementById('slipOrderTypeDisplay'); if(elSlipType) elSlipType.innerText = finalTypeString;
@@ -6390,6 +6553,10 @@ let exactCash = 0; let exactTransfer = 0;
             let dispTable = document.getElementById('displaySelectedTable'); if (dispTable) dispTable.innerText = "-";
             let typeDisp = document.getElementById('currentOrderTypeDisplay'); if (typeDisp) typeDisp.innerText = "-";
             
+            // 👇 [เพิ่มโค้ดส่วนนี้] เพื่อล้างค่าช่องเลขออเดอร์ออนไลน์ และเดลิเวอรี่ 👇
+            let inOnlineOrder = document.getElementById('inputOnlineOrderId'); if (inOnlineOrder) inOnlineOrder.value = "";
+            let inDeliveryOrder = document.getElementById('inputDeliveryOrderId'); if (inDeliveryOrder) inDeliveryOrder.value = "";
+
             if (typeof toggleTableDisplay === 'function') toggleTableDisplay(false);
             
             showToast("บันทึกรายการขายสำเร็จ!", "success", true);
@@ -7202,13 +7369,8 @@ function loadAllHistory() {
 // ============================================
 // ระบบจัดการสินค้า (Product Management)
 // ============================================
-
-
 // โหลดข้อมูลสินค้ามาลงตาราง (+ ดึงหมวดหมู่มาใส่ Dropdown)
 function loadAdminProducts() {
-    // ล้างตารางให้ว่างทันทีที่กดเข้าหน้า โดยไม่มีหน้าโหลด
-    document.getElementById('productTableBody').innerHTML = '';
-    
     google.script.run.withSuccessHandler(function(products) {
         currentAdminProducts = products;
         
@@ -7219,17 +7381,20 @@ function loadAdminProducts() {
         // สร้างตาราง
         let html = '';
         if(products.length === 0) {
-            // 👉 แก้ colspan จาก 8 เป็น 9 เพราะเราเพิ่มคอลัมน์มาอีก 1 ช่อง
-            html = '<tr><td colspan="9" class="p-8 text-center text-gray-400 font-bold">ยังไม่มีข้อมูลสินค้า 📭</td></tr>';
+            html = '<tr><td colspan="10" class="p-8 text-center text-gray-400 font-bold">ยังไม่มีข้อมูลสินค้า 📭</td></tr>';
         } else {
             products.forEach((p, index) => {
                 let safeName = p.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 let displayRemaining = p.remaining === "" ? '♾️ ไม่จำกัด' : p.remaining;
                 let imgTag = p.image ? `<img src="${p.image}" class="w-12 h-12 object-cover rounded-xl border">` : `📦`;
 
-                // 👉 เช็คว่ามีราคาเดลิเวอรี่ไหม ถ้ามีให้แสดง ถ้าไม่มีให้ขีด -
                 let displayDeliveryPrice = (p.deliveryPrice !== "" && p.deliveryPrice !== undefined && p.deliveryPrice !== null) 
                                             ? `฿${parseFloat(p.deliveryPrice).toFixed(2)}` 
+                                            : '-';
+
+                // 🌐 [เพิ่มใหม่] จัดรูปแบบราคาออนไลน์
+                let displayOnlinePrice = (p.onlinePrice !== "" && p.onlinePrice !== undefined && p.onlinePrice !== null) 
+                                            ? `฿${parseFloat(p.onlinePrice).toFixed(2)}` 
                                             : '-';
 
                 html += `
@@ -7239,20 +7404,20 @@ function loadAdminProducts() {
                     <td class="p-3 font-bold">${p.name}</td>
                     <td class="p-3">${p.category || '-'}</td>
                     <td class="p-3">฿${parseFloat(p.cost).toFixed(2)}</td>
-                    <td class="p-3 font-bold text-emerald-600">฿${parseFloat(p.price).toFixed(2)}</td>
-                    
+                    <td class="p-3 font-bold text-pink-600">฿${parseFloat(p.price).toFixed(2)}</td>
                     <td class="p-3 font-bold text-orange-500">${displayDeliveryPrice}</td>
-                    
+                    <td class="p-3 font-bold text-emerald-500">${displayOnlinePrice}</td>
                     <td class="p-3 font-bold text-pink-600">${displayRemaining}</td>
                     <td class="p-3 text-center">
-                           <button onclick="openRecipeManager('${safeName}', ${p.price})" class="px-3 py-2 bg-emerald-100 text-emerald-600 rounded-xl font-bold mr-1 hover:bg-emerald-200 transition">🍳 ผูกสูตร</button>
+                        <button onclick="openRecipeManager('${safeName}', ${p.price})" class="px-3 py-2 bg-emerald-100 text-emerald-600 rounded-xl font-bold mr-1 hover:bg-emerald-200 transition">🍳 ผูกสูตร</button>
                         <button onclick="openProductModal(${index})" class="px-3 py-2 bg-pink-50 text-pink-500 rounded-xl font-bold">แก้ไข</button>
                         <button onclick="deleteProduct(${p.rowIdx}, '${safeName}')" class="px-3 py-2 bg-red-50 text-red-500 rounded-xl font-bold">ลบ</button>
                     </td>
                 </tr>`;
             });
         }
-        document.getElementById('productTableBody').innerHTML = html;
+        let tbody = document.getElementById('productTableBody');
+        if (tbody) tbody.innerHTML = html;
     }).getAdminProducts();
 }
 
@@ -7264,10 +7429,9 @@ function openProductModal(index = -1) {
     
     let currentOptions = (index !== -1) ? (currentAdminProducts[index].options || '') : '';
     
-    // ฟังก์ชันตัวช่วยป้องกัน Error 100%
     const setValue = (id, val) => {
         let el = document.getElementById(id);
-        if (el) el.value = val;
+        if (el) el.value = val !== undefined && val !== null ? val : "";
     };
 
     if (index === -1) {
@@ -7280,6 +7444,7 @@ function openProductModal(index = -1) {
         setValue('prodUnit', ''); 
         setValue('prodPrice', '');
         setValue('prodDeliveryPrice', '');
+        setValue('prodOnlinePrice', ''); // เคลียร์ช่องราคาออนไลน์ตอนเพิ่มใหม่
         setValue('prodCost', '');
         setValue('prodStockIn', '');
         setValue('prodExistingImage', '');
@@ -7303,7 +7468,8 @@ function openProductModal(index = -1) {
         setValue('prodCategory', p.category);
         setValue('prodUnit', p.unit); 
         setValue('prodPrice', p.price);
-        setValue('prodDeliveryPrice', (p.deliveryPrice !== "" && p.deliveryPrice !== undefined && p.deliveryPrice !== null) ? p.deliveryPrice : "");
+        setValue('prodDeliveryPrice', p.deliveryPrice !== "" && p.deliveryPrice !== undefined ? p.deliveryPrice : "");
+        setValue('prodOnlinePrice', p.onlinePrice !== "" && p.onlinePrice !== undefined ? p.onlinePrice : ""); // 🌐 ดึงราคาออนไลน์เดิมขึ้นมาแสดงไม่ให้หาย
         setValue('prodCost', p.cost);
         setValue('prodStockIn', p.stockIn === "" ? "" : p.stockIn);
         setValue('prodManufactureDate', p.manufactureDate || "");
@@ -7333,7 +7499,6 @@ function openProductModal(index = -1) {
     let modal = document.getElementById('productFormModal');
     if (modal) modal.classList.remove('hidden');
 }
-
 // 2. ฟังก์ชันบันทึกข้อมูลสินค้า (โค้ดสมบูรณ์)
 function saveProduct() { 
     const getValue = (id, defaultVal = "") => {
@@ -7366,6 +7531,7 @@ function saveProduct() {
         price: parseFloat(getValue('prodPrice')) || 0,
         cost: parseFloat(getValue('prodCost')) || 0,
         deliveryPrice: getValue('prodDeliveryPrice') !== "" ? parseFloat(getValue('prodDeliveryPrice')) : "",
+        onlinePrice: getValue('prodOnlinePrice') !== "" ? parseFloat(getValue('prodOnlinePrice')) : "", // 🌐 [เพิ่มใหม่] ส่งราคาออนไลน์ไปหลังบ้าน
         stockIn: stockIn,
         sold: sold,
         remaining: remaining,
@@ -7396,6 +7562,8 @@ function saveProduct() {
             if (btn) btn.disabled = false;
             if (res === "Success") {
                 showToast("บันทึกข้อมูลสินค้าสำเร็จ!", "success");
+                // 🛑 เอาคำสั่ง document.getElementById('productTableBody').innerHTML = '' ออก เพื่อไม่ให้หน้าจอพริบหาย 
+                // ให้เรียกโหลดข้อมูลใหม่ทับลงไปแบบเนียนๆ ทันที
                 if(typeof loadAdminProducts === 'function') loadAdminProducts();
             } else {
                 showToast("Error: " + res, "error");
@@ -7403,7 +7571,6 @@ function saveProduct() {
         })
         .saveProductGS(data);
 }
-
 function closeProductModal() { document.getElementById('productFormModal').classList.add('hidden'); }
 
 // 🤫 ฟังก์ชันย่อย: ส่งข้อมูลไปเซฟหลังบ้านแบบไม่กระโตกกระตาก
@@ -10559,15 +10726,12 @@ function openRawMaterialForm(index = -1) {
     // กรณีเพิ่มใหม่
     if (index === -1) {
         document.getElementById('rmModalTitle').innerText = '➕ เพิ่มวัตถุดิบใหม่';
-        document.getElementById('rmRowIdx').value = '';
-        // ... (เคลียร์ค่าอื่นๆ เหมือนเดิม)
+        clearRawMaterialForm(); // 🟢 สั่งล้างค่าฟอร์มทั้งหมดให้เกลี้ยงตรงนี้
     } 
     // กรณีแก้ไข
     else {
-        // ดึงข้อมูลจาก index ที่ส่งมา
         let rm = window.globalRawMaterials[index];
         
-        // 🛡️ ป้องกันบั๊กถ้าข้อมูลหายหรือ index ผิดพลาด
         if (!rm) {
             console.error("ไม่พบข้อมูลวัตถุดิบที่ตำแหน่ง:", index);
             return;
@@ -10580,7 +10744,6 @@ function openRawMaterialForm(index = -1) {
         document.getElementById('rmCategory').value = rm.category || '';
         document.getElementById('rmUnit').value = rm.unit || '';
         
-        // คำนวณราคาซื้อย้อนกลับ
         let estimatedPurchasePrice = rm.costPerUnit * rm.stockIn;
         document.getElementById('rmPurchasePrice').value = estimatedPurchasePrice > 0 ? estimatedPurchasePrice.toFixed(2) : '';
         
@@ -10612,16 +10775,28 @@ function saveRawMaterial() {
     let btn = document.getElementById('btnSaveRawMaterial');
     btn.disabled = true; btn.innerText = "⏳ กำลังบันทึก...";
 
-    google.script.run.withSuccessHandler(function(res) {
+   google.script.run.withSuccessHandler(function(res) {
         btn.disabled = false; btn.innerText = "💾 บันทึกวัตถุดิบ";
         if(res === "Success") {
             showToast("บันทึกข้อมูลวัตถุดิบสำเร็จ!", "success");
+            clearRawMaterialForm(); // 🟢 เคลียร์ฟอร์มให้สะอาดหลังบันทึกสำเร็จ
             document.getElementById('rawMaterialFormModal').classList.add('hidden');
             loadRawMaterialsData(); // รีเฟรชตารางวัตถุดิบ
         } else {
             showToast("Error: " + res, "error");
         }
     }).saveRawMaterialGS(data);
+}
+
+function clearRawMaterialForm() {
+    let fields = ['rmRowIdx', 'rmMaterialId', 'rmName', 'rmCategory', 'rmUnit', 'rmPurchasePrice', 'rmStockIn', 'rmCostPerUnit', 'rmUsed'];
+    fields.forEach(id => {
+        let el = document.getElementById(id);
+        if (el) {
+            if (id === 'rmUsed') el.value = '0';
+            else el.value = '';
+        }
+    });
 }
 
 // ====================================================
@@ -17124,6 +17299,162 @@ function toggleSidebar() {
     backdrop.classList.add('hidden');
   }
 }
+
+
+// ==========================================
+// ควบคุมระบบแพลตฟอร์มออนไลน์
+// ==========================================
+let onlinePlatformsData = [];
+
+// 1. ฟังก์ชันโหลดข้อมูลแพลตฟอร์มออนไลน์
+function loadOnlinePlatforms() {
+    let container = document.getElementById('onlinePlatformsContainer');
+    container.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold">⏳ กำลังดึงข้อมูลแพลตฟอร์มออนไลน์...</div>';
+
+    google.script.run.withSuccessHandler(function(data) {
+        container.innerHTML = '';
+        onlinePlatformsData = [];
+        if (data && data.length > 1) { // ข้าม Header
+            for (let i = 1; i < data.length; i++) {
+                let name = data[i][0] || '';
+                let gp = data[i][1] || 0;
+                if (name) {
+                    onlinePlatformsData.push({name: name, gp: gp});
+                    addOnlinePlatformRow(name, gp);
+                }
+            }
+        }
+        // ถ้าไม่มีข้อมูลเลย ให้โชว์ช่องว่าง 1 แถว
+        if (onlinePlatformsData.length === 0) {
+            addOnlinePlatformRow('', 0); 
+        }
+        renderOnlineDropdown(); // อัปเดต Dropdown ในหน้าตะกร้า
+    }).getOnlinePlatforms();
+}
+
+// 2. ฟังก์ชันเพิ่มแถวตั้งค่าแพลตฟอร์มออนไลน์
+function addOnlinePlatformRow(name = '', gp = 0) {
+    let container = document.getElementById('onlinePlatformsContainer');
+    
+    // ลบข้อความ "กำลังดึงข้อมูล..." ถ้ามีอยู่
+    let loadingText = container.querySelector('.text-center.text-gray-400');
+    if (loadingText) loadingText.remove();
+
+    // ใช้วิธี createElement เพื่อต่อท้ายแถวใหม่ โดยไม่รบกวนหรือลบข้อมูลแถวเดิมที่พิมพ์ค้างไว้
+    let row = document.createElement('div');
+    row.className = 'flex gap-2 items-center bg-gray-50 p-2 rounded-xl border border-gray-100 online-platform-row mb-2';
+    
+    row.innerHTML = `
+        <input type="text" value="${name}" placeholder="ชื่อแพลตฟอร์ม (เช่น Shopee)" class="flex-1 p-3 rounded-lg border border-gray-200 outline-none focus:border-pink-500 font-bold text-gray-700 online-name-input">
+        <input type="number" value="${gp}" placeholder="0" class="w-20 p-3 rounded-lg border border-gray-200 outline-none focus:border-pink-500 font-bold text-center text-pink-600 online-gp-input">
+        <span class="text-gray-400 font-bold text-sm shrink-0">%GP</span>
+        <button onclick="this.parentElement.remove()" class="p-3 text-red-400 hover:bg-red-50 rounded-lg transition font-bold shrink-0">✖</button>
+    `;
+    
+    container.appendChild(row);
+}
+
+// 3. ฟังก์ชันบันทึกการตั้งค่าแพลตฟอร์มออนไลน์ (เวอร์ชันป้องกัน Error)
+function saveOnlinePlatformsData() {
+    let btn = document.getElementById('btnSaveOnline');
+    if (btn) {
+        btn.innerText = 'กำลังบันทึก...';
+        btn.disabled = true;
+    }
+
+    let rows = document.querySelectorAll('.online-platform-row');
+    let dataToSave = [];
+    
+    rows.forEach(row => {
+        // ค้นหาช่องกรอกข้อมูลในแถวนั้นๆ
+        let nameInput = row.querySelector('.online-name-input');
+        let gpInput = row.querySelector('.online-gp-input');
+        
+        // 🛡️ เช็คความปลอดภัย: ถ้าเจอช่องกรอกทั้ง 2 ช่อง ถึงจะดึงค่า (ป้องกัน Error Null)
+        if (nameInput && gpInput) {
+            let name = nameInput.value.trim();
+            let gp = parseFloat(gpInput.value) || 0;
+            
+            // ถ้ากรอกชื่อมา ค่อยจับยัดลงฐานข้อมูล
+            if (name !== "") {
+                dataToSave.push({name: name, gp: gp});
+            }
+        }
+    });
+
+    google.script.run.withSuccessHandler(function(res) {
+        if (btn) {
+            btn.innerText = 'บันทึกตั้งค่าแพลตฟอร์มออนไลน์';
+            btn.disabled = false;
+        }
+        
+        if (res === 'Success') {
+            showToast('บันทึกข้อมูลแพลตฟอร์มออนไลน์สำเร็จ!', 'success');
+            onlinePlatformsData = dataToSave;
+            if (typeof renderOnlineDropdown === 'function') {
+                renderOnlineDropdown(); // อัปเดต Dropdown ในหน้าตะกร้า
+            }
+        } else {
+            showToast('เกิดข้อผิดพลาด: ' + res, 'error');
+        }
+    }).saveOnlinePlatformsGS(JSON.stringify(dataToSave));
+}
+
+// 4. ฟังก์ชันอัปเดต Dropdown ในหน้าตะกร้าสินค้า
+function renderOnlineDropdown() {
+    let menu = document.getElementById('onlineAppDropdownMenu');
+    if(!menu) return;
+    
+    let html = '';
+    onlinePlatformsData.forEach(p => {
+        let text = `🛒 ${p.name} (GP ${p.gp}%)`;
+        let val = p.name.toLowerCase();
+        html += `<div onclick="selectOnlineApp('${val}', '${text}', this)" class="px-4 py-3 cursor-pointer text-sm font-bold text-pink-700 hover:bg-pink-50 transition-colors border-b border-pink-50">${text}</div>`;
+    });
+    
+    if(html === '') {
+         html = `<div class="px-4 py-3 text-sm font-bold text-gray-400">ยังไม่มีข้อมูลแพลตฟอร์ม</div>`;
+    }
+    menu.innerHTML = html;
+    
+    // ตั้งค่าเริ่มต้นให้อันแรก
+    if(onlinePlatformsData.length > 0) {
+         let first = onlinePlatformsData[0];
+         document.getElementById('selectOnlineApp').value = first.name.toLowerCase();
+         document.getElementById('onlineAppSelectedText').innerText = `🛒 ${first.name} (GP ${first.gp}%)`;
+    }
+}
+
+// 5. ฟังก์ชันเปิดปิด Dropdown เลือกแพลตฟอร์ม
+function toggleOnlineAppDropdown() {
+    document.getElementById('onlineAppDropdownMenu').classList.toggle('hidden');
+}
+
+function selectOnlineApp(value, text, element) {
+    document.getElementById('selectOnlineApp').value = value;
+    document.getElementById('onlineAppSelectedText').innerText = text;
+    document.getElementById('onlineAppDropdownMenu').classList.add('hidden');
+}
+
+// 6. อัปเดตฟังก์ชันเปิดหน้าตั้งค่า (ให้โหลดข้อมูลอัตโนมัติ)
+function openOnlineSettings() {
+  document.getElementById('settingsView').classList.add('hidden');
+  document.getElementById('onlineSettingsView').classList.remove('hidden');
+  loadOnlinePlatforms(); // สั่งให้ดึงข้อมูลจากหลังบ้าน
+}
+
+function closeOnlineSettings() {
+  document.getElementById('onlineSettingsView').classList.add('hidden');
+  document.getElementById('settingsView').classList.remove('hidden');
+}
+
+
+
+// โหลดข้อมูลแพลตฟอร์มมาเตรียมไว้ตอนเปิดแอป
+window.addEventListener('DOMContentLoaded', (event) => {
+    // หน่วงเวลาเล็กน้อยให้ระบบหลักโหลดเสร็จก่อน
+    setTimeout(() => { loadOnlinePlatforms(); }, 2000); 
+});
 
 // ==========================================
 // ใส่คำสั่งโหลดแคชออปชันเผื่อไว้ตอนเปิดเบราว์เซอร์ครั้งแรก
