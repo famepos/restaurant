@@ -502,10 +502,10 @@ select option:checked {
             <span class="text-xl">⏱️</span> <span class="block md:hidden lg:block">จัดการกะ</span>
         </a>
         
-        <!-- เมนู CDS ไม่มีหน้าต่าง showView ให้ใส่โค้ดจัดการปิดเมนูตรงนี้เลยได้ครับ -->
-        <a id="nav-cds" onclick="if(window.innerWidth < 1024) toggleSidebar(); syncCustomerDisplay(); window.open('https://famepos.github.io/restaurant/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
-            <span class="text-xl">🖥️</span> <span class="block md:hidden lg:block">หน้าจอลูกค้า (CDS)</span>
-        </a>
+<!-- เมนู CDS ไม่มีหน้าต่าง showView ให้ใส่โค้ดจัดการปิดเมนูตรงนี้เลยได้ครับ -->
+<a id="nav-cds" onclick="if(window.innerWidth < 1024) toggleSidebar(); syncCustomerDisplay(); window.open('/cds.html', '_blank')" class="flex items-center gap-3 text-gray-500 p-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 font-semibold cursor-pointer transition">
+    <span class="text-xl">🖥️</span> <span class="block md:hidden lg:block">หน้าจอลูกค้า (CDS)</span>
+</a>
     </div>
 
  <!-- 👇 เพิ่ม pb-12 md:pb-4 เข้าไปตรงนี้ครับ -->
@@ -5320,54 +5320,15 @@ class="hidden bg-white p-6 rounded-2xl border border-purple-100 shadow-sm flex-1
 window.currentBranch = localStorage.getItem('currentBranch') || "สาขาหลัก";
 window.currentStoreId = localStorage.getItem('currentStoreId') || "";
 
-// 1. ใส่ลิงก์หลังบ้านของคุณเฟรมไว้บนสุด
-        const API_URL = "https://script.google.com/macros/s/AKfycbwHmG_j6fmCAo9AsqWWhwLZ7mGHOeUn7fUAbcZ8a8REopMo0jGoIo_ymhzcSP0eqA_UXg/exec";
 
-// ================================================================
-// 🧙‍♂️ MAGIC PROXY (V2): ทะลวงบล็อก CORS ให้ใช้งานบน GitHub ได้ 100%
-// ================================================================
-const google = {
-    script: {
-        get run() {
-            let successCb = null;
-            let failureCb = null;
-            
-            const proxy = new Proxy({}, {
-                get: function(target, prop) {
-                    if (prop === 'withSuccessHandler') {
-                        return function(cb) { successCb = cb; return proxy; };
-                    }
-                    if (prop === 'withFailureHandler') {
-                        return function(cb) { failureCb = cb; return proxy; };
-                    }
-                    return function(...args) {
-                        // ⚡ เพิ่ม Header และ redirect เพื่อป้องกันการโดนบล็อก
-                        fetch(API_URL, {
-                            method: "POST",
-                            headers: { "Content-Type": "text/plain;charset=utf-8" },
-                            body: JSON.stringify({ action: prop, args: args }),
-                            redirect: "follow"
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if(data.status === "Success" && successCb) {
-                                successCb(data.result);
-                            } else if (data.status !== "Success" && failureCb) {
-                                failureCb(data.message);
-                            }
-                        })
-                        .catch(err => {
-                            if(failureCb) failureCb(err);
-                            else console.error("Fetch Error:", err);
-                        });
-                    };
-                }
-            });
-            return proxy;
-        }
-    }
-};
+// 🌐 ใส่ลิงก์ Web App จาก Google Apps Script ตัวล่าสุดของคุณที่นี่ที่เดียว
+    const API_URL = https://script.google.com/macros/s/AKfycbwHmG_j6fmCAo9AsqWWhwLZ7mGHOeUn7fUAbcZ8a8REopMo0jGoIo_ymhzcSP0eqA_UXg/exec"; 
 
+    window.onload = function() {
+        // โหลดข้อมูลเริ่มต้นของระบบปกติ
+        if (typeof checkSession === 'function') checkSession();
+    };
+    
 let cart = [];
     let currentCash = "0";
     let selectedPayment = "เงินสด";
@@ -6218,7 +6179,8 @@ function renderPaymentButtons() {
 }
 
 function setPaymentType(type) {
-    window.currentPaymentType = type;
+  window.currentPaymentType = type;
+  
     let s = globalStoreSettings;
     let isCashEnabled = s.enableCash !== false;
     if (type === 'เงินสด' && !isCashEnabled) return;
@@ -7116,7 +7078,7 @@ window.playSound = function(filename) {
         'cashier.mp3': 'cashier',
         'bellding.mp3': 'bellding',
         'doorbell.mp3': 'doorbell',
-        'new-notification.mp3': 'noti', // ตัวนี้แหละที่ใช้เรียกเก็บเงิน
+        'new-notification.mp3': 'noti', 
         'success.mp3': 'success',
         'discard.mp3': 'discard',
         'error.mp3': 'error'
@@ -7132,7 +7094,8 @@ window.playSound = function(filename) {
 
     // 5. เล่นเสียง
     try {
-        const baseUrl = "https://famepos.github.io/restaurant/";
+        // 🟢 แก้ไขตรงนี้ให้ชี้ไปที่ Root ของ Vercel
+        const baseUrl = "/";
         const audio = new Audio(baseUrl + filename);
         audio.play().catch(e => console.warn("Audio play blocked:", e));
     } catch(e) { console.log(e); }
